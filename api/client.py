@@ -14,3 +14,7 @@ class DisBotCommands(DisBot):
 class DisBotSlash(DisBot):
     def __init__(self, token):
         super(DisBotSlash, self).__init__(token, DisBotType.slash)
+
+class DisBotChatMessage(DisBot):
+    def __init__(self, token):
+        super(DisBotChatMessage, self).__init__(token, DisBotType.chat_message)
