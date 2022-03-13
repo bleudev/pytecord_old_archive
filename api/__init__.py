@@ -14,7 +14,7 @@ class DisErr:
 
 
 class Errors:
-    DisBotInitErr = DisErr("b001", "Invalid prefix in creating message bot! Error code")
+    DisBotInitErr = DisErr("b001", "Invalid type of bot")
 
     @staticmethod
     def raiseerr(obj: DisErr):
