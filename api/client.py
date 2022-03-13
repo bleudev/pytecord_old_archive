@@ -7,7 +7,7 @@ class DisBot:
         self.token = token
         self.type = type
         if type == 1:
-            if prefix != None
+            if prefix != None:
                 return DisBotCommands(token, prefix)
             else:
                 err.raiseerr(err.DisBotInitErr)
@@ -19,7 +19,7 @@ class DisBot:
 
 class DisBotCommands(DisBot):
     def __init__(self, token, prefix):
-       super(DisBotCommands, self).__init__(token, DisBotType.commands)
+        super(DisBotCommands, self).__init__(token, DisBotType.commands)
         self.prefix = prefix
 
 
