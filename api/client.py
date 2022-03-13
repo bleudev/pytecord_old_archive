@@ -1,11 +1,20 @@
 from api import DisBotType
+from api import Errors as err
 
 
 class DisBot:
-    def __init__(self, token, type):
+    def __init__(self, token, type, prefix=None):
         self.token = token
         self.type = type
-        if type == 1
+        if type == 1:
+            if prefix != None
+                return DisBotCommands(token, prefix)
+            else:
+                err.raiseerr(err.DisBotInitErr)
+        elif type == 2:
+            return DisBotSlash(token)
+        elif type == 3:
+            return DisBotChatMessage(token)
 
 
 class DisBotCommands(DisBot):
