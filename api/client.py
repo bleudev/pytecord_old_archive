@@ -1,11 +1,13 @@
-from api import Errors as err
+from api import Errors as Err
 from api.http.rest import Rest
+from api.channel import Channel
+
 
 class DisBot:
     def __init__(self, token: str, prefix="!"):
         self._rest = Rest(token)
         if prefix == "" or " " in prefix:
-            err.raiseerr(err.DisBotInitErr)
+            Err.raiseerr(Err.DisBotInitErr)
         else:
             self.prefix = prefix
 
@@ -16,4 +18,7 @@ class DisBot:
             elif type == "ready":
                 self.on_ready = func
             else:
-                err.raiseerr(err.DisBotEventErr)
+                Err.raiseerr(Err.DisBotEventErr)
+
+    def get_channel(self, id: int):
+        return Channel(self._rest.get('channel', id), self._rest)

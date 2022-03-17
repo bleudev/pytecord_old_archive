@@ -1,6 +1,4 @@
 from api.http.rest import Rest
-from api.guild import Guild
-from api.client import DisBot
 
 class Channel:
     def __init__(self, data: dict, rest: Rest):
