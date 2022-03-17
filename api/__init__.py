@@ -1,10 +1,9 @@
 import api.client
 
 
-class DisBotType:
-    commands = 1
-    slash = 2
-    chat_message = 3
+class DisBotEventType:
+    on_message = "messagecreate"
+    on_ready = "ready"
 
 
 class DisErr:
@@ -14,7 +13,7 @@ class DisErr:
 
 
 class Errors:
-    DisBotInitErr = DisErr("b001", "Invalid type of bot")
+    DisBotInitErr = DisErr("b001", "Invalid prefix of bot")
 
     @staticmethod
     def raiseerr(obj: DisErr):
