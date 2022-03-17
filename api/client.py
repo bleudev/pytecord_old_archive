@@ -1,10 +1,10 @@
 from api import Errors as err
-from api.http import rest
+from api.http.rest import Rest
 
 class DisBot:
     def __init__(self, token: str, prefix="!"):
-        self.rest = rest.Rest(token)
-        if prefix == "" or prefix.startswith(" "):
+        self._rest = Rest(token)
+        if prefix == "" or " " in prefix:
             err.raiseerr(err.DisBotInitErr)
         else:
             self.prefix = prefix
