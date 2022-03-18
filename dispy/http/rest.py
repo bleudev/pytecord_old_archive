@@ -17,4 +17,4 @@ class Rest:
                             headers={'Authorization': f'Bot {self.token}'}).json()
 
     def send_message(self, channel_id, post):
-        return requests.post(f'https://discord.com/api/v10/channels/{channel_id}/messages', data = post, headers={'Authorization': f'Bot {self.token}'}).json()
+        print( requests.post(f'https://discord.com/api/v10/channels/{channel_id}/messages', json = post, headers={'Authorization': f'Bot {self.token}'}).json())

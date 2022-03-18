@@ -1,6 +1,6 @@
-from api import Errors as Err
-from api.http.rest import Rest
-from api.channel import Channel
+from .err import Errors as Err
+from .http.rest import Rest
+from .channel import Channel
 
 
 class DisBot:
