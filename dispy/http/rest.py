@@ -1,6 +1,6 @@
-import requests
 import aiohttp
-import asyncio
+import requests
+
 
 class Rest:
     def __init__(self, token):
@@ -21,4 +21,3 @@ class Rest:
     async def send_message(self, channel_id, post):
         async with aiohttp.ClientSession() as session:
             await session.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post, headers={'Authorization': f'Bot {self.token}'})
-

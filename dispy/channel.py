@@ -8,8 +8,8 @@ class Channel:
         self.last_message_id = data['last_message_id']
         self.guild_id = data["guild_id"]
 
-    def send(self, content=None, embeds=None, embed=None):
+    async def send(self, content=None, embeds=None, embed=None):
         if embed is not None:
-            self._rest.send_message(self.id, {"content": content, "embeds": [embed]})
+            await self._rest.send_message(self.id, {"content": content, "embeds": [embed]})
         else:
-            self._rest.send_message(self.id, {"content": content, "embeds": embeds})
+            await self._rest.send_message(self.id, {"content": content, "embeds": embeds})
