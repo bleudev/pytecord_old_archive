@@ -1,74 +1,43 @@
 from math import floor
 from random import random
 
+
 class DisColor:
-    def DEFAULT():
-        return 0
-    def AQUA():
-        return 1752220
-    def DARK_AQUA():
-        return 1146986	
-    def GREEN():
-        return 3066993
-    def DARK_GREEN():
-        return 2067276
-    def BLUE():
-        return 3447003
-    def DARK_BLUE():
-        return 2123412
-    def PURPLE():
-        return 10181046
-    def DARK_PURPLE():
-        return 7419530
-    def LUMINOUS_VIVID_PINK():
-        return 15277667
-    def DARK_VIVID_PINK():
-        return 11342935
-    def GOLD():
-        return 15844367
-    def DARK_GOLD():
-        return 12745742
-    def ORANGE():
-        return 15105570
-    def DARK_ORANGE():
-        return 11027200
-    def RED():
-        return 15158332
-    def DARK_RED():
-        return 10038562
-    def GREY():
-        return 9807270
-    def DARK_GREY():
-        return 9936031	
-    def DARKER_GREY():
-        return 8359053
-    def LIGHT_GREY():
-        return 12370112
-    def NAVY():
-        return 3426654
-    def DARK_NAVY():
-        return 2899536
-    def YELLOW():
-        return 16776960
-    def WHITE():
-        return 16777215	
-    def BLURPLE():
-        return 5793266
-    def GREYPLE():
-        return 10070709	
-    def DARK_BUT_NOT_BLACK():
-        return 2895667
-    def NOT_QUITE_BLACK():
-        return 2303786
-    def OFFICIAL_GREEN():
-        return 5763719
-    def OFFICIAL_YELLOW():
-        return 16705372
-    def FUSCHIA():
-        return 15418782
-    def OFFICIAL_RED():
-        return 15548997
-    def BLACK():
-        return 2303786
+    DEFAULT = 0
+    AQUA = 1752220
+    DARK_AQUA = 1146986
+    GREEN = 3066993
+    DARK_GREEN = 2067276
+    BLUE = 3447003
+    DARK_BLUE = 2123412
+    PURPLE = 10181046
+    DARK_PURPLE = 7419530
+    LUMINOUS_VIVID_PINK = 15277667
+    DARK_VIVID_PINK = 11342935
+    GOLD = 15844367
+    DARK_GOLD = 12745742
+    ORANGE = 15105570
+    DARK_ORANGE = 11027200
+    RED = 15158332
+    DARK_RED = 10038562
+    GREY = 9807270
+    DARK_GREY = 9936031
+    DARKER_GREY = 8359053
+    LIGHT_GREY = 12370112
+    NAVY = 3426654
+    DARK_NAVY = 2899536
+    YELLOW = 16776960
+    WHITE = 16777215
+    BLURPLE = 5793266
+    GREYPLE = 10070709
+    DARK_BUT_NOT_BLACK = 2895667
+    NOT_QUITE_BLACK = 2303786
+    OFFICIAL_GREEN = 5763719
+    OFFICIAL_YELLOW = 16705372
+    FUSCHIA = 15418782
+    OFFICIAL_RED = 15548997
+    BLACK = 2303786
+
+    @staticmethod
     def RANDOM():
         return floor(random() * 16777214) + 1
