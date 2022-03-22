@@ -11,7 +11,7 @@ assignees: ''
 Testing
 **Ideal solution**
 ```python
-@bot.event
+@bot.command()
 async def test(ctx):
     await ctx.send("Test!")
 ```
