@@ -1,13 +1,14 @@
 import asyncio
+import dispy.http.rest
 
 from .err import Errors as Err
-from .http.rest import Rest
-from .channel import Channel
+from .channel import DisChannel
+from .guild import DisGuild
 
 
 class DisBot:
     def __init__(self, token: str, prefix="!"):
-        self._rest = Rest(token)
+        self._rest = dispy.http.rest.Rest(token)
         self.isready = False
         if prefix == "" or " " in prefix:
             Err.raiseerr(Err.DisBotInitErr)
@@ -39,4 +40,7 @@ class DisBot:
         asyncio.run(loop())
 
     def get_channel(self, id: int):
-        return Channel(self._rest.get('channel', id), self._rest)
+        return DisChannel(self._rest.get('channel', id), self._rest)
+
+    def get_guild(self, id: int):
+        return DisGuild(self._rest.get('guild', id), self._rest)

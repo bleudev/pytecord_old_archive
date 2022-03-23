@@ -1,8 +1,9 @@
-from .http.rest import Rest
+import dispy.http.rest
 from .embed import DisEmbed
 
-class Channel:
-    def __init__(self, data: dict, rest: Rest):
+
+class DisChannel:
+    def __init__(self, data: dict, rest: dispy.http.rest.Rest):
         self._rest = rest
         self.id = data['id']
         self.last_message_id = data['last_message_id']
