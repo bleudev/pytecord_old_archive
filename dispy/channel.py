@@ -13,19 +13,36 @@ class DisChannel:
     def __eq__(self, other):
         return self.id == other.id
 
-    async def send(self, content: str = None, embeds: list[DisEmbed] = None, embed: DisEmbed = None):
-        if embed is not None:
+    async def send(self, content: str = None, embeds: list[DisEmbed] = None):
+        """
+        Sending messages to discord channel
+
+        :param content: str = None -> Content of message which will be sended (default is None)
+        :param embeds: list[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
+        :return: None
+        """
+
+        embeds_send_json = []
+        if embeds:
+            for e in embeds:
+                embeds_send_json.append(e.tojson())
+
+            await self._rest.send_message(self.id, {"content": content, "embeds": embeds_send_json})
+        else:
+            await self._rest.send_message(self.id, {"content": content})
+
+    async def send(self, content: str = None, embed: DisEmbed = None):
+        """
+        Sending messages to discord channel
+
+        :param content: str = None -> Content of message which will be sended (default is None)
+        :param embed: DisEmbed = None -> Embed for message (DisEmbed - embed) (default is None)
+        :return: None
+        """
+        if embed:
             await self._rest.send_message(self.id, {"content": content, "embeds": [embed.tojson()]})
         else:
-            if embeds is not None:
-                embeds_send_json = []
-
-                for e in embeds:
-                    embeds_send_json.append(e.tojson())
-
-                await self._rest.send_message(self.id, {"content": content, "embeds": embeds_send_json})
-            else:
-                await self._rest.send_message(self.id, {"content": content})
+            await self._rest.send_message(self.id, {"content": content})
 
     def fetch(self, id: int):
         return DisMessage(self._rest.fetch(self.id, id))
