@@ -33,11 +33,7 @@ class DisBot:
     def run(self):
         self.isready = True
 
-        async def loop():
-            if self.isready:
-                asyncio.run(self.on_ready())
-
-        asyncio.run(loop())
+        asyncio.run(self.on_ready())
 
     def get_channel(self, id: int):
         return DisChannel(self._rest.get('channel', id), self._rest)

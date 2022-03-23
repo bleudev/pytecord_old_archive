@@ -13,9 +13,13 @@ class DisChannel:
         if embed is not None:
             await self._rest.send_message(self.id, {"content": content, "embeds": [embed.tojson()]})
         else:
-            embeds_send_json = []
+            if embeds is not None:
+                embeds_send_json = []
 
-            for e in embeds:
-                embeds_send_json.append(e.tojson())
+                for e in embeds:
+                    embeds_send_json.append(e.tojson())
 
-            await self._rest.send_message(self.id, {"content": content, "embeds": embeds_send_json})
+                await self._rest.send_message(self.id, {"content": content, "embeds": embeds_send_json})
+            else:
+                await self._rest.send_message(self.id, {"content": content})
+
