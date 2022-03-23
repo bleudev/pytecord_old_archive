@@ -1,5 +1,6 @@
 import dispy.http.rest
 from .embed import DisEmbed
+from .message import DisMessage
 
 
 class DisChannel:
@@ -8,6 +9,9 @@ class DisChannel:
         self.id = data['id']
         self.last_message_id = data['last_message_id']
         self.guild_id = data["guild_id"]
+
+    def __eq__(self, other):
+        return self.id == other.id
 
     async def send(self, content: str = None, embeds: list[DisEmbed] = None, embed: DisEmbed = None):
         if embed is not None:
@@ -23,3 +27,5 @@ class DisChannel:
             else:
                 await self._rest.send_message(self.id, {"content": content})
 
+    def fetch(self, id: int):
+        return DisMessage(self._rest.fetch(self.id, id))
