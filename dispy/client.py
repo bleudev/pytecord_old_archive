@@ -29,6 +29,7 @@ class DisBot:
                 self.on_ready = func
             else:
                 print("Error in on() - Invalid type of event (read docs)")
+        return wrapper
 
     def run(self):
         self.isready = True
