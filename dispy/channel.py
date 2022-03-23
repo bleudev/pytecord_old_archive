@@ -5,12 +5,24 @@ from .message import DisMessage
 
 class DisChannel:
     def __init__(self, data: dict, rest: dispy.http.rest.Rest):
+        """
+        Creating an object DisChannel
+
+        :param data: dict -> data of the channel (json format)
+        :param rest: Rest -> rest client with token for channel
+        """
         self._rest = rest
         self.id = data['id']
         self.last_message_id = data['last_message_id']
         self.guild_id = data["guild_id"]
 
     def __eq__(self, other):
+        """
+        __eq__ have using in "==" operator
+
+        :param other: Other object (DisChannel)
+        :return: bool -> if id of this object equals with id of other object returns :True:, else :False:
+        """
         return self.id == other.id
 
     async def send(self, content: str = None, embeds: list[DisEmbed] = None):
@@ -46,3 +58,7 @@ class DisChannel:
 
     def fetch(self, id: int):
         return DisMessage(self._rest.fetch(self.id, id))
+
+class DisDm:
+    def __init__(self, data):
+        self.id = data["id"]
