@@ -1,14 +1,24 @@
 import asyncio
 import dispy.http.rest
+import dispy.http.gateway
 
 from .err import Errors as Err
 from .channel import DisChannel
 from .guild import DisGuild
+from typing import *
 
 
 class DisBot:
-    def __init__(self, token: str, prefix="!"):
-        self._rest = dispy.http.rest.Rest(token)
+    def __init__(self, token: str, prefix: Optional[str]="!"):
+        """
+        Create bot
+
+        :param token: str -> Discord Developers Portal Bot Token
+        :param prefix: -> Prefix for bot
+        """
+        self._rest = dispy.http.Rest(token)
+        self._gateway = dispy.http.Gateway(self._rest)
+
         self.isready = False
         if prefix == "" or " " in prefix:
             Err.raiseerr(Err.DisBotInitErr)
@@ -20,6 +30,14 @@ class DisBot:
 
     def on_message(self, message):
         return
+
+    async def mainloop(self):
+        while True:
+            if self.isready:
+                continue
+                # Main settings
+            else:
+                continue
 
     def on(self, type: str):
         def wrapper(func):
@@ -35,6 +53,7 @@ class DisBot:
         self.isready = True
 
         asyncio.run(self.on_ready())
+        asyncio.run(self.mainloop())
 
     def get_channel(self, id: int):
         return DisChannel(self._rest.get('channel', id), self._rest)

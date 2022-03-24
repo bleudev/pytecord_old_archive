@@ -1,1 +1,2 @@
-from .rest import Rest
+from .rest import *
+from .gateway import *

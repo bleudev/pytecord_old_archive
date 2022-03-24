@@ -1,9 +1,9 @@
-from .client import *
+from .client import DisBot
 from .err import *
-from .guild import *
-from .channel import *
-from .embed import *
-from .color import *
+from .guild import DisGuild
+from .channel import DisChannel
+from .embed import DisEmbed, DisField
+from .color import DisColor
 
 __version__ = "0.1beta"
 __github__ = "https://github.com/itttgg/dispy"
@@ -23,5 +23,10 @@ class DisBotEventType:  # Event type for DisBot
     __class__
     This is class, not an object
     """
-    ON_MESSAGE = "messagecreate"
-    ON_READY = "ready"
+    @property
+    def ON_MESSAGE(self):
+        return "messagecreate"
+
+    @property
+    def ON_READY(self):
+        return "ready"
