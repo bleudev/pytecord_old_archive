@@ -1,8 +1,32 @@
-import requests
-import dispy.http.rest
+import websocket
+import json
+import threading
+import time
 
+def send_json_request(ws, request):
+    ws.send(json.dumps(request))
 
-class Gateway:
-    def __init__(self, _rest: dispy.http.rest.Rest):
-        self._rest = _rest
-        self._link = requests.get("https://discord.com/api/v10/gateway", headers=self._rest._headers())
+def recieve_json_response(ws):
+    responce = ws.recv()
+    if responce:
+        return json.loads(responce)
+
+def heartbeat(interval, ws):
+    print("Heartbeat begin")
+    while True:
+        time.sleep(interval)
+        heartbeatJSON = {
+            "op": 1,
+            "d": "null"
+        }
+        send_json_request(ws, heartbeatJSON)
+        print("Heartbeat sent")
+
+ws = websocket.WebSocket()
+ws.connect("wss://gateway.discord.gg/?v=9&encoding=json")
+event = recieve_json_response(ws)
+
+heartbeat_inverval = event["d"]["heartbeat_interval"] / 1000
+t = threading.Thread(target=heartbeat, args=[heartbeat_inverval, ws])
+
+t.start()
