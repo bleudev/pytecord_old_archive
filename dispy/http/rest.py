@@ -1,5 +1,3 @@
-from enum import property
-
 import aiohttp
 import requests
 
@@ -8,7 +6,6 @@ class Rest:
     def __init__(self, token):
         self.token = token
 
-    @property
     def _headers(self):
         return {'Authorization': f'Bot {self.token}'}
 

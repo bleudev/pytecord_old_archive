@@ -1,10 +1,10 @@
 import asyncio
 import dispy.http.rest
-import dispy.http.gateway
 
 from .err import Errors as Err
 from .channel import DisChannel
 from .guild import DisGuild
+from .embed import DisEmbed
 from typing import *
 
 
@@ -17,7 +17,6 @@ class DisBot:
         :param prefix: -> Prefix for bot
         """
         self._rest = dispy.http.Rest(token)
-        self._gateway = dispy.http.Gateway(self._rest)
 
         self.isready = False
         if prefix == "" or " " in prefix:
@@ -54,6 +53,14 @@ class DisBot:
 
         asyncio.run(self.on_ready())
         asyncio.run(self.mainloop())
+
+    async def send(self, id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
+        channel = self.get_channel(id)
+        await channel.send(content=content, embeds=embeds)
+
+    async def send(self, id: int, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
+        channel = self.get_channel(id)
+        await channel.send(content=content, embed=embed)
 
     def get_channel(self, id: int):
         return DisChannel(self._rest.get('channel', id), self._rest)
