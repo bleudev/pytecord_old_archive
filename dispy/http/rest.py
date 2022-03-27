@@ -9,6 +9,9 @@ class Rest:
     def _headers(self):
         return {'Authorization': f'Bot {self.token}'}
 
+    def _gateway(self):
+        return requests.get("https://discord.com/api/v10/gateway").json()
+
     def get(self, goal: str, id: int):
         if goal.casefold() == 'guild':
             return requests.get(f'https://discord.com/api/v10/guilds/{str(id)}',
