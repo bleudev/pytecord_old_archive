@@ -1,7 +1,7 @@
 import asyncio
 import dispy.http.rest
+import errs
 
-from .err import Errors as Err
 from .channel import DisChannel
 from .guild import DisGuild
 from .embed import DisEmbed
@@ -20,7 +20,7 @@ class DisBot:
 
         self.isready = False
         if prefix == "" or " " in prefix:
-            Err.raiseerr(Err.DisBotInitErr)
+            raise errs.PrefixError("Invalid prefix")
         else:
             self.prefix = prefix
 
@@ -55,12 +55,18 @@ class DisBot:
         asyncio.run(self.mainloop())
 
     async def send(self, id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
-        channel = self.get_channel(id)
-        await channel.send(content=content, embeds=embeds)
+        if self.isready:
+            channel = self.get_channel(id)
+            await channel.send(content=content, embeds=embeds)
+        else:
+            raise errs.SendError("Bot is not ready!")
 
     async def send(self, id: int, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
-        channel = self.get_channel(id)
-        await channel.send(content=content, embed=embed)
+        if self.isready:
+            channel = self.get_channel(id)
+            await channel.send(content=content, embed=embed)
+        else:
+            raise errs.SendError("Bot is not ready!")
 
     def get_channel(self, id: int):
         return DisChannel(self._rest.get('channel', id), self._rest)

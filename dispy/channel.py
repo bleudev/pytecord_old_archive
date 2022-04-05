@@ -12,6 +12,7 @@ class DisChannel:
         :param rest: Rest -> rest client with token for channel
         """
         self._rest = rest
+        self.json = data
         self.id = data['id']
         self.last_message_id = data['last_message_id']
         self.guild_id = data["guild_id"]
@@ -21,7 +22,7 @@ class DisChannel:
         __eq__ have using in "==" operator
 
         :param other: Other object (DisChannel)
-        :return: bool -> if id of this object equals with id of other object returns :True:, else :False:
+        :return: bool -> if id of this object equals with id of other object :returns: True, else False:
         """
         return self.id == other.id
 
@@ -59,6 +60,10 @@ class DisChannel:
     def fetch(self, id: int):
         return DisMessage(self._rest.fetch(self.id, id))
 
+
 class DisDm:
     def __init__(self, data):
         self.id = data["id"]
+
+    def fetch(self, id: int):
+        return DisMessage(self._rest.fetch(self.id, id))
