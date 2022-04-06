@@ -39,6 +39,9 @@ class Gateway:
     def on_ready(self):
         return
 
+    def on_message(self, message: dispy.DisMessage):
+        return
+
     def heartbeat(self):
         while True:
             self.send_request({"op": 1, "d": "null"})

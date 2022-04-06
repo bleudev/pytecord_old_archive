@@ -1,9 +1,18 @@
 from .client import DisBot
-from .err import *
+from .errs import *
 from .guild import DisGuild
 from .channel import DisChannel
 from .embed import DisEmbed, DisField
 from .color import DisColor
+from .message import DisMessage
+
+"""
+    Main information about dispy
+    
+    :var: __version__ -> Version of dipsy
+    :var: __github__ -> Link to github repo
+    :var: __packagename__ -> Name of package 
+"""
 
 __version__ = "0.1beta"
 __github__ = "https://github.com/itttgg/dispy"
@@ -25,7 +34,7 @@ class DisBotEventType:  # Event type for DisBot
     """
     @property
     def ON_MESSAGE(self):
-        return "messagecreate"
+        return "messagec"
 
     @property
     def ON_READY(self):

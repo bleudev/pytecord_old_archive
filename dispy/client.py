@@ -1,22 +1,22 @@
-import asyncio
-import dispy.http.rest
+from dispy.http.rest import Rest
 import errs
 
 from .channel import DisChannel
 from .guild import DisGuild
 from .embed import DisEmbed
 from typing import *
+from .http.gateway import Gateway
 
 
 class DisBot:
-    def __init__(self, token: str, prefix: Optional[str]="!"):
+    def __init__(self, token: str, prefix: Optional[str] = "!"):
         """
         Create bot
 
         :param token: str -> Discord Developers Portal Bot Token
         :param prefix: -> Prefix for bot
         """
-        self._rest = dispy.http.Rest(token)
+        self._rest = Rest(token)
 
         self.isready = False
         if prefix == "" or " " in prefix:
@@ -46,13 +46,13 @@ class DisBot:
                 self.on_ready = func
             else:
                 print("Error in on() - Invalid type of event (read docs)")
+
         return wrapper
 
     def run(self):
         self.isready = True
 
-        asyncio.run(self.on_ready())
-        asyncio.run(self.mainloop())
+        Gateway(10, self._rest.token, 512, {}, "online", self.on_ready)
 
     async def send(self, id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         if self.isready:
