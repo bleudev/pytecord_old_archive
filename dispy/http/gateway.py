@@ -1,8 +1,8 @@
-import json, threading, websocket, time
+import json, threading, websocket, time, asyncio, typing
 
 
 class Gateway:
-    def __init__(self, gateway_version: int, token: str, intents: int, activity: dict, status: str):
+    def __init__(self, gateway_version: int, token: str, intents: int, activity: dict, status: str, on_ready: typing.Awaitable):
         # Setting up connecting to Gateway
         self.gateway_version: int = gateway_version
         self.ws = websocket.WebSocket()
@@ -10,6 +10,7 @@ class Gateway:
         self.activity = activity
         self.status = status
         self.token = token
+        self.on_ready = on_ready
 
         # Connecting to Gateway
         self.ws.connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json")
@@ -33,21 +34,23 @@ class Gateway:
 
     def get_responce(self):
         responce = self.ws.recv()
-        print(responce)
         return json.loads(responce)
+
+    def on_ready(self):
+        return
 
     def heartbeat(self):
         while True:
             self.send_request({"op": 1, "d": "null"})
-            self.get_responce()
+            event = self.get_responce()
+
+            if event["t"] == "READY":
+                asyncio.run(self.on_ready())
+
             time.sleep(self.heartbeat_interval / 1000)
 
 
-class GatewayClient:
-    def __init__(self, gateway_version: int, token: str, intents: int, activity: dict, status: str):
-        self._gateway = Gateway(gateway_version, token, intents, activity, status)
+async def on_ready():
+    print("Ready!")
 
-    def get_event(self):
-        return self._gateway.get_responce()
-
-GatewayClient(10, "", 512, {"name": "Test"}, "online")
+g = Gateway(9, "TOKEN", 512, {"name": "test"}, "dnd", on_ready)
