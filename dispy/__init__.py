@@ -14,7 +14,7 @@ from .message import DisMessage
     :var: __packagename__ -> Name of package 
 """
 
-__version__ = "0.1beta"
+__version__ = "0.2beta"
 __github__ = "https://github.com/itttgg/dispy"
 __packagename__ = "dispy"
 
@@ -26,7 +26,7 @@ class DisBotEventType:  # Event type for DisBot
     This class created for simplification adding events to DisBot
 
     __variables__(It's constants)
-    @ON_MESSAGE will be called when new message was created in DisBot.guild.channels
+    @ON_MESSAGE will be called when new message was created in DisBot.guild.channel
     @ON_READY will be called when bot becomes ready
 
     __class__
