@@ -7,4 +7,3 @@ class DisMessage:
         self.id = data["id"]
         self._rest = rest
         self.channel = dispy.DisChannel(self._rest.get("channel", data["channel_id"]), rest)
-        self.guild = dispy.DisGuild(self._rest.get("guild", data["guild_id"]), rest)

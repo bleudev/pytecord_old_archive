@@ -1,5 +1,5 @@
 from dispy.http.rest import Rest
-import errs
+import dispy.errs as errs
 
 from .channel import DisChannel
 from .guild import DisGuild
@@ -52,7 +52,7 @@ class DisBot:
     def run(self):
         self.isready = True
 
-        Gateway(10, self._rest.token, 512, {}, "online", self.on_ready)
+        Gateway(10, self._rest.token, 512, {}, "online", self.on_ready, self.on_message)
 
     async def send(self, id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         if self.isready:

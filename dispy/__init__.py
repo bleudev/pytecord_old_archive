@@ -5,6 +5,7 @@ from .channel import DisChannel
 from .embed import DisEmbed, DisField
 from .color import DisColor
 from .message import DisMessage
+from .http import *
 
 """
     Main information about dispy
