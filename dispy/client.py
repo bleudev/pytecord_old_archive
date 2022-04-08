@@ -1,3 +1,4 @@
+import dispy
 from dispy.http.rest import Rest
 import dispy.errs as errs
 
@@ -24,6 +25,13 @@ class _BaseBot:
         self.prefix = prefix
 
 
+class DisBotStatus:
+    ONLINE = "online"
+    DND = "dnd"
+    INVISIBLE = "invisible"
+    IDLE = "idle"
+
+
 class DisBot(_BaseBot):
     def __init__(self, token: str, prefix: Optional[str] = "!"):
         """
@@ -45,7 +53,7 @@ class DisBot(_BaseBot):
     async def on_ready(self):
         return
 
-    def on_message(self, message):
+    def on_message(self, message: dispy.DisMessage):
         return
 
     async def mainloop(self):
@@ -67,10 +75,10 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    # def run(self):
-    #     self.isready = True
-    #
-    #     Gateway(10, self._rest.token, 512, {}, "online", self.on_ready, self.on_message)
+    def run(self, status: Optional[Union[DisBotStatus, str]]):
+        self.isready = True
+
+        Gateway(10, self._rest.token, 512, {}, str(status), self.on_ready, self.on_message)
 
     async def send(self, id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         if self.isready:
