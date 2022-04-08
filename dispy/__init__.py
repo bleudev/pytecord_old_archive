@@ -1,4 +1,4 @@
-from .client import DisBot
+from .client import DisBot, DisBotStatus
 from .errs import *
 from .guild import DisGuild
 from .channel import DisChannel
@@ -59,7 +59,7 @@ class DisBotEventType(_DocObject):  # Event type for DisBot
     _ON_READY: str = "ready"
 
     @property
-    def __class__(self) -> typing.TypeVar:
+    def __class__(self) -> typing.Type[_T]:
         return self._T
 
     @property

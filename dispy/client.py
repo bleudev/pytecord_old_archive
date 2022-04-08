@@ -13,15 +13,52 @@ __all__ = (
 )
 
 
-# class _BaseBot:
-#     _SLASH: str = "slash"
-#     _MESSAGE: str = "message"
-#     _COMMAND: str = "command"
-#
-#     def __init__(self, token: str, type: str, prefix: Optional[str] = "!"):
-#         self.token = token
-#         self.type = type
-#         self.prefix = prefix
+class _BaseBot:
+    _SLASH: str = "slash"
+    _MESSAGE: str = "message"
+    _COMMAND: str = "command"
+
+    _isslash = False
+    _ismessage = False
+    _iscommand = False
+
+    _NUMS = {
+        "slash": 1,
+        "message": 2,
+        "command": 3
+    }
+
+    def __init__(self, token: str, type: str, prefix: Optional[str] = "!"):
+        self.token = token
+        self.type = type
+
+        self.commands = {}
+        """
+            For example:
+            self.commands = {
+                "help": help()
+            }
+        """
+
+        try:
+            _type_num = self._NUMS[type]
+
+            if _type_num == 1:
+                self._isslash = True
+            elif _type_num == 2:
+                self._ismessage = True
+            elif _type_num == 3:
+                self._iscommand = True
+        except KeyError:
+            raise errs.BotTypeError("Invalid type! Try again!")
+
+        self.prefix = prefix
+
+    if _iscommand:
+        async def command(self, name: str):
+            def wrapper(func):
+                self.commands[name] = func
+            return wrapper
 
 
 class DisBotStatus:
@@ -31,21 +68,22 @@ class DisBotStatus:
     IDLE = "idle"
 
 
-class DisBot:
-    def __init__(self, token: str, prefix: Optional[str] = "!"):
+class DisBot(_BaseBot):
+    def __init__(self, token: str, type: Union[DisBotStatus, str], prefix: Optional[str] = "!"):
         """
         Create bot
 
-        :param token: str -> Discord Developers Portal Bot Token
-        :param prefix: -> Prefix for bot
+        :param token: Discord Developers Portal Bot Token
+        :param prefix: Prefix for bot (There is no spaces!)
         """
-        super().__init__()
+
+        super().__init__(token, type, prefix)
 
         self._rest = Rest(token)
 
         self.isready = False
         if prefix == "" or " " in prefix:
-            raise errs.PrefixError("Invalid prefix")
+            raise errs.BotPrefixError("Invalid prefix! Try another!")
         else:
             self.prefix = prefix
 
@@ -55,15 +93,13 @@ class DisBot:
     def on_message(self, message: DisMessage):
         return
 
-    async def mainloop(self):
-        while True:
-            if self.isready:
-                continue
-                # Main settings
-            else:
-                continue
-
     def on(self, type: str):
+        """
+        This method was created for changing on_ready and on_message method that using in runner
+
+        :param type: Type of event
+        :return: None (wrapper)
+        """
         def wrapper(func):
             if type == "messagec":
                 self.on_message = func
@@ -75,17 +111,29 @@ class DisBot:
         return wrapper
 
     def run(self, status: Optional[Union[DisBotStatus, str]] = None):
+        """
+        Running bot
+
+        :param status: Status for bot user
+        :return: None
+        """
         self.isready = True
 
         if status is None:
             status = "online"
 
-        Gateway(10, self._rest.token, 512, {}, str(status), self.on_ready, self.on_message)
+        self._runner(status, 10, 512)
+
+    def _runner(self, status: str, version: int, intents: int):
+        Gateway(version, self._rest.token, intents, {}, status, self.on_ready, self.on_message)
+
+        return 0  # No errors
 
     async def send(self, id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         if self.isready:
             channel = self.get_channel(id)
             await channel.send(content=content, embeds=embeds)
+            return DisMessage(self._rest.fetch(channel.id), self._rest)
         else:
             raise errs.SendError("Bot is not ready!")
 
@@ -93,6 +141,7 @@ class DisBot:
         if self.isready:
             channel = self.get_channel(id)
             await channel.send(content=content, embed=embed)
+            return DisMessage(self._rest.fetch(channel.id), self._rest)
         else:
             raise errs.SendError("Bot is not ready!")
 
