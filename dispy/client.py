@@ -67,10 +67,10 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def run(self):
-        self.isready = True
-
-        Gateway(10, self._rest.token, 512, {}, "online", self.on_ready, self.on_message)
+    # def run(self):
+    #     self.isready = True
+    #
+    #     Gateway(10, self._rest.token, 512, {}, "online", self.on_ready, self.on_message)
 
     async def send(self, id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         if self.isready:
