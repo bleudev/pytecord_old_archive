@@ -62,7 +62,6 @@ class Gateway:
     def heartbeat_events_create(self):
         self.send_opcode_1()
         event = self.get_responce()
-        print(event)  # For testing and bugfixing
         self._check(event)
 
     def send_opcode_1(self):

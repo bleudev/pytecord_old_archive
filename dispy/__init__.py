@@ -23,7 +23,6 @@ class _DocObject:
     __description__: str = ""  # Description to class
     __doc__: str = ""  # Mini doc with using
     __varibles__: dict[str, str] = {}  # Description to varibles
-    __slots__: list[str] = []  # Slots with varibles names
 
     _T: typing.TypeVar = None
 
@@ -41,8 +40,6 @@ class _DocObject:
 
 # Types for simpler creating bots
 class DisBotEventType(_DocObject):  # Event type for DisBot
-    super().__init__()  # Init varibles and methods from parent
-
     __description__: str = "This class created for simplification adding events to DisBot. This is class, not an object"  # Description to class
 
     __varibles__: dict[str, str] = {  # Description to varibles
@@ -55,8 +52,6 @@ class DisBotEventType(_DocObject):  # Event type for DisBot
                    "@bot.on(dispy.DisBotEventType.ONMESSAGEC())" \
                    "async def on_messagec(message):" \
                    "    await message.channel.send('Test!')"
-
-    __slots__: list[str] = ["ON_MESSAGE()", "ON_READY()"]  # Slots with varibles names
 
     _T: typing.TypeVar = typing.TypeVar("DisBotEventType")
 
@@ -77,8 +72,6 @@ class DisBotEventType(_DocObject):  # Event type for DisBot
 
 
 class DisBotType(_DocObject):
-    super().__init__()  # Init varibles and methods from parent
-
     __description__: str = "Class for using types for DisBot"  # Description to class
 
     __varibles__: dict[str, str] = {  # Description to varibles
@@ -90,8 +83,6 @@ class DisBotType(_DocObject):
     # Mini doc with using
     __doc__: str = "Using:" \
                    "bot = dispy.DisBot(type=dispy.DisBotType.SLASH()) # Creating bot with slash commands and context menus"
-
-    __slots__: list[str] = ["SLASH()", "MESSAGE()", "COMMAND()"]  # Slots with varibles names
 
     _T: typing.TypeVar = typing.TypeVar("DisBotType")
 
