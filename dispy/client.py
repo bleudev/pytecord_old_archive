@@ -6,9 +6,25 @@ from .guild import DisGuild
 from .embed import DisEmbed
 from typing import *
 from .http.gateway import Gateway
+from dispy import DisBotType
+
+__all__ = (
+    "class DisBot"
+)
 
 
-class DisBot:
+class _BaseBot:
+    _SLASH: str = "slash"
+    _MESSAGE: str = "message"
+    _COMMAND: str = "command"
+
+    def __init__(self, token: str, type: Union[str, DisBotType], prefix: Optional[str] = "!"):
+        self.token = token
+        self.type = type
+        self.prefix = prefix
+
+
+class DisBot(_BaseBot):
     def __init__(self, token: str, prefix: Optional[str] = "!"):
         """
         Create bot
@@ -16,6 +32,8 @@ class DisBot:
         :param token: str -> Discord Developers Portal Bot Token
         :param prefix: -> Prefix for bot
         """
+        super().__init__()
+
         self._rest = Rest(token)
 
         self.isready = False
