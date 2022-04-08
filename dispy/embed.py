@@ -2,7 +2,6 @@
 
 from random import random
 from math import floor
-from dispy import _DocObject
 import typing
 
 __doc__ = "This file was created for manage Embeds in discord and using embeds in send messages feature" \
@@ -11,16 +10,29 @@ __doc__ = "This file was created for manage Embeds in discord and using embeds i
           "dispy.DisChannel(id).send(embed=dispy.DisEmbed(title='Testing'))"
 
 
-class DisColor(_DocObject):
-    super().__init__()
+class _DocObject:
+    __description__: str = ""  # Description to class
+    __doc__: str = ""  # Mini doc with using
+    __varibles__: dict[str, str] = {}  # Description to varibles
+    __slots__: list[str] = []  # Slots with varibles names
 
+    _T: typing.TypeVar = None
+
+    def __str__(self) -> str:  # Using in str()
+        r = ""
+
+        for i in self.__varibles__.keys():
+            if r == "":
+                r += i
+            else:
+                r += f", {i}"
+
+        return r
+
+
+class DisColor(_DocObject):
     _T = typing.TypeVar("DisColor")
     __description__ = "Colors for embeds"
-    __slots__ = ["DEFAULT", "AQUA", "DARK_AQUA", "GREEN", "DARK_GREEN", "BLUE", "DARK_BLUE", "PURPLE", "DARK_PURPLE",
-                 "LUMINOUS_VIVID_PINK", "DARK_VIVID_PINK", "GOLD", "DARK_GOLD", "ORANGE", "DARK_ORANGE", "RED", "DARK_RED",
-                 "GREY", "DARK_GREY", "DARKER_GREY", "LIGHT_GREY", "NAVY", "DARK_NAVY", "YELLOW", "WHITE", "BLURPLE",
-                 "GREYPLE", "DARK_BUT_NOT_BLACK", "NOT_QUITE_BLACK", "OFFICIAL_GREEN", "OFFICIAL_YELLOW", "FUSCHIA",
-                 "OFFICIAL_RED", "BLACK", "RANDOM()"]
 
     def __init__(self):
         self.DEFAULT = 0
@@ -88,8 +100,6 @@ class _EMBED:
 
 class DisEmbed(_EMBED):
     def __init__(self, title: str, description: str = None, color=0xffffff, footer: str = None):
-        super().__init__()
-
         self.title: str = title
         self.description: str = description
         self.color: str = color

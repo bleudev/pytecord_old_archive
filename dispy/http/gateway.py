@@ -1,4 +1,11 @@
-import json, threading, websocket, time, asyncio, typing, dispy
+import asyncio
+import dispy
+import json
+import threading
+import time
+import typing
+import websocket
+
 import dispy.http.rest
 
 class Gateway:
@@ -31,6 +38,8 @@ class Gateway:
                                                        "status": self.status, "since": 91879201, "afk": False},
                                           "intents": self.intents}})
 
+        self.heartbeat_thread.join()
+
     def send_request(self, json_data):
         self.ws.send(json.dumps(json_data))
 
@@ -46,17 +55,33 @@ class Gateway:
 
     def heartbeat(self):
         while True:
-            self.send_request({"op": 1, "d": "null"})
-            event = self.get_responce()
-            print(event)
-
-            if event["t"] == "READY":
-                asyncio.run(self.on_ready())
-
-            if event["t"] == "MESSAGE_CREATE":
-                asyncio.run(self.on_message(dispy.message.DisMessage(self._rest.fetch(event["d"]["channel_id"], event["d"]["id"]), self._rest)))
+            self.heartbeat_events_create()
 
             time.sleep(self.heartbeat_interval / 1000)
+
+    def heartbeat_events_create(self):
+        self.send_opcode_1()
+        event = self.get_responce()
+        self._check(event)
+
+    def send_opcode_1(self):
+        self.send_request({"op": 1, "d": "null"})
+
+    def _check(self, event: dict):
+        if event["t"] == "READY":
+            self.user_id = event["d"]["user"]["id"]
+            asyncio.run(self.on_ready())
+
+        if event["t"] == "MESSAGE_CREATE":
+            if self._check_notbot(event):
+                _message_id = int(event["d"]["id"])
+                _channel_id = int(event["d"]["channel_id"])
+
+                channel = dispy.channel.DisChannel(self._rest.get("channel", _channel_id), self._rest)
+                asyncio.run(self.on_message(channel.fetch(_message_id)))
+
+    def _check_notbot(self, event: dict) -> bool:
+        return self.user_id != event["d"]["author"]["id"]
 
 
 async def on_ready():
@@ -66,4 +91,4 @@ async def on_ready():
 async def on_message(message: dispy.message.DisMessage):
     await message.channel.send("Test)")
 
-g = Gateway(9, "TOKEN", 512, {"name": "test"}, "dnd", on_ready, on_message)
+# g = Gateway(9, "OTM5MjIxOTkzMDg4MjQxNzI0.Yf1spQ.Nt79BRZgtlvIbLjW_PV0hrEMc_U", 512, {"name": "test"}, "dnd", on_ready, on_message)

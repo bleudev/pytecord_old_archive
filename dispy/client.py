@@ -4,27 +4,34 @@ import dispy.errs as errs
 from .channel import DisChannel
 from .guild import DisGuild
 from .embed import DisEmbed
+from .message import DisMessage
 from typing import *
 from .http.gateway import Gateway
-from dispy import DisBotType
 
 __all__ = (
     "class DisBot"
 )
 
 
-class _BaseBot:
-    _SLASH: str = "slash"
-    _MESSAGE: str = "message"
-    _COMMAND: str = "command"
+# class _BaseBot:
+#     _SLASH: str = "slash"
+#     _MESSAGE: str = "message"
+#     _COMMAND: str = "command"
+#
+#     def __init__(self, token: str, type: str, prefix: Optional[str] = "!"):
+#         self.token = token
+#         self.type = type
+#         self.prefix = prefix
 
-    def __init__(self, token: str, type: Union[str, DisBotType], prefix: Optional[str] = "!"):
-        self.token = token
-        self.type = type
-        self.prefix = prefix
+
+class DisBotStatus:
+    ONLINE = "online"
+    DND = "dnd"
+    INVISIBLE = "invisible"
+    IDLE = "idle"
 
 
-class DisBot(_BaseBot):
+class DisBot:
     def __init__(self, token: str, prefix: Optional[str] = "!"):
         """
         Create bot
@@ -45,7 +52,7 @@ class DisBot(_BaseBot):
     async def on_ready(self):
         return
 
-    def on_message(self, message):
+    def on_message(self, message: DisMessage):
         return
 
     async def mainloop(self):
@@ -58,7 +65,7 @@ class DisBot(_BaseBot):
 
     def on(self, type: str):
         def wrapper(func):
-            if type == "messagecreate":
+            if type == "messagec":
                 self.on_message = func
             elif type == "ready":
                 self.on_ready = func
@@ -67,10 +74,13 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def run(self):
+    def run(self, status: Optional[Union[DisBotStatus, str]] = None):
         self.isready = True
 
-        Gateway(10, self._rest.token, 512, {}, "online", self.on_ready, self.on_message)
+        if status is None:
+            status = "online"
+
+        Gateway(10, self._rest.token, 512, {}, str(status), self.on_ready, self.on_message)
 
     async def send(self, id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         if self.isready:

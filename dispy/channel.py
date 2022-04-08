@@ -58,7 +58,7 @@ class DisChannel:
             await self._rest.send_message(self.id, {"content": content})
 
     def fetch(self, id: int):
-        return DisMessage(self._rest.fetch(self.id, id), self._rest)
+        return DisMessage(self._rest.fetch(self.id, id), self._rest, self)
 
 
 class DisDm:
