@@ -8,19 +8,34 @@ class _UserBase:
 
         # Data
         _data = self._rest.get("user", self.id)
-        _premium_type = int(_data["premium_type"])
+
+        print(_data)
+        try:
+            _premium_type = int(_data["premium_type"])
+        except KeyError:
+            pass
 
         self.username = _data["username"]
         self.discriminator = _data["discriminator"]
-        self.fullname = f"{self.username}{self.discriminator}"
+        self.fullname = f"{self.username}#{self.discriminator}"
 
-        self.isbot: bool = _data["bot"]
-        self.issystem: bool = _data["system"]
-        self.isverified: bool = _data["verified"]  # May be ""
-        self.email: bool = _data["email"]  # May be ""
-        self.flags: int = int(_data["flags"])
+        try:
+            self.isbot: bool = _data["bot"]
+            self.issystem: bool = _data["system"]
+            self.isverified: bool = _data["verified"]  # May be ""
+        except KeyError:
+            pass
 
-        self.nitro = Nitro(_premium_type, _premium_type > 0)
+        try:
+            self.email: bool = _data["email"]  # May be ""
+        except KeyError:
+            pass
+
+        self.flags: int = int(_data["public_flags"])
+        try:
+            self.nitro = DisNitro(_premium_type, _premium_type > 0)
+        except UnboundLocalError:
+            pass
 
     def uptade(self) -> None:
         _data = self._rest.get("user", self.id)
@@ -28,7 +43,7 @@ class _UserBase:
 
         self.username = _data["username"]
         self.discriminator = _data["discriminator"]
-        self.fullname = f"{self.username}{self.discriminator}"
+        self.fullname = f"{self.username}{str(self.discriminator)}"
 
         self.isbot: bool = _data["bot"]
         self.issystem: bool = _data["system"]
@@ -36,15 +51,15 @@ class _UserBase:
         self.email: bool = _data["email"]  # May be ""
         self.flags: int = int(_data["public_flags"])
 
-        self.nitro = Nitro(_premium_type, _premium_type > 0)
+        self.nitro = DisNitro(_premium_type, _premium_type > 0)
 
 
-class User(_UserBase):
+class DisUser(_UserBase):
     def __init__(self, id, rest):
         super().__init__(id, rest)
 
 
-class Nitro:
+class DisNitro:
     def __init__(self, type, ishave):
         self.classic = "classic"
         self.boost = "boost"
