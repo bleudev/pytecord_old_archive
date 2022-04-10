@@ -16,10 +16,11 @@ import typing
     :var: __packagename__ -> Name of package 
 """
 
-__version__ = "0.2"
+__version__ = "0.1dev"
 __minpythonver__ = "3.6"
 __github__ = "https://github.com/itttgg/dispy"
-__package__ = "dispy"
+__stablever__ = "https://github.com/itttgg/dispy/tree/0.2-dev-preview"
+__packagename__ = "dispy"
 
 
 class _DocObject:
