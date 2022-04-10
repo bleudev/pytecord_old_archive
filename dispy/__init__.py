@@ -5,6 +5,7 @@ from .channel import DisChannel
 from .embed import DisEmbed, DisField, DisColor
 from .message import DisMessage
 from .user import DisUser
+
 import typing
 
 """
@@ -16,7 +17,7 @@ import typing
 """
 
 __version__ = "0.2"
-__minpythonver__ = "3.2"
+__minpythonver__ = "3.6"
 __github__ = "https://github.com/itttgg/dispy"
 __package__ = "dispy"
 

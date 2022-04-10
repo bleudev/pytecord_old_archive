@@ -1,10 +1,10 @@
-import dispy.http.rest
+from dispy.http.rest import Rest
 from .embed import DisEmbed
 from .message import DisMessage
 
 
 class DisChannel:
-    def __init__(self, data: dict, rest: dispy.http.rest.Rest):
+    def __init__(self, data: dict, rest: Rest):
         """
         Creating an object DisChannel
 

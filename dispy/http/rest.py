@@ -5,6 +5,8 @@ import requests
 class Rest:
     def __init__(self, token):
         self.token = token
+        async with aiohttp.ClientSession() as s:
+            self._s = s
 
     def _headers(self):
         return {'Authorization': f'Bot {self.token}'}
@@ -25,5 +27,4 @@ class Rest:
                             headers=self._headers()).json()
 
     async def send_message(self, channel_id, post):
-        async with aiohttp.ClientSession() as session:
-            await session.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post, headers=self._headers())
+        await self._s.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post, headers=self._headers())
