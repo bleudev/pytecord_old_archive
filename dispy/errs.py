@@ -14,7 +14,7 @@ class _DisRunTimeError(RuntimeWarning):
         super().__init__(self.__message__)
 
 
-class _DisError(SyntaxError):
+class _DisError(RuntimeError):
     def __init__(self, code: str, message: str):
         self.__code__ = code
         self.__text__ = message
@@ -48,7 +48,12 @@ class BotTypeError(_DisError):
         super().__init__("102c", text)
 
 
+class BotEventTypeError(_DisError):
+    def __init__(self, text):
+        super().__init__("103c", text)
+
+
 # User errors
 class UserNitroTypeError(_DisError):
     def __init__(self, text):
-        super().__init__("103u", text)
+        super().__init__("201u", text)

@@ -73,37 +73,3 @@ class DisBotEventType(_DocObject):  # Event type for DisBot
         return self._ON_READY
 
 
-class DisBotType(_DocObject):
-    __description__: str = "Class for using types for DisBot"  # Description to class
-
-    __varibles__: dict[str, str] = {  # Description to varibles
-        "SLASH": ":type: property, :returns: str - Will be called when integration is creating (slash command, context menu)",
-        "MESSAGE": ":type: property, :returns: str - Will be called when message created",
-        "COMMAND": ":type: property, :returns: str - Will be called when command called (for example, !help)"
-    }
-
-    # Mini doc with using
-    __doc__: str = "Using:" \
-                   "bot = dispy.DisBot(type=dispy.DisBotType.SLASH()) # Creating bot with slash commands and context menus"
-
-    _T: typing.TypeVar = typing.TypeVar("DisBotType")
-
-    _SLASH: str = "slash"
-    _MESSAGE: str = "message"
-    _COMMAND: str = "command"
-
-    @property
-    def __class__(self) -> typing.TypeVar:
-        return self._T
-
-    @property
-    def SLASH(self) -> str:
-        return self._SLASH
-
-    @property
-    def MESSAGE(self) -> str:
-        return self._MESSAGE
-
-    @property
-    def COMMAND(self) -> str:
-        return self._COMMAND

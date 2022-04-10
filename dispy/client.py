@@ -1,17 +1,55 @@
 from dispy.http.rest import Rest
 import dispy.errs as errs
-
 from .channel import DisChannel
-from . import DisBotType
 from .guild import DisGuild
 from .embed import DisEmbed
 from .message import DisMessage
-from typing import *
+from .user import DisUser
 from .http.gateway import Gateway
 
+from typing import *
 __all__ = (
     "class DisBot"
 )
+
+System = {
+    bool: ""
+}
+
+class DisBotType:
+    __description__: str = "Class for using types for DisBot"  # Description to class
+
+    __varibles__: dict[str, str] = {  # Description to varibles
+        "SLASH": ":type: property, :returns: str - Will be called when integration is creating (slash command, context menu)",
+        "MESSAGE": ":type: property, :returns: str - Will be called when message created",
+        "COMMAND": ":type: property, :returns: str - Will be called when command called (for example, !help)"
+    }
+
+    # Mini doc with using
+    __doc__: str = "Using:" \
+                   "bot = dispy.DisBot(type=dispy.DisBotType.SLASH()) # Creating bot with slash commands and context menus"
+
+    _T: TypeVar = TypeVar("DisBotType")
+
+    _SLASH: str = "slash"
+    _MESSAGE: str = "message"
+    _COMMAND: str = "command"
+
+    @property
+    def __class__(self) -> TypeVar:
+        return self._T
+
+    @property
+    def SLASH(self) -> str:
+        return self._SLASH
+
+    @property
+    def MESSAGE(self) -> str:
+        return self._MESSAGE
+
+    @property
+    def COMMAND(self) -> str:
+        return self._COMMAND
 
 
 class _BaseBot:
@@ -90,11 +128,15 @@ class DisBot(_BaseBot):
         else:
             self.prefix = prefix
 
-    async def on_ready(self):
+    async def _on_ready(self):
         return
 
-    def on_message(self, message: DisMessage):
+    async def _on_message(self, message: DisMessage):
         return
+
+    async def _register(self, d):
+        # print(d)
+        self.user: DisUser = self.get_user(d["user"]["id"], False)
 
     def on(self, type: str):
         """
@@ -105,11 +147,11 @@ class DisBot(_BaseBot):
         """
         def wrapper(func):
             if type == "messagec":
-                self.on_message = func
+                self._on_message = func
             elif type == "ready":
-                self.on_ready = func
+                self._on_ready = func
             else:
-                print("Error in on() - Invalid type of event (read docs)")
+                raise errs.BotEventTypeError("Invalid type of event!")
 
         return wrapper
 
@@ -131,7 +173,7 @@ class DisBot(_BaseBot):
         self._runner(self.status, 10, 512)
 
     def _runner(self, status: str, version: int, intents: int):
-        Gateway(version, self._rest.token, intents, {}, status, self.on_ready, self.on_message)
+        Gateway(version, self._rest.token, intents, {}, status, self._on_ready, self._on_message, self._register)
 
         return 0  # No errors
 
@@ -156,3 +198,6 @@ class DisBot(_BaseBot):
 
     def get_guild(self, id: int):
         return DisGuild(self._rest.get('guild', id), self._rest)
+
+    def get_user(self, id: int, premium_gets: System[bool] = True):
+        return DisUser(id, self._rest, premium_gets)
