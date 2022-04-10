@@ -5,4 +5,4 @@ setup(name='Distutils',
       description='Package for creating Discord bots',
       author='itttgg',
       packages=['aiohttp', 'requests']
-     )
+      )
