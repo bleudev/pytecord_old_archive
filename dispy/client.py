@@ -16,6 +16,7 @@ System = {
     bool: ""
 }
 
+
 class DisBotType:
     __description__: str = "Class for using types for DisBot"  # Description to class
 
