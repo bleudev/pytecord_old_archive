@@ -2,6 +2,7 @@ from dispy.http.rest import Rest
 import dispy.errs as errs
 
 from .channel import DisChannel
+from . import DisBotType
 from .guild import DisGuild
 from .embed import DisEmbed
 from .message import DisMessage
@@ -69,7 +70,7 @@ class DisBotStatus:
 
 
 class DisBot(_BaseBot):
-    def __init__(self, token: str, type: Union[DisBotStatus, str], prefix: Optional[str] = "!"):
+    def __init__(self, token: str, type: Union[DisBotType, str], prefix: Optional[str] = "!", status: Optional[str] = None):
         """
         Create bot
 
@@ -80,6 +81,8 @@ class DisBot(_BaseBot):
         super().__init__(token, type, prefix)
 
         self._rest = Rest(token)
+
+        self.status = status
 
         self.isready = False
         if prefix == "" or " " in prefix:
@@ -119,10 +122,13 @@ class DisBot(_BaseBot):
         """
         self.isready = True
 
-        if status is None:
-            status = "online"
+        if self.status is None or status is None:
+            self.status = "online"
 
-        self._runner(status, 10, 512)
+        elif status is not None:
+            self.status = status
+
+        self._runner(self.status, 10, 512)
 
     def _runner(self, status: str, version: int, intents: int):
         Gateway(version, self._rest.token, intents, {}, status, self.on_ready, self.on_message)

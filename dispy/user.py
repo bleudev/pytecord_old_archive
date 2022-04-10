@@ -1,5 +1,5 @@
 import dispy.http.rest
-from .errs import *
+import dispy.errs
 
 
 class _UserBase:
@@ -14,7 +14,7 @@ class _UserBase:
             _premium_type = int(_data["premium_type"])
         except KeyError:
             _premium_type = -1
-            raise MissingPerms(missingperms)
+            raise dispy.errs.MissingPerms(dispy.errs.missingperms)
 
         self.username = _data["username"]
         self.discriminator = _data["discriminator"]
@@ -24,25 +24,25 @@ class _UserBase:
             self.isbot: bool = _data["bot"]
         except KeyError:
             del self.isbot
-            raise MissingPerms(missingperms)
+            raise dispy.errs.MissingPerms(dispy.errs.missingperms)
 
         try:
             self.issystem: bool = _data["system"]
         except KeyError:
             del self.issystem
-            raise MissingPerms(missingperms)
+            raise dispy.errs.MissingPerms(dispy.errs.missingperms)
 
         try:
             self.isverified: bool = _data["verified"]  # May be ""
         except KeyError:
             del self.isverified
-            raise MissingPerms(missingperms)
+            raise dispy.errs.MissingPerms(dispy.errs.missingperms)
 
         try:
             self.email: bool = _data["email"]  # May be ""
         except KeyError:
             del self.email
-            raise MissingPerms(missingperms)
+            raise dispy.errs.MissingPerms(dispy.errs.missingperms)
 
         self.flags: int = int(_data["public_flags"])
 
@@ -94,8 +94,8 @@ class DisNitro:
         elif type == 2:
             self.type = self.boost
         elif type == -1:
-            raise MissingPerms(missingperms)
+            raise dispy.errs.MissingPerms(dispy.errs.missingperms)
         elif type == 0:
             self.type = self.none
         else:
-            raise UserNitroTypeError("Invalid type of error!")
+            raise dispy.errs.UserNitroTypeError("Invalid type of error!")
