@@ -135,21 +135,21 @@ class DisBot(_BaseBot):
 
         return 0  # No errors
 
-    async def send(self, id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
+    async def send(self, channel_id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         if self.isready:
-            channel = self.get_channel(id)
+            channel = self.get_channel(channel_id)
             await channel.send(content=content, embeds=embeds)
             return DisMessage(self._rest.fetch(channel.id), self._rest)
         else:
-            raise errs.SendError("Bot is not ready!")
+            raise errs.InternetError("Bot is not ready!")
 
-    async def send(self, id: int, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
+    async def send(self, channel_id: int, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
         if self.isready:
-            channel = self.get_channel(id)
+            channel = self.get_channel(channel_id)
             await channel.send(content=content, embed=embed)
             return DisMessage(self._rest.fetch(channel.id), self._rest)
         else:
-            raise errs.SendError("Bot is not ready!")
+            raise errs.InternetError("Bot is not ready!")
 
     def get_channel(self, id: int):
         return DisChannel(self._rest.get('channel', id), self._rest)
