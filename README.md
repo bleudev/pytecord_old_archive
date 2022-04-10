@@ -1,5 +1,5 @@
 # Dispy
-![alt text](https://img.shields.io/badge/version-0.2-informational?style=flat) ![alt text](https://img.shields.io/badge/lang-python-informational)
+![alt text](https://img.shields.io/badge/version-0.1devpr-informational?style=flat) ![alt text](https://img.shields.io/badge/lang-python-informational)
 ## Using
 
 ### Creating and running bot
