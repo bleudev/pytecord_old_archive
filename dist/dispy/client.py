@@ -1,5 +1,5 @@
-from dispy.http.rest import Rest
-import dispy.errs as errs
+from dist.dispy.http.rest import Rest
+from .. import dispy as errs
 from .channel import DisChannel
 from .guild import DisGuild
 from .embed import DisEmbed
