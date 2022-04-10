@@ -182,7 +182,6 @@ class DisBot(_BaseBot):
         if self.isready:
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embeds=embeds)
-            return DisMessage(self._rest.fetch(channel.id), self._rest)
         else:
             raise errs.InternetError("Bot is not ready!")
 
