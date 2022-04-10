@@ -13,7 +13,7 @@ __all__ = (
 )
 
 System = {
-    bool: ""
+    bool: bool
 }
 
 
