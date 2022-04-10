@@ -1,5 +1,5 @@
 from .client import DisBot, DisBotStatus
-from .errs import *
+from .errs import UserNitroTypeError, InternetError, BotTypeError, BotPrefixError, MissingPerms
 from .guild import DisGuild
 from .channel import DisChannel
 from .embed import DisEmbed, DisField, DisColor
@@ -16,6 +16,7 @@ import typing
 """
 
 __version__ = "0.2"
+__minpythonver__ = "3.2"
 __github__ = "https://github.com/itttgg/dispy"
 __package__ = "dispy"
 

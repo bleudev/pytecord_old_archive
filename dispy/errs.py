@@ -1,34 +1,54 @@
-class BotTokenError(Exception):
-    def __init__(self, text):
-        self.__code__ = "100c"
-        self.__text__ = text
+from typing import Optional
+
+# Constants for messages
+missingperms = "Missing permissions!"
+
+
+# Parent for all errors
+class _DisRunTimeError(RuntimeWarning):
+    def __init__(self, code: str, message: str):
+        self.__code__ = code
+        self.__text__ = message
         self.__message__ = f"{self.__code__} - {self.__text__}"
 
         super().__init__(self.__message__)
 
 
-class BotPrefixError(Exception):
-    def __init__(self, text):
-        self.__code__ = "101c"
-        self.__text__ = text
+class _DisError(SyntaxError):
+    def __init__(self, code: str, message: str):
+        self.__code__ = code
+        self.__text__ = message
         self.__message__ = f"{self.__code__} - {self.__text__}"
 
         super().__init__(self.__message__)
 
 
-class SendError(Exception):
+# InternetErrors (Will be called when errors code returned)
+class InternetError(_DisRunTimeError):
+    def __init__(self, text, code: Optional[str] = None):
+        if code is None:
+            super().__init__("-1i", text)
+        else:
+            super().__init__(code, text)
+
+
+class MissingPerms(_DisRunTimeError):
     def __init__(self, text):
-        self.__code__ = "102c"
-        self.__text__ = text
-        self.__message__ = f"{self.__code__} - {self.__text__}"
-
-        super().__init__(self.__message__)
+        super().__init__("-2i", text)
 
 
-class BotTypeError(Exception):
+# Client errors
+class BotPrefixError(_DisError):
     def __init__(self, text):
-        self.__code__ = "103c"
-        self.__text__ = text
-        self.__message__ = f"{self.__code__} - {self.__text__}"
+        super().__init__("101c", text)
 
-        super().__init__(self.__message__)
+
+class BotTypeError(_DisError):
+    def __init__(self, text):
+        super().__init__("102c", text)
+
+
+# User errors
+class UserNitroTypeError(_DisError):
+    def __init__(self, text):
+        super().__init__("103u", text)
