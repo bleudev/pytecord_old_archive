@@ -132,7 +132,7 @@ class DisBot(_BaseBot):
     async def _on_ready(self):
         return
 
-    async def _on_message(self, message: DisMessage):
+    async def _on_messagec(self, message: DisMessage):
         return
 
     async def _register(self, d):
@@ -148,7 +148,7 @@ class DisBot(_BaseBot):
         """
         def wrapper(func):
             if type == "messagec":
-                self._on_message = func
+                self._on_messagec = func
             elif type == "ready":
                 self._on_ready = func
             else:
@@ -174,7 +174,7 @@ class DisBot(_BaseBot):
         self._runner(self.status, 10, 512)
 
     def _runner(self, status: str, version: int, intents: int):
-        Gateway(version, self._rest.token, intents, {}, status, self._on_ready, self._on_message, self._register)
+        Gateway(version, self._rest.token, intents, {}, status, self._on_ready, self._on_messagec, self._register)
 
         return 0  # No errors
 

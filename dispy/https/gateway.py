@@ -9,8 +9,9 @@ from dispy.https import Rest
 from ..message import DisMessage
 from ..channel import DisChannel
 
+
 class Gateway:
-    def __init__(self, gateway_version: int, token: str, intents: int, activity: dict, status: str, on_ready: typing.Awaitable, on_message: typing.Awaitable, register: typing.Awaitable):
+    def __init__(self, gateway_version: int, token: str, intents: int, activity: dict, status: str, on_ready: typing.Awaitable, on_messagec: typing.Awaitable, register: typing.Awaitable):
         # Setting up connecting to Gateway
         self.gateway_version: int = gateway_version
         self.ws = websocket.WebSocket()
@@ -21,7 +22,7 @@ class Gateway:
         self._rest = Rest(token)
 
         self.on_ready = on_ready
-        self.on_message = on_message
+        self.on_messagec = on_messagec
         self.register = register
 
         # Connecting to Gateway
@@ -52,7 +53,7 @@ class Gateway:
     def on_ready(self):
         return
 
-    def on_message(self, message: DisMessage):
+    def on_messagec(self, message: DisMessage):
         return
 
     def heartbeat(self):
@@ -88,7 +89,7 @@ class Gateway:
                 _channel_id = int(event["d"]["channel_id"])
 
                 channel = DisChannel(self._rest.get("channel", _channel_id), self._rest)
-                asyncio.run(self.on_message(channel.fetch(_message_id)))
+                asyncio.run(self.on_messagec(channel.fetch(_message_id)))
 
     def _check_notbot(self, event: dict) -> bool:
         return self.user_id != event["d"]["author"]["id"]
