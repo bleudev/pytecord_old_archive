@@ -1,10 +1,8 @@
 from setuptools import setup
 
-import dispy
-
 setup(
       name="dispy",
-      description=dispy.__description__,
+      description="Dispy - package for creating bots for Discord",
       version="0.1d",
       author='itttgg',
       author_email="aitiiigg1@gmail.com",
