@@ -20,7 +20,7 @@ import typing
 __version__ = "0.1dev"
 __minpythonver__ = "3.6"
 __github__ = "https://github.com/itttgg/dispy"
-__stablever__ = "https://github.com/itttgg/dispy/tree/0.3-dev-preview"
+__stablever__ = "https://github.com/itttgg/dispy/tree/0.1-dev-preview-3.1"
 __packagename__ = "dispy"
 
 
