@@ -1,5 +1,5 @@
 [project]
-name = "infer_pyproject"
+name = "dispy"
 version = "0.1.0"
 description = "Dispy - package for creating bots for Discord"
 author = "itttgg"
