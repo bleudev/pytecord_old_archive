@@ -11,7 +11,9 @@ from ..channel import DisChannel
 
 
 class Gateway:
-    def __init__(self, gateway_version: int, token: str, intents: int, activity: dict, status: str, on_ready: typing.Awaitable, on_messagec: typing.Awaitable, register: typing.Awaitable):
+    def __init__(self, gateway_version: int, token: str, intents: int, activity: dict,
+                 status: str, on_ready: typing.Awaitable, on_messagec: typing.Awaitable, register: typing.Awaitable,
+                 on_register: typing.Awaitable):
         # Setting up connecting to Gateway
         self.gateway_version: int = gateway_version
         self.ws = websocket.WebSocket()
@@ -24,6 +26,7 @@ class Gateway:
         self.on_ready = on_ready
         self.on_messagec = on_messagec
         self.register = register
+        self.on_register = on_register
 
     def run(self):
         # Connecting to Gateway
@@ -57,6 +60,9 @@ class Gateway:
     def on_messagec(self, message: DisMessage):
         return
 
+    def on_register(self):
+        return
+
     def heartbeat(self):
         while True:
             self.heartbeat_events_create()
@@ -82,6 +88,7 @@ class Gateway:
         if event["t"] == "READY":
             asyncio.run(self.register(event["d"]))
             asyncio.run(self.on_ready())
+            asyncio.run(self.on_register())
             self.user_id = event["d"]["user"]["id"]
 
         if event["t"] == "MESSAGE_CREATE":

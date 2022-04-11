@@ -134,9 +134,9 @@ class DisBot(_BaseBot):
         else:
             self.prefix = prefix
 
-    async def _register(self, d):
+    async def _on_register(self, d):
         # print(d)
-        self.user: DisUser = self.get_user(d["user"]["id"], False)
+        self.user: DisUser = self._api.user
 
     def on(self, type: str):
         """
@@ -174,7 +174,7 @@ class DisBot(_BaseBot):
         self._runner(self.status, 10, 512)
 
     def _runner(self, status, version: int, intents: int):
-        self._api.run(version, intents, status, self._on_ready, self._on_messagec)
+        self._api.run(version, intents, status, self._on_ready, self._on_messagec, self._on_register)
 
         return 0  # No errors
 
