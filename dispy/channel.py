@@ -1,6 +1,6 @@
-from dist.dispy.http.rest import Rest
-from .embed import DisEmbed
-from .message import DisMessage
+from dispy.https import Rest
+from dispy.embed import DisEmbed
+from dispy.message import DisMessage
 
 
 class DisChannel:

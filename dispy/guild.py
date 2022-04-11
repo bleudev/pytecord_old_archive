@@ -1,4 +1,4 @@
-import dist.dispy.http.rest
+from dispy.https import Rest
 
 
 class DisGuild:
@@ -8,7 +8,7 @@ class DisGuild:
     :propertes:
     id - id of guild
     """
-    def __init__(self, data, rest: dist.dispy.http.rest.Rest):
+    def __init__(self, data, rest: Rest):
         """
         init object
 

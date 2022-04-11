@@ -5,6 +5,7 @@ from .channel import DisChannel
 from .embed import DisEmbed, DisField, DisColor
 from .message import DisMessage
 from .user import DisUser
+from . import https
 
 import typing
 

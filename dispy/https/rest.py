@@ -5,8 +5,7 @@ import requests
 class Rest:
     def __init__(self, token):
         self.token = token
-        async with aiohttp.ClientSession() as s:
-            self._s = s
+        self._s = aiohttp.ClientSession()
 
     def _headers(self):
         return {'Authorization': f'Bot {self.token}'}

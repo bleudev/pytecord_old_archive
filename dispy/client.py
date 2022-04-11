@@ -1,11 +1,11 @@
-from dist.dispy.http.rest import Rest
-from .. import dispy as errs
-from .channel import DisChannel
-from .guild import DisGuild
-from .embed import DisEmbed
-from .message import DisMessage
-from .user import DisUser
-from .http.gateway import Gateway
+from dispy.https import Rest
+from dispy import errs
+from dispy.channel import DisChannel
+from dispy.guild import DisGuild
+from dispy.embed import DisEmbed
+from dispy.message import DisMessage
+from dispy.user import DisUser
+from dispy.https.gateway import Gateway
 
 from typing import *
 __all__ = (

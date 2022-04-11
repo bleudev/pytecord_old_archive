@@ -5,7 +5,9 @@ import time
 import typing
 import websocket
 
-import dist.dispy.http.rest
+from dispy.https import Rest
+from ..message import DisMessage
+from ..channel import DisChannel
 
 class Gateway:
     def __init__(self, gateway_version: int, token: str, intents: int, activity: dict, status: str, on_ready: typing.Awaitable, on_message: typing.Awaitable, register: typing.Awaitable):
@@ -16,7 +18,7 @@ class Gateway:
         self.activity = activity
         self.status = status
         self.token = token
-        self._rest = dist.dispy.http.rest.Rest(token)
+        self._rest = Rest(token)
 
         self.on_ready = on_ready
         self.on_message = on_message
@@ -50,7 +52,7 @@ class Gateway:
     def on_ready(self):
         return
 
-    def on_message(self, message: dist.dispy.message.DisMessage):
+    def on_message(self, message: DisMessage):
         return
 
     def heartbeat(self):
@@ -85,7 +87,7 @@ class Gateway:
                 _message_id = int(event["d"]["id"])
                 _channel_id = int(event["d"]["channel_id"])
 
-                channel = dist.dispy.channel.DisChannel(self._rest.get("channel", _channel_id), self._rest)
+                channel = DisChannel(self._rest.get("channel", _channel_id), self._rest)
                 asyncio.run(self.on_message(channel.fetch(_message_id)))
 
     def _check_notbot(self, event: dict) -> bool:
