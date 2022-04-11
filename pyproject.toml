@@ -1,7 +1,17 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
-
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 125
+skip-string-normalization = true
+
+exclude = [
+    "**/__pycache__",
+    "build",
+    "dist"
+]
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportUnusedImport = "error"
+pythonVersion = "3.8"
+typeCheckingMode = "basic"

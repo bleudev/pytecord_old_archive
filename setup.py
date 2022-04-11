@@ -1,12 +1,11 @@
 from setuptools import setup, find_packages
-import dist.dispy
 
 setup(
       name="dispy",
       version="0.1d",
       author='itttgg',
-      author_email="aitiiigg1@gmail.com"
-      python_requires='>=3.6.0',
+      author_email="aitiiigg1@gmail.com",
+      python_requires='>=3.8.0',
       license="MIT",
       classifiers=[
         "Programming Language :: Python :: 3.6",
