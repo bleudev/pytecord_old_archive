@@ -2,9 +2,7 @@
 name = "infer_pyproject"
 version = "0.1.0"
 description = "Dispy - package for creating bots for Discord"
-authors = [
-    "itttgg <aitiiigg1@gmail.com>"
-]
+author = "itttgg"
 license = {file = "LICENSE"}
 readme = "README.md"
 python = "^3.8"
