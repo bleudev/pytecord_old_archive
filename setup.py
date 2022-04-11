@@ -6,5 +6,5 @@ setup(
     description="Dispy - package for creating bots for Discord",
     license="MIT",
     author="itttgg",
-    packages=[find_packages(where="dispy", include=["https"])]
+    packages=["dispy"]
 )
