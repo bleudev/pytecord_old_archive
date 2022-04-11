@@ -5,7 +5,8 @@ from dispy.guild import DisGuild
 from dispy.embed import DisEmbed
 from dispy.message import DisMessage
 from dispy.user import DisUser
-from dispy.https.gateway import Gateway
+
+from dispy.https import DisApi
 
 from typing import *
 __all__ = (
@@ -119,11 +120,12 @@ class DisBot(_BaseBot):
 
         super().__init__(token, type, prefix)
 
-        self._rest = Rest(token)
-
         self.status = status
 
+        self._api = DisApi(token)
+
         self.isready = False
+
         if prefix == "" or " " in prefix:
             raise errs.BotPrefixError("Invalid prefix! Try another!")
         else:
@@ -156,7 +158,7 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def run(self, status: Optional[Union[DisBotStatus, str]] = None):
+    def run(self, status: str):
         """
         Running bot
 
@@ -165,16 +167,17 @@ class DisBot(_BaseBot):
         """
         self.isready = True
 
-        if self.status is None or status is None:
+        if status is None and self.status is None:
             self.status = "online"
-
-        elif status is not None:
+        elif status is not None and self.status is None:
             self.status = status
+        elif status is not None and self.status is not None:
+            raise errs.BotStatusError("You typed status and in run() and in __init__()")
 
         self._runner(self.status, 10, 512)
 
-    def _runner(self, status: str, version: int, intents: int):
-        Gateway(version, self._rest.token, intents, {}, status, self._on_ready, self._on_messagec, self._register)
+    def _runner(self, status, version: int, intents: int):
+        self._api.run(version, intents, status)
 
         return 0  # No errors
 

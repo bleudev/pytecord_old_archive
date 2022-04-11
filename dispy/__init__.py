@@ -71,5 +71,3 @@ class DisBotEventType(_DocObject):  # Event type for DisBot
     @property
     def ON_READY(self) -> str:
         return "ready"
-
-

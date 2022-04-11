@@ -25,6 +25,7 @@ class Gateway:
         self.on_messagec = on_messagec
         self.register = register
 
+    def run(self):
         # Connecting to Gateway
         self.ws.connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json")
 
