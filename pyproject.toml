@@ -1,12 +1,27 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
-exclude = [
-    "**/__pycache__",
-    "build",
-    "dist"
+[project]
+name = "infer_pyproject"
+version = "0.1.0"
+description = "Dispy - package for creating bots for Discord"
+authors = [
+    "itttgg <aitiiigg1@gmail.com>"
 ]
-reportUnnecessaryTypeIgnoreComment = "warning"
-pythonVersion = "3.8"
-typeCheckingMode = "basic"
+license = "MIT"
+readme = "README.md"
+python = "^3.8"
+repository = "https://github.com/itttgg/dispy"
+documentation = "https://github.com/itttgg/dispy/blob/main/Docs"
+
+classifiers = [
+    "Topic :: Software Development"
+]
+
+# Requirements
+[dev-dependencies]
+black = { aiohttp = "^3.6", python = "^3.8" }
+
+[build-system]
+requires = [
+    "setuptools >= 35.0.2",
+    "setuptools_scm >= 2.0.0, <3"
+]
+build-backend = "setuptools.build_meta"
