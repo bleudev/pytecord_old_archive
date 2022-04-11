@@ -1,12 +1,5 @@
-from dispy.https import Rest
 from dispy import errs
-from dispy.channel import DisChannel
-from dispy.guild import DisGuild
-from dispy.embed import DisEmbed
-from dispy.message import DisMessage
-from dispy.user import DisUser
-
-from dispy.https import DisApi
+from . import DisApi, DisChannel, DisGuild, DisEmbed, DisUser
 
 from typing import *
 __all__ = (
@@ -134,8 +127,7 @@ class DisBot(_BaseBot):
         else:
             self.prefix = prefix
 
-    async def _on_register(self, d):
-        # print(d)
+    async def _on_register(self):
         self.user: DisUser = self._api.user
 
     def on(self, type: str):

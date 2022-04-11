@@ -1,16 +1,49 @@
+import typing
+import aiohttp
+import requests
 import asyncio
-import json
 import threading
 import time
-import typing
 import websocket
+import json
 
-from dispy.https import Rest
-from ..message import DisMessage
-from ..channel import DisChannel
+from dispy import DisMessage, DisUser, DisChannel, DisGuild
 
 
-class Gateway:
+class DisFlags:
+    @staticmethod
+    def default():
+        return 512
+
+
+class _Rest:
+    def __init__(self, token):
+        self.token = token
+        self._s = aiohttp.ClientSession()
+
+    def _headers(self):
+        return {'Authorization': f'Bot {self.token}'}
+
+    def get(self, goal: str, id: int):
+        if goal.casefold() == 'guild':
+            return requests.get(f'https://discord.com/api/v10/guilds/{str(id)}',
+                                headers=self._headers()).json()
+        elif goal.casefold() == 'channel':
+            return requests.get(f'https://discord.com/api/v10/channels/{str(id)}',
+                                headers=self._headers()).json()
+        elif goal.casefold() == "user":
+            return requests.get(f'https://discord.com/api/v10/users/{str(id)}',
+                                headers=self._headers()).json()
+
+    def fetch(self, channel_id, message_id):
+        return requests.get(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages/{str(message_id)}',
+                            headers=self._headers()).json()
+
+    async def send_message(self, channel_id, post):
+        await self._s.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post, headers=self._headers())
+
+
+class _Gateway:
     def __init__(self, gateway_version: int, token: str, intents: int, activity: dict,
                  status: str, on_ready: typing.Awaitable, on_messagec: typing.Awaitable, register: typing.Awaitable,
                  on_register: typing.Awaitable):
@@ -101,3 +134,38 @@ class Gateway:
 
     def _check_notbot(self, event: dict) -> bool:
         return self.user_id != event["d"]["author"]["id"]
+
+
+class DisApi:
+    def __init__(self, token):
+        self.token = token
+
+        self._g = None
+        self._r = _Rest(self.token)
+
+    async def _on_ready(self):
+        return
+
+    def run(self, gateway_version: int, intents: int, status, on_ready: typing.Awaitable, on_messagec: typing.Awaitable, on_register: typing.Awaitable):
+        if on_messagec is not None:
+            self._on_message = on_messagec
+        if on_ready is not None:
+            self._on_ready = on_ready
+
+        self._g = _Gateway(gateway_version, self.token, intents, {}, status, self._on_ready, self._on_message, self._register, on_register)
+        self._g.run()
+
+    async def _register(self, d):
+        self.user: DisUser = self.get_user(d["user"]["id"], False)
+
+    async def _on_message(self, message: DisMessage):
+        return
+
+    def get_user(self, id: int, premium_gets):
+        return DisUser(id, self._r, premium_gets)
+
+    def get_channel(self, id: int):
+        return DisChannel(self._r.get('channel', id), self._r)
+
+    def get_guild(self, id: int):
+        return DisGuild(self._r.get('guild', id), self._r)
