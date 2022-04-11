@@ -122,6 +122,9 @@ class DisBot(_BaseBot):
 
         self.status = status
 
+        self._on_messagec = None
+        self._on_ready = None
+
         self._api = DisApi(token)
 
         self.isready = False
@@ -130,12 +133,6 @@ class DisBot(_BaseBot):
             raise errs.BotPrefixError("Invalid prefix! Try another!")
         else:
             self.prefix = prefix
-
-    async def _on_ready(self):
-        return
-
-    async def _on_messagec(self, message: DisMessage):
-        return
 
     async def _register(self, d):
         # print(d)
@@ -177,7 +174,7 @@ class DisBot(_BaseBot):
         self._runner(self.status, 10, 512)
 
     def _runner(self, status, version: int, intents: int):
-        self._api.run(version, intents, status)
+        self._api.run(version, intents, status, self._on_ready, self._on_messagec)
 
         return 0  # No errors
 

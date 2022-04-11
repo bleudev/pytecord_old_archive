@@ -1,3 +1,5 @@
+import typing
+
 from . import Gateway, Rest
 from .. import DisMessage, DisUser, DisChannel, DisGuild
 
@@ -12,7 +14,12 @@ class DisApi:
     async def _on_ready(self):
         return
 
-    def run(self, gateway_version: int, intents: int, status):
+    def run(self, gateway_version: int, intents: int, status, on_ready: typing.Awaitable = None, on_messagec: typing.Awaitable = None):
+        if on_messagec is not None:
+            self._on_message = on_messagec
+        if on_ready is not None:
+            self._on_ready = on_ready
+
         self._g = Gateway(gateway_version, self.token, intents, {}, status, self._on_ready, self._on_message, self._register)
         self._g.run()
 
