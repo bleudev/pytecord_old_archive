@@ -189,15 +189,14 @@ class DisBot(_BaseBot):
         if self.isready:
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embed=embed)
-            return DisMessage(self._rest.fetch(channel.id), self._rest)
         else:
             raise errs.InternetError("Bot is not ready!")
 
-    def get_channel(self, id: int):
-        return DisChannel(self._rest.get('channel', id), self._rest)
+    def get_channel(self, id: int) -> DisChannel:
+        return self._api.get_channel(id)
 
-    def get_guild(self, id: int):
-        return DisGuild(self._rest.get('guild', id), self._rest)
+    def get_guild(self, id: int) -> DisGuild:
+        return self._api.get_guild(id)
 
-    def get_user(self, id: int, premium_gets: System[bool] = True):
-        return DisUser(id, self._rest, premium_gets)
+    def get_user(self, id: int, premium_gets: System[bool] = True) -> DisUser:
+        return self._api.get_user(id, premium_gets)
