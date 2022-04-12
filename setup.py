@@ -3,10 +3,8 @@ from setuptools import setup, find_packages
 with open("README.md", "r", encoding="utf-8") as mdf:
     long_description = mdf.read()
 
-requires = []
+requires = ["aiohttp>=3.6.0,<4", "requests", "typing", "websocket-client", "asyncio"]
 
-with open("requirements.txt", "r", encoding="utf-8") as rf:
-    requires.append(str(rf.readline()))
 
 setup(
     name="disspy",
