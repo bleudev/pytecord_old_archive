@@ -9,7 +9,7 @@ with open("requirements.txt", "r", encoding="utf-8") as rf:
     requires.append(str(rf.readline()))
 
 setup(
-    name="cf-remote",
+    name="disspy",
     version='0.1a',
     author="itttgg",
     description="Dispy - package for creating bots",
