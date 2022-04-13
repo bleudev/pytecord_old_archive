@@ -17,11 +17,6 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/itttgg/dispy",
     packages=['disspy'],
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT",
-        "Operating System :: OS Independent",
-    ],
     zip_safe=False,
     python_requires=">=3.8",
     install_requires=requires
