@@ -1,21 +1,21 @@
-from disspy.https import Rest
 from disspy.embed import DisEmbed
-from disspy.message import DisMessage
 
 
 class DisChannel:
-    def __init__(self, data: dict, rest: Rest):
+    def __init__(self, id: int, api):
         """
         Creating an object DisChannel
 
-        :param data: dict -> data of the channel (json format)
-        :param rest: Rest -> rest client with token for channel
+        :param id: dict -> id of the channel
+        :param api: Rest -> Api client with token for channel
         """
-        self._rest = rest
-        self.json = data
-        self.id = data['id']
-        self.last_message_id = data['last_message_id']
-        self.guild_id = data["guild_id"]
+        self._api = api
+        self.id = id
+
+        _data = api.get_channel(id)
+
+        self.last_message_id = _data['last_message_id']
+        self.guild_id = _data["guild_id"]
 
     def __eq__(self, other):
         """
@@ -35,14 +35,7 @@ class DisChannel:
         :return: None
         """
 
-        embeds_send_json = []
-        if embeds:
-            for e in embeds:
-                embeds_send_json.append(e.tojson())
-
-            await self._rest.send_message(self.id, {"content": content, "embeds": embeds_send_json})
-        else:
-            await self._rest.send_message(self.id, {"content": content})
+        await self._api.send_message(self.id, content, embeds)
 
     async def send(self, content: str = None, embed: DisEmbed = None):
         """
@@ -52,19 +45,16 @@ class DisChannel:
         :param embed: DisEmbed = None -> Embed for message (DisEmbed - embed) (default is None)
         :return: None
         """
-        if embed:
-            await self._rest.send_message(self.id, {"content": content, "embeds": [embed.tojson()]})
-        else:
-            await self._rest.send_message(self.id, {"content": content})
+        await self._api.send_message(self.id, content, embed)
 
     def fetch(self, id: int):
-        return DisMessage(self._rest.fetch(self.id, id), self._rest, self)
+        return self._api.fetch(self.id, id)
 
 
 class DisDm:
-    def __init__(self, data, rest):
-        self._rest = rest
-        self.id = data["id"]
+    def __init__(self, id, api):
+        self._api = api
+        self.id = id
 
     def fetch(self, id: int):
-        return DisMessage(self._rest.fetch(self.id, id), self._rest)
+        return self._api.fetch(self.id, id)

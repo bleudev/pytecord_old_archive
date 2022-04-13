@@ -7,8 +7,10 @@ import time
 import websocket
 import json
 
-from disspy import DisMessage, DisUser, DisChannel, DisGuild
-
+from .message import DisMessage
+from .user import DisUser
+from .channel import DisChannel
+from .guild import DisGuild
 
 class DisFlags:
     @staticmethod
@@ -146,6 +148,9 @@ class DisApi:
     async def _on_ready(self):
         return
 
+    def fetch(self, channel_id, id):
+        return DisMessage(id, self, DisChannel(channel_id, self))
+
     def run(self, gateway_version: int, intents: int, status, on_ready: typing.Awaitable, on_messagec: typing.Awaitable, on_register: typing.Awaitable):
         if on_messagec is not None:
             self._on_message = on_messagec
@@ -161,8 +166,27 @@ class DisApi:
     async def _on_message(self, message: DisMessage):
         return
 
+    async def send_message(self, id, content, embed):
+        if embed:
+            await self._r.send_message(id, {"content": content, "embeds": [embed.tojson()]})
+        else:
+            await self._r.send_message(id, {"content": content})
+
+    async def send_message(self, id, content, embeds):
+        embeds_send_json = []
+        if embeds:
+            for e in embeds:
+                embeds_send_json.append(e.tojson())
+
+            await self._r.send_message(id, {"content": content, "embeds": embeds_send_json})
+        else:
+            await self._r.send_message(id, {"content": content})
+
     def get_user(self, id: int, premium_gets):
-        return DisUser(id, self._r, premium_gets)
+        return DisUser(id, self, premium_gets)
+
+    def get_user_json(self, id: int):
+        return self._r.get("user", id)
 
     def get_channel(self, id: int):
         return DisChannel(self._r.get('channel', id), self._r)

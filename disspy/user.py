@@ -1,19 +1,19 @@
-from disspy.https import Rest
 from disspy import errs
 
+
 class _UserBase:
-    def __init__(self, id, rest: Rest, premium_gets):
+    def __init__(self, id, api, premium_gets):
         self.id = id
-        self._rest = rest
+        self._api = api
 
         # Data
-        _data = self._rest.get("user", self.id)
+        _data = self._api.get_user_json(id)
         if premium_gets:
             try:
                 _premium_type = int(_data["premium_type"])
             except KeyError:
                 _premium_type = -1
-                raise errs.MissingPerms(dist.dispy.errs.missingperms)
+                raise errs.MissingPerms(errs.missingperms)
 
             self.username = _data["username"]
             self.discriminator = _data["discriminator"]
@@ -23,25 +23,25 @@ class _UserBase:
                 self.isbot: bool = _data["bot"]
             except KeyError:
                 del self.isbot
-                raise errs.MissingPerms(dist.dispy.errs.missingperms)
+                raise errs.MissingPerms(errs.missingperms)
 
             try:
                 self.issystem: bool = _data["system"]
             except KeyError:
                 del self.issystem
-                raise errs.MissingPerms(dist.dispy.errs.missingperms)
+                raise errs.MissingPerms(errs.missingperms)
 
             try:
                 self.isverified: bool = _data["verified"]  # May be ""
             except KeyError:
                 del self.isverified
-                raise errs.MissingPerms(dist.dispy.errs.missingperms)
+                raise errs.MissingPerms(errs.missingperms)
 
             try:
                 self.email: bool = _data["email"]  # May be ""
             except KeyError:
                 del self.email
-                raise errs.MissingPerms(dist.dispy.errs.missingperms)
+                raise errs.MissingPerms(errs.missingperms)
 
             self.flags: int = int(_data["public_flags"])
 
@@ -54,7 +54,7 @@ class _UserBase:
             self.fullname = f"{self.username}#{self.discriminator}"
 
     def uptade(self) -> None:
-        _data = self._rest.get("user", self.id)
+        _data = self._api.get_user_json(self.id)
 
         try:
             _premium_type = int(_data["premium_type"])
@@ -99,7 +99,7 @@ class DisNitro:
         elif type == 2:
             self.type = self.boost
         elif type == -1:
-            raise errs.MissingPerms(dist.dispy.errs.missingperms)
+            raise errs.MissingPerms(errs.missingperms)
         elif type == 0:
             self.type = self.none
         else:

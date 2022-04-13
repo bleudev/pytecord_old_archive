@@ -1,5 +1,9 @@
 from disspy import errs
-from . import DisApi, DisChannel, DisGuild, DisEmbed, DisUser
+from ._core import DisApi
+from .channel import DisChannel
+from .embed import DisEmbed
+from .guild import DisGuild
+from .user import DisUser
 
 from typing import *
 __all__ = (
