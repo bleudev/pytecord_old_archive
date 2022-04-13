@@ -1,28 +1,32 @@
-from disspy.https import Rest
+"""
+    Info
+    --------
 
+"""
 
 class DisGuild:
     """
+    Info
+    --------
     Class for manage Guilds in discord
+    Atributies
+    --------
+    :var id: ID of guild
 
-    :propertes:
-    id - id of guild
+    System atributies
+    --------
+    :var _api: Api client with Rest and Gatewat client.
     """
-    def __init__(self, data, rest: Rest):
+    def __init__(self, id, api):
         """
         init object
 
-        :param data: dict - Json data for guild
-        :param rest: http.Rest - Rest Client for uptade guild
+        :param id: Id for json data getter
+        :param api: Api Client for uptade guild and getting data of guild
         """
-        self.json = data
-        self._rest = rest
+        self._api = api
+        self.id = id
 
-    @property
-    def id(self):
-        """
-        id of guild
+        _data = self._api.get_guild_json(id)
 
-        :return int:
-        """
-        return self.json["id"]
+        self.json = _data

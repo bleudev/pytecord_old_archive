@@ -188,6 +188,9 @@ class DisApi:
     def get_user_json(self, id: int):
         return self._r.get("user", id)
 
+    def get_guild_json(self, id: int):
+        return self._r.get("guild", id)
+
     def get_channel(self, id: int):
         return DisChannel(self._r.get('channel', id), self._r)
 
