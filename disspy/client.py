@@ -1,4 +1,4 @@
-from dispy import errs
+from disspy import errs
 from . import DisApi, DisChannel, DisGuild, DisEmbed, DisUser
 
 from typing import *

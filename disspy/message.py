@@ -1,4 +1,4 @@
-import dispy.https as htt
+import disspy.https as htt
 
 
 class DisMessage:

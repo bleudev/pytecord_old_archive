@@ -7,7 +7,7 @@ import time
 import websocket
 import json
 
-from dispy import DisMessage, DisUser, DisChannel, DisGuild
+from disspy import DisMessage, DisUser, DisChannel, DisGuild
 
 
 class DisFlags:

@@ -1,5 +1,5 @@
-from dispy.https import Rest
-from dispy import errs
+from disspy.https import Rest
+from disspy import errs
 
 class _UserBase:
     def __init__(self, id, rest: Rest, premium_gets):

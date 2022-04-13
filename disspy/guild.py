@@ -1,4 +1,4 @@
-from dispy.https import Rest
+from disspy.https import Rest
 
 
 class DisGuild:
