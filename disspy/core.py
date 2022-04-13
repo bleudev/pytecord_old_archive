@@ -7,10 +7,11 @@ import time
 import websocket
 import json
 
-from .message import DisMessage
-from .user import DisUser
-from .channel import DisChannel
-from .guild import DisGuild
+from message import DisMessage
+from user import DisUser
+from channel import DisChannel
+from guild import DisGuild
+
 
 class DisFlags:
     @staticmethod

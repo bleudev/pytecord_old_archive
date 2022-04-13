@@ -1,13 +1,14 @@
 from disspy import errs
-from ._core import DisApi
-from .channel import DisChannel
-from .embed import DisEmbed
-from .guild import DisGuild
-from .user import DisUser
+from core import DisApi
+from channel import DisChannel
+from embed import DisEmbed
+from guild import DisGuild
+from user import DisUser
 
-from typing import *
-__all__ = (
-    "class DisBot"
+from typing import (
+    Optional,
+    TypeVar,
+    Union
 )
 
 System = {

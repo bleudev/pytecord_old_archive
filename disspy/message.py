@@ -1,4 +1,4 @@
-from .channel import DisChannel
+from channel import DisChannel
 
 
 class DisMessage:
