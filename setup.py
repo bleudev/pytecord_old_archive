@@ -12,10 +12,11 @@ setup(
     author="itttgg",
     author_email="aitiiigg1@gmail.com",
     description="Dispy - package for creating bots",
+    download_url="https://github.com/itttgg/dispy/tree/building-2.3",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/itttgg/dispy",
-    packages=find_packages(),
+    packages=['dispy'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT",
