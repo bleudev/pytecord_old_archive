@@ -22,7 +22,6 @@ class DisFlags:
 class _Rest:
     def __init__(self, token):
         self.token = token
-        self._s = aiohttp.ClientSession()
 
     def _headers(self):
         return {'Authorization': f'Bot {self.token}'}
@@ -43,7 +42,8 @@ class _Rest:
                             headers=self._headers()).json()
 
     async def send_message(self, channel_id, post):
-        await self._s.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post, headers=self._headers())
+        async with aiohttp.ClientSession() as s:
+            await s.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post, headers=self._headers())
 
 
 class _Gateway:

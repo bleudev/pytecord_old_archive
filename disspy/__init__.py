@@ -61,14 +61,13 @@ class DisBotEventType(_DocObject):  # Event type for DisBot
 
     _T: typing.TypeVar = typing.TypeVar("DisBotEventType")
 
-    @property
     def __class__(self) -> typing.Type[_T]:
         return self._T
 
-    @property
-    def ON_MESSAGEC(self) -> str:
+    @staticmethod
+    def ON_MESSAGEC() -> str:
         return "messagec"
 
-    @property
-    def ON_READY(self) -> str:
+    @staticmethod
+    def ON_READY() -> str:
         return "ready"

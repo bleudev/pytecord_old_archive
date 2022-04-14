@@ -129,6 +129,8 @@ class DisBot(_BaseBot):
         self._on_messagec = None
         self._on_ready = None
 
+        self.user = None
+
         self._api = DisApi(token)
 
         self.isready = False

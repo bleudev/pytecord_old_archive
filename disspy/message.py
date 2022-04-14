@@ -1,8 +1,11 @@
+from .channel import DisChannel
+
+
 class DisMessage:
-    def __init__(self, id, channel_id, api):
+    def __init__(self, id, channel_id, r):
         self.id = id
         self.channel_id = channel_id
+        self._r = r
+        self.channel = DisChannel(self.channel_id, self._r)
 
-        _data = api.fetch(self.channel_id, self.id)
-
-        self._api = api
+        _data = self._r.fetch(self.channel_id, self.id)

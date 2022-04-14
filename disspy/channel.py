@@ -1,5 +1,6 @@
 from disspy.embed import DisEmbed
-from .core import _Rest
+import disspy.message
+
 
 class DisChannel:
     def __init__(self, id: int, rest):
@@ -7,9 +8,9 @@ class DisChannel:
         Creating an object DisChannel
 
         :param id: dict -> id of the channel
-        :param api: Rest -> Api client with token for channel
+        :param rest: Rest -> Rest client with token for channel
         """
-        self._r: _Rest = rest
+        self._r = rest
         self.id = id
 
         _data = self._r.get("channel", id)
@@ -45,11 +46,22 @@ class DisChannel:
         :param embed: DisEmbed = None -> Embed for message (DisEmbed - embed) (default is None)
         :return: None
         """
-        await self._r.send_message(self.id, content, embed)
+        _payload = {}
+
+        if embed:
+            _payload = {
+                "content": content,
+                "embeds": [embed.tojson()]
+            }
+        else:
+            _payload = {
+                "content": content
+            }
+
+        await self._r.send_message(self.id, _payload)
 
     def fetch(self, id: int):
-        return self._r.fetch(self.id, id)
-
+        return disspy.message.DisMessage(id, self.id, self._r)
 
 class DisDm:
     def __init__(self, id, api):
