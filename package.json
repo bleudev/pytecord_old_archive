@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/itttgg/dispy/issues"
   },
-  "homepage": "https://github.com/itttgg/dispy#readme"
+  "homepage": "https://github.com/itttgg/dispy#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  },
+  "devDependencies": {}
 }
