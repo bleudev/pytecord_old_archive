@@ -1,5 +1,7 @@
+<p color="white">aaaaaaaaaaa<img src="logo.png" width="250" alt="logo"/></p>
+
 # Dispy
-<img src="logo.png" width="100"/>\
+
 ![alt text](https://img.shields.io/badge/version-0.1a2-informational?style=flat) ![alt text](https://img.shields.io/badge/lang-python-informational) ![alt text](https://img.shields.io/badge/minimal_python_version-3.8-informational)
 
 ## Download stable version
