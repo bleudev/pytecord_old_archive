@@ -57,7 +57,7 @@ class _Gateway:
         self.activity = activity
         self.status = status
         self.token = token
-        self._rest = Rest(token)
+        self._rest = _Rest(token)
 
         self.on_ready = on_ready
         self.on_messagec = on_messagec
@@ -146,9 +146,6 @@ class DisApi:
         self._g = None
         self._r = _Rest(self.token)
 
-    async def _on_ready(self):
-        return
-
     def fetch(self, channel_id, id):
         return DisMessage(id, self, DisChannel(channel_id, self))
 
@@ -163,9 +160,6 @@ class DisApi:
 
     async def _register(self, d):
         self.user: DisUser = self.get_user(d["user"]["id"], False)
-
-    async def _on_message(self, message: DisMessage):
-        return
 
     async def send_message(self, id, content, embed):
         if embed:
@@ -193,7 +187,7 @@ class DisApi:
         return self._r.get("guild", id)
 
     def get_channel(self, id: int):
-        return DisChannel(self._r.get('channel', id), self._r)
+        return DisChannel(id, self)
 
     def get_guild(self, id: int):
-        return DisGuild(self._r.get('guild', id), self._r)
+        return DisGuild(id, self)

@@ -1,4 +1,4 @@
-from .client import DisBot, DisBotStatus
+from .client import DisBot, DisBotStatus, DisBotType
 from .errs import UserNitroTypeError, InternetError, BotTypeError, BotPrefixError, MissingPerms
 from .guild import DisGuild
 from .channel import DisChannel
