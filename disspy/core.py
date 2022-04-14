@@ -147,7 +147,7 @@ class DisApi:
         self._r = _Rest(self.token)
 
     def fetch(self, channel_id, id):
-        return DisMessage(id, self, DisChannel(channel_id, self))
+        return DisMessage(id, channel_id, DisApi(self.token))
 
     def run(self, gateway_version: int, intents: int, status, on_ready: typing.Awaitable, on_messagec: typing.Awaitable, on_register: typing.Awaitable):
         if on_messagec is not None:

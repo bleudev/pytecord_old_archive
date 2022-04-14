@@ -8,7 +8,8 @@ from .user import DisUser
 from typing import (
     Optional,
     TypeVar,
-    Union
+    Union,
+    Type
 )
 
 System = {
@@ -17,39 +18,49 @@ System = {
 
 
 class DisBotType:
+    """
+        ----------
+        Main information
+        ----------
+        This class whose vars are str types for DisBot.
+
+        @@@@@@@@@@@@@@@@
+        ----------
+        Using
+        ----------
+        import disspy
+
+        bot = disspy.DisBot(token="YOUR_TOKEN", type=disspy.DisBotType.MESSAGE())
+                                                ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    """
     __description__: str = "Class for using types for DisBot"  # Description to class
 
     __varibles__: dict[str, str] = {  # Description to varibles
-        "SLASH": ":type: property, :returns: str - Will be called when integration is creating (slash command, context menu)",
-        "MESSAGE": ":type: property, :returns: str - Will be called when message created",
-        "COMMAND": ":type: property, :returns: str - Will be called when command called (for example, !help)"
+        "INTEGRATE": "Will be called when integration is creating (slash command, context menu)",
+        "MESSAGE": "Will be called when message created"
     }
-
-    # Mini doc with using
-    __doc__: str = "Using:" \
-                   "bot = dispy.DisBot(type=dispy.DisBotType.SLASH()) # Creating bot with slash commands and context menus"
 
     _T: TypeVar = TypeVar("DisBotType")
 
-    _SLASH: str = "slash"
+    _INTEGRATE: str = "integrate"
     _MESSAGE: str = "message"
-    _COMMAND: str = "command"
 
     @property
-    def __class__(self) -> TypeVar:
+    def __class__(self) -> Type[_T]:
+        """
+        Returns type of this class
+        --------
+        :return self._T (Type of class):
+        """
         return self._T
 
     @property
-    def SLASH(self) -> str:
-        return self._SLASH
+    def INTEGRATE(self) -> Type[_INTEGRATE]:
+        return self._INTEGRATE
 
     @property
-    def MESSAGE(self) -> str:
+    def MESSAGE(self) -> Type[_MESSAGE]:
         return self._MESSAGE
-
-    @property
-    def COMMAND(self) -> str:
-        return self._COMMAND
 
 
 class _BaseBot:
@@ -62,9 +73,8 @@ class _BaseBot:
     _iscommand = False
 
     _NUMS = {
-        "slash": 1,
-        "message": 2,
-        "command": 3
+        "integrate": 1,
+        "message": 2
     }
 
     def __init__(self, token: str, type: str, prefix: Optional[str] = "!"):
@@ -86,18 +96,10 @@ class _BaseBot:
                 self._isslash = True
             elif _type_num == 2:
                 self._ismessage = True
-            elif _type_num == 3:
-                self._iscommand = True
         except KeyError:
             raise errs.BotTypeError("Invalid type! Try again!")
 
         self.prefix = prefix
-
-    if _iscommand:
-        async def command(self, name: str):
-            def wrapper(func):
-                self.commands[name] = func
-            return wrapper
 
 
 class DisBotStatus:
@@ -108,6 +110,10 @@ class DisBotStatus:
 
 
 class DisBot(_BaseBot):
+
+    _T = TypeVar("DisBot")
+    __parent__ = TypeVar("_BaseBot")
+
     def __init__(self, token: str, type: Union[DisBotType, str], prefix: Optional[str] = "!", status: Optional[str] = None):
         """
         Create bot
@@ -131,6 +137,18 @@ class DisBot(_BaseBot):
             raise errs.BotPrefixError("Invalid prefix! Try another!")
         else:
             self.prefix = prefix
+
+        self.__slots__ = [self._api, self._on_ready, self._on_messagec, self.token, self.prefix,
+                          self.commands, self.user, self.type, self.isready, self.status]
+
+    @property
+    def __class__(self) -> Type[_T]:
+        """
+            Returns type of this class
+            --------
+            :return self._T (Type of class):
+        """
+        return self._T
 
     async def _on_register(self):
         self.user: DisUser = self._api.user
@@ -174,6 +192,16 @@ class DisBot(_BaseBot):
         self._api.run(version, intents, status, self._on_ready, self._on_messagec, self._on_register)
 
         return 0  # No errors
+
+    def disconnect(self):
+        self._dissconnenter()
+
+    def close(self):
+        self._dissconnenter()
+
+    def _dissconnenter(self):
+        for _var in self.__slots__:
+            del _var
 
     async def send(self, channel_id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         if self.isready:
