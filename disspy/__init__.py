@@ -20,7 +20,7 @@ import typing
 __version__ = "0.1dev"
 __minpythonver__ = "3.6"
 __github__ = "https://github.com/itttgg/dispy"
-__stablever__ = "https://github.com/itttgg/dispy/tree/0.1-dev-preview-3.4"
+__stablever__ = "https://github.com/itttgg/dispy/releases/tag/0.1a2"
 __description__ = "Dispy - package for creating bots."
 __packagename__ = "dispy"
 
@@ -61,6 +61,7 @@ class DisBotEventType(_DocObject):  # Event type for DisBot
 
     _T: typing.TypeVar = typing.TypeVar("DisBotEventType")
 
+    @property
     def __class__(self) -> typing.Type[_T]:
         return self._T
 
