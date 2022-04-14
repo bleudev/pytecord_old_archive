@@ -10,7 +10,7 @@ pip install disspy
 ```
 
 ## Links
-https://pypi.org/project/disspy - Project site on PyPi
+https://pypi.org/project/disspy - Project site on PyPi\
 https://dispydocs.herokuapp.com - Site with docs for package
 
 ## Using
