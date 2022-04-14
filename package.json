@@ -1,0 +1,20 @@
+{
+  "name": "dispy",
+  "version": "1.0.0",
+  "description": "<p> <img src=\"logo.png\" width=\"250\" alt=\"logo\"/></p>",
+  "main": "docsite.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itttgg/dispy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/itttgg/dispy/issues"
+  },
+  "homepage": "https://github.com/itttgg/dispy#readme"
+}

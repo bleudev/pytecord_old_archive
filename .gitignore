@@ -1,2 +1,7 @@
 /.idea
 /.venv
+/.__pycache__
+/.node-modules
+/.disspy.egg-info
+/.dist
+/.sdist
