@@ -5,10 +5,13 @@
 ![alt text](https://img.shields.io/badge/version-0.1a2-informational?style=flat) ![alt text](https://img.shields.io/badge/lang-python-informational) ![alt text](https://img.shields.io/badge/minimal_python_version-3.8-informational)
 
 ## Download stable version
-
 ```commandline
 pip install disspy
 ```
+
+## Links
+https://pypi.org/project/disspy - Project site on PyPi
+https://dispydocs.herokuapp.com - Site with docs for package
 
 ## Using
 
