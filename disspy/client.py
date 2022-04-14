@@ -1,5 +1,29 @@
-from disspy import errs
-from .core import DisApi
+"""
+MIT License
+
+Copyright (c) 2022 itttgg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
+import errs
+from .core import DisApi, DisFlags
 from .channel import DisChannel
 from .embed import DisEmbed
 from .guild import DisGuild
@@ -114,7 +138,8 @@ class DisBot(_BaseBot):
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
 
-    def __init__(self, token: str, type: Union[DisBotType, str], prefix: Optional[str] = "!", status: Optional[str] = None):
+    def __init__(self, token: str, type: Union[DisBotType, str], prefix: Optional[str] = "!",
+                 status: Optional[str] = None, flags: Optional[Union[int, DisFlags]] = None):
         """
         Create bot
 
@@ -123,6 +148,11 @@ class DisBot(_BaseBot):
         """
 
         super().__init__(token, type, prefix)
+
+        if flags is None:
+            self.intflags = DisFlags.default()
+        else:
+            self.intflags = flags
 
         self.status = status
 
@@ -188,10 +218,10 @@ class DisBot(_BaseBot):
         elif status is not None and self.status is not None:
             raise errs.BotStatusError("You typed status and in run() and in __init__()")
 
-        self._runner(self.status, 10, 512)
+        self._runner(self.status, 10)
 
-    def _runner(self, status, version: int, intents: int):
-        self._api.run(version, intents, status, self._on_ready, self._on_messagec, self._on_register)
+    def _runner(self, status, version: int) -> None:
+        self._api.run(version, self.intflags, status, self._on_ready, self._on_messagec, self._on_register)
 
         return 0  # No errors
 

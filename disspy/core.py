@@ -1,22 +1,68 @@
-import typing
-import aiohttp
-import requests
-import asyncio
-import threading
-import time
-import websocket
-import json
+"""
+MIT License
 
+Copyright (c) 2022 itttgg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
+# disspy imports
 from .message import DisMessage
 from .user import DisUser
 from .channel import DisChannel
 from .guild import DisGuild
 
+# Typing imports
+from typing import (
+    Type,
+    TypeVar,
+    Awaitable
+)
+
+# Other imports
+import time
+import asyncio
+import threading
+import json
+import aiohttp
+import requests
+import websocket
+
 
 class DisFlags:
+    """
+    The class for using intents in bots
+    """
     @staticmethod
     def default():
         return 512
+
+
+class JsonOutput(dict):
+    _T = TypeVar("JsonOutput")
+
+    def __init__(self, **kwargs):
+        super().__init__(kwargs)
+
+    @property
+    def __class__(self: _T) -> Type[_T]:
+        return self._T
 
 
 class _Rest:
@@ -43,13 +89,14 @@ class _Rest:
 
     async def send_message(self, channel_id, post):
         async with aiohttp.ClientSession() as s:
-            await s.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post, headers=self._headers())
+            await s.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post,
+                         headers=self._headers())
 
 
 class _Gateway:
     def __init__(self, gateway_version: int, token: str, intents: int, activity: dict,
-                 status: str, on_ready: typing.Awaitable, on_messagec: typing.Awaitable, register: typing.Awaitable,
-                 on_register: typing.Awaitable):
+                 status: str, on_ready: Awaitable, on_messagec: Awaitable, register: Awaitable,
+                 on_register: Awaitable):
         # Setting up connecting to Gateway
         self.gateway_version: int = gateway_version
         self.ws = websocket.WebSocket()
@@ -149,13 +196,15 @@ class DisApi:
     def fetch(self, channel_id, id):
         return DisMessage(id, channel_id, DisApi(self.token))
 
-    def run(self, gateway_version: int, intents: int, status, on_ready: typing.Awaitable, on_messagec: typing.Awaitable, on_register: typing.Awaitable):
+    def run(self, gateway_version: int, intents: int, status, on_ready: Awaitable, on_messagec: Awaitable,
+            on_register: Awaitable):
         if on_messagec is not None:
             self._on_message = on_messagec
         if on_ready is not None:
             self._on_ready = on_ready
 
-        self._g = _Gateway(gateway_version, self.token, intents, {}, status, self._on_ready, self._on_message, self._register, on_register)
+        self._g = _Gateway(gateway_version, self.token, intents, {}, status, self._on_ready, self._on_message,
+                           self._register, on_register)
         self._g.run()
 
     async def _on_message(self, message):
@@ -186,14 +235,18 @@ class DisApi:
     def get_user(self, id: int, premium_gets):
         return DisUser(id, self, premium_gets)
 
-    def get_user_json(self, id: int):
+    def get_user_json(self, id: int) -> dict:
         return self._r.get("user", id)
 
-    def get_guild_json(self, id: int):
+    def get_guild_json(self, id: int) -> dict:
         return self._r.get("guild", id)
 
-    def get_channel(self, id: int):
+    def get_channel(self, id: int) -> DisChannel:
         return DisChannel(id, DisApi(self.token))
 
-    def get_guild(self, id: int):
+    def get_guild(self, id: int) -> DisGuild:
+        """
+
+        :param id: int
+        """
         return DisGuild(id, self)
