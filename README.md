@@ -1,4 +1,4 @@
-<p color="white">aaaaaaaaaaa<img src="logo.png" width="250" alt="logo"/></p>
+<p> <img src="logo.png" width="250" alt="logo"/></p>
 
 # Dispy
 
