@@ -7,10 +7,10 @@ import time
 import websocket
 import json
 
-from message import DisMessage
-from user import DisUser
-from channel import DisChannel
-from guild import DisGuild
+from .message import DisMessage
+from .user import DisUser
+from .channel import DisChannel
+from .guild import DisGuild
 
 
 class DisFlags:
@@ -72,13 +72,13 @@ class _Gateway:
         self.heartbeat_interval = self.get_responce()["d"]["heartbeat_interval"]
 
         # Setting up Opcode 1 Heartbeat
-        self.heartbeat_thread = threading.Thread(target=self.heartbeat)
-        self.heartbeat_thread.start()
+        heartbeat_thread = threading.Thread(target=self.heartbeat)
+        heartbeat_thread.start()
 
         # Sending Opcode 2 Identify
         self.send_opcode_2()
 
-        self.heartbeat_thread.join()
+        heartbeat_thread.join()
 
     def send_request(self, json_data):
         self.ws.send(json.dumps(json_data))
@@ -132,7 +132,7 @@ class _Gateway:
                 _message_id = int(event["d"]["id"])
                 _channel_id = int(event["d"]["channel_id"])
 
-                channel = DisChannel(self._rest.get("channel", _channel_id), self._rest)
+                channel = DisChannel(_channel_id, self._rest)
                 asyncio.run(self.on_messagec(channel.fetch(_message_id)))
 
     def _check_notbot(self, event: dict) -> bool:
@@ -157,6 +157,12 @@ class DisApi:
 
         self._g = _Gateway(gateway_version, self.token, intents, {}, status, self._on_ready, self._on_message, self._register, on_register)
         self._g.run()
+
+    async def _on_message(self, message):
+        pass
+
+    async def _on_ready(self):
+        pass
 
     async def _register(self, d):
         self.user: DisUser = self.get_user(d["user"]["id"], False)
@@ -187,7 +193,7 @@ class DisApi:
         return self._r.get("guild", id)
 
     def get_channel(self, id: int):
-        return DisChannel(id, self)
+        return DisChannel(id, DisApi(self.token))
 
     def get_guild(self, id: int):
         return DisGuild(id, self)

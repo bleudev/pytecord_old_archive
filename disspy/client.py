@@ -1,9 +1,9 @@
 from disspy import errs
-from core import DisApi
-from channel import DisChannel
-from embed import DisEmbed
-from guild import DisGuild
-from user import DisUser
+from .core import DisApi
+from .channel import DisChannel
+from .embed import DisEmbed
+from .guild import DisGuild
+from .user import DisUser
 
 from typing import (
     Optional,
@@ -152,7 +152,7 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def run(self, status: str):
+    def run(self, status: str = None):
         """
         Running bot
 

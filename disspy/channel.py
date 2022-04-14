@@ -1,18 +1,18 @@
 from disspy.embed import DisEmbed
-
+from .core import _Rest
 
 class DisChannel:
-    def __init__(self, id: int, api):
+    def __init__(self, id: int, rest):
         """
         Creating an object DisChannel
 
         :param id: dict -> id of the channel
         :param api: Rest -> Api client with token for channel
         """
-        self._api = api
+        self._r: _Rest = rest
         self.id = id
 
-        _data = api.get_channel(id)
+        _data = self._r.get("channel", id)
 
         self.last_message_id = _data['last_message_id']
         self.guild_id = _data["guild_id"]
@@ -35,7 +35,7 @@ class DisChannel:
         :return: None
         """
 
-        await self._api.send_message(self.id, content, embeds)
+        await self._r.send_message(self.id, content, embeds)
 
     async def send(self, content: str = None, embed: DisEmbed = None):
         """
@@ -45,10 +45,10 @@ class DisChannel:
         :param embed: DisEmbed = None -> Embed for message (DisEmbed - embed) (default is None)
         :return: None
         """
-        await self._api.send_message(self.id, content, embed)
+        await self._r.send_message(self.id, content, embed)
 
     def fetch(self, id: int):
-        return self._api.fetch(self.id, id)
+        return self._r.fetch(self.id, id)
 
 
 class DisDm:
