@@ -10,8 +10,8 @@ pip install disspy
 ```
 
 ## Links
-<link href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</link> - Project site on PyPi
-https://dispydocs.herokuapp.com - Site with docs for package
+<p><a href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</a> - Project site on PyPi</p>
+<p><a href="https://dispydocs.herokuapp.com/">https://dispydocs.herokuapp.com/</a> - Site with docs for package</p>
 
 ## Using
 
