@@ -22,20 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# disspy imports
-from .message import DisMessage
-from .user import DisUser
-from .channel import DisChannel
-from .guild import DisGuild
-
 # Typing imports
 from typing import (
     Type,
     TypeVar,
     Awaitable
+
 )
 
-# Other imports
+# pckages imports
 import time
 import asyncio
 import threading
@@ -43,6 +38,12 @@ import json
 import aiohttp
 import requests
 import websocket
+
+# disspy imports
+from .message import DisMessage
+from .user import DisUser
+from .channel import DisChannel
+from .guild import DisGuild
 
 
 class DisFlags:
@@ -65,6 +66,11 @@ class JsonOutput(dict):
         return self._T
 
 
+class Showflake:
+    def __init__(self):
+        print("Beta Message: Dont't use Showflake objects in your projects because it in dev!")
+
+
 class _Rest:
     def __init__(self, token):
         self.token = token
@@ -72,20 +78,22 @@ class _Rest:
     def _headers(self):
         return {'Authorization': f'Bot {self.token}'}
 
-    def get(self, goal: str, id: int):
+    def get(self, goal: str, id: int) -> JsonOutput:
         if goal.casefold() == 'guild':
-            return requests.get(f'https://discord.com/api/v10/guilds/{str(id)}',
-                                headers=self._headers()).json()
-        elif goal.casefold() == 'channel':
-            return requests.get(f'https://discord.com/api/v10/channels/{str(id)}',
-                                headers=self._headers()).json()
-        elif goal.casefold() == "user":
-            return requests.get(f'https://discord.com/api/v10/users/{str(id)}',
-                                headers=self._headers()).json()
+            return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/guilds/{str(id)}',
+                              headers=self._headers()).json())
 
-    def fetch(self, channel_id, message_id):
-        return requests.get(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages/{str(message_id)}',
-                            headers=self._headers()).json()
+        elif goal.casefold() == 'channel':
+            return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/channels/{str(id)}',
+                              headers=self._headers()).json())
+
+        elif goal.casefold() == "user":
+            return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/users/{str(id)}',
+                              headers=self._headers()).json())
+
+    def fetch(self, channel_id, message_id) -> JsonOutput:
+        return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages/{str(message_id)}',
+                          headers=self._headers()).json())
 
     async def send_message(self, channel_id, post):
         async with aiohttp.ClientSession() as s:

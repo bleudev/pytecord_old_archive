@@ -29,7 +29,7 @@ from .channel import DisChannel
 from .embed import DisEmbed, DisField, DisColor
 from .message import DisMessage
 from .user import DisUser
-from .core import DisApi, DisFlags
+from .core import DisApi, DisFlags, JsonOutput, Showflake
 
 import typing
 

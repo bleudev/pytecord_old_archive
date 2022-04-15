@@ -22,19 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import errs
-from .core import DisApi, DisFlags
-from .channel import DisChannel
-from .embed import DisEmbed
-from .guild import DisGuild
-from .user import DisUser
-
+# Typing imports
 from typing import (
     Optional,
     TypeVar,
     Union,
     Type
 )
+
+# Package imports
+from disspy import errs
+from .core import DisApi, DisFlags
+from .channel import DisChannel
+from .embed import DisEmbed
+from .guild import DisGuild
+from .user import DisUser
+
 
 System = {
     bool: bool
@@ -84,10 +87,15 @@ class DisBotType:
 
     @property
     def MESSAGE(self) -> Type[_MESSAGE]:
+        """
+            :return "messagec":
+        """
         return self._MESSAGE
 
 
 class _BaseBot:
+    _T = TypeVar("_BaseBot")
+
     _SLASH: str = "slash"
     _MESSAGE: str = "message"
     _COMMAND: str = "command"
@@ -125,12 +133,45 @@ class _BaseBot:
 
         self.prefix = prefix
 
+    @property
+    def __class__(self) -> Type[_T]:
+        """
+            Returns type of this class
+            --------
+            :return self._T (Type of class):
+        """
+        return self._T
+
 
 class DisBotStatus:
+    """
+        Hel class for adding discord staus for bot
+
+        Examples
+        bot.run(disspy.DisBotStatus.ONLINE)
+
+        bot.run(disspy.DisBotStatus.DND)
+
+        bot.run(disspy.DisBotStatus.IDLE)
+        ---------------
+        And you may use status in __init__()
+        bot = disspy.DisBot(token="TOKEN", type="message", status=disspy.DisBotStatus.ONLINE)
+    """
+    _T = TypeVar("DisBotStatus")
+
     ONLINE = "online"
     DND = "dnd"
     INVISIBLE = "invisible"
     IDLE = "idle"
+
+    @property
+    def __class__(self) -> Type[_T]:
+        """
+            Returns type of this class
+            --------
+            :return self._T (Type of class):
+        """
+        return self._T
 
 
 class DisBot(_BaseBot):
