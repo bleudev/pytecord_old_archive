@@ -49,10 +49,42 @@ from .guild import DisGuild
 class DisFlags:
     """
     The class for using intents in bots
+
+    :methods:
+        :method: default()
+            Implements GUILD_MESSAGES and default intents
+        :method: all()
+            Implements all Gateway Intents
     """
+
     @staticmethod
     def default():
         return 512
+
+    @staticmethod
+    def all():
+        """
+            Implements:
+                1.  GUILDS
+                2.  GUILD_MEMBERS (Privileged intent)
+                3.  GUILD_BANS
+                4.  GUILD_EMOJIS_AND_STICKERS
+                5.  GUILD_INTEGRATIONS
+                6.  GUILD_WEBHOOKS
+                7.  GUILD_INVITES
+                8.  GUILD_VOICE_STATES
+                9.  GUILD_PRESENCES (Privileged intent)
+                10. GUILD_MESSAGES (Privileged intent)
+                11. GUILD_MESSAGE_REACTIONS
+                12. GUILD_MESSAGE_TYPING
+                13. DIRECT_MESSAGES
+                14. DIRECT_MESSAGE_REACTIONS
+                15. DIRECT_MESSAGE_TYPING
+                16. GUILD_SCHEDULED_EVENTS
+
+            :return: int (integer value of intents)
+        """
+        return 98303
 
 
 class JsonOutput(dict):
@@ -92,7 +124,10 @@ class _Rest:
                               headers=self._headers()).json())
 
     def fetch(self, channel_id, message_id) -> JsonOutput:
-        return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages/{str(message_id)}',
+        _channel_id, _message_id = [str(channel_id), str(message_id)]
+        _1part = "https://discord.com/api/v10/channels/"
+        _2part = f"{_channel_id}/messages/{_message_id}"
+        return JsonOutput(kwargs=requests.get(f"{_1part}{_2part}",
                           headers=self._headers()).json())
 
     async def send_message(self, channel_id, post):
