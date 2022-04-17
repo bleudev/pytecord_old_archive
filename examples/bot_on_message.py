@@ -1,6 +1,6 @@
 import disspy
 
-bot = disspy.DisBot(token="TOKEN", type=disspy.DisBotType.MESSAGE)  # Create bot
+bot = disspy.DisBot(token="TOKEN")  # Create bot
 
 # "On message create" event
 @bot.on(disspy.DisBotEventType.ON_MESSAGEC())

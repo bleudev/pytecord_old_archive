@@ -7,7 +7,7 @@ Don't do this
 ```python
 import disspy
 
-bot = disspy.DisBot(token="TOKEN", type="message", status=disspy.DisBotStatus.DND)
+bot = disspy.DisBot(token="TOKEN", status=disspy.DisBotStatus.DND)
 
 async def messagec(message):
     await message.channel.send("Hi")
@@ -23,7 +23,7 @@ Do this!
 ```python
 import disspy
 
-bot = disspy.DisBot(token="TOKEN", type="message", status=disspy.DisBotStatus.DND)
+bot = disspy.DisBot(token="TOKEN", status=disspy.DisBotStatus.DND)
 
 @bot.on("messagec")
 async def on_messagec(message):
