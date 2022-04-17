@@ -5,7 +5,10 @@ This class maked for create bot.
 
 Atributues\
 ``
-_rest -> Rest client with token of the bot
+_api -> Api client with token of the bot
+``\
+``
+token -> Token of bot
 ``\
 ``
 ...
