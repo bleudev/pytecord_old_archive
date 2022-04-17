@@ -2,10 +2,11 @@
 
 # Dispy
 
-![alt text](https://img.shields.io/badge/version-0.1a2-informational?style=flat) ![alt text](https://img.shields.io/badge/lang-python-informational) ![alt text](https://img.shields.io/badge/minimal_python_version-3.8-informational)
+![version](https://img.shields.io/badge/version-0.1a2-informational?style=flat) ![project language](https://img.shields.io/badge/lang-python-informational) ![minimal version](https://img.shields.io/badge/minimal_python_version-3.8-informational)
 
 ## Download stable version
-```commandline
+```
+# Windows/Mac Os/Ubuntu
 pip install disspy
 ```
 
@@ -36,6 +37,22 @@ bot = disspy.DisBot(token="YOUR_TOKEN", prefix="!")
 @bot.on("ready")
 async def on_ready():
     print("Ready!")
+
+
+bot.run()
+```
+
+### bot.on("messagec")
+
+```python
+import disspy
+
+bot = disspy.DisBot(token="YOUR_TOKEN", prefix="!")
+
+
+@bot.on("messagec")
+async def on_messagec(message):
+    await message.channel.send("Test!")
 
 
 bot.run()
