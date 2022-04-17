@@ -67,19 +67,14 @@ class BotPrefixError(_DisError):
         super().__init__("101c", text)
 
 
-class BotTypeError(_DisError):
+class BotEventTypeError(_DisError):
     def __init__(self, text):
         super().__init__("102c", text)
 
 
-class BotEventTypeError(_DisError):
-    def __init__(self, text):
-        super().__init__("103c", text)
-
-
 class BotStatusError(_DisError):
     def __init__(self, text):
-        super().__init__("104c", text)
+        super().__init__("103c", text)
 
 
 # User errors

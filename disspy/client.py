@@ -32,11 +32,11 @@ from typing import (
 
 # Package imports
 from disspy import errs
-from .core import DisApi, DisFlags
-from .channel import DisChannel
-from .embed import DisEmbed
-from .guild import DisGuild
-from .user import DisUser
+from disspy.core import DisApi, DisFlags
+from disspy.channel import DisChannel
+from disspy.embed import DisEmbed
+from disspy.guild import DisGuild
+from disspy.user import DisUser
 
 
 System = {
@@ -44,74 +44,11 @@ System = {
 }
 
 
-class DisBotType:
-    """
-        ----------
-        Main information
-        ----------
-        This class whose vars are str types for DisBot.
-
-        @@@@@@@@@@@@@@@@
-        ----------
-        Using
-        ----------
-        import disspy
-
-        bot = disspy.DisBot(token="YOUR_TOKEN", type=disspy.DisBotType.MESSAGE())
-                                                ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    """
-    __description__: str = "Class for using types for DisBot"  # Description to class
-
-    __varibles__: dict[str, str] = {  # Description to varibles
-        "INTEGRATE": "Will be called when integration is creating (slash command, context menu)",
-        "MESSAGE": "Will be called when message created"
-    }
-
-    _T: TypeVar = TypeVar("DisBotType")
-
-    _INTEGRATE: str = "integrate"
-    _MESSAGE: str = "message"
-
-    @property
-    def __class__(self) -> Type[_T]:
-        """
-        Returns type of this class
-        --------
-        :return self._T (Type of class):
-        """
-        return self._T
-
-    @property
-    def INTEGRATE(self) -> Type[_INTEGRATE]:
-        return self._INTEGRATE
-
-    @property
-    def MESSAGE(self) -> Type[_MESSAGE]:
-        """
-            :return "messagec":
-        """
-        return self._MESSAGE
-
-
 class _BaseBot:
     _T = TypeVar("_BaseBot")
 
-    _SLASH: str = "slash"
-    _MESSAGE: str = "message"
-    _COMMAND: str = "command"
-
-    _isslash = False
-    _ismessage = False
-    _iscommand = False
-
-    _NUMS = {
-        "integrate": 1,
-        "message": 2
-    }
-
-    def __init__(self, token: str, type: str, prefix: Optional[str] = "!"):
+    def __init__(self, token: str):
         self.token = token
-        self.type = type
 
         self.commands = {}
         """
@@ -120,18 +57,6 @@ class _BaseBot:
                 "help": help()
             }
         """
-
-        try:
-            _type_num = self._NUMS[type]
-
-            if _type_num == 1:
-                self._isslash = True
-            elif _type_num == 2:
-                self._ismessage = True
-        except KeyError:
-            raise errs.BotTypeError("Invalid type! Try again!")
-
-        self.prefix = prefix
 
     @property
     def __class__(self) -> Type[_T]:
@@ -179,16 +104,15 @@ class DisBot(_BaseBot):
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
 
-    def __init__(self, token: str, type: Union[DisBotType, str], prefix: Optional[str] = "!",
-                 status: Optional[str] = None, flags: Optional[Union[int, DisFlags]] = None):
+    def __init__(self, token: str, status: Optional[str] = None,
+                 flags: Optional[Union[int, DisFlags]] = None):
         """
         Create bot
 
         :param token: Discord Developers Portal Bot Token
-        :param prefix: Prefix for bot (There is no spaces!)
         """
 
-        super().__init__(token, type, prefix)
+        super().__init__(token)
 
         if flags is None:
             self.intflags = DisFlags.default()
@@ -206,13 +130,8 @@ class DisBot(_BaseBot):
 
         self.isready = False
 
-        if prefix == "" or " " in prefix:
-            raise errs.BotPrefixError("Invalid prefix! Try another!")
-        else:
-            self.prefix = prefix
-
-        self.__slots__ = [self._api, self._on_ready, self._on_messagec, self.token, self.prefix,
-                          self.commands, self.user, self.type, self.isready, self.status]
+        self.__slots__ = [self._api, self._on_ready, self._on_messagec, self.token,
+                          self.user, self.isready, self.status]
 
     @property
     def __class__(self) -> Type[_T]:

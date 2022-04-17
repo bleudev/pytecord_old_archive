@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from .client import DisBot, DisBotStatus, DisBotType
-from .errs import UserNitroTypeError, InternetError, BotTypeError, BotPrefixError, MissingPerms
+from .client import DisBot, DisBotStatus
+from .errs import UserNitroTypeError, InternetError, BotPrefixError, MissingPerms
 from .guild import DisGuild
 from .channel import DisChannel
 from .embed import DisEmbed, DisField, DisColor
