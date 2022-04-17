@@ -77,7 +77,7 @@ class _UserBase:
             self.discriminator = _data["discriminator"]
             self.fullname = f"{self.username}#{self.discriminator}"
 
-    def uptade(self) -> None:
+    def update(self) -> None:
         _data = self._api.get_user_json(self.id)
 
         try:
