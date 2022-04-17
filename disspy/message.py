@@ -33,3 +33,5 @@ class DisMessage:
         self.channel = DisChannel(self.channel_id, self._r)
 
         _data = self._r.fetch(self.channel_id, self.id)
+
+        self.content = _data["content"]
