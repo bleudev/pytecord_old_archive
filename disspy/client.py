@@ -50,14 +50,6 @@ class _BaseBot:
     def __init__(self, token: str):
         self.token = token
 
-        self.commands = {}
-        """
-            For example:
-            self.commands = {
-                "help": help()
-            }
-        """
-
     @property
     def __class__(self) -> Type[_T]:
         """
