@@ -8,11 +8,11 @@ requires = ["aiohttp>=3.6.0,<4", "requests", "typing", "websocket-client", "asyn
 
 setup(
     name="disspy",
-    version='0.1a2',
+    version='0.1a3',
     author="itttgg",
     author_email="aitiiigg1@gmail.com",
     description="Dispy - package for creating bots",
-    download_url="https://github.com/itttgg/dispy/tree/0.1a2",
+    download_url="https://github.com/itttgg/dispy/tree/0.1a3",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/itttgg/dispy",

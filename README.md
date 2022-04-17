@@ -2,7 +2,7 @@
 
 # Dispy
 
-![version](https://img.shields.io/badge/version-0.1a2-informational?style=flat) ![project language](https://img.shields.io/badge/lang-python-informational) ![minimal version](https://img.shields.io/badge/minimal_python_version-3.8-informational)
+![version](https://img.shields.io/badge/version-0.1a3-informational?style=flat) ![project language](https://img.shields.io/badge/lang-python-informational) ![minimal version](https://img.shields.io/badge/minimal_python_version-3.8-informational)
 
 ## Download stable version
 ```
@@ -21,7 +21,7 @@ pip install disspy
 ```python
 import disspy
 
-bot = disspy.DisBot(token="YOUR_TOKEN", prefix="!")
+bot = disspy.DisBot(token="YOUR_TOKEN")
 
 bot.run()
 ```
@@ -31,7 +31,7 @@ bot.run()
 ```python
 import disspy
 
-bot = disspy.DisBot(token="YOUR_TOKEN", prefix="!")
+bot = disspy.DisBot(token="YOUR_TOKEN")
 
 
 @bot.on("ready")
@@ -47,7 +47,7 @@ bot.run()
 ```python
 import disspy
 
-bot = disspy.DisBot(token="YOUR_TOKEN", prefix="!")
+bot = disspy.DisBot(token="YOUR_TOKEN")
 
 
 @bot.on("messagec")
