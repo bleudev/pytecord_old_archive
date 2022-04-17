@@ -92,7 +92,13 @@ class DisBotStatus:
 
 
 class DisBot(_BaseBot):
+    """
+    Class for accessing and sending information in Discord
 
+    Attributes:
+        :var token: Token for accessing and sending info (Token from Discord Developer Portal).
+        :var flags: Flags (Intents) for bot.
+    """
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
 
@@ -102,6 +108,8 @@ class DisBot(_BaseBot):
         Create bot
 
         :param token: Discord Developers Portal Bot Token
+        :param status: Status that use in run()
+        :param flags: Flags (Intents) for bot (default is 512)
         """
 
         super().__init__(token)
