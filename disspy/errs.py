@@ -76,6 +76,10 @@ class BotStatusError(_DisError):
     def __init__(self, text):
         super().__init__("103c", text)
 
+class InvalidArgument(_DisError):
+    def __init__(self, text):
+        super().__init__("104c", text)
+
 
 # User errors
 class UserNitroTypeError(_DisError):

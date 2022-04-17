@@ -22,29 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# Imports
-from .client import DisBot, DisBotStatus
-from .errs import UserNitroTypeError, InternetError, BotPrefixError, MissingPerms, InvalidArgument, BotEventTypeError, BotStatusError
-from .guild import DisGuild
-from .channel import DisChannel
-from .embed import DisEmbed, DisField, DisColor
-from .message import DisMessage
-from .user import DisUser
-from .core import DisApi, DisFlags, JsonOutput, Showflake
-from .types import DisBotEventType, DisBotStatus
-from .logger import Logger
+class Logger:
+    def __init__(self):
+        self.logs: list = []
 
-"""
-    Main information about dispy
-    
-    :var: __version__ -> Version of dipsy
-    :var: __github__ -> Link to github repo
-    :var: __packagename__ -> Name of package 
-"""
-
-__version__ = "0.1dev"
-__minpythonver__ = "3.6"
-__github__ = "https://github.com/itttgg/dispy"
-__stablever__ = "https://github.com/itttgg/dispy/releases/tag/0.1a2"
-__description__ = "Dispy - package for creating bots."
-__packagename__ = "dispy"
+    def log(self, string: str):
+        self.logs.append(string)

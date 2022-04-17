@@ -37,6 +37,8 @@ from disspy.channel import DisChannel
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.user import DisUser
+from disspy.types import DisBotStatus, DisBotEventType
+from disspy.logger import Logger
 
 
 System = {
@@ -49,37 +51,6 @@ class _BaseBot:
 
     def __init__(self, token: str):
         self.token = token
-
-    @property
-    def __class__(self) -> Type[_T]:
-        """
-            Returns type of this class
-            --------
-            :return self._T (Type of class):
-        """
-        return self._T
-
-
-class DisBotStatus:
-    """
-        Hel class for adding discord staus for bot
-
-        Examples
-        bot.run(disspy.DisBotStatus.ONLINE)
-
-        bot.run(disspy.DisBotStatus.DND)
-
-        bot.run(disspy.DisBotStatus.IDLE)
-        ---------------
-        And you may use status in __init__()
-        bot = disspy.DisBot(token="TOKEN", type="message", status=disspy.DisBotStatus.ONLINE)
-    """
-    _T = TypeVar("DisBotStatus")
-
-    ONLINE = "online"
-    DND = "dnd"
-    INVISIBLE = "invisible"
-    IDLE = "idle"
 
     @property
     def __class__(self) -> Type[_T]:
@@ -130,6 +101,9 @@ class DisBot(_BaseBot):
 
         self.isready = False
 
+        self.logger = Logger()
+        self.__classname__ = "DisBot"
+
         self.__slots__ = [self._api, self._on_ready, self._on_messagec, self.token,
                           self.user, self.isready, self.status]
 
@@ -145,30 +119,43 @@ class DisBot(_BaseBot):
     async def _on_register(self):
         self.user: DisUser = self._api.user
 
-    def on(self, type: str):
+    def on(self, type: Union[DisBotEventType, str]):
         """
         This method was created for changing on_ready and on_message method that using in runner
 
         :param type: Type of event
         :return: None (wrapper)
         """
+
+        __methodname__ = f"{self.__classname__}.on()"
+
+        if isinstance(type, DisBotEventType):
+            self.logger.log(f"Error! In method {__methodname__} was moved invalid argument! Argument type is DisBotEventType, but in method have to type is str!")
+
         def wrapper(func):
             if type == "messagec":
                 self._on_messagec = func
             elif type == "ready":
                 self._on_ready = func
             else:
+                self.logger.log(f"Error! In method {__methodname__} was moved invalid event type!")
                 raise errs.BotEventTypeError("Invalid type of event!")
 
         return wrapper
 
-    def run(self, status: str = None):
+    def run(self, status: Union[DisBotStatus, str] = None):
         """
         Running bot
 
         :param status: Status for bot user
         :return: None
         """
+        __methodname__ = f"{self.__classname__}.on()"
+
+        if isinstance(status, DisBotStatus):
+            self.logger.log(f"Error! In method {__methodname__} was moved invalid argument! Argument type is DisBotStatus, but in method have to type is str!")
+            raise errs.InvalidArgument("Invalid argument type!")
+
         self.isready = True
 
         if status is None and self.status is None:
