@@ -2,7 +2,7 @@
 
 # Dispy
 
-![version](https://img.shields.io/badge/version-0.1a3-informational?style=flat) ![project language](https://img.shields.io/badge/lang-python-informational) ![minimal version](https://img.shields.io/badge/minimal_python_version-3.8-informational)
+![version](https://img.shields.io/badge/version-0.1b-informational?style=flat) ![project language](https://img.shields.io/badge/lang-python-informational) ![minimal version](https://img.shields.io/badge/minimal_python_version-3.8-informational)
 
 ## Download stable version
 ```
