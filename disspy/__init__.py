@@ -23,8 +23,16 @@ SOFTWARE.
 """
 
 # Imports
-from .client import DisBot, DisBotStatus
-from .errs import UserNitroTypeError, InternetError, MissingPerms, InvalidArgument, BotEventTypeError, BotStatusError, ClassTypeError
+from .client import DisBot
+from .errs import (
+    UserNitroTypeError,
+    InternetError,
+    MissingPerms,
+    InvalidArgument,
+    BotEventTypeError,
+    BotStatusError,
+    ClassTypeError
+)
 from .guild import DisGuild
 from .channel import DisChannel
 from .embed import DisEmbed, DisField, DisColor
@@ -34,20 +42,20 @@ from .core import DisApi, DisFlags, JsonOutput, Showflake
 from .types import DisBotEventType, DisBotStatus
 from .logger import Logger
 
-"""
-Main information about dispy
-    
-:var: __version__ -> Version of dipsy
-:var: __minpythonver__ -> Minimal version of python for installing package
-:var: __github__ -> Link to github repo
-:var: __stablever__ -> Link to stable version of package
-:var: __description__ -> Description of package
-:var: __packagename__ -> Name of package
-"""
-
+# Version of dipsy (b - beta, a - alpha)
 __version__ = "0.1b"
+
+# Minimal python version for using package
 __minpythonver__ = "3.8"
+
+# Link to GitHub repo
 __github__ = "https://github.com/itttgg/dispy"
+
+# Link to stable version of package
 __stablever__ = f"https://github.com/itttgg/dispy/releases/tag/{__version__}"
+
+# Description of package
 __description__ = "Dispy - package for creating bots."
+
+# Name of package
 __packagename__ = "dispy"
