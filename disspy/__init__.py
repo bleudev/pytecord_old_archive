@@ -35,14 +35,14 @@ from .types import DisBotEventType, DisBotStatus
 from .logger import Logger
 
 """
-    Main information about dispy
+Main information about dispy
     
-    :var: __version__ -> Version of dipsy
-    :var: __minpythonver__ -> Minimal version of python for installing package
-    :var: __github__ -> Link to github repo
-    :var: __stablever__ -> Link to stable version of package
-    :var: __description__ -> Description of package
-    :var: __packagename__ -> Name of package
+:var: __version__ -> Version of dipsy
+:var: __minpythonver__ -> Minimal version of python for installing package
+:var: __github__ -> Link to github repo
+:var: __stablever__ -> Link to stable version of package
+:var: __description__ -> Description of package
+:var: __packagename__ -> Name of package
 """
 
 __version__ = "0.1b"
