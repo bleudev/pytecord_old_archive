@@ -26,8 +26,8 @@ SOFTWARE.
 from typing import (
     Type,
     TypeVar,
-    Awaitable
-
+    Awaitable,
+    Union
 )
 
 # pckages imports
@@ -100,6 +100,14 @@ class JsonOutput(dict):
 
 
 class Showflake:
+    """
+Class info
+
+Showflake is using for simpled work with tokens and ids.
+
+Atributies:
+    :var self.isid:
+    """
     def __init__(self, value: str):
         if value.isdigit():
             self.isid = True
@@ -111,16 +119,16 @@ class Showflake:
             self.value = value
 
     def __int__(self):
-        if self.isid:
-            return int(self.value)
-        else:
+        if not self.isid:
             raise ClassTypeError("Class Value is str, but this method needs for int!")
+        else:
+            return int(self.value)
 
     def __str__(self):
-        if self.istoken:
-            return str(self.value)
-        else:
+        if not self.istoken:
             raise ClassTypeError("Class Value is int, but this method needs for str!")
+        else:
+            return str(self.value)
 
 
 class _Rest:
@@ -130,7 +138,14 @@ class _Rest:
     def _headers(self):
         return {'Authorization': f'Bot {self.token}'}
 
-    def get(self, goal: str, id: int) -> JsonOutput:
+    def get(self, goal: str, id: Union[int, Showflake]) -> JsonOutput:
+        """
+        :param goal: guild/channel/user
+        :param id: id of guild/channel/user
+        :return JsonOutput: Json answer from Discord API server
+        """
+        id = int(id)
+
         if goal.casefold() == 'guild':
             return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/guilds/{str(id)}',
                               headers=self._headers()).json())
@@ -161,6 +176,7 @@ class _Gateway:
                  status: str, on_ready: Awaitable, on_messagec: Awaitable, register: Awaitable,
                  on_register: Awaitable):
         # Setting up connecting to Gateway
+        self.heartbeat_interval = 0
         self.gateway_version: int = gateway_version
         self.ws = websocket.WebSocket()
         self.intents = intents
@@ -251,6 +267,8 @@ class _Gateway:
 
 class DisApi:
     def __init__(self, token):
+        self._on_ready = None
+        self._on_messagec = None
         self.token = token
 
         self._g = None
@@ -262,7 +280,7 @@ class DisApi:
     def run(self, gateway_version: int, intents: int, status, on_ready: Awaitable, on_messagec: Awaitable,
             on_register: Awaitable):
         if on_messagec is not None:
-            self._on_message = on_messagec
+            self._on_messagec = on_messagec
         if on_ready is not None:
             self._on_ready = on_ready
 
@@ -295,21 +313,61 @@ class DisApi:
         else:
             await self._r.send_message(id, {"content": content})
 
-    def get_user(self, id: int, premium_gets):
+    def get_user(self, id: int, premium_gets) -> DisUser:
+        """
+        Get user by id
+
+        :param id: id of user
+        :return DisUser:
+        """
         return DisUser(id, self, premium_gets)
 
-    def get_user_json(self, id: int) -> dict:
-        return self._r.get("user", id)
+    def get_user_json(self, id: int) -> JsonOutput:
+        """
+        Get user by id (Json Output)
 
-    def get_guild_json(self, id: int) -> dict:
-        return self._r.get("guild", id)
+        :param id: id of user
+        :return JsonOutput:
+        """
+        return JsonOutput(kwargs=self._r.get("user", id))
 
-    def get_channel(self, id: int) -> DisChannel:
+    def get_channel(self, id: Union[int, Showflake]) -> DisChannel:
+        """
+        Get channel by id
+
+        :param id: id of channel
+        :return DisChannel:
+        """
+        id = int(id)
+
         return DisChannel(id, DisApi(self.token))
 
-    def get_guild(self, id: int) -> DisGuild:
+    def get_channel_json(self, id: Union[int, Showflake]) -> JsonOutput:
+        """
+        Get channel by id (Json Output)
+
+        :param id: id of channel
+        :return JsonOutput:
+        """
+        return JsonOutput(kwargs=self._r.get("channel", id))
+
+    def get_guild(self, id: Union[int, Showflake]) -> DisGuild:
+        """
+        Get guild by id
+
+        :param id: id of guild
+        :return DisGuild:
+        """
+        id = int(id)
+
+        return DisGuild(id, DisApi(self.token))
+
+    def get_guild_json(self, id: int) -> JsonOutput:
+        """
+        Get guild by id (Json Output)
+
+        :param id: id of guild
+        :return JsonOutput:
         """
 
-        :param id: int
-        """
-        return DisGuild(id, self)
+        return JsonOutput(kwargs=self._r.get("guild", id))

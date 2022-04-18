@@ -78,7 +78,7 @@ class InvalidArgument(_DisError):
         super().__init__("150p", text)
 
 
-class ClassTypeError(_DisError):
+class ClassTypeError(_DisRunTimeError):
     def __init__(self, text):
         super().__init__("151p", text)
 
