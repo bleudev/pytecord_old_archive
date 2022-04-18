@@ -209,13 +209,13 @@ class _Gateway:
         self.heartbeat_interval = self.get_responce()["d"]["heartbeat_interval"]
 
         # Setting up Opcode 1 Heartbeat
-        heartbeat_thread = threading.Thread(target=self.heartbeat)
-        heartbeat_thread.start()
+        self.heartbeat_thread = threading.Thread(target=self.heartbeat)
+        self.heartbeat_thread.start()
 
         # Sending Opcode 2 Identify
         self.send_opcode_2()
 
-        heartbeat_thread.join()
+        self.heartbeat_thread.join()
 
     def send_request(self, json_data):
         self.ws.send(json.dumps(json_data))
@@ -258,6 +258,7 @@ class _Gateway:
                                           "intents": self.intents}})
 
     def _check(self, event: dict):
+        print(event)
         if event["t"] == "READY":
             asyncio.run(self.register(event["d"]))
             asyncio.run(self.on_ready())
@@ -271,6 +272,11 @@ class _Gateway:
 
                 channel = DisChannel(_channel_id, self._rest)
                 asyncio.run(self.on_messagec(channel.fetch(_message_id)))
+
+        if event["t"] == "INTERACTION_CREATE":
+            _token = event["d"]["token"]
+            _interactionid = event["d"]["id"]
+
 
     def _check_notbot(self, event: dict) -> bool:
         return self.user_id != event["d"]["author"]["id"]
@@ -306,7 +312,8 @@ class DisApi:
         pass
 
     async def _register(self, d):
-        self.user: DisUser = self.get_user(d["user"]["id"], False)
+        pass
+        # self.user: DisUser = self.get_user(d["user"]["id"], False)
 
     async def send_message(self, id, content, embed):
         if embed:

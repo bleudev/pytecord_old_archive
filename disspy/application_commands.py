@@ -49,7 +49,11 @@ class Slash:
     def register(self, name, description):
         _payload = {
             "name": name,
-            "description": description
+            "description": description,
+            "type": 1
         }
 
-        self._rac.POST(f"/applications/{self.application_id}/commands", _payload, self._headers())
+        return self._rac.POST(f"applications/{self.application_id}/commands", post=_payload, headers=self._headers())
+
+    def getall(self):
+        return self._rac.GET(f"applications/{self.application_id}/commands", headers=self._headers())
