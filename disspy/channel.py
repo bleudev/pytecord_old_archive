@@ -25,6 +25,10 @@ SOFTWARE.
 from disspy.embed import DisEmbed
 import disspy.message
 
+from typing import (
+    Optional
+)
+
 
 class DisChannel:
     """
@@ -54,7 +58,7 @@ class DisChannel:
         """
         return self.id == other.id
 
-    async def send(self, content: str = None, embeds: list[DisEmbed] = None):
+    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None) -> int:
         """
         Sending messages to discord channel
 
@@ -62,10 +66,33 @@ class DisChannel:
         :param embeds: list[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
         :return: None
         """
+        _payload = {}
+        if embeds:
+            embeds_json = []
 
-        await self._r.send_message(self.id, content, embeds)
+            for i in embeds:
+                embeds_json.append(i.tojson())
+            if content:
+                _payload = {
+                    "content": content,
+                    "embeds": embeds_json
+                }
+            elif not content:
+                _payload = {
+                    "embeds": embeds_json
+                }
+        elif not embeds and content:
+            _payload = {
+                "content": content
+            }
+        elif not embeds and content:
+            print("Error!")
+            return -1
 
-    async def send(self, content: str = None, embed: DisEmbed = None):
+        await self._r.send_message(self.id, _payload)
+        return 0
+
+    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None) -> int:
         """
         Sending messages to discord channel
 
@@ -75,17 +102,26 @@ class DisChannel:
         """
         _payload = {}
 
-        if embed:
+        if embed and content:
             _payload = {
                 "content": content,
                 "embeds": [embed.tojson()]
             }
-        else:
+        elif embed and not content:
+            _payload = {
+                "embeds": [embed.tojson()]
+            }
+
+        elif content and not embed:
             _payload = {
                 "content": content
             }
+        elif not content and not embed:
+            print("Error!")
+            return -1
 
         await self._r.send_message(self.id, _payload)
+        return 0
 
     def fetch(self, id: int):
         return disspy.message.DisMessage(id, self.id, self._r)
