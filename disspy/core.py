@@ -44,6 +44,7 @@ from disspy.message import DisMessage
 from disspy.user import DisUser
 from disspy.channel import DisChannel
 from disspy.guild import DisGuild
+from disspy.errs import ClassTypeError
 
 
 class DisFlags:
@@ -99,8 +100,27 @@ class JsonOutput(dict):
 
 
 class Showflake:
-    def __init__(self):
-        print("Beta Message: Dont't use Showflake objects in your projects because it in dev!")
+    def __init__(self, value: str):
+        if value.isdigit():
+            self.isid = True
+            self.istoken = False
+            self.value = int(value)
+        else:
+            self.isid = False
+            self.istoken = True
+            self.value = value
+
+    def __int__(self):
+        if self.isid:
+            return int(self.value)
+        else:
+            raise ClassTypeError("Class Value is str, but this method needs for int!")
+
+    def __str__(self):
+        if self.istoken:
+            return str(self.value)
+        else:
+            raise ClassTypeError("Class Value is int, but this method needs for str!")
 
 
 class _Rest:

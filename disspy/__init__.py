@@ -24,7 +24,7 @@ SOFTWARE.
 
 # Imports
 from .client import DisBot, DisBotStatus
-from .errs import UserNitroTypeError, InternetError, BotPrefixError, MissingPerms, InvalidArgument, BotEventTypeError, BotStatusError
+from .errs import UserNitroTypeError, InternetError, MissingPerms, InvalidArgument, BotEventTypeError, BotStatusError, ClassTypeError
 from .guild import DisGuild
 from .channel import DisChannel
 from .embed import DisEmbed, DisField, DisColor

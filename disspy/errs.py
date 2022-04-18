@@ -62,23 +62,25 @@ class MissingPerms(_DisRunTimeError):
 
 
 # Client errors
-class BotPrefixError(_DisError):
+class BotEventTypeError(_DisError):
     def __init__(self, text):
         super().__init__("101c", text)
 
 
-class BotEventTypeError(_DisError):
+class BotStatusError(_DisError):
     def __init__(self, text):
         super().__init__("102c", text)
 
 
-class BotStatusError(_DisError):
-    def __init__(self, text):
-        super().__init__("103c", text)
-
+# Package errors
 class InvalidArgument(_DisError):
     def __init__(self, text):
-        super().__init__("104c", text)
+        super().__init__("150p", text)
+
+
+class ClassTypeError(_DisError):
+    def __init__(self, text):
+        super().__init__("151p", text)
 
 
 # User errors
