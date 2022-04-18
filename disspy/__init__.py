@@ -41,6 +41,7 @@ from .user import DisUser
 from .core import DisApi, DisFlags, JsonOutput, Showflake
 from .types import DisBotEventType, DisBotStatus
 from .logger import Logger
+from ._typing import TypeOf
 
 # Version of dipsy (b - beta, a - alpha)
 __version__ = "0.1b"

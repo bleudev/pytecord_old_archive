@@ -39,6 +39,7 @@ from disspy.guild import DisGuild
 from disspy.user import DisUser
 from disspy.types import DisBotStatus, DisBotEventType
 from disspy.logger import Logger
+from disspy._typing import TypeOf
 
 
 System = {
@@ -73,7 +74,7 @@ class DisBot(_BaseBot):
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
 
-    def __init__(self, token: str, status: Optional[str] = None,
+    def __init__(self, token: str, status: Optional[TypeOf(DisBotStatus)] = None,
                  flags: Optional[Union[int, DisFlags]] = None):
         """
         Create bot

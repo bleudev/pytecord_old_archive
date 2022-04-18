@@ -49,12 +49,15 @@ class DisBotStatus:
     INVISIBLE = "invisible"
     IDLE = "idle"
 
+    def __all__(self) -> list:
+        return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
+
     @property
     def __class__(self) -> Type[_T]:
         """
-            Returns type of this class
-            --------
-            :return self._T (Type of class):
+        Returns type of this class
+
+        :return Type: Type of class
         """
         return self._T
 
@@ -79,10 +82,13 @@ class DisBotEventType:  # Event type for DisBot
     def __class__(self) -> Type[_T]:
         return self._T
 
-    @staticmethod
-    def ON_MESSAGEC() -> str:
+    def __all__(self) -> list:
+        return [self.ON_READY(), self.ON_MESSAGEC()]
+
+    @property
+    def ON_MESSAGEC(self) -> str:
         return "messagec"
 
-    @staticmethod
-    def ON_READY() -> str:
+    @property
+    def ON_READY(self) -> str:
         return "ready"
