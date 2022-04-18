@@ -40,10 +40,10 @@ import requests
 import websocket
 
 # disspy imports
-from .message import DisMessage
-from .user import DisUser
-from .channel import DisChannel
-from .guild import DisGuild
+from disspy.message import DisMessage
+from disspy.user import DisUser
+from disspy.channel import DisChannel
+from disspy.guild import DisGuild
 
 
 class DisFlags:

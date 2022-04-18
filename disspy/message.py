@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from .channel import DisChannel
+from disspy.channel import DisChannel
 
 
 class DisMessage:
