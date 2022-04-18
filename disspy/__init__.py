@@ -48,6 +48,6 @@ Main information about dispy
 __version__ = "0.1b"
 __minpythonver__ = "3.8"
 __github__ = "https://github.com/itttgg/dispy"
-__stablever__ = "https://github.com/itttgg/dispy/releases/tag/0.1b"
+__stablever__ = f"https://github.com/itttgg/dispy/releases/tag/{__version__}"
 __description__ = "Dispy - package for creating bots."
 __packagename__ = "dispy"

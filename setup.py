@@ -1,4 +1,5 @@
 from setuptools import setup
+import disspy
 
 with open("README.md", "r", encoding="utf-8") as mdf:
     long_description = mdf.read()
@@ -8,11 +9,11 @@ requires = ["aiohttp>=3.6.0,<4", "requests", "typing", "websocket-client", "asyn
 
 setup(
     name="disspy",
-    version='0.1b',
+    version=disspy.__version__,
     author="itttgg",
     author_email="aitiiigg1@gmail.com",
     description="Dispy - package for creating bots",
-    download_url="https://github.com/itttgg/dispy/tree/0.1a3",
+    download_url=f"https://github.com/itttgg/dispy/tree/{disspy.__version__}",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/itttgg/dispy",
