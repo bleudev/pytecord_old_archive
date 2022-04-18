@@ -27,6 +27,9 @@ import disspy.message
 
 
 class DisChannel:
+    """
+    The class for sending messages to discord channels and fetching messages in channels
+    """
     def __init__(self, id: int, rest):
         """
         Creating an object DisChannel
@@ -87,7 +90,11 @@ class DisChannel:
     def fetch(self, id: int):
         return disspy.message.DisMessage(id, self.id, self._r)
 
+
 class DisDm:
+    """
+    The class for sending messages to discord DMchannels and fetching messages in DMchannels
+    """
     def __init__(self, id, api):
         self._api = api
         self.id = id
