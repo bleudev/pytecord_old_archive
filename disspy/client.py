@@ -74,7 +74,7 @@ class DisBot(_BaseBot):
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
 
-    def __init__(self, token: str, status: Optional[TypeOf(DisBotStatus)] = None,
+    def __init__(self, token: str, application_id: int, status: Optional[TypeOf(DisBotStatus)] = None,
                  flags: Optional[Union[int, DisFlags]] = None):
         """
         Create bot
@@ -99,6 +99,7 @@ class DisBot(_BaseBot):
         self.user = None
 
         self._api = DisApi(token)
+        self.application_id = application_id
 
         self.isready = False
 

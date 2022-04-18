@@ -45,6 +45,7 @@ from disspy.user import DisUser
 from disspy.channel import DisChannel
 from disspy.guild import DisGuild
 from disspy.errs import ClassTypeError
+from disspy.application_commands import Slash
 
 
 class RestApiCommands:
@@ -185,7 +186,7 @@ class _Rest:
 class _Gateway:
     def __init__(self, gateway_version: int, token: str, intents: int, activity: dict,
                  status: str, on_ready: Awaitable, on_messagec: Awaitable, register: Awaitable,
-                 on_register: Awaitable):
+                 on_register: Awaitable, app_id):
         # Setting up connecting to Gateway
         self.heartbeat_interval = 0
         self.gateway_version: int = gateway_version
@@ -201,6 +202,8 @@ class _Gateway:
         self.register = register
         self.on_register = on_register
 
+        self.s = Slash(self.token, app_id)
+
     def run(self):
         # Connecting to Gateway
         self.ws.connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json")
@@ -209,13 +212,13 @@ class _Gateway:
         self.heartbeat_interval = self.get_responce()["d"]["heartbeat_interval"]
 
         # Setting up Opcode 1 Heartbeat
-        self.heartbeat_thread = threading.Thread(target=self.heartbeat)
-        self.heartbeat_thread.start()
+        heartbeat_thread = threading.Thread(target=self.heartbeat)
+        heartbeat_thread.start()
 
         # Sending Opcode 2 Identify
         self.send_opcode_2()
 
-        self.heartbeat_thread.join()
+        heartbeat_thread.join()
 
     def send_request(self, json_data):
         self.ws.send(json.dumps(json_data))
@@ -295,7 +298,7 @@ class DisApi:
         return DisMessage(id, channel_id, DisApi(self.token))
 
     def run(self, gateway_version: int, intents: int, status, on_ready: Awaitable, on_messagec: Awaitable,
-            on_register: Awaitable):
+            on_register: Awaitable, application_id):
         if on_messagec is not None:
             self._on_messagec = on_messagec
         if on_ready is not None:

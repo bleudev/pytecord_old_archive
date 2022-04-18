@@ -24,6 +24,7 @@ SOFTWARE.
 
 from disspy.core import RestApiCommands
 
+
 class ApplicationCommand:
     def __init__(self, name, description, cmd, command_type: int):
         self.name = name
@@ -37,11 +38,33 @@ class SlashCommand(ApplicationCommand):
         super().__init__(name, description, cmd, 1)
 
 
+class Context:
+    def __init__(self, interaction_token, interaction_id, bot_token):
+        self.interaction_token = interaction_token
+        self.interaction_id = interaction_id
+        self._bot_token = bot_token
+        self._rac = RestApiCommands("https://discord.com/api/v10/")
+
+    def _headers(self):
+        return {'Authorization': f'Bot {self._bot_token}'}
+
+    def send(self, content: str):
+        _payload = {
+            "type": 4,
+            "data": {
+                "content": content
+            }
+        }
+
+        self._rac.POST(f"/interactions/{self.interaction_id}/{self.interaction_token}/callback", _payload, self._headers())
+
+
 class Slash:
     def __init__(self, token, application_id):
         self.token = token
         self.application_id = application_id
         self._rac = RestApiCommands("https://discord.com/api/v10/")
+        self.commands = {}
 
     def _headers(self):
         return {'Authorization': f'Bot {self.token}'}
@@ -57,3 +80,16 @@ class Slash:
 
     def getall(self):
         return self._rac.GET(f"applications/{self.application_id}/commands", headers=self._headers())
+
+    def slash(self, name, description):
+        def wrapper(func):
+            _payload = {
+                "name": name,
+                "description": description,
+                "type": 1
+            }
+
+            _c = self._rac.POST(f"applications/{self.application_id}/commands", post=_payload, headers=self._headers())
+            self.commands.setdefault(_c["id"], func)
+
+        return wrapper
