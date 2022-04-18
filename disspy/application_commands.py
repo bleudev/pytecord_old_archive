@@ -22,42 +22,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# Imports
-from .client import DisBot
-from .errs import (
-    UserNitroTypeError,
-    InternetError,
-    MissingPerms,
-    InvalidArgument,
-    BotEventTypeError,
-    BotStatusError,
-    ClassTypeError
-)
-from .guild import DisGuild
-from .channel import DisChannel
-from .embed import DisEmbed, DisField, DisColor
-from .message import DisMessage
-from .user import DisUser
-from .core import DisApi, DisFlags, JsonOutput, Showflake
-from .types import DisBotEventType, DisBotStatus
-from .logger import Logger
-from ._typing import TypeOf
-from .application_commands import ApplicationCommand, SlashCommand
+from disspy.core import RestApiCommands
 
-# Version of dipsy (b - beta, a - alpha)
-__version__ = "0.1b"
+class ApplicationCommand:
+    def __init__(self, name, description, cmd, command_type: int):
+        self.name = name
+        self.description = description
+        self.cmd = cmd
+        self.command_type = command_type
 
-# Minimal python version for using package
-__minpythonver__ = "3.8"
 
-# Link to GitHub repo
-__github__ = "https://github.com/itttgg/dispy"
+class SlashCommand(ApplicationCommand):
+    def __init__(self, name, description, cmd):
+        super().__init__(name, description, cmd, 1)
 
-# Link to stable version of package
-__stablever__ = f"https://github.com/itttgg/dispy/releases/tag/{__version__}"
 
-# Description of package
-__description__ = "Dispy - package for creating bots."
+class Slash:
+    def __init__(self, token, application_id):
+        self.token = token
+        self.application_id = application_id
+        self._rac = RestApiCommands("https://discord.com/api/v10/")
 
-# Name of package
-__packagename__ = "dispy"
+    def _headers(self):
+        return {'Authorization': f'Bot {self.token}'}
+
+    def register(self, name, description):
+        _payload = {
+            "name": name,
+            "description": description
+        }
+
+        self._rac.POST(f"/applications/{self.application_id}/commands", _payload, self._headers())

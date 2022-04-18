@@ -47,6 +47,17 @@ from disspy.guild import DisGuild
 from disspy.errs import ClassTypeError
 
 
+class RestApiCommands:
+    def __init__(self, mainurl: str):
+        self.mainurl = mainurl
+
+    def POST(self, url: str, post: dict, headers: dict):
+        return requests.post(self.mainurl + url, json=post, headers=headers).json()
+
+    def GET(self, url: str, headers: dict):
+        return requests.get(self.mainurl + url, headers=headers).json()
+
+
 class DisFlags:
     """
     The class for using intents in bots
