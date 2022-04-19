@@ -98,7 +98,7 @@ class DisBot(_BaseBot):
 
         self.user = None
 
-        self._api = DisApi(token)
+        self._api = DisApi(self.token, self.intflags, application_id)
         self.application_id = application_id
 
         self.isready = False
@@ -119,7 +119,8 @@ class DisBot(_BaseBot):
         return self._T
 
     async def _on_register(self):
-        self.user: DisUser = self._api.user
+        pass
+        # self.user: DisUser = self._api.user
 
     def on(self, type: Union[DisBotEventType, str]):
         """
@@ -144,6 +145,10 @@ class DisBot(_BaseBot):
                 raise errs.BotEventTypeError("Invalid type of event!")
 
         return wrapper
+
+    @property
+    def slash(self):
+        return self._api.g.s
 
     def run(self, status: Union[DisBotStatus, str] = None):
         """
@@ -170,7 +175,7 @@ class DisBot(_BaseBot):
         self._runner(self.status, 10)
 
     def _runner(self, status, version: int) -> None:
-        self._api.run(version, self.intflags, status, self._on_ready, self._on_messagec, self._on_register)
+        self._api.run(self.status, self._on_ready, self._on_messagec, self._on_register)
 
         return 0  # No errors
 

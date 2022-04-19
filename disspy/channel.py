@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 from disspy.embed import DisEmbed
-import disspy.message
+from disspy.message import DisMessage
 
 from typing import (
     Optional
@@ -124,7 +124,7 @@ class DisChannel:
         return 0
 
     def fetch(self, id: int):
-        return disspy.message.DisMessage(id, self.id, self._r)
+        return DisMessage(id, self.id, self._r)
 
 
 class DisDm:

@@ -22,6 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+# pckages imports
+import asyncio
+import json
 # Typing imports
 from typing import (
     Type,
@@ -30,22 +33,17 @@ from typing import (
     Union
 )
 
-# pckages imports
-import time
-import asyncio
-import threading
-import json
 import aiohttp
 import requests
 import websocket
 
+from disspy.application_commands import Slash, Context
+from disspy.channel import DisChannel
+from disspy.errs import ClassTypeError
+from disspy.guild import DisGuild
 # disspy imports
 from disspy.message import DisMessage
 from disspy.user import DisUser
-from disspy.channel import DisChannel
-from disspy.guild import DisGuild
-from disspy.errs import ClassTypeError
-from disspy.application_commands import Slash
 
 
 class RestApiCommands:
@@ -185,26 +183,28 @@ class _Rest:
 
 class _Gateway:
     def __init__(self, gateway_version: int, token: str, intents: int, activity: dict,
-                 status: str, on_ready: Awaitable, on_messagec: Awaitable, register: Awaitable,
-                 on_register: Awaitable, app_id):
+                 app_id):
         # Setting up connecting to Gateway
+        self.user_id = "0g"
         self.heartbeat_interval = 0
         self.gateway_version: int = gateway_version
         self.ws = websocket.WebSocket()
         self.intents = intents
         self.activity = activity
-        self.status = status
+
         self.token = token
         self._rest = _Rest(token)
 
-        self.on_ready = on_ready
-        self.on_messagec = on_messagec
-        self.register = register
-        self.on_register = on_register
-
         self.s = Slash(self.token, app_id)
 
-    def run(self):
+    def run(self, on_ready: Awaitable, on_messagec: Awaitable, register2: Awaitable,
+            on_register: Awaitable, status):
+        self.status = status
+        self.on_ready = on_ready
+        self.on_messagec = on_messagec
+        self.register2 = register2
+        self.on_register = on_register
+
         # Connecting to Gateway
         self.ws.connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json")
 
@@ -212,15 +212,9 @@ class _Gateway:
         self.heartbeat_interval = self.get_responce()["d"]["heartbeat_interval"]
 
         # Setting up Opcode 1 Heartbeat
-        heartbeat_thread = threading.Thread(target=self.heartbeat)
-        heartbeat_thread.start()
+        asyncio.run(self.heartbeat())
 
-        # Sending Opcode 2 Identify
-        self.send_opcode_2()
-
-        heartbeat_thread.join()
-
-    def send_request(self, json_data):
+    async def send_request(self, json_data):
         self.ws.send(json.dumps(json_data))
 
     def get_responce(self):
@@ -228,48 +222,59 @@ class _Gateway:
         return json.loads(responce)
 
     async def register(self, d):
+        self.user_id = d["user"]["id"]
+
+    async def register2(self, d):
+        pass
+
+    async def on_ready(self):
         return
 
-    def on_ready(self):
+    async def on_messagec(self, message: DisMessage):
         return
 
-    def on_messagec(self, message: DisMessage):
+    async def on_register(self):
         return
 
-    def on_register(self):
-        return
-
-    def heartbeat(self):
+    async def heartbeat(self):
+        # Sending Opcode 2 Identify
+        await self.send_opcode_2()
         while True:
-            self.heartbeat_events_create()
+            await self.heartbeat_events_create()
 
-            time.sleep(self.heartbeat_interval / 1000)
+            await asyncio.sleep(self.heartbeat_interval / 1000)
 
-    def heartbeat_events_create(self):
-        self.send_opcode_1()
-        event = self.get_responce()
-        self._check(event)
+    async def heartbeat_events_create(self):
+        await self.send_opcode_1()
+        await self._check(self.get_responce())
 
-    def send_opcode_1(self):
-        self.send_request({"op": 1, "d": "null"})
+    async def send_opcode_1(self):
+        await self.send_request({"op": 1, "d": "null"})
 
-    def send_opcode_2(self):
-        self.send_request({"op": 2, "d": {"token": self.token,
+    async def send_opcode_2(self):
+        await self.send_request({"op": 2, "d": {"token": self.token,
                                           "properties": {"$os": "linux", "$browser": "dispy", "$device": "dispy"},
                                           "presence": {"activities": [self.activity],
                                                        "status": self.status, "since": 91879201, "afk": False},
                                           "intents": self.intents}})
 
-    def _check(self, event: dict):
+    async def _check(self, event: dict):
         print(event)
         if event["t"] == "READY":
-            asyncio.run(self.register(event["d"]))
-            asyncio.run(self.on_ready())
-            asyncio.run(self.on_register())
-            self.user_id = event["d"]["user"]["id"]
+            await self.register(event["d"])
+            await self.register2(event["d"])
+            try:
+                await self.on_ready()
+            except TypeError:
+                async def on_ready():
+                    pass
+                await on_ready()
+
+            await self.on_register()
+
 
         if event["t"] == "MESSAGE_CREATE":
-            if self._check_notbot(event):
+            if self.user_id != event["d"]["author"]["id"]:
                 _message_id = int(event["d"]["id"])
                 _channel_id = int(event["d"]["channel_id"])
 
@@ -280,33 +285,31 @@ class _Gateway:
             _token = event["d"]["token"]
             _interactionid = event["d"]["id"]
 
+            _ctx = Context(_token, _interactionid, self.token)
 
-    def _check_notbot(self, event: dict) -> bool:
-        return self.user_id != event["d"]["author"]["id"]
+            await self.s.commands[event["d"]["data"]["id"]](_ctx)
 
 
 class DisApi:
-    def __init__(self, token):
+    def __init__(self, token, intents, application_id):
         self._on_ready = None
         self._on_messagec = None
         self.token = token
 
-        self._g = None
+        self.g = _Gateway(10, self.token, intents, {}, application_id)
         self._r = _Rest(self.token)
 
     def fetch(self, channel_id, id):
         return DisMessage(id, channel_id, DisApi(self.token))
 
-    def run(self, gateway_version: int, intents: int, status, on_ready: Awaitable, on_messagec: Awaitable,
-            on_register: Awaitable, application_id):
+    def run(self, status, on_ready: Awaitable, on_messagec: Awaitable,
+            on_register: Awaitable):
         if on_messagec is not None:
             self._on_messagec = on_messagec
         if on_ready is not None:
             self._on_ready = on_ready
 
-        self._g = _Gateway(gateway_version, self.token, intents, {}, status, self._on_ready, self._on_message,
-                           self._register, on_register)
-        self._g.run()
+        self.g.run(self._on_ready, self._on_messagec, self._register2, on_register, status)
 
     async def _on_message(self, message):
         pass
@@ -314,9 +317,9 @@ class DisApi:
     async def _on_ready(self):
         pass
 
-    async def _register(self, d):
-        pass
-        # self.user: DisUser = self.get_user(d["user"]["id"], False)
+    async def _register2(self, d):
+        # pass
+        self.user: DisUser = self.get_user(d["user"]["id"], False)
 
     async def send_message(self, id, content, embed):
         if embed:

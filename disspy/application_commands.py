@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from disspy.core import RestApiCommands
+import disspy.core
 
 
 class ApplicationCommand:
@@ -43,7 +43,7 @@ class Context:
         self.interaction_token = interaction_token
         self.interaction_id = interaction_id
         self._bot_token = bot_token
-        self._rac = RestApiCommands("https://discord.com/api/v10/")
+        self._rac = disspy.core.RestApiCommands("https://discord.com/api/v10/")
 
     def _headers(self):
         return {'Authorization': f'Bot {self._bot_token}'}
@@ -63,7 +63,7 @@ class Slash:
     def __init__(self, token, application_id):
         self.token = token
         self.application_id = application_id
-        self._rac = RestApiCommands("https://discord.com/api/v10/")
+        self._rac = disspy.core.RestApiCommands("https://discord.com/api/v10/")
         self.commands = {}
 
     def _headers(self):

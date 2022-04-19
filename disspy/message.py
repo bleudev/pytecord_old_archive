@@ -22,11 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from disspy.channel import DisChannel
+
 
 
 class DisMessage:
     def __init__(self, id, channel_id, r):
+        from disspy.channel import DisChannel
         self.id = id
         self.channel_id = channel_id
         self._r = r
