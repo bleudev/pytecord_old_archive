@@ -146,9 +146,16 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    @property
-    def slash(self):
-        return self._api.g.s
+    def slash_command(self, name, description):
+        _payload = {
+            "name": name,
+            "description": description,
+            "type": 1
+        }
+        def wrapper(func):
+            self._api.create_command(_payload, func)
+
+        return wrapper
 
     def run(self, status: Union[DisBotStatus, str] = None):
         """

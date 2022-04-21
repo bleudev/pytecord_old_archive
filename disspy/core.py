@@ -25,6 +25,7 @@ SOFTWARE.
 # pckages imports
 import asyncio
 import json
+
 # Typing imports
 from typing import (
     Type,
@@ -37,7 +38,7 @@ import aiohttp
 import requests
 import websocket
 
-from disspy.application_commands import Slash, Context
+from disspy.application_commands import Context
 from disspy.channel import DisChannel
 from disspy.errs import ClassTypeError
 from disspy.guild import DisGuild
@@ -195,15 +196,14 @@ class _Gateway:
         self.token = token
         self._rest = _Rest(token)
 
-        self.s = Slash(self.token, app_id)
-
     def run(self, on_ready: Awaitable, on_messagec: Awaitable, register2: Awaitable,
-            on_register: Awaitable, status):
+            on_register: Awaitable, status, on_interaction):
         self.status = status
         self.on_ready = on_ready
         self.on_messagec = on_messagec
         self.register2 = register2
         self.on_register = on_register
+        self.on_interaction = on_interaction
 
         # Connecting to Gateway
         self.ws.connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json")
@@ -224,17 +224,20 @@ class _Gateway:
     async def register(self, d):
         self.user_id = d["user"]["id"]
 
-    async def register2(self, d):
+    async def register2(self):
         pass
 
     async def on_ready(self):
-        return
+        pass
 
     async def on_messagec(self, message: DisMessage):
-        return
+        pass
 
     async def on_register(self):
-        return
+        pass
+
+    async def on_interaction(self, token, id, command_id, bot_token: str):
+        pass
 
     async def heartbeat(self):
         # Sending Opcode 2 Identify
@@ -262,9 +265,9 @@ class _Gateway:
         print(event)
         if event["t"] == "READY":
             await self.register(event["d"])
-            await self.register2(event["d"])
+            await self.register2()
             try:
-                await self.on_ready()
+                asyncio.create_task(self.on_ready())
             except TypeError:
                 async def on_ready():
                     pass
@@ -272,22 +275,23 @@ class _Gateway:
 
             await self.on_register()
 
-
         if event["t"] == "MESSAGE_CREATE":
             if self.user_id != event["d"]["author"]["id"]:
                 _message_id = int(event["d"]["id"])
                 _channel_id = int(event["d"]["channel_id"])
 
-                channel = DisChannel(_channel_id, self._rest)
-                asyncio.run(self.on_messagec(channel.fetch(_message_id)))
+                _channel = DisChannel(_channel_id, self._rest)
+                _message = _channel.fetch(_message_id)
+
+                asyncio.create_task(self.on_messagec(_message))
 
         if event["t"] == "INTERACTION_CREATE":
             _token = event["d"]["token"]
             _interactionid = event["d"]["id"]
+            _commandid = event["d"]["data"]["id"]
+            _token = self.token
 
-            _ctx = Context(_token, _interactionid, self.token)
-
-            await self.s.commands[event["d"]["data"]["id"]](_ctx)
+            asyncio.create_task(self.on_interaction(_token, _interactionid, _commandid, _token))
 
 
 class DisApi:
@@ -295,9 +299,12 @@ class DisApi:
         self._on_ready = None
         self._on_messagec = None
         self.token = token
+        self.application_id = application_id
 
         self.g = _Gateway(10, self.token, intents, {}, application_id)
         self._r = _Rest(self.token)
+
+        self.slashs = {}
 
     def fetch(self, channel_id, id):
         return DisMessage(id, channel_id, DisApi(self.token))
@@ -309,7 +316,7 @@ class DisApi:
         if on_ready is not None:
             self._on_ready = on_ready
 
-        self.g.run(self._on_ready, self._on_messagec, self._register2, on_register, status)
+        self.g.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction)
 
     async def _on_message(self, message):
         pass
@@ -317,9 +324,20 @@ class DisApi:
     async def _on_ready(self):
         pass
 
-    async def _register2(self, d):
+    async def _register2(self):
         # pass
-        self.user: DisUser = self.get_user(d["user"]["id"], False)
+        self.user: DisUser = self.get_user(self.g.user_id, False)
+
+    async def _on_interaction(self, token, id, command_id, bot_token: str):
+        try:
+            _ctx = Context(token, id, bot_token)
+
+            asyncio.create_task(self.slashs[command_id](_ctx))
+        except KeyError:
+            print("What! Slash command is invalid")
+
+    def _headers(self):
+        return {'Authorization': f'Bot {self.token}'}
 
     async def send_message(self, id, content, embed):
         if embed:
@@ -395,3 +413,10 @@ class DisApi:
         """
 
         return JsonOutput(kwargs=self._r.get("guild", id))
+
+    def create_command(self, payload, func):
+        _url = f"https://discord.com/api/v10/applications/{self.application_id}/commands"
+
+        _s = requests.post(url=_url, headers=self._headers(), json=payload).json()
+
+        self.slashs[_s["id"]] = func

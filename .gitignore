@@ -1,7 +1,15 @@
+# Pycharm Idea folder
 /.idea
+
+# Cache files and modules
 /.venv
 /__pycache__
 /node_modules
+
+# Package builds
 /disspy.egg-info
 /dist
 /sdist
+
+# Tests
+test.py
