@@ -23,8 +23,6 @@ SOFTWARE.
 """
 
 
-
-
 class DisMessage:
     def __init__(self, id, channel_id, r):
         from disspy.channel import DisChannel
