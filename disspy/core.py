@@ -189,7 +189,8 @@ class _Gateway:
         self.user_id = "0g"
         self.heartbeat_interval = 0
         self.gateway_version: int = gateway_version
-        self.ws = websocket.WebSocket()
+        self.session = aiohttp.ClientSession()
+        )
         self.intents = intents
         self.activity = activity
 
@@ -206,19 +207,18 @@ class _Gateway:
         self.on_interaction = on_interaction
 
         # Connecting to Gateway
-        self.ws.connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json")
-
-        # Parsing Opcode 10 Hello to Heartbeat Interval
-        self.heartbeat_interval = self.get_responce()["d"]["heartbeat_interval"]
+        async with self.session.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws
+            # Parsing Opcode 10 Hello to Heartbeat Interval
+            self.heartbeat_interval = self.get_responce(ws)["d"]["heartbeat_interval"]
 
         # Setting up Opcode 1 Heartbeat
         asyncio.run(self.heartbeat())
 
-    async def send_request(self, json_data):
+    async def send_request(self, json_data, ws):
         self.ws.send(json.dumps(json_data))
 
-    def get_responce(self):
-        responce = self.ws.recv()
+    def get_responce(self, ws):
+        responce = ws.receive_json()
         return json.loads(responce)
 
     async def register(self, d):
