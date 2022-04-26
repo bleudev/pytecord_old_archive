@@ -183,14 +183,14 @@ class _Rest:
 
 
 class _Gateway:
-    def __init__(self, gateway_version: int, token: str, intents: int, activity: dict,
-                 app_id):
-        # Setting up connecting to Gateway
-        self.user_id = "0g"
+    def __init__(self, gateway_version: int, token: str, intents: int,
+                 activity: dict):
+        self.user_id = "null"
         self.heartbeat_interval = 0
+
         self.gateway_version: int = gateway_version
         self.session = aiohttp.ClientSession()
-        )
+
         self.intents = intents
         self.activity = activity
 
@@ -207,15 +207,15 @@ class _Gateway:
         self.on_interaction = on_interaction
 
         # Connecting to Gateway
-        async with self.session.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws
+        async with self.session.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
             # Parsing Opcode 10 Hello to Heartbeat Interval
             self.heartbeat_interval = self.get_responce(ws)["d"]["heartbeat_interval"]
 
-        # Setting up Opcode 1 Heartbeat
-        asyncio.run(self.heartbeat())
+            # Setting up Opcode 1 Heartbeat
+            asyncio.run(self.heartbeat(ws))
 
     async def send_request(self, json_data, ws):
-        self.ws.send(json.dumps(json_data))
+        ws.send(json.dumps(json_data))
 
     def get_responce(self, ws):
         responce = ws.receive_json()
@@ -239,27 +239,27 @@ class _Gateway:
     async def on_interaction(self, token, id, command_id, bot_token: str):
         pass
 
-    async def heartbeat(self):
+    async def heartbeat(self, ws):
         # Sending Opcode 2 Identify
-        await self.send_opcode_2()
+        await self.send_opcode_2(ws)
         while True:
-            await self.heartbeat_events_create()
+            await self.heartbeat_events_create(ws)
 
             await asyncio.sleep(self.heartbeat_interval / 1000)
 
-    async def heartbeat_events_create(self):
-        await self.send_opcode_1()
-        await self._check(self.get_responce())
+    async def heartbeat_events_create(self, ws):
+        await self.send_opcode_1(ws)
+        await self._check(self.get_responce(ws))
 
-    async def send_opcode_1(self):
-        await self.send_request({"op": 1, "d": "null"})
+    async def send_opcode_1(self, ws):
+        await self.send_request({"op": 1, "d": "null"}, ws)
 
-    async def send_opcode_2(self):
+    async def send_opcode_2(self, ws):
         await self.send_request({"op": 2, "d": {"token": self.token,
                                           "properties": {"$os": "linux", "$browser": "dispy", "$device": "dispy"},
                                           "presence": {"activities": [self.activity],
                                                        "status": self.status, "since": 91879201, "afk": False},
-                                          "intents": self.intents}})
+                                          "intents": self.intents}}, ws)
 
     async def _check(self, event: dict):
         print(event)
