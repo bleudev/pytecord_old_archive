@@ -36,7 +36,6 @@ from typing import (
 
 import aiohttp
 import requests
-import websocket
 
 from disspy.application_commands import Context
 from disspy.channel import DisChannel
@@ -45,17 +44,6 @@ from disspy.guild import DisGuild
 # disspy imports
 from disspy.message import DisMessage
 from disspy.user import DisUser
-
-
-class RestApiCommands:
-    def __init__(self, mainurl: str):
-        self.mainurl = mainurl
-
-    def POST(self, url: str, post: dict, headers: dict):
-        return requests.post(self.mainurl + url, json=post, headers=headers).json()
-
-    def GET(self, url: str, headers: dict):
-        return requests.get(self.mainurl + url, headers=headers).json()
 
 
 class DisFlags:
@@ -215,11 +203,10 @@ class _Gateway:
             asyncio.run(self.heartbeat(ws))
 
     async def send_request(self, json_data, ws):
-        ws.send(json.dumps(json_data))
+        await ws.send_json(json_data)
 
-    def get_responce(self, ws):
-        responce = ws.receive_json()
-        return json.loads(responce)
+    async def get_responce(self, ws):
+        return json.loads(await ws.receive_json())
 
     async def register(self, d):
         self.user_id = d["user"]["id"]
@@ -249,7 +236,7 @@ class _Gateway:
 
     async def heartbeat_events_create(self, ws):
         await self.send_opcode_1(ws)
-        await self._check(self.get_responce(ws))
+        await self._check(await self.get_responce(ws))
 
     async def send_opcode_1(self, ws):
         await self.send_request({"op": 1, "d": "null"}, ws)

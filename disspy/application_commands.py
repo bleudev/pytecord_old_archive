@@ -24,6 +24,8 @@ SOFTWARE.
 
 import disspy.core
 
+from aiohttp import ClientSession
+
 
 class ApplicationCommand:
     def __init__(self, name, description, cmd, command_type: int):
@@ -43,7 +45,6 @@ class Context:
         self.interaction_token = interaction_token
         self.interaction_id = interaction_id
         self._bot_token = bot_token
-        self._rac = disspy.core.RestApiCommands("https://discord.com/api/v10/")
 
     def _headers(self):
         return {'Authorization': f'Bot {self._bot_token}'}
@@ -55,5 +56,5 @@ class Context:
                 "content": content
             }
         }
-
-        self._rac.POST(f"/interactions/{self.interaction_id}/{self.interaction_token}/callback", _payload, self._headers())
+        async with ClientSession() as s:
+            await s.post(f"https://discord.com/api/v10/interactions/{self.interaction_id}/{self.interaction_token}/callback", _payload) as p:
