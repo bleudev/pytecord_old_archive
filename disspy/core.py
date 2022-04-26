@@ -51,15 +51,13 @@ class _RequestsUserClass:
     def __init__(self, token: str):
         self.token = token
 
-    def _headers(self) -> dict:
-        return {'Authorization': f'Bot {self.token}'}
-
     def _mainurl(self) -> str:
         return "https://discord.com/api/v10"
 
     async def _aiopost(self, url, data):
         async with ClientSession() as _s:
-            _s.post(url, data=data)
+            async with _s.post(url, data=data) as _p:
+                return _p.json()
 
     def _post(self, url: str, data: dict, headers: dict) -> dict:
         return post(url=url, json=data, headers=headers).json()
@@ -156,6 +154,8 @@ class _Rest(_RequestsUserClass):
     def __init__(self, token: str):
         super().__init__(token)
 
+        self._headers = {'Authorization': f'Bot {token}'}
+
     def get(self, goal: str, id: Union[int, Showflake]) -> JsonOutput:
         """
         :param goal: guild/channel/user
@@ -166,21 +166,21 @@ class _Rest(_RequestsUserClass):
 
         if goal.casefold() == 'guild':
             return JsonOutput(kwargs=get(f'https://discord.com/api/v10/guilds/{str(id)}',
-                              headers=self._headers()).json())
+                              headers=self._headers).json())
 
         elif goal.casefold() == 'channel':
             return JsonOutput(kwargs=get(f'https://discord.com/api/v10/channels/{str(id)}',
-                              headers=self._headers()).json())
+                              headers=self._headers).json())
 
         elif goal.casefold() == "user":
             return JsonOutput(kwargs=get(f'https://discord.com/api/v10/users/{str(id)}',
-                              headers=self._headers()).json())
+                              headers=self._headers).json())
 
     def fetch(self, channel_id, message_id) -> JsonOutput:
         _channel_id, _message_id = [str(channel_id), str(message_id)]
 
         _url = f"{super()._mainurl()}/channels/{_channel_id}/messages/{_message_id}"
-        return super()._get(_url, super()._headers()).json()
+        return super()._get(_url, super()._headers).json()
 
     async def send_message(self, channel_id, json_post):
         _url = f"{super()._mainurl()}/channels/{channel_id}/messages"
@@ -299,8 +299,12 @@ class _Gateway:
             asyncio.create_task(self.on_interaction(_token, _interactionid, _commandid, _token))
 
 
-class DisApi:
-    def __init__(self, token, intents, application_id):
+class DisApi(_RequestsUserClass):
+    def __init__(self, token: str, intents, application_id):
+        super().__init__(token)
+
+        self._headers = {'Authorization': f'Bot {token}'}
+
         self._on_ready = None
         self._on_messagec = None
         self.token = token
@@ -340,8 +344,6 @@ class DisApi:
             asyncio.create_task(self.slashs[command_id](_ctx))
         except KeyError:
             print("What! Slash command is invalid")
-
-
 
     async def send_message(self, id, content, embed):
         if embed:
@@ -421,7 +423,9 @@ class DisApi:
     def create_command(self, payload, func):
         _url = f"https://discord.com/api/v10/applications/{self.application_id}/commands"
 
-        _slash = post(_url, json=payload, headers=self._headers()).json()
+        _slash = post(_url, json=payload, headers=self._headers).json()
+
+        print(_slash)
 
         # Register interaction func to Slash Commands
         _slash_id = _slash["id"]
