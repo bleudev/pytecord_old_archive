@@ -26,6 +26,9 @@ SOFTWARE.
 import asyncio
 import json
 
+from aiohttp import ClientSession
+from requests import get, post, Response
+
 # Typing imports
 from typing import (
     Type,
@@ -34,8 +37,6 @@ from typing import (
     Union
 )
 
-import aiohttp
-import requests
 
 from disspy.application_commands import Context
 from disspy.channel import DisChannel
@@ -44,6 +45,27 @@ from disspy.guild import DisGuild
 # disspy imports
 from disspy.message import DisMessage
 from disspy.user import DisUser
+
+
+class _RequestsUserClass:
+    def __init__(self, token: str):
+        self.token = token
+
+    def _headers(self) -> dict:
+        return {'Authorization': f'Bot {self.token}'}
+
+    def _mainurl(self) -> str:
+        return "https://discord.com/api/v10"
+
+    async def _aiopost(self, url, data):
+        async with ClientSession() as _s:
+            _s.post(url, data=data)
+
+    def _post(self, url: str, data: dict, headers: dict) -> dict:
+        return post(url=url, json=data, headers=headers).json()
+
+    def _get(self, url: str, headers: dict) -> Response:
+        return get(url=url, headers=headers)
 
 
 class DisFlags:
@@ -130,12 +152,9 @@ Atributies:
             return str(self.value)
 
 
-class _Rest:
-    def __init__(self, token):
-        self.token = token
-
-    def _headers(self):
-        return {'Authorization': f'Bot {self.token}'}
+class _Rest(_RequestsUserClass):
+    def __init__(self, token: str):
+        super().__init__(token)
 
     def get(self, goal: str, id: Union[int, Showflake]) -> JsonOutput:
         """
@@ -146,28 +165,27 @@ class _Rest:
         id = int(id)
 
         if goal.casefold() == 'guild':
-            return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/guilds/{str(id)}',
+            return JsonOutput(kwargs=get(f'https://discord.com/api/v10/guilds/{str(id)}',
                               headers=self._headers()).json())
 
         elif goal.casefold() == 'channel':
-            return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/channels/{str(id)}',
+            return JsonOutput(kwargs=get(f'https://discord.com/api/v10/channels/{str(id)}',
                               headers=self._headers()).json())
 
         elif goal.casefold() == "user":
-            return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/users/{str(id)}',
+            return JsonOutput(kwargs=get(f'https://discord.com/api/v10/users/{str(id)}',
                               headers=self._headers()).json())
 
     def fetch(self, channel_id, message_id) -> JsonOutput:
         _channel_id, _message_id = [str(channel_id), str(message_id)]
-        _1part = "https://discord.com/api/v10/channels/"
-        _2part = f"{_channel_id}/messages/{_message_id}"
-        return JsonOutput(kwargs=requests.get(f"{_1part}{_2part}",
-                          headers=self._headers()).json())
 
-    async def send_message(self, channel_id, post):
-        async with aiohttp.ClientSession() as s:
-            await s.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post,
-                         headers=self._headers())
+        _url = f"{super()._mainurl()}/channels/{_channel_id}/messages/{_message_id}"
+        return super()._get(_url, super()._headers()).json()
+
+    async def send_message(self, channel_id, json_post):
+        _url = f"{super()._mainurl()}/channels/{channel_id}/messages"
+
+        await super()._aiopost(_url, json_post)
 
 
 class _Gateway:
@@ -177,7 +195,6 @@ class _Gateway:
         self.heartbeat_interval = 0
 
         self.gateway_version: int = gateway_version
-        self.session = aiohttp.ClientSession()
 
         self.intents = intents
         self.activity = activity
@@ -195,12 +212,13 @@ class _Gateway:
         self.on_interaction = on_interaction
 
         # Connecting to Gateway
-        async with self.session.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
-            # Parsing Opcode 10 Hello to Heartbeat Interval
-            self.heartbeat_interval = self.get_responce(ws)["d"]["heartbeat_interval"]
+        with ClientSession() as session:
+            with session.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
+                # Parsing Opcode 10 Hello to Heartbeat Interval
+                self.heartbeat_interval = self.get_responce(ws)["d"]["heartbeat_interval"]
 
-            # Setting up Opcode 1 Heartbeat
-            asyncio.run(self.heartbeat(ws))
+                # Setting up Opcode 1 Heartbeat
+                asyncio.run(self.heartbeat(ws))
 
     async def send_request(self, json_data, ws):
         await ws.send_json(json_data)
@@ -288,7 +306,7 @@ class DisApi:
         self.token = token
         self.application_id = application_id
 
-        self.g = _Gateway(10, self.token, intents, {}, application_id)
+        self.g = _Gateway(10, self.token, intents, {})
         self._r = _Rest(self.token)
 
         self.slashs = {}
@@ -323,8 +341,7 @@ class DisApi:
         except KeyError:
             print("What! Slash command is invalid")
 
-    def _headers(self):
-        return {'Authorization': f'Bot {self.token}'}
+
 
     async def send_message(self, id, content, embed):
         if embed:
@@ -404,6 +421,8 @@ class DisApi:
     def create_command(self, payload, func):
         _url = f"https://discord.com/api/v10/applications/{self.application_id}/commands"
 
-        _s = requests.post(url=_url, headers=self._headers(), json=payload).json()
+        _slash = post(_url, json=payload, headers=self._headers()).json()
 
-        self.slashs[_s["id"]] = func
+        # Register interaction func to Slash Commands
+        _slash_id = _slash["id"]
+        self.slashs[_slash_id] = func
