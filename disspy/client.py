@@ -157,7 +157,7 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def run(self, status: Union[DisBotStatus, str] = None):
+    def run(self, status: Union[DisBotStatus, str] = None) -> int:
         """
         Running bot
 
@@ -179,10 +179,12 @@ class DisBot(_BaseBot):
         elif status is not None and self.status is not None:
             raise errs.BotStatusError("You typed status and in run() and in __init__()")
 
-        self._runner(self.status, 10)
+        return self._runner()
 
-    def _runner(self, status, version: int) -> None:
-        self._api.run(self.status, self._on_ready, self._on_messagec, self._on_register)
+    def _runner(self) -> int:
+        from asyncio import run
+
+        run(self._api.run(self.status, self._on_ready, self._on_messagec, self._on_register))
 
         return 0  # No errors
 

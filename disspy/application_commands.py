@@ -50,11 +50,12 @@ class Context:
         return {'Authorization': f'Bot {self._bot_token}'}
 
     async def send(self, content: str):
-        _payload = {
-            "type": 4,
-            "data": {
-                "content": content
+        async with ClientSession() as s:  # Open Session
+            _payload = {
+                "type": 4,
+                "data": {
+                    "content": content
+                }
             }
-        }
-        async with ClientSession() as s:
-            await s.post(f"https://discord.com/api/v10/interactions/{self.interaction_id}/{self.interaction_token}/callback", _payload)
+            _url = f"https://discord.com/api/v10/interactions/{self.interaction_id}/{self.interaction_token}/callback"
+            await s.post(url=_url, data=_payload)

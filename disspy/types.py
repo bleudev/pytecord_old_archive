@@ -85,10 +85,5 @@ class DisBotEventType:  # Event type for DisBot
     def __all__(self) -> list:
         return [self.ON_READY(), self.ON_MESSAGEC()]
 
-    @property
-    def ON_MESSAGEC(self) -> str:
-        return "messagec"
-
-    @property
-    def ON_READY(self) -> str:
-        return "ready"
+    ON_MESSAGEC = "messagec"
+    ON_READY = "ready"

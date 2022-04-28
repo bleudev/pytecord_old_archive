@@ -202,7 +202,7 @@ class _Gateway:
         self.token = token
         self._rest = _Rest(token)
 
-    def run(self, on_ready: Awaitable, on_messagec: Awaitable, register2: Awaitable,
+    async def run(self, on_ready: Awaitable, on_messagec: Awaitable, register2: Awaitable,
             on_register: Awaitable, status, on_interaction):
         self.status = status
         self.on_ready = on_ready
@@ -212,19 +212,20 @@ class _Gateway:
         self.on_interaction = on_interaction
 
         # Connecting to Gateway
-        with ClientSession() as session:
-            with session.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
+        async with ClientSession() as session:
+            async with session.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
                 # Parsing Opcode 10 Hello to Heartbeat Interval
-                self.heartbeat_interval = self.get_responce(ws)["d"]["heartbeat_interval"]
+                r = await self.get_responce(ws)
+                self.heartbeat_interval = r["d"]["heartbeat_interval"]
 
                 # Setting up Opcode 1 Heartbeat
-                asyncio.run(self.heartbeat(ws))
+                await self.heartbeat(ws)
 
     async def send_request(self, json_data, ws):
         await ws.send_json(json_data)
 
     async def get_responce(self, ws):
-        return json.loads(await ws.receive_json())
+        return json.loads(await ws.receive_str())
 
     async def register(self, d):
         self.user_id = d["user"]["id"]
@@ -272,7 +273,8 @@ class _Gateway:
             await self.register(event["d"])
             await self.register2()
             try:
-                asyncio.create_task(self.on_ready())
+                await self.on_ready()
+
             except TypeError:
                 async def on_ready():
                     pass
@@ -288,7 +290,7 @@ class _Gateway:
                 _channel = DisChannel(_channel_id, self._rest)
                 _message = _channel.fetch(_message_id)
 
-                asyncio.create_task(self.on_messagec(_message))
+                await self.on_messagec(_message)
 
         if event["t"] == "INTERACTION_CREATE":
             _token = event["d"]["token"]
@@ -296,7 +298,7 @@ class _Gateway:
             _commandid = event["d"]["data"]["id"]
             _token = self.token
 
-            asyncio.create_task(self.on_interaction(_token, _interactionid, _commandid, _token))
+            await self.on_interaction(_token, _interactionid, _commandid, _token)
 
 
 class DisApi(_RequestsUserClass):
@@ -318,14 +320,14 @@ class DisApi(_RequestsUserClass):
     def fetch(self, channel_id, id):
         return DisMessage(id, channel_id, DisApi(self.token))
 
-    def run(self, status, on_ready: Awaitable, on_messagec: Awaitable,
+    async def run(self, status, on_ready: Awaitable, on_messagec: Awaitable,
             on_register: Awaitable):
         if on_messagec is not None:
             self._on_messagec = on_messagec
         if on_ready is not None:
             self._on_ready = on_ready
 
-        self.g.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction)
+        await self.g.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction)
 
     async def _on_message(self, message):
         pass
@@ -361,7 +363,7 @@ class DisApi(_RequestsUserClass):
         else:
             await self._r.send_message(id, {"content": content})
 
-    def get_user(self, id: int, premium_gets) -> DisUser:
+    def get_user(self, id: int, premium_gets: bool) -> DisUser:
         """
         Get user by id
 
@@ -377,7 +379,7 @@ class DisApi(_RequestsUserClass):
         :param id: id of user
         :return JsonOutput:
         """
-        return JsonOutput(kwargs=self._r.get("user", id))
+        return self._r.get("user", id)
 
     def get_channel(self, id: Union[int, Showflake]) -> DisChannel:
         """
