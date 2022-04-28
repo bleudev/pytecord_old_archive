@@ -31,7 +31,7 @@ class _UserBase:
         self._api = api
 
         # Data
-        _data = self._api.get_user_json(id)
+        _data = self._api.get_user_json(id).json()
         if premium_gets:
             try:
                 _premium_type = int(_data["premium_type"])

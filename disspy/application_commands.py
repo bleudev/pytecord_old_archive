@@ -42,20 +42,20 @@ class SlashCommand(ApplicationCommand):
 
 class Context:
     def __init__(self, interaction_token, interaction_id, bot_token):
-        self.interaction_token = interaction_token
-        self.interaction_id = interaction_id
+        self._interaction_token = interaction_token
+        self._interaction_id = interaction_id
         self._bot_token = bot_token
 
     def _headers(self):
         return {'Authorization': f'Bot {self._bot_token}'}
 
     async def send(self, content: str):
-        async with ClientSession() as s:  # Open Session
+        async with ClientSession(headers=self._headers()) as s:  # Open Session
             _payload = {
                 "type": 4,
                 "data": {
                     "content": content
                 }
             }
-            _url = f"https://discord.com/api/v10/interactions/{self.interaction_id}/{self.interaction_token}/callback"
+            _url = f"https://discord.com/api/v10/interactions/{self._interaction_id}/{self._interaction_token}/callback"
             await s.post(url=_url, data=_payload)

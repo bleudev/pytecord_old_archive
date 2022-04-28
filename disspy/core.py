@@ -47,16 +47,31 @@ from disspy.message import DisMessage
 from disspy.user import DisUser
 
 
-class _RequestsUserClass:
-    def __init__(self, token: str):
-        self.token = token
+__name__: str = "core"
 
+__package__: str = "disspy"
+
+__all__: tuple = (
+    # Classes for simpler creating other classes
+    "_RequestsUserClass",
+    "DisFlags",
+    "JsonOutput",
+    "Showflake",
+    # Private clients
+    "_Rest",
+    "_Gateway",
+    # Main client
+    "DisApi"
+)
+
+
+class _RequestsUserClass:
     def _mainurl(self) -> str:
         return "https://discord.com/api/v10"
 
-    async def _aiopost(self, url, data):
-        async with ClientSession() as _s:
-            async with _s.post(url, data=data) as _p:
+    async def _aiopost(self, url, data, headers):
+        async with ClientSession(headers=headers) as _s:
+            async with _s.post(url=url, data=data) as _p:
                 return _p.json()
 
     def _post(self, url: str, data: dict, headers: dict) -> dict:
@@ -151,10 +166,18 @@ Atributies:
 
 
 class _Rest(_RequestsUserClass):
+    _T = TypeVar("_Rest")
+
     def __init__(self, token: str):
-        super().__init__(token)
+        super().__init__()
 
         self._headers = {'Authorization': f'Bot {token}'}
+
+        self.__slots__ = [self._headers]
+
+    @property
+    def __class__(self: _T) -> Type[_T]:
+        return Type[self._T]
 
     def get(self, goal: str, id: Union[int, Showflake]) -> JsonOutput:
         """
@@ -173,8 +196,9 @@ class _Rest(_RequestsUserClass):
                               headers=self._headers).json())
 
         elif goal.casefold() == "user":
-            return JsonOutput(kwargs=get(f'https://discord.com/api/v10/users/{str(id)}',
-                              headers=self._headers).json())
+            _url = f'https://discord.com/api/v10/users/{str(id)}'
+
+            return super()._get(_url, self._headers)
 
     def fetch(self, channel_id, message_id) -> JsonOutput:
         _channel_id, _message_id = [str(channel_id), str(message_id)]
@@ -185,7 +209,7 @@ class _Rest(_RequestsUserClass):
     async def send_message(self, channel_id, json_post):
         _url = f"{super()._mainurl()}/channels/{channel_id}/messages"
 
-        await super()._aiopost(_url, json_post)
+        await super()._aiopost(_url, json_post, self._headers)
 
 
 class _Gateway:
@@ -251,7 +275,7 @@ class _Gateway:
         while True:
             await self.heartbeat_events_create(ws)
 
-            await asyncio.sleep(self.heartbeat_interval / 1000)
+            await asyncio.sleep(self.heartbeat_interval / 10000)
 
     async def heartbeat_events_create(self, ws):
         await self.send_opcode_1(ws)
@@ -303,7 +327,7 @@ class _Gateway:
 
 class DisApi(_RequestsUserClass):
     def __init__(self, token: str, intents, application_id):
-        super().__init__(token)
+        super().__init__()
 
         self._headers = {'Authorization': f'Bot {token}'}
 

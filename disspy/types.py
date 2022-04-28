@@ -28,6 +28,18 @@ from typing import (
 )
 
 
+__name__: str = "types"
+
+__package__: str = "disspy"
+
+__all__: tuple = (
+    # Run types
+    "DisBotStatus",
+    # Event types
+    "DisBotEventType"
+)
+
+
 class DisBotStatus:
     """
         Hel class for adding discord staus for bot
