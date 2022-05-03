@@ -41,7 +41,6 @@ from disspy.objects import DisBotStatus, DisBotEventType
 from disspy.logger import Logger
 from disspy._typing import TypeOf
 
-
 System = {
     bool: bool
 }
@@ -76,8 +75,8 @@ class DisBot(_BaseBot):
     __parent__ = TypeVar("_BaseBot")
 
     def __init__(self, token: str, application_id: int,
-                status: Optional[TypeOf(DisBotStatus)] = None,
-                flags: Optional[Union[int, DisFlags]] = None):
+                 status: Optional[TypeOf(DisBotStatus)] = None,
+                 flags: Optional[TypeOf(DisFlags)] = None):
         """
         Create bot
 
@@ -137,8 +136,8 @@ class DisBot(_BaseBot):
 
         if isinstance(type, DisBotEventType):
             _message = f"Error! In method {__methodname__} was moved" \
-                        "invalid argument! Argument type is DisBotEventType," \
-                        "but in method have to type is str!"
+                       "invalid argument! Argument type is DisBotEventType," \
+                       "but in method have to type is str!"
             self.logger.log(_message)
 
         def wrapper(func):
@@ -147,9 +146,9 @@ class DisBot(_BaseBot):
             elif type == "ready":
                 self._on_ready = func
             else:
-                _message = f"Error! In method {__methodname__} was" \
-                            "moved invalid event type!"
-                self.logger.log(_message)
+                _err = f"Error! In method {__methodname__} was" \
+                       "moved invalid event type!"
+                self.logger.log(_err)
                 raise errs.BotEventTypeError("Invalid type of event!")
 
         return wrapper
@@ -177,8 +176,8 @@ class DisBot(_BaseBot):
 
         if isinstance(status, DisBotStatus):
             _message = f"Error! In method {__methodname__} was moved " \
-                        "invalid argument! Argument type is DisBotStatus, " \
-                        "but in method have to type is str!"
+                       "invalid argument! Argument type is DisBotStatus, " \
+                       "but in method have to type is str!"
             self.logger.log(_message)
             raise errs.InvalidArgument("Invalid argument type!")
 
@@ -192,25 +191,38 @@ class DisBot(_BaseBot):
             _message = "You typed status and in run() and in __init__()"
             raise errs.BotStatusError(_message)
 
-        return self._runner()
+        _err = self._runner()
+
+        if not _err == 0:
+            raise RuntimeError(f"{_err} | Error!")
+
+        return _err
 
     def _runner(self) -> int:
         from asyncio import run
 
-        run(self._api.run(self.status, self._on_ready, self._on_messagec,
-            self._on_register))
+        try:
+            self._coro = run(self._api.run(self.status, self._on_ready, self._on_messagec,
+                              self._on_register))
+        except:
+            return -1  # With errors
 
         return 0  # No errors
 
-    def disconnect(self):
-        self._dissconnenter()
+    def disconnect(self) -> int:
+        return self._dissconnenter()
 
-    def close(self):
-        self._dissconnenter()
+    def close(self) -> int:
+        return self._dissconnenter()
 
-    def _dissconnenter(self):
-        for _var in self.__slots__:
-            del _var
+    def _dissconnenter(self) -> int:
+        if self.isready:
+            for _var in self.__slots__:
+                del _var
+
+            return 0
+        else:
+            return -99
 
     async def send(self, channel_id: int, content: Optional[str] = None,
                    embeds: Optional[list[DisEmbed]] = None):

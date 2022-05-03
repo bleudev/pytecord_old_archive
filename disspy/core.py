@@ -25,6 +25,7 @@ SOFTWARE.
 # pckages imports
 import asyncio
 import json
+import zlib
 
 from aiohttp import ClientSession
 from requests import get, post, Response
@@ -64,6 +65,8 @@ __all__: tuple = (
     "DisApi"
 )
 
+_fall = __all__
+
 
 class _RequestsUserClass:
     def _mainurl(self) -> str:
@@ -91,6 +94,14 @@ class DisFlags:
         :method: all()
             Implements all Gateway Intents
     """
+    _numeral_of_class = 1
+
+    _T = TypeVar(_fall[_numeral_of_class])
+
+
+    @property
+    def __class__(self) -> Type[_T]:
+        return self._T
 
     @staticmethod
     def default():
@@ -246,10 +257,16 @@ class _Gateway:
                 await self.heartbeat(ws)
 
     async def send_request(self, json_data, ws):
-        await ws.send_json(json_data)
+        s = json.dumps(json_data).encode("utf-8")
+        j2 = json.loads(s.decode("utf-8"))
+        assert (json_data == j2)
+
+        await ws.send_bytes(s)
 
     async def get_responce(self, ws):
-        return json.loads(await ws.receive_str())
+        s = await ws.receive_str(timeout=self.heartbeat_interval / 1000)
+
+        return json.loads(s)
 
     async def register(self, d):
         self.user_id = d["user"]["id"]
@@ -275,7 +292,7 @@ class _Gateway:
         while True:
             await self.heartbeat_events_create(ws)
 
-            await asyncio.sleep(self.heartbeat_interval / 10000)
+            await asyncio.sleep(self.heartbeat_interval / 1000)
 
     async def heartbeat_events_create(self, ws):
         await self.send_opcode_1(ws)
