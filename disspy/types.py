@@ -32,29 +32,33 @@ __name__: str = "types"
 
 __package__: str = "disspy"
 
-__all__: tuple = (
+__all__: list = [
     # Run types
     "DisBotStatus",
     # Event types
     "DisBotEventType"
-)
+]
+
+_fall = __all__
 
 
 class DisBotStatus:
     """
-        Hel class for adding discord staus for bot
+    Class for adding discord status for bot
 
-        Examples
-        bot.run(disspy.DisBotStatus.ONLINE)
+    Examples
+    bot.run(disspy.DisBotStatus.ONLINE)
 
-        bot.run(disspy.DisBotStatus.DND)
+    bot.run(disspy.DisBotStatus.DND)
 
-        bot.run(disspy.DisBotStatus.IDLE)
-        ---------------
-        And you may use status in __init__()
-        bot = disspy.DisBot(token="TOKEN", type="message", status=disspy.DisBotStatus.ONLINE)
+    bot.run(disspy.DisBotStatus.IDLE)
+    ---------------
+    And you may use status in __init__()
+    bot = disspy.DisBot(token="TOKEN", type="message", status=disspy.DisBotStatus.ONLINE)
     """
-    _T = TypeVar("DisBotStatus")
+    _numeral_of_class = 0
+
+    _T = TypeVar(_fall[_numeral_of_class])
 
     ONLINE = "online"
     DND = "dnd"
@@ -62,6 +66,11 @@ class DisBotStatus:
     IDLE = "idle"
 
     def __all__(self) -> list:
+        """
+        Returns all varibles in this class
+
+        :return list: All varibles in this class
+        """
         return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
 
     @property
@@ -69,33 +78,56 @@ class DisBotStatus:
         """
         Returns type of this class
 
-        :return Type: Type of class
+        :return type: Type of class
         """
         return self._T
 
 
-class DisBotEventType:  # Event type for DisBot
+class DisBotEventType:
+    """
+    Class with DisBot events strings
+
+    Using
+    ------
+    @bot.on(disspy.DisBotEventType.ONMESSAGEC)
+    async def on_messagec(message):
+        await message.channel.send('Test!')
+    """
     __description__: str = "This class created for simplification adding events to DisBot. This is class, not an object"  # Description to class
 
     __varibles__: dict[str, str] = {  # Description to varibles
-        "ON_MESSAGE": ":type: property, :returns: str - Will be called when new message was created in DisBot.guild.channel",
-        "ON_READY": ":type: property, :returns: str - Will be called when bot becomes ready"
+        "ON_MESSAGE": ":type: str - Will be called when new message was created in DisBot.guilds.channels",
+        "ON_READY": ":type: str - Will be called when bot becomes ready"
     }
 
-    # Mini doc with using
-    __doc__: str = "Using:" \
-                   "@bot.on(dispy.DisBotEventType.ONMESSAGEC())" \
-                   "async def on_messagec(message):" \
-                   "    await message.channel.send('Test!')"
+    _numeral_of_class = 1
 
-    _T: TypeVar = TypeVar("DisBotEventType")
-
-    @property
-    def __class__(self) -> Type[_T]:
-        return self._T
-
-    def __all__(self) -> list:
-        return [self.ON_READY(), self.ON_MESSAGEC()]
+    _T = TypeVar(_fall[_numeral_of_class])
 
     ON_MESSAGEC = "messagec"
     ON_READY = "ready"
+
+    @property
+    def __class__(self) -> Type[_T]:
+        """
+        Returns type of this class
+
+        :return type: Type of class
+        """
+        return self._T
+
+    def __all__(self) -> list:
+        """
+        Returns all varibles in this class
+
+        :return list: All varibles in this class
+        """
+        return [self.ON_READY, self.ON_MESSAGEC]
+
+    def __str__(self) -> str:
+        """
+        It is using in str() method
+
+        :return str: Default value of event (on_ready event)
+        """
+        return self.ON_READY
