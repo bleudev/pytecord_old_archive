@@ -39,7 +39,7 @@ from .embed import DisEmbed, DisField, DisColor
 from .message import DisMessage
 from .user import DisUser
 from .core import DisApi, DisFlags, JsonOutput, Showflake
-from .types import DisBotEventType, DisBotStatus
+from .objects import DisBotEventType, DisBotStatus
 from .logger import Logger
 from ._typing import TypeOf
 from .application_commands import ApplicationCommand, SlashCommand, Context

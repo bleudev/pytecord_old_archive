@@ -37,7 +37,7 @@ from disspy.channel import DisChannel
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.user import DisUser
-from disspy.types import DisBotStatus, DisBotEventType
+from disspy.objects import DisBotStatus, DisBotEventType
 from disspy.logger import Logger
 from disspy._typing import TypeOf
 
@@ -68,14 +68,16 @@ class DisBot(_BaseBot):
     Class for accessing and sending information in Discord
 
     Attributes:
-        :var token: Token for accessing and sending info (Token from Discord Developer Portal).
+        :var token: Token for accessing and sending info
+                    (Token from Discord Developer Portal).
         :var flags: Flags (Intents) for bot.
     """
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
 
-    def __init__(self, token: str, application_id: int, status: Optional[TypeOf(DisBotStatus)] = None,
-                 flags: Optional[Union[int, DisFlags]] = None):
+    def __init__(self, token: str, application_id: int,
+                status: Optional[TypeOf(DisBotStatus)] = None,
+                flags: Optional[Union[int, DisFlags]] = None):
         """
         Create bot
 
@@ -106,8 +108,8 @@ class DisBot(_BaseBot):
         self.logger = Logger()
         self.__classname__ = "DisBot"
 
-        self.__slots__ = [self._api, self._on_ready, self._on_messagec, self.token,
-                          self.user, self.isready, self.status]
+        self.__slots__ = [self._api, self._on_ready, self._on_messagec,
+                          self.token, self.user, self.isready, self.status]
 
     @property
     def __class__(self) -> Type[_T]:
@@ -124,7 +126,8 @@ class DisBot(_BaseBot):
 
     def on(self, type: Union[DisBotEventType, str]):
         """
-        This method was created for changing on_ready and on_message method that using in runner
+        This method was created for changing on_ready and on_message
+        method that using in runner
 
         :param type: Type of event
         :return: None (wrapper)
@@ -133,7 +136,10 @@ class DisBot(_BaseBot):
         __methodname__ = f"{self.__classname__}.on()"
 
         if isinstance(type, DisBotEventType):
-            self.logger.log(f"Error! In method {__methodname__} was moved invalid argument! Argument type is DisBotEventType, but in method have to type is str!")
+            _message = f"Error! In method {__methodname__} was moved" \
+                        "invalid argument! Argument type is DisBotEventType," \
+                        "but in method have to type is str!"
+            self.logger.log(_message)
 
         def wrapper(func):
             if type == "messagec":
@@ -141,7 +147,9 @@ class DisBot(_BaseBot):
             elif type == "ready":
                 self._on_ready = func
             else:
-                self.logger.log(f"Error! In method {__methodname__} was moved invalid event type!")
+                _message = f"Error! In method {__methodname__} was" \
+                            "moved invalid event type!"
+                self.logger.log(_message)
                 raise errs.BotEventTypeError("Invalid type of event!")
 
         return wrapper
@@ -152,6 +160,7 @@ class DisBot(_BaseBot):
             "description": description,
             "type": 1
         }
+
         def wrapper(func):
             self._api.create_command(_payload, func)
 
@@ -167,7 +176,10 @@ class DisBot(_BaseBot):
         __methodname__ = f"{self.__classname__}.on()"
 
         if isinstance(status, DisBotStatus):
-            self.logger.log(f"Error! In method {__methodname__} was moved invalid argument! Argument type is DisBotStatus, but in method have to type is str!")
+            _message = f"Error! In method {__methodname__} was moved " \
+                        "invalid argument! Argument type is DisBotStatus, " \
+                        "but in method have to type is str!"
+            self.logger.log(_message)
             raise errs.InvalidArgument("Invalid argument type!")
 
         self.isready = True
@@ -177,14 +189,16 @@ class DisBot(_BaseBot):
         elif status is not None and self.status is None:
             self.status = status
         elif status is not None and self.status is not None:
-            raise errs.BotStatusError("You typed status and in run() and in __init__()")
+            _message = "You typed status and in run() and in __init__()"
+            raise errs.BotStatusError(_message)
 
         return self._runner()
 
     def _runner(self) -> int:
         from asyncio import run
 
-        run(self._api.run(self.status, self._on_ready, self._on_messagec, self._on_register))
+        run(self._api.run(self.status, self._on_ready, self._on_messagec,
+            self._on_register))
 
         return 0  # No errors
 
@@ -198,14 +212,16 @@ class DisBot(_BaseBot):
         for _var in self.__slots__:
             del _var
 
-    async def send(self, channel_id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
+    async def send(self, channel_id: int, content: Optional[str] = None,
+                   embeds: Optional[list[DisEmbed]] = None):
         if self.isready:
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embeds=embeds)
         else:
             raise errs.InternetError("Bot is not ready!")
 
-    async def send(self, channel_id: int, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
+    async def send(self, channel_id: int, content: Optional[str] = None,
+                   embed: Optional[DisEmbed] = None):
         if self.isready:
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embed=embed)

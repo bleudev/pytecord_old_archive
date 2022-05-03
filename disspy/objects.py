@@ -54,7 +54,8 @@ class DisBotStatus:
     bot.run(disspy.DisBotStatus.IDLE)
     ---------------
     And you may use status in __init__()
-    bot = disspy.DisBot(token="TOKEN", type="message", status=disspy.DisBotStatus.ONLINE)
+    bot = disspy.DisBot(token="TOKEN", type="message",
+                        status=disspy.DisBotStatus.ONLINE)
     """
     _numeral_of_class = 0
 
@@ -85,7 +86,8 @@ class DisBotStatus:
 
 class DisBotEventType:
     """
-    Class with DisBot events strings
+    This class created for simplification adding events to DisBot.
+    This is class, not an object
 
     Using
     ------
@@ -93,12 +95,6 @@ class DisBotEventType:
     async def on_messagec(message):
         await message.channel.send('Test!')
     """
-    __description__: str = "This class created for simplification adding events to DisBot. This is class, not an object"  # Description to class
-
-    __varibles__: dict[str, str] = {  # Description to varibles
-        "ON_MESSAGE": ":type: str - Will be called when new message was created in DisBot.guilds.channels",
-        "ON_READY": ":type: str - Will be called when bot becomes ready"
-    }
 
     _numeral_of_class = 1
 
