@@ -26,6 +26,8 @@ import disspy.core
 
 from aiohttp import ClientSession
 
+from typing import Optional
+
 
 class ApplicationCommand:
     def __init__(self, name, description, cmd, command_type: int):
@@ -44,13 +46,10 @@ class Context:
     def __init__(self, interaction_token, interaction_id, bot_token):
         self._interaction_token = interaction_token
         self._interaction_id = interaction_id
-        self._bot_token = bot_token
-
-    def _headers(self):
-        return {'Authorization': f'Bot {self._bot_token}'}
+        self._headers = {'Authorization': f'Bot {bot_token}'}
 
     async def send(self, content: str):
-        async with ClientSession(headers=self._headers()) as s:  # Open Session
+        async with ClientSession(headers=self._headers) as s:  # Open Session
             _payload = {
                 "type": 4,
                 "data": {
@@ -59,3 +58,11 @@ class Context:
             }
             _url = f"https://discord.com/api/v10/interactions/{self._interaction_id}/{self._interaction_token}/callback"
             await s.post(url=_url, data=_payload)
+
+
+class Option:
+    def __init__(self, name, description, type: int, choices: Optional[list[dict]] = []):
+        self.name = name
+        self.description = description
+        self.type = type
+        self.choices = choices

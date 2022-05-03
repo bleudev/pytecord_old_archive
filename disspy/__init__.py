@@ -23,7 +23,10 @@ SOFTWARE.
 """
 
 # Imports
-from .client import DisBot
+
+# Basic imports
+from ._typing import TypeOf
+
 from .errs import (
     UserNitroTypeError,
     InternetError,
@@ -33,16 +36,44 @@ from .errs import (
     BotStatusError,
     ClassTypeError
 )
-from .guild import DisGuild
-from .channel import DisChannel
-from .embed import DisEmbed, DisField, DisColor
-from .message import DisMessage
-from .user import DisUser
-from .core import DisApi, DisFlags, JsonOutput, Showflake
-from .objects import DisBotEventType, DisBotStatus
+
+from .core import (
+    DisApi,
+    DisFlags,
+    JsonOutput,
+    Showflake
+)
+
+from .objects import (
+    DisBotStatus,
+    DisBotEventType
+)
+
+# User imports
 from .logger import Logger
-from ._typing import TypeOf
-from .application_commands import ApplicationCommand, SlashCommand, Context
+
+from .client import DisBot
+
+from .guild import DisGuild
+
+from .channel import DisChannel
+
+from .embed import (
+    DisEmbed,
+    DisField,
+    DisColor
+)
+
+from .message import DisMessage
+
+from .user import DisUser
+
+from .application_commands import (
+    ApplicationCommand,
+    SlashCommand,
+    Context,
+    Option
+)
 
 # Version of dipsy (b - beta, a - alpha)
 __version__ = "0.1b"
