@@ -255,6 +255,9 @@ class _Gateway:
             async with session.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
                 # Parsing Opcode 10 Hello to Heartbeat Interval
                 r = await self.get_responce(ws)
+                if self._debug:
+                    print(r)
+
                 self.heartbeat_interval = r["d"]["heartbeat_interval"]
 
                 # Setting up Opcode 1 Heartbeat
@@ -269,9 +272,6 @@ class _Gateway:
 
     async def get_responce(self, ws):
         s = await ws.receive_str()
-
-        if self._debug:
-            print(json.loads(s))
 
         return json.loads(s)
 
