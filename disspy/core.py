@@ -25,7 +25,6 @@ SOFTWARE.
 # pckages imports
 import asyncio
 import json
-import zlib
 
 from aiohttp import ClientSession
 from requests import get, post, Response
@@ -342,7 +341,9 @@ class _Gateway:
 
                 await self.on_interaction(_token, _interactionid, _commandid, _token)
 
-            await asyncio.sleep(self.heartbeat_interval / 100000)
+            from time import sleep
+
+            sleep(self.heartbeat_interval / 1000)
 
 
 class DisApi(_RequestsUserClass):

@@ -56,7 +56,7 @@ class Context:
                     "content": content
                 }
             }
-            _url = f"https://discord.com/api/v10/interactions/{self._interaction_id}/{self._interaction_token}/callback"
+            _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
             await s.post(url=_url, data=_payload)
 
 
