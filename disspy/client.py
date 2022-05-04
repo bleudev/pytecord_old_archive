@@ -76,7 +76,8 @@ class DisBot(_BaseBot):
 
     def __init__(self, token: str, application_id: int,
                  status: Optional[TypeOf(DisBotStatus)] = None,
-                 flags: Optional[TypeOf(DisFlags)] = None):
+                 flags: Optional[TypeOf(DisFlags)] = None,
+                 debug: Optional[bool] = False):
         """
         Create bot
 
@@ -93,6 +94,7 @@ class DisBot(_BaseBot):
             self.intflags = flags
 
         self.status = status
+        self._debug = debug
 
         self._on_messagec = None
         self._on_ready = None
@@ -203,7 +205,7 @@ class DisBot(_BaseBot):
 
         try:
             self._coro = run(self._api.run(self.status, self._on_ready, self._on_messagec,
-                              self._on_register))
+                              self._on_register, debug=self._debug))
         except:
             return -1  # With errors
 

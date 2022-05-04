@@ -98,17 +98,19 @@ class DisFlags:
 
     _T = TypeVar(_fall[_numeral_of_class])
 
-
     @property
     def __class__(self) -> Type[_T]:
         return self._T
 
+    def __all__(self):
+        return [str(self.default()), str(self.all())]
+
     @staticmethod
-    def default():
+    def default() -> int:
         return 512
 
     @staticmethod
-    def all():
+    def all() -> int:
         """
             Implements:
                 1.  GUILDS
@@ -238,13 +240,15 @@ class _Gateway:
         self._rest = _Rest(token)
 
     async def run(self, on_ready: Awaitable, on_messagec: Awaitable, register2: Awaitable,
-            on_register: Awaitable, status, on_interaction):
+            on_register: Awaitable, status, on_interaction, debug):
         self.status = status
         self.on_ready = on_ready
         self.on_messagec = on_messagec
         self.register2 = register2
         self.on_register = on_register
         self.on_interaction = on_interaction
+
+        self._debug = debug
 
         # Connecting to Gateway
         async with ClientSession() as session:
@@ -264,7 +268,10 @@ class _Gateway:
         await ws.send_bytes(s)
 
     async def get_responce(self, ws):
-        s = await ws.receive_str(timeout=self.heartbeat_interval / 1000)
+        s = await ws.receive_str()
+
+        if self._debug:
+            print(json.loads(s))
 
         return json.loads(s)
 
@@ -288,58 +295,54 @@ class _Gateway:
 
     async def heartbeat(self, ws):
         # Sending Opcode 2 Identify
-        await self.send_opcode_2(ws)
-        while True:
-            await self.heartbeat_events_create(ws)
-
-            await asyncio.sleep(self.heartbeat_interval / 1000)
-
-    async def heartbeat_events_create(self, ws):
-        await self.send_opcode_1(ws)
-        await self._check(await self.get_responce(ws))
-
-    async def send_opcode_1(self, ws):
-        await self.send_request({"op": 1, "d": "null"}, ws)
-
-    async def send_opcode_2(self, ws):
         await self.send_request({"op": 2, "d": {"token": self.token,
-                                          "properties": {"$os": "linux", "$browser": "dispy", "$device": "dispy"},
-                                          "presence": {"activities": [self.activity],
-                                                       "status": self.status, "since": 91879201, "afk": False},
-                                          "intents": self.intents}}, ws)
+                                                "properties": {"$os": "linux", "$browser": "dispy", "$device": "dispy"},
+                                                "presence": {"activities": [self.activity],
+                                                             "status": self.status, "since": 91879201, "afk": False},
+                                                "intents": self.intents}}, ws)
+        while True:
+            # Sending Opcode 1
+            await self.send_request({"op": 1, "d": "null"}, ws)
 
-    async def _check(self, event: dict):
-        print(event)
-        if event["t"] == "READY":
-            await self.register(event["d"])
-            await self.register2()
-            try:
-                await self.on_ready()
+            # Check events
+            event = await self.get_responce(ws)
 
-            except TypeError:
-                async def on_ready():
-                    pass
-                await on_ready()
+            if self._debug:
+                print(event)
 
-            await self.on_register()
+            if event["t"] == "READY":
+                await self.register(event["d"])
+                await self.register2()
+                try:
+                    await self.on_ready()
 
-        if event["t"] == "MESSAGE_CREATE":
-            if self.user_id != event["d"]["author"]["id"]:
-                _message_id = int(event["d"]["id"])
-                _channel_id = int(event["d"]["channel_id"])
+                except TypeError:
+                    async def on_ready():
+                        pass
 
-                _channel = DisChannel(_channel_id, self._rest)
-                _message = _channel.fetch(_message_id)
+                    await on_ready()
 
-                await self.on_messagec(_message)
+                await self.on_register()
 
-        if event["t"] == "INTERACTION_CREATE":
-            _token = event["d"]["token"]
-            _interactionid = event["d"]["id"]
-            _commandid = event["d"]["data"]["id"]
-            _token = self.token
+            if event["t"] == "MESSAGE_CREATE":
+                if self.user_id != event["d"]["author"]["id"]:
+                    _message_id = int(event["d"]["id"])
+                    _channel_id = int(event["d"]["channel_id"])
 
-            await self.on_interaction(_token, _interactionid, _commandid, _token)
+                    _channel = DisChannel(_channel_id, self._rest)
+                    _message = _channel.fetch(_message_id)
+
+                    await self.on_messagec(_message)
+
+            if event["t"] == "INTERACTION_CREATE":
+                _token = event["d"]["token"]
+                _interactionid = event["d"]["id"]
+                _commandid = event["d"]["data"]["id"]
+                _token = self.token
+
+                await self.on_interaction(_token, _interactionid, _commandid, _token)
+
+            await asyncio.sleep(self.heartbeat_interval / 100000)
 
 
 class DisApi(_RequestsUserClass):
@@ -362,13 +365,13 @@ class DisApi(_RequestsUserClass):
         return DisMessage(id, channel_id, DisApi(self.token))
 
     async def run(self, status, on_ready: Awaitable, on_messagec: Awaitable,
-            on_register: Awaitable):
+                  on_register: Awaitable, debug):
         if on_messagec is not None:
             self._on_messagec = on_messagec
         if on_ready is not None:
             self._on_ready = on_ready
 
-        await self.g.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction)
+        await self.g.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction, debug)
 
     async def _on_message(self, message):
         pass

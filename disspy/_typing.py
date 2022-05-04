@@ -31,4 +31,7 @@ class TypeOf:
         _obj = _type()
         _all = _obj.__all__()
 
-        return Type[_all[0]]
+        if _all[0].isdigit():
+            return int
+        else:
+            return str
