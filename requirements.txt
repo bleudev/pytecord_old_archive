@@ -3,3 +3,4 @@ requests
 typing
 websocket-client
 asyncio
+colorama

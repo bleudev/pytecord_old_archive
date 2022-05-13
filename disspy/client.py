@@ -73,6 +73,7 @@ class DisBot(_BaseBot):
     """
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
+    __classname__ = "DisBot"
 
     def __init__(self, token: str, application_id: int,
                  status: Optional[TypeOf(DisBotStatus)] = None,
@@ -160,6 +161,28 @@ class DisBot(_BaseBot):
             "name": name,
             "description": description,
             "type": 1
+        }
+
+        def wrapper(func):
+            self._api.create_command(_payload, func)
+
+        return wrapper
+
+    def user_command(self, name):
+        _payload = {
+            "name": name,
+            "type": 2
+        }
+
+        def wrapper(func):
+            self._api.create_command(_payload, func)
+
+        return wrapper
+
+    def message_command(self, name):
+        _payload = {
+            "name": name,
+            "type": 3
         }
 
         def wrapper(func):
