@@ -267,10 +267,12 @@ class _Gateway:
         self.intents = intents
         self.activity = activity
 
+        self.event = {}
+
         self.token = token
         self._rest = _Rest(token)
 
-        self._headers = {"content-type": "application/json"}
+        self._headers = {}
 
     async def run(self, on_ready: Awaitable, on_messagec: Awaitable, register2: Awaitable,
             on_register: Awaitable, status, on_interaction, debug):
@@ -293,8 +295,10 @@ class _Gateway:
 
                 self.heartbeat_interval = r["d"]["heartbeat_interval"]
 
-                # Setting up Opcode 1 Heartbeat
-                await self.heartbeat(ws)
+                from threading import Thread
+                _start = Thread(target=self._starting(ws), args=(ws))
+
+                _start.run()
 
     async def send_request(self, json_data, ws):
         if self._debug:
@@ -332,6 +336,13 @@ class _Gateway:
     async def heartbeat(self, ws):
         _isheartbeated = False
 
+        self.event = {
+            "t": None,
+            "d": None,
+            "s": None,
+            "op": None
+        }
+
         # Sending Opcode 2 Identify
         await self.send_request({"op": 2, "d": {"token": self.token,
                                                 "properties": {"$os": "linux", "$browser": "dispy", "$device": "dispy"},
@@ -345,47 +356,13 @@ class _Gateway:
             from asyncio import sleep
             from random import random
 
-            # Check events
-            event = await self.get_responce(ws)
+            self.event = await self.get_responce(ws)
 
             if self._debug:
-                if event["t"] is None:
-                    print(_DebugLoggingWebsocket(event, send=False, isevent=False))
+                if self.event["t"] is None:
+                    print(_DebugLoggingWebsocket(self.event, send=False, isevent=False))
                 else:
-                    print(_DebugLoggingWebsocket(event, send=False, isevent=True))
-
-            if event["t"] == "READY":
-                await self.register(event["d"])
-                await self.register2()
-                try:
-                    await self.on_ready()
-
-                except TypeError:
-                    async def on_ready():
-                        pass
-
-                    await on_ready()
-
-                await self.on_register()
-
-            if event["t"] == "MESSAGE_CREATE":
-                if self.user_id != event["d"]["author"]["id"]:
-                    _message_id = int(event["d"]["id"])
-                    _channel_id = int(event["d"]["channel_id"])
-
-                    _channel = DisChannel(_channel_id, self._rest)
-                    _message = _channel.fetch(_message_id)
-
-                    await self.on_messagec(_message)
-
-            if event["t"] == "INTERACTION_CREATE":
-                _token = event["d"]["token"]
-                _interactionid = event["d"]["id"]
-                _commandname = event["d"]["data"]["name"]
-                _type = event["d"]["type"]
-                _token = self.token
-
-                await self.on_interaction(_token, _interactionid, _commandname, _token, _type)
+                    print(_DebugLoggingWebsocket(self.event, send=False, isevent=True))
 
             if not _isheartbeated:
                 await sleep((self.heartbeat_interval * random()) / 1000)
@@ -393,12 +370,61 @@ class _Gateway:
             else:
                 await sleep(self.heartbeat_interval / 1000)
 
+    def _starting(self, ws):
+        from asyncio import get_event_loop
+
+        _loop = get_event_loop()
+
+        _loop.create_task(self.heartbeat(ws), name="heartbeat")
+        _loop.create_task(self._starting_checks_events_work(), name="checks_events")
+
+    async def _starting_checks_events_work(self):
+        while True:
+            await self._checks_events()
+
+    async def _checks_events(self):
+        event = self.event
+
+        if event["t"] == "READY":
+            await self.register(event["d"])
+            await self.register2()
+            try:
+                await self.on_ready()
+
+            except TypeError:
+                async def on_ready():
+                    pass
+
+                await on_ready()
+
+            await self.on_register()
+
+        if event["t"] == "MESSAGE_CREATE":
+            if self.user_id != event["d"]["author"]["id"]:
+                _message_id = int(event["d"]["id"])
+                _channel_id = int(event["d"]["channel_id"])
+
+                _channel = DisChannel(_channel_id, self._rest)
+                _message = _channel.fetch(_message_id)
+
+                await self.on_messagec(_message)
+
+        if event["t"] == "INTERACTION_CREATE":
+            _token = event["d"]["token"]
+            _interactionid = event["d"]["id"]
+            _commandname = event["d"]["data"]["name"]
+            _type = event["d"]["type"]
+            _token = self.token
+
+            await self.on_interaction(_token, _interactionid, _commandname, _token, _type)
+
 
 class DisApi(_RequestsUserClass):
     def __init__(self, token: str, intents, application_id):
         super().__init__()
 
         self._headers = {'Authorization': f'Bot {token}', "content-type": "application/json"}
+        self.app_commands_jsons = []
 
         self._on_ready = None
         self._on_messagec = None
@@ -424,11 +450,22 @@ class DisApi(_RequestsUserClass):
         if on_ready is not None:
             self._on_ready = on_ready
 
-        async with ClientSession(headers=self._headers) as s:
-            _url = f"https://discord.com/api/v10/applications/{self.application_id}/commands"
 
-            async with s.put(url=_url, data={}) as d:
-                print(await d.json())
+
+        _url = f"{_mainurl()}applications/{self.application_id}/commands"
+
+        if not self.app_commands_jsons == []:
+            from requests import put
+
+            self.app_commands_jsons = put(url=_url, json=self.app_commands_jsons, headers=self._headers).json()
+
+            del put
+        else:
+            from requests import delete
+
+            self.app_commands_jsons = delete(url=_url, headers=self._headers).json()
+
+            del delete
 
         await self.g.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction, debug)
 
@@ -528,44 +565,35 @@ class DisApi(_RequestsUserClass):
     def create_command(self, payload, func):
         _url = f"https://discord.com/api/v10/applications/{self.application_id}/commands"
 
-
-
         def app_func_register(number):
             self.app_commands[number][payload["name"]] = func
 
         if payload["type"] == 1:
             # Register interaction func to Slash Commands
-            _slash = post(_url, json=payload, headers=self._headers).json()
+            self.app_commands_jsons.append(payload)
 
             app_func_register(0)
 
         elif payload["type"] == 2:
             # Register interaction func to User Commands
             try:
-                if payload["description"] == "":
-
-                    _slash = post(_url, json=payload, headers=self._headers).json()
+                if payload["description"]:
+                    self.app_commands_jsons.append(payload)
 
                     app_func_register(1)
             except KeyError:
-                _slash = post(_url, json=payload, headers=self._headers).json()
+                self.app_commands_jsons.append(payload)
 
                 app_func_register(1)
-
-                return _slash
 
         elif payload["type"] == 3:
             # Register interaction func to Message Commands
             try:
-                if payload["description"] == "":
-                    _slash = post(_url, json=payload, headers=self._headers).json()
+                if payload["description"]:
+                    self.app_commands_jsons.append(payload)
 
                     app_func_register(2)
-
-                    return _slash
             except KeyError:
-                _slash = post(_url, json=payload, headers=self._headers).json()
+                self.app_commands_jsons.append(payload)
 
                 app_func_register(2)
-
-                return _slash

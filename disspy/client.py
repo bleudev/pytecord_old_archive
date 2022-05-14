@@ -226,11 +226,8 @@ class DisBot(_BaseBot):
     def _runner(self) -> int:
         from asyncio import run
 
-        try:
-            self._coro = run(self._api.run(self.status, self._on_ready, self._on_messagec,
+        self._coro = run(self._api.run(self.status, self._on_ready, self._on_messagec,
                               self._on_register, debug=self._debug))
-        except:
-            return -1  # With errors
 
         return 0  # No errors
 
