@@ -25,9 +25,10 @@ SOFTWARE.
 # pckages imports
 import asyncio
 import json
-
 from aiohttp import ClientSession
 from requests import get, post, Response
+from erlpack import unpack
+import colorama
 
 # Typing imports
 from typing import (
@@ -37,15 +38,13 @@ from typing import (
     Union
 )
 
-
+# disspy imports
 from disspy.application_commands import Context
 from disspy.channel import DisChannel
 from disspy.errs import ClassTypeError
 from disspy.guild import DisGuild
-# disspy imports
 from disspy.message import DisMessage
 from disspy.user import DisUser
-import colorama
 
 __name__: str = "core"
 
@@ -59,16 +58,46 @@ __all__: tuple = (
     "Showflake",
     # Private clients
     "_Rest",
-    "_Gateway",
+    "Flow",
     # Main client
     "DisApi"
 )
 
-_fall = __all__
+_fall = list(__all__)
 
 
 def _mainurl() -> str:
-        return "https://discord.com/api/v10/"
+    return "https://discord.com/api/v10/"
+
+
+class FlowOpcodes:
+    DISPATCH = 0
+    HEARTBEAT = 1
+    IDENTIFY = 2
+    PRESENCE_UPDATE = 3
+    VOICE_STATE_UPDATE = 4
+    RESUME = 6
+    RECONNECT = 7
+    REQUEST_GUILD_MEMBERS = 8
+    INVALID_SESSION = 9
+    HELLO = 10
+    HEARTBEAT_ACK = 11
+
+    @staticmethod
+    def rotated_list():
+        return {
+            0: "DISPATCH",
+            1: "HEARTBEAT",
+            2: "IDENTIFY",
+            3: "PRESENCE_UPDATE",
+            4: "VOICE_STATE_UPDATE",
+            6: "RESUME",
+            7: "RECONNECT",
+            8: "REQUEST_GUILD_MEMBERS",
+            9: "INVALID_SESSION",
+            10: "HELLO",
+            11: "HEARTBEAT_ACK"
+        }
 
 
 """ Debuging classes """
@@ -89,17 +118,32 @@ class _DebugLoggingWebsocket:
         except KeyError:
             _isevent = False
 
+        try:
+            _op = kwargs["op"]
+        except KeyError:
+            _op = 0
+
         _result = ""
 
         if _send:
-            _result = f"{colorama.Fore.GREEN}Sending Request:{colorama.Fore.RESET} {_data}"
+            _op_str = FlowOpcodes.rotated_list()[_op]
+            _op_str = _op_str.lower()
+
+            _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.YELLOW} | {_op_str}:{colorama.Fore.RESET} {_data}"
         else:
             if _isevent:
-                _result = f"{colorama.Fore.RED}Getting Responce (Event):{colorama.Fore.RESET} {_data}"
+                _op_str = FlowOpcodes.rotated_list()[_op]
+                _op_str = _op_str.lower()
+                _result = f"{colorama.Fore.RED}Getting Responce (Event){colorama.Fore.YELLOW} | {_op_str}:{colorama.Fore.RESET} {_data}"
             else:
-                _result = f"{colorama.Fore.RED}Getting Responce:{colorama.Fore.RESET} {_data}"
+                _op_str = FlowOpcodes.rotated_list()[_op]
+                _op_str = _op_str.lower()
+                _result = f"{colorama.Fore.RED}Getting Responce{colorama.Fore.YELLOW} | {_op_str}:{colorama.Fore.RESET} {_data}"
 
         return _result
+
+
+""" Other Classes """
 
 
 class _RequestsUserClass:
@@ -186,6 +230,7 @@ Showflake is using for simpled work with tokens and ids.
 Atributies:
     :var self.isid:
     """
+
     def __init__(self, value: str):
         if value.isdigit():
             self.isid = True
@@ -210,7 +255,9 @@ Atributies:
 
 
 class _Rest(_RequestsUserClass):
-    _T = TypeVar("_Rest")
+    _numeral_of_class = 4
+
+    _T = TypeVar(_fall[_numeral_of_class])
 
     def __init__(self, token: str):
         super().__init__()
@@ -233,11 +280,11 @@ class _Rest(_RequestsUserClass):
 
         if goal.casefold() == 'guild':
             return JsonOutput(kwargs=get(f'{_mainurl()}guilds/{str(id)}',
-                              headers=self._headers).json())
+                                         headers=self._headers).json())
 
         elif goal.casefold() == 'channel':
             return JsonOutput(kwargs=get(f'https://discord.com/api/v10/channels/{str(id)}',
-                              headers=self._headers).json())
+                                         headers=self._headers).json())
 
         elif goal.casefold() == "user":
             _url = f'https://discord.com/api/v10/users/{str(id)}'
@@ -248,7 +295,7 @@ class _Rest(_RequestsUserClass):
         _channel_id, _message_id = [str(channel_id), str(message_id)]
 
         _url = f"{_mainurl()}channels/{_channel_id}/messages/{_message_id}"
-        return super()._get(_url, super()._headers).json()
+        return super()._get(_url, self._headers).json()
 
     async def send_message(self, channel_id, json_post):
         _url = f"{_mainurl()}channels/{channel_id}/messages"
@@ -256,7 +303,15 @@ class _Rest(_RequestsUserClass):
         await super()._aiopost(_url, json_post, self._headers)
 
 
-class _Gateway:
+class Flow:
+    _numeral_of_class = 5
+
+    _T = TypeVar(_fall[_numeral_of_class])
+
+    @property
+    def __class__(self: _T) -> Type[_T]:
+        return self._T
+
     def __init__(self, gateway_version: int, token: str, intents: int,
                  activity: dict):
         self.user_id = "null"
@@ -266,157 +321,95 @@ class _Gateway:
 
         self.intents = intents
         self.activity = activity
+        self.status = "online"
 
         self.event = {}
+        self.isrunning = False
 
         self.token = token
         self._rest = _Rest(token)
+        self._debug = False
 
         self._headers = {}
 
-    async def run(self, on_ready: Awaitable, on_messagec: Awaitable, register2: Awaitable,
-            on_register: Awaitable, status, on_interaction, debug):
-        self.status = status
-        self.on_ready = on_ready
-        self.on_messagec = on_messagec
-        self.register2 = register2
-        self.on_register = on_register
-        self.on_interaction = on_interaction
+        self.ws = None
 
-        self._debug = debug
-
-        # Connecting to Gateway
-        async with ClientSession(headers=self._headers) as session:
-            async with session.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
-                # Parsing Opcode 10 Hello to Heartbeat Interval
-                r = await self.get_responce(ws)
-                if self._debug:
-                    print(_DebugLoggingWebsocket(r, send=False))
-
-                self.heartbeat_interval = r["d"]["heartbeat_interval"]
-
-                from threading import Thread
-                _start = Thread(target=self._starting(ws), args=(ws))
-
-                _start.run()
-
-    async def send_request(self, json_data, ws):
-        if self._debug:
-            print(_DebugLoggingWebsocket(json_data, send=True))
-
-        s = json.dumps(json_data).encode("utf-8")
-        j2 = json.loads(s.decode("utf-8"))
-        assert (json_data == j2)
-
-        await ws.send_bytes(s)
-
-    async def get_responce(self, ws):
-        s = await ws.receive_str()
-
-        return json.loads(s)
-
-    async def register(self, d):
-        self.user_id = d["user"]["id"]
-
-    async def register2(self):
-        pass
-
+    # Event methods
     async def on_ready(self):
         pass
 
-    async def on_messagec(self, message: DisMessage):
-        pass
-
-    async def on_register(self):
+    async def on_messagec(self):
         pass
 
     async def on_interaction(self, token, id, command_name, bot_token: str, type):
         pass
 
-    async def heartbeat(self, ws):
-        _isheartbeated = False
+    async def on_register(self):
+        pass
 
-        self.event = {
-            "t": None,
-            "d": None,
-            "s": None,
-            "op": None
-        }
+    async def register2(self):
+        pass
 
-        # Sending Opcode 2 Identify
-        await self.send_request({"op": 2, "d": {"token": self.token,
-                                                "properties": {"$os": "linux", "$browser": "dispy", "$device": "dispy"},
-                                                "presence": {"activities": [self.activity],
-                                                             "status": self.status, "since": 91879201, "afk": False},
-                                                "intents": self.intents}}, ws)
-        while True:
-            # Sending Opcode 1
-            await self.send_request({"op": 1, "d": "null"}, ws)
+    # Sending/Getting
+    async def send_request(self, data, ws):
+        await ws.send_json(data)
 
-            from asyncio import sleep
-            from random import random
+        if self._debug:
+            print(_DebugLoggingWebsocket(data, send=True, isevent=False, op=data["op"]))
 
-            self.event = await self.get_responce(ws)
+        return data
 
-            if self._debug:
-                if self.event["t"] is None:
-                    print(_DebugLoggingWebsocket(self.event, send=False, isevent=False))
-                else:
-                    print(_DebugLoggingWebsocket(self.event, send=False, isevent=True))
+    async def get_responce(self, ws):
+        j = await ws.receive_json()
 
-            if not _isheartbeated:
-                await sleep((self.heartbeat_interval * random()) / 1000)
-                _isheartbeated = True
-            else:
-                await sleep(self.heartbeat_interval / 1000)
-
-    def _starting(self, ws):
-        from asyncio import get_event_loop
-
-        _loop = get_event_loop()
-
-        _loop.create_task(self.heartbeat(ws), name="heartbeat")
-        _loop.create_task(self._starting_checks_events_work(), name="checks_events")
-
-    async def _starting_checks_events_work(self):
-        while True:
-            await self._checks_events()
-
-    async def _checks_events(self):
-        event = self.event
-
-        if event["t"] == "READY":
-            await self.register(event["d"])
-            await self.register2()
+        if self._debug:
             try:
-                await self.on_ready()
+                if j["t"]:
+                    print(_DebugLoggingWebsocket(j, send=False, isevent=True, op=j["op"]))
+                else:
+                    print(_DebugLoggingWebsocket(j, send=False, isevent=False, op=j["op"]))
+            except KeyError:
+                print(_DebugLoggingWebsocket(j, send=False, isevent=False, op=j["op"]))
 
-            except TypeError:
-                async def on_ready():
-                    pass
+        return j
 
-                await on_ready()
+    # Runners
+    async def run(self, on_ready, on_messagec, register2, on_register, status, on_interaction, debug):
+        self._debug = debug
+        self.status = status
 
-            await self.on_register()
+        self.on_ready = on_ready
+        self.on_messagec = on_messagec
+        self.on_interaction = on_interaction
+        self.on_register = on_register
+        self.register2 = register2
 
-        if event["t"] == "MESSAGE_CREATE":
-            if self.user_id != event["d"]["author"]["id"]:
-                _message_id = int(event["d"]["id"])
-                _channel_id = int(event["d"]["channel_id"])
+        self.isrunning = True
 
-                _channel = DisChannel(_channel_id, self._rest)
-                _message = _channel.fetch(_message_id)
+        await self._runner()
 
-                await self.on_messagec(_message)
+    async def _runner(self):
+        async with ClientSession() as s:
+            async with s.ws_connect("wss://gateway.discord.gg/?v=9&encoding=json") as ws:
+                # await self.send_request({}, ws)
+                j = await self.get_responce(ws)
 
-        if event["t"] == "INTERACTION_CREATE":
-            _token = event["d"]["token"]
-            _interactionid = event["d"]["id"]
-            _commandname = event["d"]["data"]["name"]
-            _type = event["d"]["type"]
-            _token = self.token
+                interval = j["d"]["heartbeat_interval"]
 
-            await self.on_interaction(_token, _interactionid, _commandname, _token, _type)
+                await self.send_request({"op": 2, "d": {
+                                                  "token": self.token,
+                                                  "intents": 513,
+                                                  "properties": {
+                                                                "$os": "linux",
+                                                                "$browser": "disspy",
+                                                                "$device": "pc"
+                                                                }
+                                         }})
+
+                while self.isrunning:
+
+
+                    await asyncio.sleep(interval)
 
 
 class DisApi(_RequestsUserClass):
@@ -431,14 +424,14 @@ class DisApi(_RequestsUserClass):
         self.token = token
         self.application_id = application_id
 
-        self.g = _Gateway(10, self.token, intents, {})
+        self.f = Flow(10, self.token, intents, {})
         self._r = _Rest(self.token)
 
         self.app_commands = []
 
-        self.app_commands.append({}) # Slash Commands
-        self.app_commands.append({}) # User Commands
-        self.app_commands.append({}) # Message Commands
+        self.app_commands.append({})  # Slash Commands
+        self.app_commands.append({})  # User Commands
+        self.app_commands.append({})  # Message Commands
 
     def fetch(self, channel_id, id):
         return DisMessage(id, channel_id, DisApi(self.token))
@@ -449,8 +442,6 @@ class DisApi(_RequestsUserClass):
             self._on_messagec = on_messagec
         if on_ready is not None:
             self._on_ready = on_ready
-
-
 
         _url = f"{_mainurl()}applications/{self.application_id}/commands"
 
@@ -467,7 +458,8 @@ class DisApi(_RequestsUserClass):
 
             del delete
 
-        await self.g.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction, debug)
+        await self.f.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction,
+                         debug)
 
     async def _on_message(self, message):
         pass
@@ -483,7 +475,7 @@ class DisApi(_RequestsUserClass):
         try:
             _ctx = Context(token, id, bot_token)
 
-            await self.app_commands[type-1][command_name](_ctx)
+            await self.app_commands[type - 1][command_name](_ctx)
         except KeyError:
             print("What! Slash command is invalid")
 

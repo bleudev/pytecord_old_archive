@@ -28,7 +28,7 @@ from typing import (
 )
 
 
-__name__: str = "types"
+__name__: str = "objects"
 
 __package__: str = "disspy"
 
