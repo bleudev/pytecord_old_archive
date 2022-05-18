@@ -22,8 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import Type
-
 
 class TypeOf:
     def __new__(cls, *args, **kwargs):
@@ -31,7 +29,7 @@ class TypeOf:
         _obj = _type()
         _all = _obj.__all__()
 
-        if _all[0].isdigit():
+        if str(_all[0]).isdigit():
             return int
         else:
             return str
