@@ -366,7 +366,12 @@ class Flow:
         await ws.send_json(data)
 
         if self._debug:
-            print(_DebugLoggingWebsocket(data, send=True, isevent=False, op=data["op"]))
+            _debug_data = data
+            _debug_data["d"]["token"] = "YOUR_TOKEN"
+
+            print(_DebugLoggingWebsocket(_debug_data, send=True, isevent=False, op=data["op"]))
+
+            del _debug_data
 
         return data
 
@@ -427,13 +432,13 @@ class Flow:
                 }}, ws)
                 self.isrunning = True
 
-                await asyncio.wait(fs=[self.heartbeat(ws, interval), self._events_checker(ws)])
+                await asyncio.wait(fs=[self.heartbeat(ws, interval / 1000), self._events_checker(ws)])
 
     async def heartbeat(self, ws, interval):
         while True:
             await self.send_request({"op": 1, "d": None, "t": None}, ws)
 
-            await asyncio.sleep(interval / 1000)
+            await asyncio.sleep(interval)
 
     async def _events_checker(self, ws):
         while True:
