@@ -24,10 +24,8 @@ SOFTWARE.
 
 # pckages imports
 import asyncio
-import json
 from aiohttp import ClientSession
 from requests import get, post, Response
-from erlpack import unpack
 import colorama
 
 # Typing imports
@@ -391,25 +389,38 @@ class Flow:
     async def _runner(self):
         async with ClientSession() as s:
             async with s.ws_connect("wss://gateway.discord.gg/?v=9&encoding=json") as ws:
-                # await self.send_request({}, ws)
-                j = await self.get_responce(ws)
+                await asyncio.wait(fs=[self.heartbeat(ws), self._events_checker(ws)])
 
-                interval = j["d"]["heartbeat_interval"]
-
-                await self.send_request({"op": 2, "d": {
-                                                  "token": self.token,
-                                                  "intents": 513,
-                                                  "properties": {
-                                                                "$os": "linux",
-                                                                "$browser": "disspy",
-                                                                "$device": "pc"
-                                                                }
-                                         }})
-
-                while self.isrunning:
+    async def heartbeat(self, ws):
+        self.isrunning = True
 
 
-                    await asyncio.sleep(interval)
+        j = await self.get_responce(ws)
+
+        interval = j["d"]["heartbeat_interval"]
+
+        await self.send_request({"op": 2, "d": {
+            "token": self.token,
+            "intents": 513,
+            "properties": {
+                "$os": "linux",
+                "$browser": "disspy",
+                "$device": "pc"
+            }
+        }}, ws)
+
+        while True:
+            await self.send_request({"op": 1, "d": None, "t": None}, ws)
+
+            print("xd 2")
+
+            await asyncio.sleep(interval / 1000)
+
+    async def _events_checker(self, ws):
+        while True:
+            print("xd")
+
+            await asyncio.sleep(0.5)
 
 
 class DisApi(_RequestsUserClass):
