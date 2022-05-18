@@ -65,7 +65,7 @@ _fall = list(__all__)
 
 
 def _mainurl() -> str:
-    return "https://discord.com/api/v10/"
+    return "https://discord.com/api/v9/"
 
 
 class FlowOpcodes:
@@ -488,18 +488,18 @@ class DisApi(_RequestsUserClass):
 
         _url = f"{_mainurl()}applications/{self.application_id}/commands"
 
-        if not self.app_commands_jsons == []:
-            from requests import put
+        # if not self.app_commands_jsons == []:
+        #     from requests import put
+        #
+        #     self.app_commands_jsons = put(url=_url, json=self.app_commands_jsons, headers=self._headers).json()
+        #
+        #     del put
+        # else:
+        from requests import delete
 
-            self.app_commands_jsons = put(url=_url, json=self.app_commands_jsons, headers=self._headers).json()
+        self.app_commands_jsons = delete(url=_url, headers=self._headers).json()
 
-            del put
-        else:
-            from requests import delete
-
-            self.app_commands_jsons = delete(url=_url, headers=self._headers).json()
-
-            del delete
+        del delete
 
         await self.f.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction,
                          debug)
