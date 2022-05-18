@@ -383,6 +383,7 @@ class Flow:
         self.register2 = register2
 
         self.isrunning = True
+        self.isafk = False
 
         await self._runner()
 
@@ -393,13 +394,22 @@ class Flow:
 
                 interval = j["d"]["heartbeat_interval"]
 
+                from datetime import datetime
+                from time import mktime
+
                 await self.send_request({"op": 2, "d": {
                     "token": self.token,
-                    "intents": 513,
+                    "intents": self.intents,
                     "properties": {
                         "$os": "linux",
                         "$browser": "disspy",
                         "$device": "pc"
+                    },
+                    "presence": {
+                        "since": mktime(datetime.now().timetuple()) * 1000,
+                        "afk": self.isafk,
+                        "status": self.status,
+                        "activities": []  # Disspy isn't supporting Discord activities
                     }
                 }}, ws)
                 self.isrunning = True
