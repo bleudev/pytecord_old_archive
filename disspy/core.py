@@ -157,6 +157,14 @@ class _RequestsUserClass:
         return get(url=url, headers=headers)
 
 
+class _FlowEvent:
+    def __init__(self, json):
+        self.type = json["t"]
+        self.session = json["s"]
+        self.data = json["d"]
+        self.opcode = json["op"]
+
+
 class DisFlags:
     """
     The class for using intents in bots
@@ -312,6 +320,7 @@ class Flow:
 
     def __init__(self, gateway_version: int, token: str, intents: int,
                  activity: dict):
+
         self.user_id = "null"
         self.heartbeat_interval = 0
 
@@ -321,8 +330,9 @@ class Flow:
         self.activity = activity
         self.status = "online"
 
-        self.event = {}
+        # ISes
         self.isrunning = False
+        self.isafk = False
 
         self.token = token
         self._rest = _Rest(token)
@@ -347,6 +357,9 @@ class Flow:
 
     async def register2(self):
         pass
+
+    async def register(self, d):
+        self.user_id = d["user"]["id"]
 
     # Sending/Getting
     async def send_request(self, data, ws):
@@ -424,7 +437,15 @@ class Flow:
 
     async def _events_checker(self, ws):
         while True:
-            event = await self.get_responce(ws)
+            event_json = await self.get_responce(ws)
+            event = _FlowEvent(event_json)
+
+            if event.type == "READY":
+                await self.register(event.data)
+                await self.register2()
+                await self.on_register()
+
+                await self.on_ready()
 
             await asyncio.sleep(0.5)
 
@@ -451,7 +472,7 @@ class DisApi(_RequestsUserClass):
         self.app_commands.append({})  # Message Commands
 
     def fetch(self, channel_id, id):
-        return DisMessage(id, channel_id, DisApi(self.token))
+        return DisMessage(id, channel_id, self)
 
     async def run(self, status, on_ready: Awaitable, on_messagec: Awaitable,
                   on_register: Awaitable, debug):
@@ -486,7 +507,7 @@ class DisApi(_RequestsUserClass):
 
     async def _register2(self):
         # pass
-        self.user: DisUser = self.get_user(self.g.user_id, False)
+        self.user: DisUser = self.get_user(self.f.user_id, False)
 
     async def _on_interaction(self, token, id, command_name, bot_token: str, type):
         try:
@@ -516,6 +537,7 @@ class DisApi(_RequestsUserClass):
         """
         Get user by id
 
+        :param premium_gets: Premium gets to User (for example flags and user information (info which can't be got)
         :param id: id of user
         :return DisUser:
         """
@@ -539,7 +561,7 @@ class DisApi(_RequestsUserClass):
         """
         id = int(id)
 
-        return DisChannel(id, DisApi(self.token))
+        return DisChannel(id, self)
 
     def get_channel_json(self, id: Union[int, Showflake]) -> JsonOutput:
         """
@@ -559,7 +581,7 @@ class DisApi(_RequestsUserClass):
         """
         id = int(id)
 
-        return DisGuild(id, DisApi(self.token))
+        return DisGuild(id, self)
 
     def get_guild_json(self, id: int) -> JsonOutput:
         """
