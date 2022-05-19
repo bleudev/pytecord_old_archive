@@ -46,8 +46,10 @@ class DisChannel:
 
         _data = self._r.get("channel", id)
 
-        self.last_message_id = _data['last_message_id']
-        self.guild_id = _data["guild_id"]
+        try:
+            self.guild_id = _data["guild_id"]
+        except KeyError:
+            pass
 
     def __eq__(self, other):
         """

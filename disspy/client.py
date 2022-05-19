@@ -145,6 +145,10 @@ class DisBot(_BaseBot):
         """
 
         __methodname__ = f"{self.__classname__}.on()"
+        _all_basic_events = [
+            "ready",
+            "messagec"
+        ]
 
         if isinstance(type, DisBotEventType):
             _message = f"Error! In method {__methodname__} was moved" \
@@ -153,7 +157,7 @@ class DisBot(_BaseBot):
             self.logger.log(_message)
 
         def wrapper(func):
-            if type == "messagec" or type == "ready":
+            if type in _all_basic_events:
                 self._ons[type] = func
             else:
                 _err = f"Error! In method {__methodname__} was" \
@@ -254,6 +258,10 @@ class DisBot(_BaseBot):
             return 0
         else:
             return -99
+
+    def __del__(self):
+        for _var in self.__slots__:
+            del _var
 
     async def send(self, channel_id: int, content: Optional[str] = None,
                    embeds: Optional[list[DisEmbed]] = None):

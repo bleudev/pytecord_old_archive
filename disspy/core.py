@@ -311,7 +311,10 @@ class _Rest(_RequestsUserClass):
     async def send_message(self, channel_id, json_post):
         _url = f"{_mainurl()}channels/{channel_id}/messages"
 
-        await super()._aiopost(_url, json_post, self._headers)
+        async with ClientSession(headers=self._headers) as s:
+            async with s.post(_url, data=json_post) as p:
+                j = await p.json()
+                return j
 
 
 class Flow:
@@ -351,7 +354,7 @@ class Flow:
     async def on_ready(self):
         pass
 
-    async def on_messagec(self):
+    async def on_messagec(self, m):
         pass
 
     async def on_interaction(self, token, id, command_name, bot_token: str, type):
@@ -459,6 +462,13 @@ class Flow:
 
                 await self.on_ready()
 
+            if event.type == "MESSAGE_CREATE":
+                _d = event.data
+
+                _m = DisMessage(_d["id"], _d["channel_id"], _Rest(self.token))
+
+                await self.on_messagec(_m)
+
             await asyncio.sleep(0.5)
 
     async def disconnecter(self):
@@ -491,10 +501,12 @@ class DisApi(_RequestsUserClass):
         return DisMessage(id, channel_id, self)
 
     async def run(self, status, ons, debug):
-        if ons["messagec"] is None:
-            ons["messagec"] = self._on_messagec
-        if ons["ready"] is None:
-            ons["ready"] = self._on_ready
+        print(ons)
+
+        # if ons["messagec"] is None:
+        #     ons["messagec"] = self._on_messagec
+        # if ons["ready"] is None:
+        #     ons["ready"] = self._on_ready
 
         ons["register2"] = self._register2
         ons["interaction"] = self._on_interaction
