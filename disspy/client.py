@@ -231,7 +231,10 @@ class DisBot(_BaseBot):
         return _err
 
     def _runner(self) -> int:
-        self._coro = run(self._api.run(self.status, self._ons, debug=self._debug))
+        try:
+            self._coro = run(self._api.run(self.status, self._ons, debug=self._debug))
+        except KeyboardInterrupt:
+            pass
 
         return 0  # No errors
 

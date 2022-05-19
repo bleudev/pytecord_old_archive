@@ -82,19 +82,19 @@ class FlowOpcodes:
     HEARTBEAT_ACK = 11
 
     @staticmethod
-    def rotated_list():
+    def rotated_dict():
         return {
-            0: "DISPATCH",
-            1: "HEARTBEAT",
-            2: "IDENTIFY",
-            3: "PRESENCE_UPDATE",
-            4: "VOICE_STATE_UPDATE",
-            6: "RESUME",
-            7: "RECONNECT",
-            8: "REQUEST_GUILD_MEMBERS",
-            9: "INVALID_SESSION",
+            0:  "DISPATCH",
+            1:  "HEARTBEAT",
+            2:  "IDENTIFY",
+            3:  "PRESENCE UPDATE",
+            4:  "VOICE STATE UPDATE",
+            6:  "RESUME",
+            7:  "RECONNECT",
+            8:  "REQUEST GUILD MEMBERS",
+            9:  "INVALID SESSION",
             10: "HELLO",
-            11: "HEARTBEAT_ACK"
+            11: "HEARTBEAT ACK"
         }
 
 
@@ -124,21 +124,24 @@ class _DebugLoggingWebsocket:
         _result = ""
 
         if _send:
-            _op_str = FlowOpcodes.rotated_list()[_op]
+            _op_str = FlowOpcodes.rotated_dict()[_op]
             _op_str = _op_str.capitalize()
 
-            _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.YELLOW} | {_op_str}:{colorama.Fore.RESET} {_data}"
+            _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
         else:
             if _isevent:
-                _op_str = FlowOpcodes.rotated_list()[_op]
+                _op_str = FlowOpcodes.rotated_dict()[_op]
                 _op_str = _op_str.capitalize()
 
-                _result = f"{colorama.Fore.CYAN}Getting Event{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
+                _result = f"{colorama.Fore.YELLOW}Getting Event{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
             else:
-                _op_str = FlowOpcodes.rotated_list()[_op]
+                _op_str = FlowOpcodes.rotated_dict()[_op]
                 _op_str = _op_str.capitalize()
 
-                _result = f"{colorama.Fore.RED}Getting Responce{colorama.Fore.YELLOW} | {_op_str}:{colorama.Fore.RESET} {_data}"
+                if _op == 11:
+                    _op_str = "Heartbeat ACK"
+
+                _result = f"{colorama.Fore.YELLOW}Getting Responce{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
 
         return _result
 
@@ -190,7 +193,7 @@ class DisFlags:
 
     @staticmethod
     def default() -> int:
-        return 512
+        return 33280
 
     @staticmethod
     def all() -> int:
@@ -368,12 +371,7 @@ class Flow:
         await ws.send_json(data)
 
         if self._debug:
-            _debug_data = data
-            _debug_data["d"]["token"] = "YOUR_TOKEN"
-
-            print(_DebugLoggingWebsocket(_debug_data, send=True, isevent=False, op=data["op"]))
-
-            del _debug_data
+            print(_DebugLoggingWebsocket(data, send=True, isevent=False, op=data["op"]))
 
         return data
 
