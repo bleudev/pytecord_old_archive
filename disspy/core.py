@@ -125,17 +125,19 @@ class _DebugLoggingWebsocket:
 
         if _send:
             _op_str = FlowOpcodes.rotated_list()[_op]
-            _op_str = _op_str.lower()
+            _op_str = _op_str.capitalize()
 
             _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.YELLOW} | {_op_str}:{colorama.Fore.RESET} {_data}"
         else:
             if _isevent:
                 _op_str = FlowOpcodes.rotated_list()[_op]
-                _op_str = _op_str.lower()
-                _result = f"{colorama.Fore.RED}Getting Responce (Event){colorama.Fore.YELLOW} | {_op_str}:{colorama.Fore.RESET} {_data}"
+                _op_str = _op_str.capitalize()
+
+                _result = f"{colorama.Fore.CYAN}Getting Event{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
             else:
                 _op_str = FlowOpcodes.rotated_list()[_op]
-                _op_str = _op_str.lower()
+                _op_str = _op_str.capitalize()
+
                 _result = f"{colorama.Fore.RED}Getting Responce{colorama.Fore.YELLOW} | {_op_str}:{colorama.Fore.RESET} {_data}"
 
         return _result
@@ -376,7 +378,10 @@ class Flow:
         return data
 
     async def get_responce(self, ws):
-        j = await ws.receive_json()
+        try:
+            j = await ws.receive_json()
+        except TypeError:
+            return
 
         if self._debug:
             try:
@@ -390,15 +395,15 @@ class Flow:
         return j
 
     # Runners
-    async def run(self, on_ready, on_messagec, register2, on_register, status, on_interaction, debug):
+    async def run(self, ons, status, debug):
         self._debug = debug
         self.status = status
 
-        self.on_ready = on_ready
-        self.on_messagec = on_messagec
-        self.on_interaction = on_interaction
-        self.on_register = on_register
-        self.register2 = register2
+        self.on_ready = ons["ready"]
+        self.on_messagec = ons["messagec"]
+        self.on_interaction = ons["interaction"]
+        self.on_register = ons["register"]
+        self.register2 = ons["register2"]
 
         self.isrunning = True
         self.isafk = False
@@ -471,6 +476,7 @@ class DisApi(_RequestsUserClass):
         self._r = _Rest(self.token)
 
         self.app_commands = []
+        self.raw_app_commands = []
 
         self.app_commands.append({})  # Slash Commands
         self.app_commands.append({})  # User Commands
@@ -479,32 +485,29 @@ class DisApi(_RequestsUserClass):
     def fetch(self, channel_id, id):
         return DisMessage(id, channel_id, self)
 
-    async def run(self, status, on_ready: Awaitable, on_messagec: Awaitable,
-                  on_register: Awaitable, debug):
-        if on_messagec is not None:
-            self._on_messagec = on_messagec
-        if on_ready is not None:
-            self._on_ready = on_ready
+    async def run(self, status, ons, debug):
+        if ons["messagec"] is None:
+            ons["messagec"] = self._on_messagec
+        if ons["ready"] is None:
+            ons["ready"] = self._on_ready
+
+        ons["register2"] = self._register2
+        ons["interaction"] = self._on_interaction
 
         _url = f"{_mainurl()}applications/{self.application_id}/commands"
 
-        # if not self.app_commands_jsons == []:
-        #     from requests import put
-        #
-        #     self.app_commands_jsons = put(url=_url, json=self.app_commands_jsons, headers=self._headers).json()
-        #
-        #     del put
-        # else:
-        from requests import delete
+        from requests import delete, post
 
-        self.app_commands_jsons = delete(url=_url, headers=self._headers).json()
+        delete(url=_url, headers=self._headers)
 
         del delete
 
-        await self.f.run(self._on_ready, self._on_messagec, self._register2, on_register, status, self._on_interaction,
-                         debug)
+        for j in self.app_commands_jsons:
+            self.raw_app_commands.append(post(url=_url, json=j, headers=self._headers).json())
 
-    async def _on_message(self, message):
+        await self.f.run(ons, status, debug)
+
+    async def _on_messagec(self, message):
         pass
 
     async def _on_ready(self):

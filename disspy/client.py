@@ -96,6 +96,13 @@ class DisBot(_BaseBot):
 
         self.status = status
         self._debug = debug
+        self._ons = {
+            "ready": None,
+            "messagec": None,
+            "register": self._on_register,
+            "register2": None,
+            "interaction": None
+        }
 
         self._on_messagec = None
         self._on_ready = None
@@ -128,7 +135,7 @@ class DisBot(_BaseBot):
 
     def on(self, type: Union[DisBotEventType, str]):
         """
-        This method was created for changing on_ready and on_message
+        This method was created for changing on_ready and on_messagec
         method that using in runner
 
         :param type: Type of event
@@ -144,10 +151,8 @@ class DisBot(_BaseBot):
             self.logger.log(_message)
 
         def wrapper(func):
-            if type == "messagec":
-                self._on_messagec = func
-            elif type == "ready":
-                self._on_ready = func
+            if type == "messagec" or type == "ready":
+                self._ons[type] = func
             else:
                 _err = f"Error! In method {__methodname__} was" \
                        "moved invalid event type!"
@@ -226,8 +231,7 @@ class DisBot(_BaseBot):
     def _runner(self) -> int:
         from asyncio import run
 
-        self._coro = run(self._api.run(self.status, self._on_ready, self._on_messagec,
-                              self._on_register, debug=self._debug))
+        self._coro = run(self._api.run(self.status, self._ons, debug=self._debug))
 
         return 0  # No errors
 
