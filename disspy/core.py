@@ -408,11 +408,15 @@ class Flow:
         self.isrunning = True
         self.isafk = False
 
+        self.ws = None
+
         await self._runner()
 
     async def _runner(self):
         async with ClientSession() as s:
             async with s.ws_connect("wss://gateway.discord.gg/?v=9&encoding=json") as ws:
+                self.ws = ws
+
                 j = await self.get_responce(ws)
 
                 interval = j["d"]["heartbeat_interval"]
@@ -458,6 +462,9 @@ class Flow:
                 await self.on_ready()
 
             await asyncio.sleep(0.5)
+
+    async def disconnecter(self):
+        await self.ws.close()
 
 
 class DisApi(_RequestsUserClass):
@@ -506,6 +513,9 @@ class DisApi(_RequestsUserClass):
             self.raw_app_commands.append(post(url=_url, json=j, headers=self._headers).json())
 
         await self.f.run(ons, status, debug)
+
+    async def disconnecter(self):
+        await self.f.disconnecter()
 
     async def _on_messagec(self, message):
         pass

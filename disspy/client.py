@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from asyncio import ensure_future, run
+
 # Typing imports
 from typing import (
     Optional,
@@ -229,20 +231,20 @@ class DisBot(_BaseBot):
         return _err
 
     def _runner(self) -> int:
-        from asyncio import run
-
         self._coro = run(self._api.run(self.status, self._ons, debug=self._debug))
 
         return 0  # No errors
 
-    def disconnect(self) -> int:
-        return self._dissconnenter()
+    async def disconnect(self) -> int:
+        return ensure_future(self._dissconnenter())
 
-    def close(self) -> int:
-        return self._dissconnenter()
+    async def close(self) -> int:
+        return ensure_future(self._dissconnenter())
 
-    def _dissconnenter(self) -> int:
+    async def _dissconnenter(self) -> int:
         if self.isready:
+            await self._api.disconnecter()
+
             for _var in self.__slots__:
                 del _var
 
