@@ -463,11 +463,10 @@ class Flow:
                 await self.on_ready()
 
             if event.type == "MESSAGE_CREATE":
-                _d = event.data
+                _m = DisMessage(event.data, self.token)
 
-                _m = DisMessage(_d["id"], _d["channel_id"], _Rest(self.token))
-
-                await self.on_messagec(_m)
+                if not event.data["author"]["id"] == self.user_id:
+                    await self.on_messagec(_m)
 
             await asyncio.sleep(0.5)
 
@@ -501,13 +500,6 @@ class DisApi(_RequestsUserClass):
         return DisMessage(id, channel_id, self)
 
     async def run(self, status, ons, debug):
-        print(ons)
-
-        # if ons["messagec"] is None:
-        #     ons["messagec"] = self._on_messagec
-        # if ons["ready"] is None:
-        #     ons["ready"] = self._on_ready
-
         ons["register2"] = self._register2
         ons["interaction"] = self._on_interaction
 
@@ -545,13 +537,17 @@ class DisApi(_RequestsUserClass):
         except KeyError:
             print("What! Slash command is invalid")
 
-    async def send_message(self, id, content, embed):
+    async def send_message(self, id, content = "", embed = None):
+        print(content)
+
         if embed:
             await self._r.send_message(id, {"content": content, "embeds": [embed.tojson()]})
         else:
             await self._r.send_message(id, {"content": content})
 
-    async def send_message(self, id, content, embeds):
+    async def send_message(self, id, content = "", embeds = None):
+        print(content)
+
         embeds_send_json = []
         if embeds:
             for e in embeds:

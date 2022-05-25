@@ -30,21 +30,45 @@ from typing import (
 )
 
 
+class _SendingRestHandler:
+    @staticmethod
+    async def execute(id, payload, token):
+        from aiohttp import ClientSession as CS
+
+        async with CS(headers={'Authorization': f'Bot {token}'}) as s:
+            _u = f"https://discord.com/api/v9/channels/{id}/messages"
+
+            async with s.post(_u, data=payload) as p:
+                j = await p.json()
+
+                return j
+
+
+class _GettingChannelData:
+    @staticmethod
+    def execute(id, token):
+        from requests import get
+
+        _u = f"https://discord.com/api/v9/channels/{id}"
+        _h = {'Authorization': f'Bot {token}'}
+
+        return get(_u, headers=_h).json()
+
 class DisChannel:
     """
     The class for sending messages to discord channels and fetching messages in channels
     """
-    def __init__(self, id: int, rest):
+    def __init__(self, id: int, _token):
         """
         Creating an object DisChannel
 
         :param id: dict -> id of the channel
         :param rest: Rest -> Rest client with token for channel
         """
-        self._r = rest
+        self._t = _token
         self.id = id
 
-        _data = self._r.get("channel", id)
+        _data = _GettingChannelData.execute(self.id, self._t)
 
         try:
             self.guild_id = _data["guild_id"]
@@ -87,11 +111,11 @@ class DisChannel:
             _payload = {
                 "content": content
             }
-        elif not embeds and content:
-            print("Error!")
-            return -1
+        elif not embeds and not content:
+            return
 
-        await self._r.send_message(self.id, _payload)
+        await _SendingRestHandler.execute(self.id, _payload, self._t)
+
         return 0
 
     async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None) -> int:
@@ -119,14 +143,14 @@ class DisChannel:
                 "content": content
             }
         elif not content and not embed:
-            print("Error!")
-            return -1
+            return
 
-        await self._r.send_message(self.id, _payload)
+        await _SendingRestHandler.execute(self.id, _payload, self._t)
+
         return 0
 
     def fetch(self, id: int):
-        return DisMessage(id, self.id, self._r)
+        return DisMessage(id, self.id, self._a)
 
 
 class DisDm:
