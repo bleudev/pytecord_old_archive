@@ -468,6 +468,9 @@ class Flow:
                 if not event.data["author"]["id"] == self.user_id:
                     await self.on_messagec(_m)
 
+            if event.type == "INTERACTION_CREATE":
+                await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"], self.token, event.data["type"])
+
             await asyncio.sleep(0.5)
 
     async def disconnecter(self):
@@ -533,7 +536,7 @@ class DisApi(_RequestsUserClass):
         try:
             _ctx = Context(token, id, bot_token)
 
-            await self.app_commands[type - 1][command_name](_ctx)
+            await self.app_commands[type - 2][command_name](_ctx)
         except KeyError:
             print("What! Slash command is invalid")
 
