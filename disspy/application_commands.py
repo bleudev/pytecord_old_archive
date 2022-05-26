@@ -22,11 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import disspy.core
 
-from aiohttp import ClientSession
-
-from typing import Optional
+from typing import (
+    Optional,
+    Type
+)
 
 
 class ApplicationCommand:
@@ -66,9 +66,7 @@ class Context:
 class Option:
     def __new__(cls, name, description, option_type: int, choices: Optional[list[dict]] = None):
         if choices:
-            from typing import Type
-
-            if Type[option_type] == 3 or Type[option_type] == 4 or Type[option_type] == 10:
+            if Type[option_type] == OptionType.STRING or Type[option_type] == OptionType.INTEGER or Type[option_type] == OptionType.NUMBER:
                 return {
                     "name": name,
                     "description": description,
@@ -81,3 +79,17 @@ class Option:
                     "description": description,
                     "type": option_type
                 }
+
+
+class OptionType:
+    SUB_COMMAND = 1
+    SUB_COMMAND_GROUP = 2
+    STRING = 3
+    INTEGER = 4
+    BOOLEAN = 5
+    USER = 6
+    CHANNEL = 7
+    ROLE = 8
+    MENTIONABLE = 9
+    NUMBER = 10
+    ATTACHMENT = 11
