@@ -357,7 +357,7 @@ class Flow:
     async def on_messagec(self, m):
         pass
 
-    async def on_interaction(self, token, id, command_name, bot_token: str, type, type_of_command = None):
+    async def on_interaction(self, token, id, command_name, bot_token: str, type, data, type_of_command = None):
         pass
 
     async def on_register(self):
@@ -470,10 +470,11 @@ class Flow:
 
             if event.type == "INTERACTION_CREATE":
                 if event.data["type"] == 2:
-                    await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"], self.token, event.data["type"], event.data["data"]["type"])
+                    await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
+                                              self.token, event.data["type"], event.data, event.data["data"]["type"])
                 else:
                     await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
-                                              self.token, event.data["type"], None)
+                                              self.token, event.data["type"], event.data, None)
 
             await asyncio.sleep(0.5)
 
@@ -536,18 +537,26 @@ class DisApi(_RequestsUserClass):
         # pass
         self.user: DisUser = self.get_user(self.f.user_id, False)
 
-    async def _on_interaction(self, token, id, command_name, bot_token: str, type, type_of_command = None):
+    async def _on_interaction(self, token, id, command_name, bot_token: str, type, data, type_of_command = None):
         if type_of_command is None:
-            return # Not components!
+            return  # Not components!
         else:
             if type == 2:
-                try:
-
+                if data["data"]["options"]:
                     _ctx = Context(token, id, bot_token)
 
-                    await self.app_commands[type_of_command - 1][command_name](_ctx)
-                except KeyError:
-                    print("What! Slash command is invalid")
+                    _kwargs = {}
+
+                    for o in data["data"]["options"]:
+                        try:
+                            _kwargs[o["name"]] = o["value"]
+                        except KeyError:
+                            _kwargs.setdefault(o["name"], o["value"])
+
+                    try:
+                        await self.app_commands[type_of_command - 1][command_name](_ctx, _kwargs)
+                    except KeyError:
+                        print("What! Slash command is invalid")
 
     async def send_message(self, id, content = "", embed = None):
         print(content)
