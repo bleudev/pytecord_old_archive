@@ -357,7 +357,7 @@ class Flow:
     async def on_messagec(self, m):
         pass
 
-    async def on_interaction(self, token, id, command_name, bot_token: str, type):
+    async def on_interaction(self, token, id, command_name, bot_token: str, type, type_of_command = None):
         pass
 
     async def on_register(self):
@@ -469,7 +469,11 @@ class Flow:
                     await self.on_messagec(_m)
 
             if event.type == "INTERACTION_CREATE":
-                await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"], self.token, event.data["type"])
+                if event.data["type"] == 2:
+                    await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"], self.token, event.data["type"], event.data["data"]["type"])
+                else:
+                    await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
+                                              self.token, event.data["type"], None)
 
             await asyncio.sleep(0.5)
 
@@ -532,13 +536,18 @@ class DisApi(_RequestsUserClass):
         # pass
         self.user: DisUser = self.get_user(self.f.user_id, False)
 
-    async def _on_interaction(self, token, id, command_name, bot_token: str, type):
-        try:
-            _ctx = Context(token, id, bot_token)
+    async def _on_interaction(self, token, id, command_name, bot_token: str, type, type_of_command = None):
+        if type_of_command is None:
+            return # Not components!
+        else:
+            if type == 2:
+                try:
 
-            await self.app_commands[type - 2][command_name](_ctx)
-        except KeyError:
-            print("What! Slash command is invalid")
+                    _ctx = Context(token, id, bot_token)
+
+                    await self.app_commands[type_of_command - 1][command_name](_ctx)
+                except KeyError:
+                    print("What! Slash command is invalid")
 
     async def send_message(self, id, content = "", embed = None):
         print(content)
