@@ -64,8 +64,20 @@ class Context:
 
 
 class Option:
-    def __init__(self, name, description, type: int, choices: Optional[list[dict]] = []):
-        self.name = name
-        self.description = description
-        self.type = type
-        self.choices = choices
+    def __new__(cls, name, description, option_type: int, choices: Optional[list[dict]] = None):
+        if choices:
+            from typing import Type
+
+            if Type[option_type] == 3 or Type[option_type] == 4 or Type[option_type] == 10:
+                return {
+                    "name": name,
+                    "description": description,
+                    "type": option_type,
+                    "choices": choices
+                }
+            else:
+                return {
+                    "name": name,
+                    "description": description,
+                    "type": option_type
+                }

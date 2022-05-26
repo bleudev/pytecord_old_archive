@@ -167,12 +167,20 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def slash_command(self, name, description):
-        _payload = {
-            "name": name,
-            "description": description,
-            "type": 1
-        }
+    def slash_command(self, name, description, options = None):
+        if options:
+            _payload = {
+                "name": name,
+                "description": description,
+                "type": 1,
+                "options": options
+            }
+        else:
+            _payload = {
+                "name": name,
+                "description": description,
+                "type": 1,
+            }
 
         def wrapper(func):
             self._api.create_command(_payload, func)
