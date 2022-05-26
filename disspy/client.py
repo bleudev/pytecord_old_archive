@@ -29,7 +29,8 @@ from typing import (
     Optional,
     TypeVar,
     Union,
-    Type
+    Type,
+    Any
 )
 
 # Package imports
@@ -42,6 +43,7 @@ from disspy.user import DisUser
 from disspy.objects import DisBotStatus, DisBotEventType
 from disspy.logger import Logger
 from disspy._typing import TypeOf
+from disspy.application_commands import Option
 
 System = {
     bool: bool
@@ -135,12 +137,12 @@ class DisBot(_BaseBot):
         pass
         # self.user: DisUser = self._api.user
 
-    def on(self, type: Union[DisBotEventType, str]):
+    def on(self, t: Union[DisBotEventType, str]):
         """
         This method was created for changing on_ready and on_messagec
         method that using in runner
 
-        :param type: Type of event
+        :param t: Type of event
         :return: None (wrapper)
         """
 
@@ -150,15 +152,15 @@ class DisBot(_BaseBot):
             "messagec"
         ]
 
-        if isinstance(type, DisBotEventType):
+        if isinstance(t, DisBotEventType):
             _message = f"Error! In method {__methodname__} was moved" \
                        "invalid argument! Argument type is DisBotEventType," \
                        "but in method have to type is str!"
             self.logger.log(_message)
 
         def wrapper(func):
-            if type in _all_basic_events:
-                self._ons[type] = func
+            if t in _all_basic_events:
+                self._ons[t] = func
             else:
                 _err = f"Error! In method {__methodname__} was" \
                        "moved invalid event type!"
@@ -167,13 +169,20 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def slash_command(self, name, description, options = None):
+    def slash_command(self, name, description, options: Optional[list[Option]] = None):
         if options:
+            _options_jsons = []
+
+            for o in options:
+                _options_jsons.append(o.json())
+
+                print(_options_jsons)
+
             _payload = {
                 "name": name,
                 "description": description,
                 "type": 1,
-                "options": options
+                "options": _options_jsons
             }
         else:
             _payload = {

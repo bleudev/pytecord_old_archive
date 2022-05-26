@@ -72,7 +72,8 @@ from .application_commands import (
     ApplicationCommand,
     SlashCommand,
     Context,
-    Option
+    Option,
+    OptionType
 )
 
 # Version of dipsy (b - beta, a - alpha)

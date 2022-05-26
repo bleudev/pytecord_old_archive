@@ -23,10 +23,7 @@ SOFTWARE.
 """
 
 
-from typing import (
-    Optional,
-    Type
-)
+from typing import Optional
 
 
 class ApplicationCommand:
@@ -64,21 +61,33 @@ class Context:
 
 
 class Option:
-    def __new__(cls, name, description, option_type: int, choices: Optional[list[dict]] = None):
-        if choices:
-            if Type[option_type] == OptionType.STRING or Type[option_type] == OptionType.INTEGER or Type[option_type] == OptionType.NUMBER:
+    def __init__(self, name, description, option_type: int, choices: Optional[list[dict]] = None):
+        self.name = name
+        self.description = description
+        self.option_type = option_type
+        self.choices = choices
+
+    def json(self):
+        if self.option_type == OptionType.STRING or self.option_type == OptionType.INTEGER or self.option_type == OptionType.NUMBER and self.choices:
+            if self.choices:
                 return {
-                    "name": name,
-                    "description": description,
-                    "type": option_type,
-                    "choices": choices
+                    "name": self.name,
+                    "description": self.description,
+                    "type": self.option_type,
+                    "choices": self.choices
                 }
             else:
                 return {
-                    "name": name,
-                    "description": description,
-                    "type": option_type
+                    "name": self.name,
+                    "description": self.description,
+                    "type": self.option_type
                 }
+        else:
+            return {
+                "name": self.name,
+                "description": self.description,
+                "type": self.option_type
+            }
 
 
 class OptionType:
