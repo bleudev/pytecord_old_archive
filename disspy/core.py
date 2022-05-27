@@ -32,8 +32,8 @@ import colorama
 from typing import (
     Type,
     TypeVar,
-    Awaitable,
-    Union
+    Union,
+    Optional
 )
 
 # disspy imports
@@ -43,6 +43,7 @@ from disspy.errs import ClassTypeError
 from disspy.guild import DisGuild
 from disspy.message import DisMessage
 from disspy.user import DisUser
+from disspy.embed import DisEmbed
 
 __name__: str = "core"
 
@@ -150,15 +151,18 @@ class _DebugLoggingWebsocket:
 
 
 class _RequestsUserClass:
-    async def _aiopost(self, url, data, headers):
+    @staticmethod
+    async def _aiopost(url, data, headers):
         async with ClientSession(headers=headers) as _s:
             async with _s.post(url=url, data=data) as _p:
                 return _p.json()
 
-    def _post(self, url: str, data: dict, headers: dict) -> dict:
+    @staticmethod
+    def _post(url: str, data: dict, headers: dict) -> dict:
         return post(url=url, json=data, headers=headers).json()
 
-    def _get(self, url: str, headers: dict) -> Response:
+    @staticmethod
+    def _get(url: str, headers: dict) -> Response:
         return get(url=url, headers=headers)
 
 
@@ -558,23 +562,37 @@ class DisApi(_RequestsUserClass):
                     except KeyError:
                         print("What! Slash command is invalid")
 
-    async def send_message(self, id, content = "", embed = None):
-        print(content)
+    async def send_message(self, id: int, content: str = "", embed: Optional[DisEmbed] = None):
+        """
+        Sending messages to channel
+
+        :param id: Id of channel which use in sending messages to
+        :param content: Message Content
+        :param embed: Message Embed
+        :return None:
+        """
 
         if embed:
             await self._r.send_message(id, {"content": content, "embeds": [embed.tojson()]})
         else:
             await self._r.send_message(id, {"content": content})
 
-    async def send_message(self, id, content = "", embeds = None):
-        print(content)
+    async def send_message(self, id: int, content: str = "", embeds: Optional[list[DisEmbed]] = None):
+        """
+        Sending messages to channel
 
-        embeds_send_json = []
+        :param id: Id of channel which use in sending messages to
+        :param content: Message Content
+        :param embeds: Message Embeds
+        :return None:
+        """
+
+        embeds_send_jsons = []
         if embeds:
             for e in embeds:
-                embeds_send_json.append(e.tojson())
+                embeds_send_jsons.append(e.tojson())
 
-            await self._r.send_message(id, {"content": content, "embeds": embeds_send_json})
+            await self._r.send_message(id, {"content": content, "embeds": embeds_send_jsons})
         else:
             await self._r.send_message(id, {"content": content})
 
