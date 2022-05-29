@@ -40,7 +40,7 @@ __all__: tuple[str] = (
 )
 
 
-# Parent for all errors
+# Parents for all errors
 class _DisRunTimeError(RuntimeWarning):
     def __init__(self, code: str, message: str):
         self.__code__ = code
