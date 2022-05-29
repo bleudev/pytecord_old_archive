@@ -25,6 +25,14 @@ SOFTWARE.
 
 from typing import Optional
 
+__all__: tuple[str] = (
+    "ApplicationCommand",
+    "SlashCommand",
+    "Context",
+    "Option",
+    "OptionType"
+)
+
 
 class ApplicationCommand:
     def __init__(self, name, description, cmd, command_type: int):

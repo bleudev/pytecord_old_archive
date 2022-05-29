@@ -97,5 +97,6 @@ __packagename__ = "dispy"
 # __all__
 __all__ = (
     core.__all__ +
-    client.__all__
+    client.__all__ +
+    application_commands.__all__
 )
