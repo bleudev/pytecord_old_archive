@@ -32,12 +32,12 @@ __name__: str = "objects"
 
 __package__: str = "disspy"
 
-__all__: list = [
+__all__: tuple[str] = (
     # Run types
     "DisBotStatus",
     # Event types
     "DisBotEventType"
-]
+)
 
 _fall = __all__
 

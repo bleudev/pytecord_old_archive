@@ -23,6 +23,11 @@ SOFTWARE.
 """
 
 
+__all__: tuple[str] = (
+    "TypeOf"
+)
+
+
 class TypeOf:
     def __new__(cls, *args, **kwargs):
         _type = list(args)[0]

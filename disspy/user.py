@@ -24,6 +24,11 @@ SOFTWARE.
 
 from disspy import errs
 
+__all__: tuple[str] = (
+    "DisUser",
+    "DisNitro"
+)
+
 
 class _UserBase:
     def __init__(self, id, api, premium_gets):
