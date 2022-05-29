@@ -51,18 +51,16 @@ __package__: str = "disspy"
 
 __all__: tuple = (
     # Classes for simpler creating other classes
-    "_RequestsUserClass",
+    "FlowOpcodes",
     "DisFlags",
     "JsonOutput",
     "Showflake",
     # Private clients
-    "_Rest",
+    "Rest",
     "Flow",
     # Main client
     "DisApi"
 )
-
-_fall = list(__all__)
 
 
 def _mainurl() -> str:
@@ -198,12 +196,17 @@ class DisFlags:
         :method: all()
             Implements all Gateway Intents
     """
-    _numeral_of_class = 1
+    __classname__: str = "DisFlags"
 
-    _T = TypeVar(_fall[_numeral_of_class])
+    _T: TypeVar = TypeVar(__classname__)
 
     @property
     def __class__(self) -> Type[_T]:
+        """
+        Returns type of class
+
+        :return TypeVar: Type of class
+        """
         return self._T
 
     def __all__(self):
@@ -211,30 +214,35 @@ class DisFlags:
 
     @staticmethod
     def default() -> int:
+        """
+        Implements:
+
+        :return int: integer value of intents
+        """
         return 33280
 
     @staticmethod
     def all() -> int:
         """
-            Implements:
-                1.  GUILDS
-                2.  GUILD_MEMBERS (Privileged intent)
-                3.  GUILD_BANS
-                4.  GUILD_EMOJIS_AND_STICKERS
-                5.  GUILD_INTEGRATIONS
-                6.  GUILD_WEBHOOKS
-                7.  GUILD_INVITES
-                8.  GUILD_VOICE_STATES
-                9.  GUILD_PRESENCES (Privileged intent)
-                10. GUILD_MESSAGES (Privileged intent)
-                11. GUILD_MESSAGE_REACTIONS
-                12. GUILD_MESSAGE_TYPING
-                13. DIRECT_MESSAGES
-                14. DIRECT_MESSAGE_REACTIONS
-                15. DIRECT_MESSAGE_TYPING
-                16. GUILD_SCHEDULED_EVENTS
+        Implements:
+            1.  GUILDS
+            2.  GUILD_MEMBERS (Privileged intent)
+            3.  GUILD_BANS
+            4.  GUILD_EMOJIS_AND_STICKERS
+            5.  GUILD_INTEGRATIONS
+            6.  GUILD_WEBHOOKS
+            7.  GUILD_INVITES
+            8.  GUILD_VOICE_STATES
+            9.  GUILD_PRESENCES (Privileged intent)
+            10. GUILD_MESSAGES (Privileged intent)
+            11. GUILD_MESSAGE_REACTIONS
+            12. GUILD_MESSAGE_TYPING
+            13. DIRECT_MESSAGES
+            14. DIRECT_MESSAGE_REACTIONS
+            15. DIRECT_MESSAGE_TYPING
+            16. GUILD_SCHEDULED_EVENTS
 
-            :return: int (integer value of intents)
+        :return int: integer value of intents
         """
         return 98303
 
@@ -283,10 +291,10 @@ Atributies:
             return str(self.value)
 
 
-class _Rest(_RequestsUserClass):
-    _numeral_of_class = 4
+class Rest(_RequestsUserClass):
+    __classname__: str = "Rest"
 
-    _T = TypeVar(_fall[_numeral_of_class])
+    _T: TypeVar = TypeVar(__classname__)
 
     def __init__(self, token: str):
         super().__init__()
@@ -336,9 +344,9 @@ class _Rest(_RequestsUserClass):
 
 
 class Flow:
-    _numeral_of_class = 5
+    __classname__: str = "Flow"
 
-    _T = TypeVar(_fall[_numeral_of_class])
+    _T = TypeVar(__classname__)
 
     @property
     def __class__(self: _T) -> Type[_T]:
@@ -361,7 +369,7 @@ class Flow:
         self.isafk = False
 
         self.token = token
-        self._rest = _Rest(token)
+        self._rest = Rest(token)
         self._debug = False
 
         self._headers = {}
@@ -513,7 +521,7 @@ class DisApi(_RequestsUserClass):
         self.application_id = application_id
 
         self.f = Flow(10, self.token, intents, {})
-        self._r = _Rest(self.token)
+        self._r = Rest(self.token)
 
         self.app_commands = []
         self.raw_app_commands = []
