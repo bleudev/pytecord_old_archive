@@ -167,7 +167,21 @@ class _RequestsUserClass:
 
 
 class _FlowEvent:
+    """
+    Event object with type, session id, data and opcode
+
+    :var type (str): Type of event (For example, "READY")
+    :var session (str): Session id of Flow
+    :var data (dict): Event's JSON data
+    :var opcode (int): Event's OpCode (For example, 0 (Dispatch))
+    """
+
     def __init__(self, json):
+        """
+        Init object
+
+        :param json: JSON data
+        """
         self.type = json["t"]
         self.session = json["s"]
         self.data = json["d"]
