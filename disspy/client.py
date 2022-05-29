@@ -45,9 +45,13 @@ from disspy.logger import Logger
 from disspy._typing import TypeOf
 from disspy.application_commands import Option
 
-System = {
+System: dict[Any, Any] = {
     bool: bool
 }
+
+__all__: tuple[str] = (
+    "DisBot"
+)
 
 
 class _BaseBot:

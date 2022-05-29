@@ -49,7 +49,7 @@ __name__: str = "core"
 
 __package__: str = "disspy"
 
-__all__: tuple = (
+__all__: tuple[str] = (
     # Classes for simpler creating other classes
     "FlowOpcodes",
     "DisFlags",

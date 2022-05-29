@@ -93,3 +93,9 @@ __description__ = "Dispy - package for creating bots."
 
 # Name of package
 __packagename__ = "dispy"
+
+# __all__
+__all__ = (
+    core.__all__ +
+    client.__all__
+)
