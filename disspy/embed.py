@@ -22,15 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+"""
+This file was created for manage Embeds in discord and using embeds in send messages feature
+
+Examples:
+    bot = disspy.DisBot('TOKEN')
+    disspy.DisChannel("ID").send(embed=disspy.DisEmbed(title='Testing'))
+"""
+
 # Imports
 from random import random
 from math import floor
 import typing
 
-__doc__ = "This file was created for manage Embeds in discord and using embeds in send messages feature" \
-          "Examples:" \
-          "bot = dispy.DisBot('TOKEN')" \
-          "dispy.DisChannel(id).send(embed=dispy.DisEmbed(title='Testing'))"
+__all__: tuple[str] = (
+    "DisColor",
+    "DisField",
+    "DisEmbed"
+)
 
 
 class _DocObject:

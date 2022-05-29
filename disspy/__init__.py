@@ -98,5 +98,11 @@ __packagename__ = "dispy"
 __all__ = (
     core.__all__ +
     client.__all__ +
-    application_commands.__all__
+    application_commands.__all__ +
+    message.__all__ +
+    channel.__all__ +
+    logger.__all__ +
+    guild.__all__ +
+    errs.__all__ +
+    embed.__all__
 )

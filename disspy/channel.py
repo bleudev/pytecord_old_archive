@@ -29,6 +29,11 @@ from typing import (
     Optional
 )
 
+__all__: tuple[str] = (
+    "DisChannel",
+    "DisDm"
+)
+
 
 class _SendingRestHandler:
     @staticmethod

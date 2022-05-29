@@ -27,6 +27,18 @@ from typing import Optional
 # Constants for messages
 missingperms = "Missing permissions!"
 
+# __all__
+__all__: tuple[str] = (
+    "InternetError",
+    "MissingPerms",
+    "Unauthorized",
+    "BotEventTypeError",
+    "BotStatusError",
+    "InvalidArgument",
+    "ClassTypeError",
+    "UserNitroTypeError"
+)
+
 
 # Parent for all errors
 class _DisRunTimeError(RuntimeWarning):
