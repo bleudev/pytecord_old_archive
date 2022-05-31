@@ -103,7 +103,7 @@ __github__ = "https://github.com/itttgg/dispy"
 __stablever__ = f"https://github.com/itttgg/dispy/releases/tag/{__version__}"
 
 # Description of package
-__description__ = "Dispy - package for creating bots."
+__description__ = "Dispy - package for creating bots in discord."
 
 # Name of package
 __packagename__ = "dispy"
