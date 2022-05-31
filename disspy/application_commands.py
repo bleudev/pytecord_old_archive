@@ -30,7 +30,8 @@ __all__: tuple[str] = (
     "SlashCommand",
     "Context",
     "Option",
-    "OptionType"
+    "OptionType",
+    "Args"
 )
 
 
@@ -110,3 +111,30 @@ class OptionType:
     MENTIONABLE = 9
     NUMBER = 10
     ATTACHMENT = 11
+
+
+class _Argument:
+    def __init__(self, name, type, value):
+        self.name = name
+        self.type = type
+        self.value = value
+
+
+class Args:
+    def __init__(self, values=None):
+        if values is None:
+            values = []
+        self._v = values
+
+    def isempty(self):
+        return len(self._v) == 0
+
+    def get(self, name):
+        for a in self._v:
+            if a.name == name:
+                return a.value
+
+    def getString(self, name):
+        for a in self._v:
+            if a.name == name and a.type == OptionType.STRING:
+                return a.value

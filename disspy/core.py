@@ -568,21 +568,24 @@ class DisApi(_RequestsUserClass):
             return  # Not components!
         else:
             if type == 2:
-                if data["data"]["options"]:
-                    _ctx = Context(token, id, bot_token)
+                _ctx = Context(token, id, bot_token)
+                _args = []
 
-                    _kwargs = {}
+                from disspy.application_commands import _Argument, Args
 
+                try:
                     for o in data["data"]["options"]:
-                        try:
-                            _kwargs[o["name"]] = o["value"]
-                        except KeyError:
-                            _kwargs.setdefault(o["name"], o["value"])
+                        _args.append(_Argument(o["name"],
+                                            o["type"],
+                                            o["value"]))
+                except KeyError:
+                    _args = []
 
-                    try:
-                        await self.app_commands[type_of_command - 1][command_name](_ctx, _kwargs)
-                    except KeyError:
-                        print("What! Slash command is invalid")
+
+                try:
+                    await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
+                except KeyError:
+                    print("What! Slash command is invalid")
 
     async def send_message(self, id: int, content: str = "", embed: Optional[DisEmbed] = None):
         """
