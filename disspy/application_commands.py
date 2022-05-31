@@ -70,11 +70,12 @@ class Context:
 
 
 class Option:
-    def __init__(self, name, description, option_type: int, choices: Optional[list[dict]] = None):
+    def __init__(self, name, description, option_type: int, choices: Optional[list[dict]] = None, required: bool = False):
         self.name = name
         self.description = description
         self.option_type = option_type
         self.choices = choices
+        self.required = required
 
     def json(self):
         if self.option_type == OptionType.STRING or self.option_type == OptionType.INTEGER or self.option_type == OptionType.NUMBER and self.choices:
@@ -83,19 +84,22 @@ class Option:
                     "name": self.name,
                     "description": self.description,
                     "type": self.option_type,
-                    "choices": self.choices
+                    "choices": self.choices,
+                    "required": self.required
                 }
             else:
                 return {
                     "name": self.name,
                     "description": self.description,
-                    "type": self.option_type
+                    "type": self.option_type,
+                    "required": self.required
                 }
         else:
             return {
                 "name": self.name,
                 "description": self.description,
-                "type": self.option_type
+                "type": self.option_type,
+                "required": self.required
             }
 
 

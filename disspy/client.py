@@ -174,13 +174,13 @@ class DisBot(_BaseBot):
         return wrapper
 
     def slash_command(self, name, description, options: Optional[list[Option]] = None):
+        _payload = {}
+
         if options:
             _options_jsons = []
 
             for o in options:
                 _options_jsons.append(o.json())
-
-                print(_options_jsons)
 
             _payload = {
                 "name": name,
@@ -192,7 +192,7 @@ class DisBot(_BaseBot):
             _payload = {
                 "name": name,
                 "description": description,
-                "type": 1,
+                "type": 1
             }
 
         def wrapper(func):

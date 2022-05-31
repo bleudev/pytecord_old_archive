@@ -539,14 +539,20 @@ class DisApi(_RequestsUserClass):
 
         _url = f"{_mainurl()}applications/{self.application_id}/commands"
 
-        from requests import delete, post
+        from requests import delete, post, get, patch
 
-        delete(url=_url, headers=self._headers)
+        _raws = get(_url, headers=self._headers).json()
+
+        del get
+
+        for r in _raws:
+            for j in self.app_commands_jsons:
+                if r["name"] == j["name"] and r["description"] == j["description"]:
+                    self.raw_app_commands.append(patch(url=f"{_url}/{r['id']}", json=j, headers=self._headers).json())
+                else:
+                    delete(f"{_url}/{r['id']}", headers=self._headers)
 
         del delete
-
-        for j in self.app_commands_jsons:
-            self.raw_app_commands.append(post(url=_url, json=j, headers=self._headers).json())
 
         await self.f.run(ons, status, debug)
 
