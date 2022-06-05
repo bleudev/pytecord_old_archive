@@ -35,6 +35,18 @@ __all__: tuple[str] = (
 )
 
 
+class _MessageFlags:
+    CROSSPOSTED = 1 << 0
+    IS_CROSSPOST = 1 << 1
+    SUPPRESS_EMBEDS = 1 << 2
+    SOURCE_MESSAGE_DELETED = 1 << 3
+    URGENT = 1 << 4
+    HAS_THREAD = 1 << 5
+    EPHEMERAL = 1 << 6
+    LOADING = 1 << 7
+    FAILED_TO_MENTION_SOME_ROLES_IN_THREAD = 1 << 8
+
+
 class ApplicationCommand:
     def __init__(self, name, description, cmd, command_type: int):
         self.name = name
@@ -54,13 +66,24 @@ class Context:
         self._interaction_id = interaction_id
         self._headers = {'Authorization': f'Bot {bot_token}'}
 
-    async def send(self, content: str):
-        _payload = {
-            "type": 4,
-            "data": {
-                "content": content
+    async def send(self, content: str, ephemeral: bool = False):
+        _payload = {}
+
+        if ephemeral:
+            _payload = {
+                "type": 4,
+                "data": {
+                    "content": content,
+                    "flags": _MessageFlags.EPHEMERAL
+                }
             }
-        }
+        else:
+            _payload = {
+                "type": 4,
+                "data": {
+                    "content": content
+                }
+            }
 
         _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
 
