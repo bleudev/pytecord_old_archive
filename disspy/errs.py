@@ -27,8 +27,20 @@ from typing import Optional
 # Constants for messages
 missingperms = "Missing permissions!"
 
+# __all__
+__all__: tuple[str] = (
+    "InternetError",
+    "MissingPerms",
+    "Unauthorized",
+    "BotEventTypeError",
+    "BotStatusError",
+    "InvalidArgument",
+    "ClassTypeError",
+    "UserNitroTypeError"
+)
 
-# Parent for all errors
+
+# Parents for all errors
 class _DisRunTimeError(RuntimeWarning):
     def __init__(self, code: str, message: str):
         self.__code__ = code
@@ -59,6 +71,10 @@ class InternetError(_DisRunTimeError):
 class MissingPerms(_DisRunTimeError):
     def __init__(self, text):
         super().__init__("-2i", text)
+
+class Unauthorized(_DisError):
+    def __init__(self):
+        super().__init__("401", "Unauthorized")
 
 
 # Client errors

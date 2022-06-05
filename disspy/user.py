@@ -24,6 +24,11 @@ SOFTWARE.
 
 from disspy import errs
 
+__all__: tuple[str] = (
+    "DisUser",
+    "DisNitro"
+)
+
 
 class _UserBase:
     def __init__(self, id, api, premium_gets):
@@ -31,7 +36,7 @@ class _UserBase:
         self._api = api
 
         # Data
-        _data = self._api.get_user_json(id)
+        _data = self._api.get_user_json(id).json()
         if premium_gets:
             try:
                 _premium_type = int(_data["premium_type"])
@@ -72,10 +77,16 @@ class _UserBase:
             self.nitro = DisNitro(_premium_type, _premium_type != 0 and _premium_type != -1)
         else:
             _premium_type = -1
-            self.flags: int = int(_data["public_flags"])
-            self.username = _data["username"]
-            self.discriminator = _data["discriminator"]
-            self.fullname = f"{self.username}#{self.discriminator}"
+            try:
+                self.flags: int = int(_data["public_flags"])
+            except KeyError:
+                pass
+            try:
+                self.username = _data["username"]
+                self.discriminator = _data["discriminator"]
+                self.fullname = f"{self.username}#{self.discriminator}"
+            except KeyError:
+                pass
 
     def update(self) -> None:
         _data = self._api.get_user_json(self.id)

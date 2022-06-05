@@ -22,16 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from disspy.channel import DisChannel
+__all__: tuple[str] = (
+    "DisMessage"
+)
 
 
 class DisMessage:
-    def __init__(self, id, channel_id, r):
-        self.id = id
-        self.channel_id = channel_id
-        self._r = r
-        self.channel = DisChannel(self.channel_id, self._r)
+    def __init__(self, _data, _token):
+        from disspy.channel import DisChannel
 
-        _data = self._r.fetch(self.channel_id, self.id)
+        self.channel = DisChannel(_data["channel_id"], _token)
 
         self.content = _data["content"]
+        self.id = _data["id"]

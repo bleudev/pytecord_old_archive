@@ -23,7 +23,9 @@ SOFTWARE.
 """
 
 # Imports
-from .client import DisBot
+# Basic imports
+from ._typing import TypeOf
+
 from .errs import (
     UserNitroTypeError,
     InternetError,
@@ -33,15 +35,61 @@ from .errs import (
     BotStatusError,
     ClassTypeError
 )
-from .guild import DisGuild
-from .channel import DisChannel
-from .embed import DisEmbed, DisField, DisColor
-from .message import DisMessage
-from .user import DisUser
-from .core import DisApi, DisFlags, JsonOutput, Showflake
-from .types import DisBotEventType, DisBotStatus
+
+from .core import (
+    DisApi,
+    DisFlags,
+    JsonOutput,
+    Showflake
+)
+
+from .objects import (
+    DisBotStatus,
+    DisBotEventType
+)
+
+# User imports
 from .logger import Logger
-from ._typing import TypeOf
+
+from .client import DisBot
+
+from .guild import DisGuild
+
+from .channel import DisChannel
+
+from .embed import (
+    DisEmbed,
+    DisField,
+    DisColor
+)
+
+from .message import DisMessage
+
+from .user import DisUser
+
+from .application_commands import (
+    ApplicationCommand,
+    SlashCommand,
+    Context,
+    Option,
+    OptionType,
+    Args
+)
+
+
+# Methods for other varibles
+def _all_generator(alls: list[tuple]) -> tuple:
+    r = []
+
+    for t in alls:
+        if isinstance(t, str):
+            r.append(t)
+        else:
+            for e in t:
+                r.append(e)
+
+    return tuple(r)
+
 
 # Version of dipsy (b - beta, a - alpha)
 __version__ = "0.1b"
@@ -56,7 +104,49 @@ __github__ = "https://github.com/itttgg/dispy"
 __stablever__ = f"https://github.com/itttgg/dispy/releases/tag/{__version__}"
 
 # Description of package
-__description__ = "Dispy - package for creating bots."
+__description__ = "Dispy - package for creating bots in discord."
 
 # Name of package
 __packagename__ = "dispy"
+
+# __all__
+__alls__ = [
+    _typing.__all__,
+    application_commands.__all__,
+    channel.__all__,
+    client.__all__,
+    core.__all__,
+    embed.__all__,
+    errs.__all__,
+    guild.__all__,
+    logger.__all__,
+    message.__all__,
+    objects.__all__,
+    user.__all__
+]
+
+__all__ = _all_generator(__alls__)
+
+
+# Info
+def __info__():
+    from time import sleep as tsleep
+
+    print(
+        "Dispy is package for creating bots in Discord. This use aiohttp, requests and other packages for using discord API")
+
+    tsleep(1)  # 1-second sleep
+
+    print("""
+For staring you must create DisBot object:
+                    
+    import disspy
+        
+    bot = disspy.DisBot("YOUR_TOKEN")
+        
+    bot.run()
+        
+run() method use for running bot Gateway client and starting bot work.
+    """)
+
+    del tsleep  # Delete import

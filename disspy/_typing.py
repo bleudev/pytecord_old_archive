@@ -22,7 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import Type
+
+__all__: tuple[str] = (
+    "TypeOf"
+)
 
 
 class TypeOf:
@@ -31,4 +34,7 @@ class TypeOf:
         _obj = _type()
         _all = _obj.__all__()
 
-        return Type[_all[0]]
+        if str(_all[0]).isdigit():
+            return int
+        else:
+            return str

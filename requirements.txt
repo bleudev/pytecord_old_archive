@@ -1,5 +1,6 @@
 aiohttp>=3.6.0,<4
 requests
 typing
-websocket-client
 asyncio
+colorama
+erlpack

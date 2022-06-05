@@ -22,12 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from asyncio import ensure_future, run
+
 # Typing imports
 from typing import (
     Optional,
     TypeVar,
     Union,
-    Type
+    Type,
+    Any
 )
 
 # Package imports
@@ -37,14 +40,18 @@ from disspy.channel import DisChannel
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.user import DisUser
-from disspy.types import DisBotStatus, DisBotEventType
+from disspy.objects import DisBotStatus, DisBotEventType
 from disspy.logger import Logger
 from disspy._typing import TypeOf
+from disspy.application_commands import Option
 
-
-System = {
+System: dict[Any, Any] = {
     bool: bool
 }
+
+__all__: tuple[str] = (
+    "DisBot"
+)
 
 
 class _BaseBot:
@@ -68,14 +75,18 @@ class DisBot(_BaseBot):
     Class for accessing and sending information in Discord
 
     Attributes:
-        :var token: Token for accessing and sending info (Token from Discord Developer Portal).
+        :var token: Token for accessing and sending info
+                    (Token from Discord Developer Portal).
         :var flags: Flags (Intents) for bot.
     """
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
+    __classname__ = "DisBot"
 
-    def __init__(self, token: str, status: Optional[TypeOf(DisBotStatus)] = None,
-                 flags: Optional[Union[int, DisFlags]] = None):
+    def __init__(self, token: str, application_id: int,
+                 status: Optional[TypeOf(DisBotStatus)] = None,
+                 flags: Optional[TypeOf(DisFlags)] = None,
+                 debug: Optional[bool] = False):
         """
         Create bot
 
@@ -92,21 +103,30 @@ class DisBot(_BaseBot):
             self.intflags = flags
 
         self.status = status
+        self._debug = debug
+        self._ons = {
+            "ready": None,
+            "messagec": None,
+            "register": self._on_register,
+            "register2": None,
+            "interaction": None
+        }
 
         self._on_messagec = None
         self._on_ready = None
 
         self.user = None
 
-        self._api = DisApi(token)
+        self._api = DisApi(self.token, self.intflags, application_id)
+        self.application_id = application_id
 
         self.isready = False
 
         self.logger = Logger()
         self.__classname__ = "DisBot"
 
-        self.__slots__ = [self._api, self._on_ready, self._on_messagec, self.token,
-                          self.user, self.isready, self.status]
+        self.__slots__ = [self._api, self._on_ready, self._on_messagec,
+                          self.token, self.user, self.isready, self.status]
 
     @property
     def __class__(self) -> Type[_T]:
@@ -118,33 +138,91 @@ class DisBot(_BaseBot):
         return self._T
 
     async def _on_register(self):
-        self.user: DisUser = self._api.user
+        pass
+        # self.user: DisUser = self._api.user
 
-    def on(self, type: Union[DisBotEventType, str]):
+    def on(self, t: Union[DisBotEventType, str]):
         """
-        This method was created for changing on_ready and on_message method that using in runner
+        This method was created for changing on_ready and on_messagec
+        method that using in runner
 
-        :param type: Type of event
+        :param t: Type of event
         :return: None (wrapper)
         """
 
         __methodname__ = f"{self.__classname__}.on()"
+        _all_basic_events = [
+            "ready",
+            "messagec"
+        ]
 
-        if isinstance(type, DisBotEventType):
-            self.logger.log(f"Error! In method {__methodname__} was moved invalid argument! Argument type is DisBotEventType, but in method have to type is str!")
+        if isinstance(t, DisBotEventType):
+            _message = f"Error! In method {__methodname__} was moved" \
+                       "invalid argument! Argument type is DisBotEventType," \
+                       "but in method have to type is str!"
+            self.logger.log(_message)
 
         def wrapper(func):
-            if type == "messagec":
-                self._on_messagec = func
-            elif type == "ready":
-                self._on_ready = func
+            if t in _all_basic_events:
+                self._ons[t] = func
             else:
-                self.logger.log(f"Error! In method {__methodname__} was moved invalid event type!")
+                _err = f"Error! In method {__methodname__} was" \
+                       "moved invalid event type!"
+                self.logger.log(_err)
                 raise errs.BotEventTypeError("Invalid type of event!")
 
         return wrapper
 
-    def run(self, status: Union[DisBotStatus, str] = None):
+    def slash_command(self, name, description, options: Optional[list[Option]] = None):
+        _payload = {}
+
+        if options:
+            _options_jsons = []
+
+            for o in options:
+                _options_jsons.append(o.json())
+
+            _payload = {
+                "name": name,
+                "description": description,
+                "type": 1,
+                "options": _options_jsons
+            }
+        else:
+            _payload = {
+                "name": name,
+                "description": description,
+                "type": 1
+            }
+
+        def wrapper(func):
+            self._api.create_command(_payload, func)
+
+        return wrapper
+
+    def user_command(self, name):
+        _payload = {
+            "name": name,
+            "type": 2
+        }
+
+        def wrapper(func):
+            self._api.create_command(_payload, func)
+
+        return wrapper
+
+    def message_command(self, name):
+        _payload = {
+            "name": name,
+            "type": 3
+        }
+
+        def wrapper(func):
+            self._api.create_command(_payload, func)
+
+        return wrapper
+
+    def run(self, status: Union[DisBotStatus, str] = None) -> int:
         """
         Running bot
 
@@ -154,7 +232,10 @@ class DisBot(_BaseBot):
         __methodname__ = f"{self.__classname__}.on()"
 
         if isinstance(status, DisBotStatus):
-            self.logger.log(f"Error! In method {__methodname__} was moved invalid argument! Argument type is DisBotStatus, but in method have to type is str!")
+            _message = f"Error! In method {__methodname__} was moved " \
+                       "invalid argument! Argument type is DisBotStatus, " \
+                       "but in method have to type is str!"
+            self.logger.log(_message)
             raise errs.InvalidArgument("Invalid argument type!")
 
         self.isready = True
@@ -164,33 +245,55 @@ class DisBot(_BaseBot):
         elif status is not None and self.status is None:
             self.status = status
         elif status is not None and self.status is not None:
-            raise errs.BotStatusError("You typed status and in run() and in __init__()")
+            _message = "You typed status and in run() and in __init__()"
+            raise errs.BotStatusError(_message)
 
-        self._runner(self.status, 10)
+        _err = self._runner()
 
-    def _runner(self, status, version: int) -> None:
-        self._api.run(version, self.intflags, status, self._on_ready, self._on_messagec, self._on_register)
+        if not _err == 0:
+            raise RuntimeError(f"{_err} | Error!")
+
+        return _err
+
+    def _runner(self) -> int:
+        try:
+            self._coro = run(self._api.run(self.status, self._ons, debug=self._debug))
+        except KeyboardInterrupt:
+            pass
 
         return 0  # No errors
 
-    def disconnect(self):
-        self._dissconnenter()
+    async def disconnect(self) -> int:
+        return ensure_future(self._dissconnenter())
 
-    def close(self):
-        self._dissconnenter()
+    async def close(self) -> int:
+        return ensure_future(self._dissconnenter())
 
-    def _dissconnenter(self):
+    async def _dissconnenter(self) -> int:
+        if self.isready:
+            await self._api.disconnecter()
+
+            for _var in self.__slots__:
+                del _var
+
+            return 0
+        else:
+            return -99
+
+    def __del__(self):
         for _var in self.__slots__:
             del _var
 
-    async def send(self, channel_id: int, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
+    async def send(self, channel_id: int, content: Optional[str] = None,
+                   embeds: Optional[list[DisEmbed]] = None):
         if self.isready:
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embeds=embeds)
         else:
             raise errs.InternetError("Bot is not ready!")
 
-    async def send(self, channel_id: int, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
+    async def send(self, channel_id: int, content: Optional[str] = None,
+                   embed: Optional[DisEmbed] = None):
         if self.isready:
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embed=embed)

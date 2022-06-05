@@ -22,29 +22,168 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+# pckages imports
+import asyncio
+from aiohttp import ClientSession
+from requests import get, post, Response
+import colorama
+
 # Typing imports
 from typing import (
     Type,
     TypeVar,
-    Awaitable,
-    Union
+    Union,
+    Optional
 )
 
-# pckages imports
-import time
-import asyncio
-import threading
-import json
-import aiohttp
-import requests
-import websocket
-
 # disspy imports
+from disspy.application_commands import Context
+from disspy.channel import DisChannel
+from disspy.errs import ClassTypeError
+from disspy.guild import DisGuild
 from disspy.message import DisMessage
 from disspy.user import DisUser
-from disspy.channel import DisChannel
-from disspy.guild import DisGuild
-from disspy.errs import ClassTypeError
+from disspy.embed import DisEmbed
+
+__name__: str = "core"
+
+__package__: str = "disspy"
+
+__all__: tuple[str] = (
+    # Classes for simpler creating other classes
+    "FlowOpcodes",
+    "DisFlags",
+    "JsonOutput",
+    "Showflake",
+    # Private clients
+    "Rest",
+    "Flow",
+    # Main client
+    "DisApi"
+)
+
+
+def _mainurl() -> str:
+    return "https://discord.com/api/v9/"
+
+
+class FlowOpcodes:
+    DISPATCH = 0
+    HEARTBEAT = 1
+    IDENTIFY = 2
+    PRESENCE_UPDATE = 3
+    VOICE_STATE_UPDATE = 4
+    RESUME = 6
+    RECONNECT = 7
+    REQUEST_GUILD_MEMBERS = 8
+    INVALID_SESSION = 9
+    HELLO = 10
+    HEARTBEAT_ACK = 11
+
+    @staticmethod
+    def rotated_dict():
+        return {
+            0:  "DISPATCH",
+            1:  "HEARTBEAT",
+            2:  "IDENTIFY",
+            3:  "PRESENCE UPDATE",
+            4:  "VOICE STATE UPDATE",
+            6:  "RESUME",
+            7:  "RECONNECT",
+            8:  "REQUEST GUILD MEMBERS",
+            9:  "INVALID SESSION",
+            10: "HELLO",
+            11: "HEARTBEAT ACK"
+        }
+
+
+""" Debuging classes """
+colorama.init()
+
+
+class _DebugLoggingWebsocket:
+    def __new__(cls, *args, **kwargs):
+        _data = args[0]
+
+        try:
+            _send = kwargs["send"]
+        except KeyError:
+            _send = False
+
+        try:
+            _isevent = kwargs["isevent"]
+        except KeyError:
+            _isevent = False
+
+        try:
+            _op = kwargs["op"]
+        except KeyError:
+            _op = 0
+
+        _result = ""
+
+        if _send:
+            _op_str = FlowOpcodes.rotated_dict()[_op]
+            _op_str = _op_str.capitalize()
+
+            _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
+        else:
+            if _isevent:
+                _op_str = FlowOpcodes.rotated_dict()[_op]
+                _op_str = _op_str.capitalize()
+
+                _result = f"{colorama.Fore.YELLOW}Getting Event{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
+            else:
+                _op_str = FlowOpcodes.rotated_dict()[_op]
+                _op_str = _op_str.capitalize()
+
+                if _op == 11:
+                    _op_str = "Heartbeat ACK"
+
+                _result = f"{colorama.Fore.YELLOW}Getting Responce{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
+
+        return _result
+
+
+""" Other Classes """
+
+
+class _RequestsUserClass:
+    @staticmethod
+    async def _aiopost(url, data, headers):
+        async with ClientSession(headers=headers) as _s:
+            async with _s.post(url=url, data=data) as _p:
+                return _p.json()
+
+    @staticmethod
+    def _post(url: str, data: dict, headers: dict) -> dict:
+        return post(url=url, json=data, headers=headers).json()
+
+    @staticmethod
+    def _get(url: str, headers: dict) -> Response:
+        return get(url=url, headers=headers)
+
+
+class _FlowEvent:
+    """
+    Event object with type, session id, data and opcode
+
+    :var type (str): Type of event (For example, "READY")
+    :var session (str): Session id of Flow
+    :var data (dict): Event's JSON data
+    :var opcode (int): Event's OpCode (For example, 0 (Dispatch))
+    """
+
+    def __init__(self, json):
+        """
+        Init object
+
+        :param json: JSON data
+        """
+        self.type = json["t"]
+        self.session = json["s"]
+        self.data = json["d"]
+        self.opcode = json["op"]
 
 
 class DisFlags:
@@ -57,33 +196,53 @@ class DisFlags:
         :method: all()
             Implements all Gateway Intents
     """
+    __classname__: str = "DisFlags"
 
-    @staticmethod
-    def default():
-        return 512
+    _T: TypeVar = TypeVar(__classname__)
 
-    @staticmethod
-    def all():
+    @property
+    def __class__(self) -> Type[_T]:
         """
-            Implements:
-                1.  GUILDS
-                2.  GUILD_MEMBERS (Privileged intent)
-                3.  GUILD_BANS
-                4.  GUILD_EMOJIS_AND_STICKERS
-                5.  GUILD_INTEGRATIONS
-                6.  GUILD_WEBHOOKS
-                7.  GUILD_INVITES
-                8.  GUILD_VOICE_STATES
-                9.  GUILD_PRESENCES (Privileged intent)
-                10. GUILD_MESSAGES (Privileged intent)
-                11. GUILD_MESSAGE_REACTIONS
-                12. GUILD_MESSAGE_TYPING
-                13. DIRECT_MESSAGES
-                14. DIRECT_MESSAGE_REACTIONS
-                15. DIRECT_MESSAGE_TYPING
-                16. GUILD_SCHEDULED_EVENTS
+        Returns type of class
 
-            :return: int (integer value of intents)
+        :return TypeVar: Type of class
+        """
+        return self._T
+
+    def __all__(self):
+        return [str(self.default()), str(self.all())]
+
+    @staticmethod
+    def default() -> int:
+        """
+        Implements:
+
+        :return int: integer value of intents
+        """
+        return 33280
+
+    @staticmethod
+    def all() -> int:
+        """
+        Implements:
+            1.  GUILDS
+            2.  GUILD_MEMBERS (Privileged intent)
+            3.  GUILD_BANS
+            4.  GUILD_EMOJIS_AND_STICKERS
+            5.  GUILD_INTEGRATIONS
+            6.  GUILD_WEBHOOKS
+            7.  GUILD_INVITES
+            8.  GUILD_VOICE_STATES
+            9.  GUILD_PRESENCES (Privileged intent)
+            10. GUILD_MESSAGES (Privileged intent)
+            11. GUILD_MESSAGE_REACTIONS
+            12. GUILD_MESSAGE_TYPING
+            13. DIRECT_MESSAGES
+            14. DIRECT_MESSAGE_REACTIONS
+            15. DIRECT_MESSAGE_TYPING
+            16. GUILD_SCHEDULED_EVENTS
+
+        :return int: integer value of intents
         """
         return 98303
 
@@ -108,6 +267,7 @@ Showflake is using for simpled work with tokens and ids.
 Atributies:
     :var self.isid:
     """
+
     def __init__(self, value: str):
         if value.isdigit():
             self.isid = True
@@ -131,12 +291,21 @@ Atributies:
             return str(self.value)
 
 
-class _Rest:
-    def __init__(self, token):
-        self.token = token
+class Rest(_RequestsUserClass):
+    __classname__: str = "Rest"
 
-    def _headers(self):
-        return {'Authorization': f'Bot {self.token}'}
+    _T: TypeVar = TypeVar(__classname__)
+
+    def __init__(self, token: str):
+        super().__init__()
+
+        self._headers = {'Authorization': f'Bot {token}', "content-type": "application/json"}
+
+        self.__slots__ = [self._headers]
+
+    @property
+    def __class__(self: _T) -> Type[_T]:
+        return Type[self._T]
 
     def get(self, goal: str, id: Union[int, Showflake]) -> JsonOutput:
         """
@@ -147,176 +316,343 @@ class _Rest:
         id = int(id)
 
         if goal.casefold() == 'guild':
-            return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/guilds/{str(id)}',
-                              headers=self._headers()).json())
+            return JsonOutput(kwargs=get(f'{_mainurl()}guilds/{str(id)}',
+                                         headers=self._headers).json())
 
         elif goal.casefold() == 'channel':
-            return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/channels/{str(id)}',
-                              headers=self._headers()).json())
+            return JsonOutput(kwargs=get(f'https://discord.com/api/v10/channels/{str(id)}',
+                                         headers=self._headers).json())
 
         elif goal.casefold() == "user":
-            return JsonOutput(kwargs=requests.get(f'https://discord.com/api/v10/users/{str(id)}',
-                              headers=self._headers()).json())
+            _url = f'https://discord.com/api/v10/users/{str(id)}'
+
+            return super()._get(_url, self._headers)
 
     def fetch(self, channel_id, message_id) -> JsonOutput:
         _channel_id, _message_id = [str(channel_id), str(message_id)]
-        _1part = "https://discord.com/api/v10/channels/"
-        _2part = f"{_channel_id}/messages/{_message_id}"
-        return JsonOutput(kwargs=requests.get(f"{_1part}{_2part}",
-                          headers=self._headers()).json())
 
-    async def send_message(self, channel_id, post):
-        async with aiohttp.ClientSession() as s:
-            await s.post(f'https://discord.com/api/v10/channels/{str(channel_id)}/messages', json=post,
-                         headers=self._headers())
+        _url = f"{_mainurl()}channels/{_channel_id}/messages/{_message_id}"
+        return super()._get(_url, self._headers).json()
+
+    async def send_message(self, channel_id, json_post):
+        _url = f"{_mainurl()}channels/{channel_id}/messages"
+
+        async with ClientSession(headers=self._headers) as s:
+            async with s.post(_url, data=json_post) as p:
+                j = await p.json()
+                return j
 
 
-class _Gateway:
-    def __init__(self, gateway_version: int, token: str, intents: int, activity: dict,
-                 status: str, on_ready: Awaitable, on_messagec: Awaitable, register: Awaitable,
-                 on_register: Awaitable):
-        # Setting up connecting to Gateway
+class Flow:
+    __classname__: str = "Flow"
+
+    _T = TypeVar(__classname__)
+
+    @property
+    def __class__(self: _T) -> Type[_T]:
+        return self._T
+
+    def __init__(self, gateway_version: int, token: str, intents: int,
+                 activity: dict):
+
+        self.user_id = "null"
         self.heartbeat_interval = 0
+
         self.gateway_version: int = gateway_version
-        self.ws = websocket.WebSocket()
+
         self.intents = intents
         self.activity = activity
-        self.status = status
+        self.status = "online"
+
+        # ISes
+        self.isrunning = False
+        self.isafk = False
+
         self.token = token
-        self._rest = _Rest(token)
+        self._rest = Rest(token)
+        self._debug = False
 
-        self.on_ready = on_ready
-        self.on_messagec = on_messagec
-        self.register = register
-        self.on_register = on_register
+        self._headers = {}
 
-    def run(self):
-        # Connecting to Gateway
-        self.ws.connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json")
+        self.ws = None
 
-        # Parsing Opcode 10 Hello to Heartbeat Interval
-        self.heartbeat_interval = self.get_responce()["d"]["heartbeat_interval"]
+    # Event methods
+    async def on_ready(self):
+        pass
 
-        # Setting up Opcode 1 Heartbeat
-        heartbeat_thread = threading.Thread(target=self.heartbeat)
-        heartbeat_thread.start()
+    async def on_messagec(self, m):
+        pass
 
-        # Sending Opcode 2 Identify
-        self.send_opcode_2()
+    async def on_interaction(self, token, id, command_name, bot_token: str, type, data, type_of_command = None):
+        pass
 
-        heartbeat_thread.join()
+    async def on_register(self):
+        pass
 
-    def send_request(self, json_data):
-        self.ws.send(json.dumps(json_data))
-
-    def get_responce(self):
-        responce = self.ws.recv()
-        return json.loads(responce)
+    async def register2(self):
+        pass
 
     async def register(self, d):
-        return
+        self.user_id = d["user"]["id"]
 
-    def on_ready(self):
-        return
+    # Sending/Getting
+    async def send_request(self, data, ws):
+        await ws.send_json(data)
 
-    def on_messagec(self, message: DisMessage):
-        return
+        if self._debug:
+            print(_DebugLoggingWebsocket(data, send=True, isevent=False, op=data["op"]))
 
-    def on_register(self):
-        return
+        return data
 
-    def heartbeat(self):
+    async def get_responce(self, ws):
+        try:
+            j = await ws.receive_json()
+        except TypeError:
+            return
+
+        if self._debug:
+            try:
+                if j["t"]:
+                    print(_DebugLoggingWebsocket(j, send=False, isevent=True, op=j["op"]))
+                else:
+                    print(_DebugLoggingWebsocket(j, send=False, isevent=False, op=j["op"]))
+            except KeyError:
+                print(_DebugLoggingWebsocket(j, send=False, isevent=False, op=j["op"]))
+
+        return j
+
+    # Runners
+    async def run(self, ons, status, debug):
+        self._debug = debug
+        self.status = status
+
+        self.on_ready = ons["ready"]
+        self.on_messagec = ons["messagec"]
+        self.on_interaction = ons["interaction"]
+        self.on_register = ons["register"]
+        self.register2 = ons["register2"]
+
+        self.isrunning = True
+        self.isafk = False
+
+        self.ws = None
+
+        await self._runner()
+
+    async def _runner(self):
+        async with ClientSession() as s:
+            async with s.ws_connect("wss://gateway.discord.gg/?v=9&encoding=json") as ws:
+                self.ws = ws
+
+                j = await self.get_responce(ws)
+
+                interval = j["d"]["heartbeat_interval"]
+
+                from datetime import datetime
+                from time import mktime
+
+                await self.send_request({"op": 2, "d": {
+                    "token": self.token,
+                    "intents": self.intents,
+                    "properties": {
+                        "$os": "linux",
+                        "$browser": "disspy",
+                        "$device": "pc"
+                    },
+                    "presence": {
+                        "since": mktime(datetime.now().timetuple()) * 1000,
+                        "afk": self.isafk,
+                        "status": self.status,
+                        "activities": []  # Disspy isn't supporting Discord activities
+                    }
+                }}, ws)
+                self.isrunning = True
+
+                await asyncio.wait(fs=[self.heartbeat(ws, interval / 1000), self._events_checker(ws)])
+
+    async def heartbeat(self, ws, interval):
         while True:
-            self.heartbeat_events_create()
+            await self.send_request({"op": 1, "d": None, "t": None}, ws)
 
-            time.sleep(self.heartbeat_interval / 1000)
+            await asyncio.sleep(interval)
 
-    def heartbeat_events_create(self):
-        self.send_opcode_1()
-        event = self.get_responce()
-        self._check(event)
+    async def _events_checker(self, ws):
+        while True:
+            event_json = await self.get_responce(ws)
+            event = _FlowEvent(event_json)
 
-    def send_opcode_1(self):
-        self.send_request({"op": 1, "d": "null"})
+            if event.type == "READY":
+                await self.register(event.data)
+                await self.register2()
+                await self.on_register()
 
-    def send_opcode_2(self):
-        self.send_request({"op": 2, "d": {"token": self.token,
-                                          "properties": {"$os": "linux", "$browser": "dispy", "$device": "dispy"},
-                                          "presence": {"activities": [self.activity],
-                                                       "status": self.status, "since": 91879201, "afk": False},
-                                          "intents": self.intents}})
+                await self.on_ready()
 
-    def _check(self, event: dict):
-        if event["t"] == "READY":
-            asyncio.run(self.register(event["d"]))
-            asyncio.run(self.on_ready())
-            asyncio.run(self.on_register())
-            self.user_id = event["d"]["user"]["id"]
+            if event.type == "MESSAGE_CREATE":
+                _m = DisMessage(event.data, self.token)
 
-        if event["t"] == "MESSAGE_CREATE":
-            if self._check_notbot(event):
-                _message_id = int(event["d"]["id"])
-                _channel_id = int(event["d"]["channel_id"])
+                if not event.data["author"]["id"] == self.user_id:
+                    await self.on_messagec(_m)
 
-                channel = DisChannel(_channel_id, self._rest)
-                asyncio.run(self.on_messagec(channel.fetch(_message_id)))
+            if event.type == "INTERACTION_CREATE":
+                if event.data["type"] == 2:
+                    await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
+                                              self.token, event.data["type"], event.data, event.data["data"]["type"])
+                else:
+                    await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
+                                              self.token, event.data["type"], event.data, None)
 
-    def _check_notbot(self, event: dict) -> bool:
-        return self.user_id != event["d"]["author"]["id"]
+            await asyncio.sleep(0.5)
+
+    async def disconnecter(self):
+        await self.ws.close()
 
 
-class DisApi:
-    def __init__(self, token):
+class DisApi(_RequestsUserClass):
+    def __init__(self, token: str, intents, application_id):
+        super().__init__()
+
+        self._headers = {'Authorization': f'Bot {token}', "content-type": "application/json"}
+        self.app_commands_jsons = []
+
         self._on_ready = None
         self._on_messagec = None
         self.token = token
+        self.application_id = application_id
 
-        self._g = None
-        self._r = _Rest(self.token)
+        self.f = Flow(10, self.token, intents, {})
+        self._r = Rest(self.token)
+
+        self.app_commands = []
+        self.raw_app_commands = []
+
+        self.app_commands.append({})  # Slash Commands
+        self.app_commands.append({})  # User Commands
+        self.app_commands.append({})  # Message Commands
 
     def fetch(self, channel_id, id):
-        return DisMessage(id, channel_id, DisApi(self.token))
+        return DisMessage(id, channel_id, self)
 
-    def run(self, gateway_version: int, intents: int, status, on_ready: Awaitable, on_messagec: Awaitable,
-            on_register: Awaitable):
-        if on_messagec is not None:
-            self._on_messagec = on_messagec
-        if on_ready is not None:
-            self._on_ready = on_ready
+    async def run(self, status, ons, debug):
+        ons["register2"] = self._register2
+        ons["interaction"] = self._on_interaction
 
-        self._g = _Gateway(gateway_version, self.token, intents, {}, status, self._on_ready, self._on_message,
-                           self._register, on_register)
-        self._g.run()
+        _url = f"{_mainurl()}applications/{self.application_id}/commands"
 
-    async def _on_message(self, message):
+        from requests import delete, post, get, patch
+
+        _raws = get(_url, headers=self._headers).json()
+        d_and_p = []
+
+        print(_raws)
+        print(self.app_commands_jsons)
+        """
+            Server: [{
+                "name": "aaa2",
+                "description": "abc2"
+            }]
+            
+            Local: [{
+                "name": "aaa3",
+                "description": "abc3"
+            }]
+        """
+
+        for r in _raws:
+            for j in self.app_commands_jsons:
+                if  r["name"] == j["name"]:
+                    _res = r
+
+                    _res["description"] = j["description"]
+                    _res["options"]=j["options"]
+
+                    patch(f"{_url}/{r['id']}", json=j, headers=self._headers)
+                else:
+                    delete(f"{_url}/{r['id']}", headers=self._headers)
+                    post(url=_url, json=j, headers=self._headers)
+
+        print(get(_url, headers=self._headers).json())
+
+        del delete
+
+        await self.f.run(ons, status, debug)
+
+    async def disconnecter(self):
+        await self.f.disconnecter()
+
+    async def _on_messagec(self, message):
         pass
 
     async def _on_ready(self):
         pass
 
-    async def _register(self, d):
-        self.user: DisUser = self.get_user(d["user"]["id"], False)
+    async def _register2(self):
+        # pass
+        self.user: DisUser = self.get_user(self.f.user_id, False)
 
-    async def send_message(self, id, content, embed):
+    async def _on_interaction(self, token, id, command_name, bot_token: str, type, data, type_of_command = None):
+        if type_of_command is None:
+            return  # Not components!
+        else:
+            if type == 2:
+                _ctx = Context(token, id, bot_token)
+                _args = []
+
+                from disspy.application_commands import _Argument, Args
+
+                try:
+                    for o in data["data"]["options"]:
+                        _args.append(_Argument(o["name"],
+                                            o["type"],
+                                            o["value"]))
+                except KeyError:
+                    _args = []
+
+
+                try:
+                    await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
+                except KeyError:
+                    print("What! Slash command is invalid")
+
+    async def send_message(self, id: int, content: str = "", embed: Optional[DisEmbed] = None):
+        """
+        Sending messages to channel
+
+        :param id: Id of channel which use in sending messages to
+        :param content: Message Content
+        :param embed: Message Embed
+        :return None:
+        """
+
         if embed:
             await self._r.send_message(id, {"content": content, "embeds": [embed.tojson()]})
         else:
             await self._r.send_message(id, {"content": content})
 
-    async def send_message(self, id, content, embeds):
-        embeds_send_json = []
+    async def send_message(self, id: int, content: str = "", embeds: Optional[list[DisEmbed]] = None):
+        """
+        Sending messages to channel
+
+        :param id: Id of channel which use in sending messages to
+        :param content: Message Content
+        :param embeds: Message Embeds
+        :return None:
+        """
+
+        embeds_send_jsons = []
         if embeds:
             for e in embeds:
-                embeds_send_json.append(e.tojson())
+                embeds_send_jsons.append(e.tojson())
 
-            await self._r.send_message(id, {"content": content, "embeds": embeds_send_json})
+            await self._r.send_message(id, {"content": content, "embeds": embeds_send_jsons})
         else:
             await self._r.send_message(id, {"content": content})
 
-    def get_user(self, id: int, premium_gets) -> DisUser:
+    def get_user(self, id: int, premium_gets: bool) -> DisUser:
         """
         Get user by id
 
+        :param premium_gets: Premium gets to User (for example flags and user information (info which can't be got)
         :param id: id of user
         :return DisUser:
         """
@@ -329,7 +665,7 @@ class DisApi:
         :param id: id of user
         :return JsonOutput:
         """
-        return JsonOutput(kwargs=self._r.get("user", id))
+        return self._r.get("user", id)
 
     def get_channel(self, id: Union[int, Showflake]) -> DisChannel:
         """
@@ -340,7 +676,7 @@ class DisApi:
         """
         id = int(id)
 
-        return DisChannel(id, DisApi(self.token))
+        return DisChannel(id, self)
 
     def get_channel_json(self, id: Union[int, Showflake]) -> JsonOutput:
         """
@@ -360,7 +696,7 @@ class DisApi:
         """
         id = int(id)
 
-        return DisGuild(id, DisApi(self.token))
+        return DisGuild(id, self)
 
     def get_guild_json(self, id: int) -> JsonOutput:
         """
@@ -371,3 +707,39 @@ class DisApi:
         """
 
         return JsonOutput(kwargs=self._r.get("guild", id))
+
+    def create_command(self, payload, func):
+        _url = f"https://discord.com/api/v10/applications/{self.application_id}/commands"
+
+        def app_func_register(number):
+            self.app_commands[number][payload["name"]] = func
+
+        if payload["type"] == 1:
+            # Register interaction func to Slash Commands
+            self.app_commands_jsons.append(payload)
+
+            app_func_register(0)
+
+        elif payload["type"] == 2:
+            # Register interaction func to User Commands
+            try:
+                if payload["description"]:
+                    self.app_commands_jsons.append(payload)
+
+                    app_func_register(1)
+            except KeyError:
+                self.app_commands_jsons.append(payload)
+
+                app_func_register(1)
+
+        elif payload["type"] == 3:
+            # Register interaction func to Message Commands
+            try:
+                if payload["description"]:
+                    self.app_commands_jsons.append(payload)
+
+                    app_func_register(2)
+            except KeyError:
+                self.app_commands_jsons.append(payload)
+
+                app_func_register(2)
