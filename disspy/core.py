@@ -561,7 +561,12 @@ class DisApi(_RequestsUserClass):
         for r in _raws:
             for j in self.app_commands_jsons:
                 if  r["name"] == j["name"]:
-                    pass
+                    _res = r
+
+                    _res["description"] = j["description"]
+                    _res["options"]=j["options"]
+
+                    patch(f"{_url}/{r['id']}", json=j, headers=self._headers)
                 else:
                     delete(f"{_url}/{r['id']}", headers=self._headers)
                     post(url=_url, json=j, headers=self._headers)
