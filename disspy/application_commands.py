@@ -23,7 +23,10 @@ SOFTWARE.
 """
 
 
-from typing import Optional
+from typing import (
+    Optional,
+    Any
+)
 
 __all__: tuple[str] = (
     "ApplicationCommand",
@@ -36,6 +39,11 @@ __all__: tuple[str] = (
 
 
 class _MessageFlags:
+    """
+    Flags for messages in discord API. Varibles is constants.
+
+    This use in send() method of Context class.
+    """
     CROSSPOSTED = 1 << 0
     IS_CROSSPOST = 1 << 1
     SUPPRESS_EMBEDS = 1 << 2
@@ -48,6 +56,16 @@ class _MessageFlags:
 
 
 class ApplicationCommand:
+    """
+    Application Command object.
+
+    This use as parent for slash commands, message commands, user commands
+
+    :var name: Name of application command
+    :var description: Description of application command
+    :var cmd: Method to use in on_interaction
+    :var command_type: Type of application command
+    """
     def __init__(self, name, description, cmd, command_type: int):
         self.name = name
         self.description = description
@@ -61,12 +79,23 @@ class SlashCommand(ApplicationCommand):
 
 
 class Context:
+    """
+    Class for receiving interaction content and sending messages to users
+
+    There are some methods for responding to interaction (Slash Command)
+    """
     def __init__(self, interaction_token, interaction_id, bot_token):
         self._interaction_token = interaction_token
         self._interaction_id = interaction_id
         self._headers = {'Authorization': f'Bot {bot_token}'}
 
-    async def send(self, content: str, ephemeral: bool = False):
+    async def send(self, content: str, ephemeral: bool = False) -> None:
+        """
+
+        :param content: (str) Message content
+        :param ephemeral: (bool) Sets message invisible for other member (not author)
+        :return None:
+        """
         _payload = {}
 
         if ephemeral:
@@ -90,6 +119,8 @@ class Context:
         from requests import post
 
         post(_url, json=_payload, headers=self._headers)
+
+        del post
 
 
 class Option:
@@ -153,15 +184,15 @@ class Args:
             values = []
         self._v = values
 
-    def isempty(self):
+    def isempty(self) -> bool:
         return len(self._v) == 0
 
-    def get(self, name):
+    def get(self, name: str) -> Any:
         for a in self._v:
             if a.name == name:
                 return a.value
 
-    def getString(self, name):
+    def getString(self, name: str) -> str:
         for a in self._v:
             if a.name == name and a.type == OptionType.STRING:
                 return a.value
