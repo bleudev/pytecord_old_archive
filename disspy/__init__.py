@@ -23,10 +23,13 @@ SOFTWARE.
 """
 
 # Imports
-# Basic imports
-from ._typing import TypeOf
+# For __init__.py
+import _typing, application_commands, channel, client, core, embed, errs, guild, logger, message, objects, user
 
-from .errs import (
+# Basic imports
+from disspy._typing import TypeOf
+
+from disspy.errs import (
     UserNitroTypeError,
     InternetError,
     MissingPerms,
@@ -36,38 +39,44 @@ from .errs import (
     ClassTypeError
 )
 
-from .core import (
+from disspy.core import (
     DisApi,
     DisFlags,
     JsonOutput,
     Showflake
 )
 
-from .objects import (
+from disspy.objects import (
     DisBotStatus,
     DisBotEventType
 )
 
 # User imports
-from .logger import Logger
+from disspy.logger import Logger
 
-from .client import DisBot
+from disspy.client import DisBot
 
-from .guild import DisGuild
+from disspy.guild import DisGuild
 
-from .channel import DisChannel
+from disspy.channel import (
+    DisChannel,
+    DisDm
+)
 
-from .embed import (
+from disspy.embed import (
     DisEmbed,
     DisField,
     DisColor
 )
 
-from .message import DisMessage
+from disspy.message import DisMessage
 
-from .user import DisUser
+from disspy.user import (
+    DisUser,
+    DisNitro
+)
 
-from .application_commands import (
+from disspy.application_commands import (
     ApplicationCommand,
     SlashCommand,
     Context,
@@ -109,8 +118,9 @@ __description__ = "Dispy - package for creating bots in discord."
 # Name of package
 __packagename__ = "dispy"
 
+
 # __all__
-__alls__ = [
+__alls__: list[tuple] = [
     _typing.__all__,
     application_commands.__all__,
     channel.__all__,
@@ -125,7 +135,7 @@ __alls__ = [
     user.__all__
 ]
 
-__all__ = _all_generator(__alls__)
+__all__: tuple = _all_generator(__alls__)
 
 
 # Info
