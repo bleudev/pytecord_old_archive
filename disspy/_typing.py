@@ -22,14 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
+# __all__
 __all__: tuple[str] = (
     "TypeOf"
 )
 
 
 class TypeOf:
+    """
+    Class for typing in objects receiving in methods
+
+    Example
+    def foo(self, bar: TypeOf(foo)):
+        ...
+    """
     def __new__(cls, *args, **kwargs):
+        """
+        :param args: [0] is type
+        :param kwargs: No
+        :return type:
+        """
         _type = list(args)[0]
         _obj = _type()
         _all = _obj.__all__()
