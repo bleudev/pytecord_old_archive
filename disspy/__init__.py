@@ -23,8 +23,7 @@ SOFTWARE.
 """
 
 # Imports
-# For __init__.py
-import _typing, application_commands, channel, client, core, embed, errs, guild, logger, message, objects, user
+
 
 # Basic imports
 from disspy._typing import TypeOf
@@ -118,21 +117,22 @@ __description__ = "Dispy - package for creating bots in discord."
 # Name of package
 __packagename__ = "dispy"
 
+import disspy._typing, disspy.application_commands, disspy.channel, disspy.client, disspy.core, disspy.embed, disspy.errs, disspy.guild, disspy.logger, disspy.message, disspy.objects, disspy.user
 
 # __all__
 __alls__: list[tuple] = [
-    _typing.__all__,
-    application_commands.__all__,
-    channel.__all__,
-    client.__all__,
-    core.__all__,
-    embed.__all__,
-    errs.__all__,
-    guild.__all__,
-    logger.__all__,
-    message.__all__,
-    objects.__all__,
-    user.__all__
+    disspy._typing.__all__,
+    disspy.application_commands.__all__,
+    disspy.channel.__all__,
+    disspy.client.__all__,
+    disspy.core.__all__,
+    disspy.embed.__all__,
+    disspy.errs.__all__,
+    disspy.guild.__all__,
+    disspy.logger.__all__,
+    disspy.message.__all__,
+    disspy.objects.__all__,
+    disspy.user.__all__
 ]
 
 __all__: tuple = _all_generator(__alls__)

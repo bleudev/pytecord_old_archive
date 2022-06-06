@@ -455,9 +455,9 @@ class Flow:
                     "token": self.token,
                     "intents": self.intents,
                     "properties": {
-                        "$os": "linux",
+                        "$os": "android",
                         "$browser": "disspy",
-                        "$device": "pc"
+                        "$device": "disspy"
                     },
                     "presence": {
                         "since": mktime(datetime.now().timetuple()) * 1000,
@@ -466,6 +466,9 @@ class Flow:
                         "activities": []  # Disspy isn't supporting Discord activities
                     }
                 }}, ws)
+
+                del mktime, datetime
+
                 self.isrunning = True
 
                 await asyncio.wait(fs=[self.heartbeat(ws, interval / 1000), self._events_checker(ws)])
