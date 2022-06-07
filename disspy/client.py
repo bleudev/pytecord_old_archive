@@ -198,6 +198,14 @@ class DisBot(_BaseBot):
         return wrapper
 
     def slash_command(self, name, description, options: Optional[list[Option]] = None):
+        """
+        Create slash command
+        -----
+        :param name: Command's name
+        :param description: Command's description
+        :param options: Command's options
+        :return function: Wrapper
+        """
         _payload = {}
 
         if options:
@@ -225,6 +233,12 @@ class DisBot(_BaseBot):
         return wrapper
 
     def user_command(self, name):
+        """
+        Create user command
+        -----
+        :param name: Command's name
+        :return function: Wrapper
+        """
         _payload = {
             "name": name,
             "type": 2
@@ -236,6 +250,12 @@ class DisBot(_BaseBot):
         return wrapper
 
     def message_command(self, name):
+        """
+        Create message command
+        -----
+        :param name: Command's name
+        :return function: Wrapper
+        """
         _payload = {
             "name": name,
             "type": 3
@@ -288,9 +308,17 @@ class DisBot(_BaseBot):
         return 0  # No errors
 
     async def disconnect(self) -> int:
+        """
+        Disconnect from Gateway
+        :return asyncio.Future:
+        """
         return ensure_future(self._dissconnenter())
 
     async def close(self) -> int:
+        """
+        Disconnect from Gateway
+        :return asyncio.Future:
+        """
         return ensure_future(self._dissconnenter())
 
     async def _dissconnenter(self) -> int:
@@ -304,12 +332,16 @@ class DisBot(_BaseBot):
         else:
             return -99
 
-    def __del__(self):
-        for _var in self.__slots__:
-            del _var
-
     async def send(self, channel_id: int, content: Optional[str] = None,
                    embeds: Optional[list[DisEmbed]] = None):
+        """
+        Send message to channel
+        -----
+        :param channel_id: Channel Id
+        :param content: Message Content
+        :param embeds: Message embeds
+        :return None:
+        """
         if self.isready:
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embeds=embeds)
@@ -318,6 +350,14 @@ class DisBot(_BaseBot):
 
     async def send(self, channel_id: int, content: Optional[str] = None,
                    embed: Optional[DisEmbed] = None):
+        """
+        Send message to channel
+        -----
+        :param channel_id: Channel Id
+        :param content: Message Content
+        :param embed: Message embed
+        :return None:
+        """
         if self.isready:
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embed=embed)
@@ -325,15 +365,39 @@ class DisBot(_BaseBot):
             raise errs.InternetError("Bot is not ready!")
 
     def get_channel(self, id: int) -> DisChannel:
+        """
+        Get channel from id
+        -----
+        :param id: Channel Id
+        :return DisChannel:
+        """
         return self._api.get_channel(id)
 
     def get_guild(self, id: int) -> DisGuild:
+        """
+        Get guild from id
+        -----
+        :param id: Guild Id
+        :return DisGuild:
+        """
         return self._api.get_guild(id)
 
     def get_user(self, id: int, premium_gets: System[bool] = True) -> DisUser:
+        """
+        Get user from id
+        -----
+        :param id: User Id
+        :return DisUser:
+        """
         return self._api.get_user(id, premium_gets)
 
     async def change_activity(self, activity: Union[Activity, dict]):
+        """
+        Change activity
+        -----
+        :param activity: Activity to change
+        :return None:
+        """
         from datetime import datetime
         from time import mktime
 
