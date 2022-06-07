@@ -44,6 +44,7 @@ from disspy.objects import DisBotStatus, DisBotEventType
 from disspy.logger import Logger
 from disspy._typing import TypeOf
 from disspy.application_commands import Option
+from disspy.activity import Activity
 
 System: dict[Any, Any] = {
     bool: bool
@@ -86,7 +87,8 @@ class DisBot(_BaseBot):
     def __init__(self, token: str, application_id: int,
                  status: Optional[TypeOf(DisBotStatus)] = None,
                  flags: Optional[TypeOf(DisFlags)] = None,
-                 debug: Optional[bool] = False):
+                 debug: Optional[bool] = False,
+                 activity: Optional[Union[Activity, dict]] = None):
         """
         Create bot
 
@@ -101,6 +103,14 @@ class DisBot(_BaseBot):
             self.intflags = DisFlags.default()
         else:
             self.intflags = flags
+
+        if activity is None:
+            activity = {}
+
+        if isinstance(activity, Activity):
+            activity = activity.json()
+
+        self._act = activity
 
         self.status = status
         self._debug = debug
@@ -257,7 +267,7 @@ class DisBot(_BaseBot):
 
     def _runner(self) -> int:
         try:
-            self._coro = run(self._api.run(self.status, self._ons, debug=self._debug))
+            self._coro = run(self._api.run(self.status, self._ons, debug=self._debug, act=self._act))
         except KeyboardInterrupt:
             pass
 
@@ -308,3 +318,24 @@ class DisBot(_BaseBot):
 
     def get_user(self, id: int, premium_gets: System[bool] = True) -> DisUser:
         return self._api.get_user(id, premium_gets)
+
+    async def change_activity(self, activity: Union[Activity, dict]):
+        from datetime import datetime
+        from time import mktime
+
+        act = {}
+
+        if isinstance(activity, Activity):
+            act = activity.json()
+
+        await self._api.fsend_request({
+            "op": 3,
+            "d": {
+                "since": mktime(datetime.now().timetuple()) * 1000,
+                "afk": False,
+                "status": self.status,
+                "activities": [act]
+            }
+        })
+
+        del datetime, mktime

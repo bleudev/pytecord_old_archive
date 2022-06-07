@@ -84,6 +84,11 @@ from disspy.application_commands import (
     Args
 )
 
+from disspy.activity import (
+    Activity,
+    ActivityType
+)
+
 
 # Methods for other varibles
 def _all_generator(alls: list[tuple]) -> tuple:
@@ -117,11 +122,16 @@ __description__ = "Dispy - package for creating bots in discord."
 # Name of package
 __packagename__ = "dispy"
 
-import disspy._typing, disspy.application_commands, disspy.channel, disspy.client, disspy.core, disspy.embed, disspy.errs, disspy.guild, disspy.logger, disspy.message, disspy.objects, disspy.user
+import disspy._typing, disspy.activity,\
+       disspy.application_commands, disspy.channel,\
+       disspy.client, disspy.core, disspy.embed,\
+       disspy.errs, disspy.guild, disspy.logger,\
+       disspy.message, disspy.objects, disspy.user
 
 # __all__
 __alls__: list[tuple] = [
     disspy._typing.__all__,
+    disspy.activity.__all__,
     disspy.application_commands.__all__,
     disspy.channel.__all__,
     disspy.client.__all__,

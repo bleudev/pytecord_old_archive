@@ -422,9 +422,10 @@ class Flow:
         return j
 
     # Runners
-    async def run(self, ons, status, debug):
+    async def run(self, ons, status, debug, act):
         self._debug = debug
         self.status = status
+        self.activity = act
 
         self.on_ready = ons["ready"]
         self.on_messagec = ons["messagec"]
@@ -463,7 +464,7 @@ class Flow:
                         "since": mktime(datetime.now().timetuple()) * 1000,
                         "afk": self.isafk,
                         "status": self.status,
-                        "activities": []  # Disspy isn't supporting Discord activities
+                        "activities": [self.activity]
                     }
                 }}, ws)
 
@@ -536,7 +537,7 @@ class DisApi(_RequestsUserClass):
     def fetch(self, channel_id, id):
         return DisMessage(id, channel_id, self)
 
-    async def run(self, status, ons, debug):
+    async def run(self, status, ons, debug, act):
         ons["register2"] = self._register2
         ons["interaction"] = self._on_interaction
 
@@ -545,21 +546,6 @@ class DisApi(_RequestsUserClass):
         from requests import delete, post, get, patch
 
         _raws = get(_url, headers=self._headers).json()
-        d_and_p = []
-
-        print(_raws)
-        print(self.app_commands_jsons)
-        """
-            Server: [{
-                "name": "aaa2",
-                "description": "abc2"
-            }]
-            
-            Local: [{
-                "name": "aaa3",
-                "description": "abc3"
-            }]
-        """
 
         for r in _raws:
             for j in self.app_commands_jsons:
@@ -574,11 +560,9 @@ class DisApi(_RequestsUserClass):
                     delete(f"{_url}/{r['id']}", headers=self._headers)
                     post(url=_url, json=j, headers=self._headers)
 
-        print(get(_url, headers=self._headers).json())
-
         del delete
 
-        await self.f.run(ons, status, debug)
+        await self.f.run(ons, status, debug, act)
 
     async def disconnecter(self):
         await self.f.disconnecter()
@@ -746,3 +730,6 @@ class DisApi(_RequestsUserClass):
                 self.app_commands_jsons.append(payload)
 
                 app_func_register(2)
+
+    async def fsend_request(self, data):
+        await self.f.send_request(data, self.f.ws)
