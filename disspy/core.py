@@ -464,7 +464,7 @@ class Flow:
                         "since": mktime(datetime.now().timetuple()) * 1000,
                         "afk": self.isafk,
                         "status": self.status,
-                        "activities": [self.activity]  # Disspy isn't supporting Discord activities
+                        "activities": [self.activity]
                     }
                 }}, ws)
 
@@ -730,3 +730,6 @@ class DisApi(_RequestsUserClass):
                 self.app_commands_jsons.append(payload)
 
                 app_func_register(2)
+
+    async def fsend_request(self, data):
+        await self.f.send_request(data, self.f.ws)

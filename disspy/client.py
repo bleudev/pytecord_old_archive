@@ -318,3 +318,24 @@ class DisBot(_BaseBot):
 
     def get_user(self, id: int, premium_gets: System[bool] = True) -> DisUser:
         return self._api.get_user(id, premium_gets)
+
+    async def change_activity(self, activity: Union[Activity, dict]):
+        from datetime import datetime
+        from time import mktime
+
+        act = {}
+
+        if isinstance(activity, Activity):
+            act = activity.json()
+
+        await self._api.fsend_request({
+            "op": 3,
+            "d": {
+                "since": mktime(datetime.now().timetuple()) * 1000,
+                "afk": False,
+                "status": self.status,
+                "activities": [act]
+            }
+        })
+
+        del datetime, mktime
