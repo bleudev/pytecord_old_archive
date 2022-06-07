@@ -84,6 +84,11 @@ from disspy.application_commands import (
     Args
 )
 
+from disspy.activity import (
+    Activity,
+    ActivityType
+)
+
 
 # Methods for other varibles
 def _all_generator(alls: list[tuple]) -> tuple:
