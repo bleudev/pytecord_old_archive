@@ -23,6 +23,12 @@ SOFTWARE.
 """
 
 
+__all__: tuple[str] = (
+    "Activity",
+    "ActivityType"
+)
+
+
 class Activity:
     def __init__(self, name: str, activity_type: int):
         self.name: str = name
