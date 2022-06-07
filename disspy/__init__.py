@@ -107,7 +107,7 @@ def _all_generator(alls: list[tuple]) -> tuple:
 __version__ = "0.1b2"
 
 # Minimal python version for using package
-__minpythonver__ = "3.8"
+__pythonversion__ = "3.8"
 
 # Link to GitHub repo
 __github__ = "https://github.com/itttgg/dispy"
