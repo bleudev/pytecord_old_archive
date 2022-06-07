@@ -45,15 +45,14 @@ from disspy.core import (
     Showflake
 )
 
-from disspy.objects import (
-    DisBotStatus,
-    DisBotEventType
-)
-
 # User imports
 from disspy.logger import Logger
 
-from disspy.client import DisBot
+from disspy.client import (
+    DisBot,
+    DisBotStatus,
+    DisBotEventType
+)
 
 from disspy.guild import DisGuild
 
@@ -126,7 +125,7 @@ import disspy._typing, disspy.activity,\
        disspy.application_commands, disspy.channel,\
        disspy.client, disspy.core, disspy.embed,\
        disspy.errs, disspy.guild, disspy.logger,\
-       disspy.message, disspy.objects, disspy.user
+       disspy.message, disspy.user
 
 # __all__
 __alls__: list[tuple] = [
@@ -141,7 +140,6 @@ __alls__: list[tuple] = [
     disspy.guild.__all__,
     disspy.logger.__all__,
     disspy.message.__all__,
-    disspy.objects.__all__,
     disspy.user.__all__
 ]
 

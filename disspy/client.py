@@ -40,7 +40,6 @@ from disspy.channel import DisChannel
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.user import DisUser
-from disspy.objects import DisBotStatus, DisBotEventType
 from disspy.logger import Logger
 from disspy._typing import TypeOf
 from disspy.application_commands import Option
@@ -53,6 +52,90 @@ System: dict[Any, Any] = {
 __all__: tuple[str] = (
     "DisBot"
 )
+
+
+class DisBotStatus:
+    """
+    Class for adding discord status for bot
+
+    Examples
+    bot.run(disspy.DisBotStatus.ONLINE)
+
+    bot.run(disspy.DisBotStatus.DND)
+
+    bot.run(disspy.DisBotStatus.IDLE)
+    ---------------
+    And you may use status in __init__()
+    bot = disspy.DisBot(token="TOKEN", type="message",
+                        status=disspy.DisBotStatus.ONLINE)
+    """
+
+    _T = TypeVar("DisBotStatus")
+
+    ONLINE = "online"
+    DND = "dnd"
+    INVISIBLE = "invisible"
+    IDLE = "idle"
+
+    def __all__(self) -> list:
+        """
+        Returns all varibles in this class
+
+        :return list: All varibles in this class
+        """
+        return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
+
+    @property
+    def __class__(self) -> Type[_T]:
+        """
+        Returns type of this class
+
+        :return type: Type of class
+        """
+        return self._T
+
+
+class DisBotEventType:
+    """
+    This class created for simplification adding events to DisBot.
+    This is class, not an object
+
+    Using
+    ------
+    @bot.on(disspy.DisBotEventType.ONMESSAGEC)
+    async def on_messagec(message):
+        await message.channel.send('Test!')
+    """
+
+    _T = TypeVar("DisBotEventType")
+
+    ON_MESSAGEC = "messagec"
+    ON_READY = "ready"
+
+    @property
+    def __class__(self) -> Type[_T]:
+        """
+        Returns type of this class
+
+        :return type: Type of class
+        """
+        return self._T
+
+    def __all__(self) -> list:
+        """
+        Returns all varibles in this class
+
+        :return list: All varibles in this class
+        """
+        return [self.ON_READY, self.ON_MESSAGEC]
+
+    def __str__(self) -> str:
+        """
+        It is using in str() method
+
+        :return str: Default value of event (on_ready event)
+        """
+        return self.ON_READY
 
 
 class _BaseBot:
@@ -417,3 +500,12 @@ class DisBot(_BaseBot):
         })
 
         del datetime, mktime
+
+    def __del__(self):
+        if self.isready:
+            try:
+                exit(0)
+            except NameError:
+                pass
+            except KeyboardInterrupt:
+                pass
