@@ -56,29 +56,39 @@ __all__: tuple[str] = (
 
 
 class _BaseBot:
+    """
+    Class parent for DisBot
+    """
     _T = TypeVar("_BaseBot")
 
     def __init__(self, token: str):
+        """
+        Create bot
+        -----
+        :param token: Discord Developers Portal Bot Token
+        """
         self.token = token
 
     @property
     def __class__(self) -> Type[_T]:
         """
-            Returns type of this class
-            --------
-            :return self._T (Type of class):
+        Returns type of this class
+        -----
+        :return TypeVar: Type of class
         """
         return self._T
 
 
 class DisBot(_BaseBot):
     """
-    Class for accessing and sending information in Discord
-
-    Attributes:
-        :var token: Token for accessing and sending info
-                    (Token from Discord Developer Portal).
-        :var flags: Flags (Intents) for bot.
+    Class for accessing and sending information in Discord API
+    -----
+    :var token: Token for accessing and sending info
+                (Token from Discord Developer Portal)
+    :var application_id: Application id of bot
+                         (from Discord Developer Portal)
+    :var flags: Flags (Intents) for bot
+    :var user: Bot User object
     """
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
@@ -91,7 +101,7 @@ class DisBot(_BaseBot):
                  activity: Optional[Union[Activity, dict]] = None):
         """
         Create bot
-
+        -----
         :param token: Discord Developers Portal Bot Token
         :param status: Status that use in run()
         :param flags: Flags (Intents) for bot (default is 512)
@@ -141,23 +151,27 @@ class DisBot(_BaseBot):
     @property
     def __class__(self) -> Type[_T]:
         """
-            Returns type of this class
-            --------
-            :return self._T (Type of class):
+        Returns type of this class
+        -----
+        :return TypeVar: Type of class
         """
         return self._T
 
     async def _on_register(self):
-        pass
-        # self.user: DisUser = self._api.user
+        """
+        Register user var
+        -----
+        :return None:
+        """
+        self.user: DisUser = self._api.user
 
     def on(self, t: Union[DisBotEventType, str]):
         """
         This method was created for changing on_ready and on_messagec
         method that using in runner
-
+        -----
         :param t: Type of event
-        :return: None (wrapper)
+        :return function: Wrapper
         """
 
         __methodname__ = f"{self.__classname__}.on()"
@@ -235,7 +249,7 @@ class DisBot(_BaseBot):
     def run(self, status: Union[DisBotStatus, str] = None) -> int:
         """
         Running bot
-
+        -----
         :param status: Status for bot user
         :return: None
         """
