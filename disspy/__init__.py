@@ -104,7 +104,7 @@ def _all_generator(alls: list[tuple]) -> tuple:
 
 
 # Version of dipsy (b - beta, a - alpha)
-__version__ = "0.1b"
+__version__ = "0.1b2"
 
 # Minimal python version for using package
 __minpythonver__ = "3.8"
