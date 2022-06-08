@@ -3,4 +3,3 @@ requests
 typing
 asyncio
 colorama
-erlpack
