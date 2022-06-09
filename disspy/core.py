@@ -588,9 +588,6 @@ class DisApi(_RequestsUserClass):
         self.user: DisUser = self.get_user(self.f.user_id, False)
 
     async def _on_interaction(self, token, id, command_name, bot_token: str, type, data, type_of_command = None):
-
-        print("Hi")
-
         if type_of_command is None:
             return  # Not components!
         else:
