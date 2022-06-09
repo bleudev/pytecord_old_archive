@@ -29,6 +29,7 @@ from typing import (
 )
 
 __all__: tuple[str] = (
+    "ApplicationCommandType",
     "ApplicationCommand",
     "Option",
     "OptionType",
@@ -57,6 +58,15 @@ class _MessageFlags:
     FAILED_TO_MENTION_SOME_ROLES_IN_THREAD = 1 << 8
 
 
+class ApplicationCommandType:
+    """
+    Application command types (see discord docs)
+    """
+    TEXT_INPUT = 1  # Slash Command
+    USER = 2  # User Command
+    MESSAGE = 3  # Message Command
+
+
 class ApplicationCommand:
     """
     Application Command object.
@@ -74,14 +84,31 @@ class ApplicationCommand:
 
 
 class Option:
+    """
+    Class for using options in application commands (TEXT_INPUT)
+    """
     def __init__(self, name, description, option_type: int, choices: Optional[list[dict]] = None, required: bool = False):
+        """
+        Init class
+        -----
+        :param name: Name of option
+        :param description: Description of option
+        :param option_type: Type of option
+        :param choices: Option's Choices
+        :param required: Option's required var (bool)
+        """
         self.name = name
         self.description = description
         self.option_type = option_type
         self.choices = choices
         self.required = required
 
-    def json(self):
+    def json(self) -> dict:
+        """
+        Get json data of option
+        -----
+        :return dict: Json data of option
+        """
         if self.option_type == OptionType.STRING or self.option_type == OptionType.INTEGER or self.option_type == OptionType.NUMBER and self.choices:
             if self.choices:
                 return {
@@ -108,6 +135,9 @@ class Option:
 
 
 class OptionType:
+    """
+    Option types (see discord docs)
+    """
     SUB_COMMAND = 1
     SUB_COMMAND_GROUP = 2
     STRING = 3

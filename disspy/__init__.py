@@ -32,6 +32,7 @@ from disspy.activity import (
     ActivityType
 )
 from disspy.application_commands import (
+    ApplicationCommandType,
     ApplicationCommand,
     SlashCommand,
     UserCommand,
