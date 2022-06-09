@@ -538,7 +538,11 @@ class DisApi(_RequestsUserClass):
         self.app_commands.append({})  # Message Commands
 
     def fetch(self, channel_id, id):
-        return DisMessage(id, channel_id, self)
+        _url = f"{_mainurl()}channels/{channel_id}/messages/{id}"
+
+        _d = get(_url, headers=self._headers).json()
+
+        return DisMessage(_d, self.token)
 
     async def run(self, status, ons, debug, act):
         ons["register2"] = self._register2
@@ -620,9 +624,23 @@ class DisApi(_RequestsUserClass):
                         _m = DisMessage(_m_d, self.token)
 
                         await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
-                    elif type_of_command == 2: # User Command
-                        await self.app_commands[type_of_command - 1][command_name](_ctx)
-                    elif type_of_command == 1: # Slash Command
+
+                    elif type_of_command == 2:  # User Command
+                        rs: dict = data["data"]["resolved"]["users"]
+
+                        _u_id = list(rs.keys())[0]
+                        _u_d: dict = rs[_u_id]
+
+                        try:
+                            _u_d["id"] = _u_id
+                        except KeyError:
+                            _u_d.setdefault("id", _u_id)
+
+                        _u = DisUser(_u_d, self.token)
+
+                        await self.app_commands[type_of_command - 1][command_name](_ctx, _u)
+
+                    elif type_of_command == 1:  # Slash Command
                         await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
                     else:
                         pass
@@ -671,7 +689,13 @@ class DisApi(_RequestsUserClass):
         :param id: id of user
         :return DisUser:
         """
-        return DisUser(id, self, premium_gets)
+        from requests import get
+
+        _url = f"{_mainurl()}users/{id}"
+
+        _d = get(_url, headers=self._headers).json()
+
+        return DisUser(_d, self.token)
 
     def get_user_json(self, id: int) -> JsonOutput:
         """

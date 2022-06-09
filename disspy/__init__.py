@@ -27,7 +27,38 @@ SOFTWARE.
 
 # Basic imports
 from disspy._typing import TypeOf
-
+from disspy.activity import (
+    Activity,
+    ActivityType
+)
+from disspy.application_commands import (
+    ApplicationCommand,
+    SlashCommand,
+    Context,
+    Option,
+    OptionType,
+    Args
+)
+from disspy.channel import (
+    DisChannel,
+    DisDm
+)
+from disspy.client import (
+    DisBot,
+    DisBotStatus,
+    DisBotEventType
+)
+from disspy.core import (
+    DisApi,
+    DisFlags,
+    JsonOutput,
+    Showflake
+)
+from disspy.embed import (
+    DisEmbed,
+    DisField,
+    DisColor
+)
 from disspy.errs import (
     UserNitroTypeError,
     InternetError,
@@ -37,56 +68,11 @@ from disspy.errs import (
     BotStatusError,
     ClassTypeError
 )
-
-from disspy.core import (
-    DisApi,
-    DisFlags,
-    JsonOutput,
-    Showflake
-)
-
+from disspy.guild import DisGuild
 # User imports
 from disspy.logger import Logger
-
-from disspy.client import (
-    DisBot,
-    DisBotStatus,
-    DisBotEventType
-)
-
-from disspy.guild import DisGuild
-
-from disspy.channel import (
-    DisChannel,
-    DisDm
-)
-
-from disspy.embed import (
-    DisEmbed,
-    DisField,
-    DisColor
-)
-
 from disspy.message import DisMessage
-
-from disspy.user import (
-    DisUser,
-    DisNitro
-)
-
-from disspy.application_commands import (
-    ApplicationCommand,
-    SlashCommand,
-    Context,
-    Option,
-    OptionType,
-    Args
-)
-
-from disspy.activity import (
-    Activity,
-    ActivityType
-)
+from disspy.user import DisUser
 
 
 # Methods for other varibles
