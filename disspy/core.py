@@ -496,7 +496,10 @@ class Flow:
                 _m = DisMessage(event.data, self.token)
 
                 if not event.data["author"]["id"] == self.user_id:
-                    await self.on_messagec(_m)
+                    try:
+                        await self.on_messagec(_m)
+                    except TypeError:
+                        pass
 
             if event.type == "INTERACTION_CREATE":
                 if event.data["type"] == 2:
@@ -535,7 +538,11 @@ class DisApi(_RequestsUserClass):
         self.app_commands.append({})  # Message Commands
 
     def fetch(self, channel_id, id):
-        return DisMessage(id, channel_id, self)
+        _url = f"{_mainurl()}channels/{channel_id}/messages/{id}"
+
+        _d = get(_url, headers=self._headers).json()
+
+        return DisMessage(_d, self.token)
 
     async def run(self, status, ons, debug, act):
         ons["register2"] = self._register2
@@ -549,11 +556,18 @@ class DisApi(_RequestsUserClass):
 
         for r in _raws:
             for j in self.app_commands_jsons:
-                if  r["name"] == j["name"]:
+                if r["name"] == j["name"] and r["type"] == j["type"]:
                     _res = r
 
-                    _res["description"] = j["description"]
-                    _res["options"]=j["options"]
+                    try:
+                        _res["description"] = j["description"]
+                    except KeyError:
+                        pass
+
+                    try:
+                        _res["options"] = j["options"]
+                    except KeyError:
+                        pass
 
                     patch(f"{_url}/{r['id']}", json=j, headers=self._headers)
                 else:
@@ -590,16 +604,48 @@ class DisApi(_RequestsUserClass):
                 try:
                     for o in data["data"]["options"]:
                         _args.append(_Argument(o["name"],
-                                            o["type"],
-                                            o["value"]))
+                                               o["type"],
+                                               o["value"]))
                 except KeyError:
                     _args = []
 
-
                 try:
-                    await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
+                    if type_of_command == 3:  # Message Command
+                        rs: dict = data["data"]["resolved"]["messages"]
+
+                        _m_id = list(rs.keys())[0]
+                        _m_d: dict = rs[_m_id]
+
+                        try:
+                            _m_d["id"] = _m_id
+                        except KeyError:
+                            _m_d.setdefault("id", _m_id)
+
+                        _m = DisMessage(_m_d, self.token)
+
+                        await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
+
+                    elif type_of_command == 2:  # User Command
+                        rs: dict = data["data"]["resolved"]["users"]
+
+                        _u_id = list(rs.keys())[0]
+                        _u_d: dict = rs[_u_id]
+
+                        try:
+                            _u_d["id"] = _u_id
+                        except KeyError:
+                            _u_d.setdefault("id", _u_id)
+
+                        _u = DisUser(_u_d, self.token)
+
+                        await self.app_commands[type_of_command - 1][command_name](_ctx, _u)
+
+                    elif type_of_command == 1:  # Slash Command
+                        await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
+                    else:
+                        pass
                 except KeyError:
-                    print("What! Slash command is invalid")
+                    print("What! Application command is invalid")
 
     async def send_message(self, id: int, content: str = "", embed: Optional[DisEmbed] = None):
         """
@@ -643,7 +689,13 @@ class DisApi(_RequestsUserClass):
         :param id: id of user
         :return DisUser:
         """
-        return DisUser(id, self, premium_gets)
+        from requests import get
+
+        _url = f"{_mainurl()}users/{id}"
+
+        _d = get(_url, headers=self._headers).json()
+
+        return DisUser(_d, self.token)
 
     def get_user_json(self, id: int) -> JsonOutput:
         """

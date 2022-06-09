@@ -35,14 +35,22 @@ from typing import (
 
 # Package imports
 from disspy import errs
-from disspy.core import DisApi, DisFlags
+from disspy.core import (
+    DisApi,
+    DisFlags
+)
 from disspy.channel import DisChannel
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.user import DisUser
 from disspy.logger import Logger
 from disspy._typing import TypeOf
-from disspy.application_commands import Option
+from disspy.application_commands import (
+    Option,
+    SlashCommand,
+    UserCommand,
+    MessageCommand
+)
 from disspy.activity import Activity
 
 System: dict[Any, Any] = {
@@ -315,6 +323,22 @@ class DisBot(_BaseBot):
 
         return wrapper
 
+    def add_slash_command(self, command: SlashCommand):
+        """
+        Create slash command
+        -----
+        :param command: Slash Command
+        :return None:
+        """
+        _payload = {
+            "name": command.name,
+            "description": command.description,
+            "type": 1,
+            "options": command.options
+        }
+
+        self._api.create_command(_payload, command.cmd)
+
     def user_command(self, name):
         """
         Create user command
@@ -332,6 +356,20 @@ class DisBot(_BaseBot):
 
         return wrapper
 
+    def add_user_command(self, command: UserCommand):
+        """
+        Create user command
+        -----
+        :param command: User Command
+        :return None:
+        """
+        _payload = {
+            "name": command.name,
+            "type": 2,
+        }
+
+        self._api.create_command(_payload, command.cmd)
+
     def message_command(self, name):
         """
         Create message command
@@ -348,6 +386,20 @@ class DisBot(_BaseBot):
             self._api.create_command(_payload, func)
 
         return wrapper
+
+    def add_message_command(self, command: MessageCommand):
+        """
+        Create message command
+        -----
+        :param command: Message Command
+        :return None:
+        """
+        _payload = {
+            "name": command.name,
+            "type": 3,
+        }
+
+        self._api.create_command(_payload, command.cmd)
 
     def run(self, status: Union[DisBotStatus, str] = None) -> int:
         """

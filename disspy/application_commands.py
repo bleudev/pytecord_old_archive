@@ -30,10 +30,12 @@ from typing import (
 
 __all__: tuple[str] = (
     "ApplicationCommand",
-    "SlashCommand",
-    "Context",
     "Option",
     "OptionType",
+    "SlashCommand",
+    "UserCommand",
+    "MessageCommand",
+    "Context",
     "Args"
 )
 
@@ -62,65 +64,13 @@ class ApplicationCommand:
     This use as parent for slash commands, message commands, user commands
 
     :var name: Name of application command
-    :var description: Description of application command
     :var cmd: Method to use in on_interaction
     :var command_type: Type of application command
     """
-    def __init__(self, name, description, cmd, command_type: int):
+    def __init__(self, name, cmd, command_type: int):
         self.name = name
-        self.description = description
         self.cmd = cmd
         self.command_type = command_type
-
-
-class SlashCommand(ApplicationCommand):
-    def __init__(self, name, description, cmd):
-        super().__init__(name, description, cmd, 1)
-
-
-class Context:
-    """
-    Class for receiving interaction content and sending messages to users
-
-    There are some methods for responding to interaction (Slash Command)
-    """
-    def __init__(self, interaction_token, interaction_id, bot_token):
-        self._interaction_token = interaction_token
-        self._interaction_id = interaction_id
-        self._headers = {'Authorization': f'Bot {bot_token}'}
-
-    async def send(self, content: str, ephemeral: bool = False) -> None:
-        """
-
-        :param content: (str) Message content
-        :param ephemeral: (bool) Sets message invisible for other member (not author)
-        :return None:
-        """
-        _payload = {}
-
-        if ephemeral:
-            _payload = {
-                "type": 4,
-                "data": {
-                    "content": content,
-                    "flags": _MessageFlags.EPHEMERAL
-                }
-            }
-        else:
-            _payload = {
-                "type": 4,
-                "data": {
-                    "content": content
-                }
-            }
-
-        _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
-
-        from requests import post
-
-        post(_url, json=_payload, headers=self._headers)
-
-        del post
 
 
 class Option:
@@ -169,6 +119,80 @@ class OptionType:
     MENTIONABLE = 9
     NUMBER = 10
     ATTACHMENT = 11
+
+
+class SlashCommand(ApplicationCommand):
+    def __init__(self, name, description, cmd, options: list[Option] = None):
+        super().__init__(name, cmd, 1)
+
+        self.description = description
+
+        if not options:
+            _options_jsons = []
+
+            for o in options:
+                _options_jsons.append(o.json())
+
+            self.options = _options_jsons
+        else:
+            self.options = None
+
+
+class UserCommand(ApplicationCommand):
+    def __init__(self, name, cmd):
+        super().__init__(name, cmd, 2)
+
+
+class MessageCommand(ApplicationCommand):
+    def __init__(self, name, cmd):
+        super().__init__(name, cmd, 3)
+
+
+class Context:
+    """
+    Class for receiving interaction content and sending messages to users
+
+    There are some methods for responding to interaction (Slash Command)
+    """
+    def __init__(self, interaction_token, interaction_id, bot_token):
+        self._interaction_token = interaction_token
+        self._interaction_id = interaction_id
+        self._headers = {'Authorization': f'Bot {bot_token}'}
+
+    async def send(self, content: str, ephemeral: bool = False) -> None:
+        """
+
+        :param content: (str) Message content
+        :param ephemeral: (bool) Sets message invisible for other member (not author)
+        :return None:
+        """
+        _payload = {}
+
+        if ephemeral:
+            _payload = {
+                "type": 4,
+                "data": {
+                    "content": content,
+                    "flags": _MessageFlags.EPHEMERAL
+                }
+            }
+        else:
+            _payload = {
+                "type": 4,
+                "data": {
+                    "content": content
+                }
+            }
+
+        _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
+
+        from requests import post
+
+        post(_url, json=_payload, headers=self._headers)
+
+        del post
+
+
 
 
 class _Argument:
