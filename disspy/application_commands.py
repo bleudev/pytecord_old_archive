@@ -152,6 +152,9 @@ class OptionType:
 
 
 class SlashCommand(ApplicationCommand):
+    """
+    Application Command with type number 1 (TEXT_INPUT)
+    """
     def __init__(self, name, description, cmd, options: list[Option] = None):
         super().__init__(name, cmd, 1)
 
@@ -169,11 +172,17 @@ class SlashCommand(ApplicationCommand):
 
 
 class UserCommand(ApplicationCommand):
+    """
+    Application Command with type number 2 (USER)
+    """
     def __init__(self, name, cmd):
         super().__init__(name, cmd, 2)
 
 
 class MessageCommand(ApplicationCommand):
+    """
+    Application Command with type number 3 (MESSAGE)
+    """
     def __init__(self, name, cmd):
         super().__init__(name, cmd, 3)
 
@@ -223,8 +232,6 @@ class Context:
         del post
 
 
-
-
 class _Argument:
     def __init__(self, name, type, value):
         self.name = name
@@ -233,6 +240,14 @@ class _Argument:
 
 
 class Args:
+    """
+    Class for receiving option values in interactions
+
+    Example
+    @bot.slash_command("Test", "Wow", options=[Option("Hi", "lol", OptionType.STRING)])
+    async def test(ctx: Context, args: Args):
+        await ctx.send(args.getString("Hi"))
+    """
     def __init__(self, values=None):
         if values is None:
             values = []
