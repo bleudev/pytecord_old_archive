@@ -23,39 +23,37 @@ SOFTWARE.
 """
 
 from asyncio import ensure_future, run
-
 # Typing imports
 from typing import (
     Optional,
     TypeVar,
     Union,
-    Type,
-    Any
+    Type
 )
 
 # Package imports
 from disspy import errs
-from disspy.core import (
-    DisApi,
-    DisFlags
+from disspy._typing import (
+    TypeOf,
+    Showflake,
+    Event
 )
-from disspy.channel import DisChannel
-from disspy.embed import DisEmbed
-from disspy.guild import DisGuild
-from disspy.user import DisUser
-from disspy.logger import Logger
-from disspy._typing import TypeOf
+from disspy.activity import Activity
 from disspy.application_commands import (
     Option,
     SlashCommand,
     UserCommand,
     MessageCommand
 )
-from disspy.activity import Activity
-
-System: dict[Any, Any] = {
-    bool: bool
-}
+from disspy.channel import DisChannel
+from disspy.core import (
+    DisApi,
+    DisFlags
+)
+from disspy.embed import DisEmbed
+from disspy.guild import DisGuild
+from disspy.logger import Logger
+from disspy.user import DisUser
 
 __all__: tuple[str] = (
     "DisBot"
@@ -88,7 +86,7 @@ class DisBotStatus:
     def __all__(self) -> list:
         """
         Returns all varibles in this class
-
+        -----
         :return list: All varibles in this class
         """
         return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
@@ -97,7 +95,7 @@ class DisBotStatus:
     def __class__(self) -> Type[_T]:
         """
         Returns type of this class
-
+        -----
         :return type: Type of class
         """
         return self._T
@@ -124,7 +122,7 @@ class DisBotEventType:
     def __class__(self) -> Type[_T]:
         """
         Returns type of this class
-
+        -----
         :return type: Type of class
         """
         return self._T
@@ -132,7 +130,7 @@ class DisBotEventType:
     def __all__(self) -> list:
         """
         Returns all varibles in this class
-
+        -----
         :return list: All varibles in this class
         """
         return [self.ON_READY, self.ON_MESSAGEC]
@@ -140,7 +138,7 @@ class DisBotEventType:
     def __str__(self) -> str:
         """
         It is using in str() method
-
+        -----
         :return str: Default value of event (on_ready event)
         """
         return self.ON_READY
@@ -152,7 +150,7 @@ class _BaseBot:
     """
     _T = TypeVar("_BaseBot")
 
-    def __init__(self, token: str):
+    def __init__(self, token: Showflake[str]):
         """
         Create bot
         -----
@@ -185,7 +183,7 @@ class DisBot(_BaseBot):
     __parent__ = TypeVar("_BaseBot")
     __classname__ = "DisBot"
 
-    def __init__(self, token: str, application_id: int,
+    def __init__(self, token: Showflake[str], application_id: Showflake[int],
                  status: Optional[TypeOf(DisBotStatus)] = None,
                  flags: Optional[TypeOf(DisFlags)] = None,
                  debug: Optional[bool] = False,
@@ -256,7 +254,7 @@ class DisBot(_BaseBot):
         """
         self.user: DisUser = self._api.user
 
-    def on(self, t: Union[DisBotEventType, str]):
+    def on(self, t: Event(DisBotEventType, str)):
         """
         This method was created for changing on_ready and on_messagec
         method that using in runner
@@ -517,14 +515,14 @@ class DisBot(_BaseBot):
         """
         return self._api.get_guild(id)
 
-    def get_user(self, id: int, premium_gets: System[bool] = True) -> DisUser:
+    def get_user(self, id: int) -> DisUser:
         """
         Get user from id
         -----
         :param id: User Id
         :return DisUser:
         """
-        return self._api.get_user(id, premium_gets)
+        return self._api.get_user(id, False)
 
     async def change_activity(self, activity: Union[Activity, dict]):
         """

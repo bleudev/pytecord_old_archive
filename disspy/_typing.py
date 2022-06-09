@@ -27,6 +27,8 @@ __all__: tuple[str] = (
     "TypeOf"
 )
 
+from typing import Any
+
 
 class TypeOf:
     """
@@ -36,6 +38,7 @@ class TypeOf:
     def foo(self, bar: TypeOf(foo)):
         ...
     """
+
     def __new__(cls, *args, **kwargs):
         """
         :param args: [0] is type
@@ -50,3 +53,14 @@ class TypeOf:
             return int
         else:
             return str
+
+
+Showflake: dict[Any, Any] = {
+    str: str,
+    int: int
+}
+
+
+class Event:
+    def __new__(cls, *args, **kwargs):
+        return list(args)[1]

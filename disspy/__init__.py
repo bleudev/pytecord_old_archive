@@ -23,10 +23,7 @@ SOFTWARE.
 """
 
 # Imports
-
-
 # Basic imports
-from disspy._typing import TypeOf
 from disspy.activity import (
     Activity,
     ActivityType

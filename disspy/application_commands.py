@@ -249,34 +249,74 @@ class Args:
         await ctx.send(args.getString("Hi"))
     """
     def __init__(self, values=None):
+        """
+        Init object
+        -----
+        :param values: Option Values
+        """
         if values is None:
             values = []
         self._v: list[_Argument] = values
 
     def isempty(self) -> bool:
+        """
+        Returns True or False when is empty is True or False
+        -----
+        :return bool: Is empty?
+        """
         return len(self._v) == 0
 
     def get(self, name: str) -> Any:
+        """
+        Get value from name
+        -----
+        :param name: Name of option
+        :return Any: Option value
+        """
         for a in self._v:
             if a.name == name:
                 return a.value
 
     def getString(self, name: str) -> str:
+        """
+        Get string value from name
+        -----
+        :param name: Name of option
+        :return str: Option value (always string)
+        """
         for a in self._v:
             if a.name == name and a.type == OptionType.STRING:
                 return str(a.value)
 
     def getInteger(self, name: str) -> int:
+        """
+        Get integer value from name
+        -----
+        :param name: Name of option
+        :return int: Option value (always integer)
+        """
         for a in self._v:
             if a.name == name and a.type == OptionType.INTEGER:
                 return int(a.value)
 
     def getNumber(self, name: str) -> int:
+        """
+        Get number value from name
+        -----
+        :param name: Name of option
+        :return int: Option value (always integer)
+        """
         for a in self._v:
             if a.name == name and a.type == OptionType.NUMBER:
                 return int(a.value)
 
     def getBoolean(self, name: str) -> bool:
+        """
+        Get boolean value from name
+        -----
+        :param name: Name of option
+        :return bool: Option value (always boolean)
+        """
         for a in self._v:
             if a.name == name and a.type == OptionType.BOOLEAN:
                 return bool(a.value)
