@@ -324,6 +324,12 @@ class DisBot(_BaseBot):
         return wrapper
 
     def add_slash_command(self, command: SlashCommand):
+        """
+        Create slash command
+        -----
+        :param command: Slash Command
+        :return None:
+        """
         _payload = {
             "name": command.name,
             "description": command.description,
@@ -351,6 +357,12 @@ class DisBot(_BaseBot):
         return wrapper
 
     def add_user_command(self, command: UserCommand):
+        """
+        Create user command
+        -----
+        :param command: User Command
+        :return None:
+        """
         _payload = {
             "name": command.name,
             "type": 2,
@@ -376,13 +388,18 @@ class DisBot(_BaseBot):
         return wrapper
 
     def add_message_command(self, command: MessageCommand):
+        """
+        Create message command
+        -----
+        :param command: Message Command
+        :return None:
+        """
         _payload = {
             "name": command.name,
             "type": 3,
         }
 
         self._api.create_command(_payload, command.cmd)
-
 
     def run(self, status: Union[DisBotStatus, str] = None) -> int:
         """
