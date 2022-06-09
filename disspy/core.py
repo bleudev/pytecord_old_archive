@@ -549,11 +549,18 @@ class DisApi(_RequestsUserClass):
 
         for r in _raws:
             for j in self.app_commands_jsons:
-                if  r["name"] == j["name"]:
+                if  r["name"] == j["name"] and r["type"] == j["type"]:
                     _res = r
 
-                    _res["description"] = j["description"]
-                    _res["options"]=j["options"]
+                    try:
+                        _res["description"] = j["description"]
+                    except KeyError:
+                        pass
+
+                    try:
+                        _res["options"] = j["options"]
+                    except KeyError:
+                        pass
 
                     patch(f"{_url}/{r['id']}", json=j, headers=self._headers)
                 else:
@@ -590,14 +597,17 @@ class DisApi(_RequestsUserClass):
                 try:
                     for o in data["data"]["options"]:
                         _args.append(_Argument(o["name"],
-                                            o["type"],
-                                            o["value"]))
+                                               o["type"],
+                                               o["value"]))
                 except KeyError:
                     _args = []
 
 
                 try:
-                    await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
+                    if type_of_command == 3: # Message Command
+                        await self.app_commands[type_of_command - 1][command_name](_ctx)
+                    else:
+                        await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
                 except KeyError:
                     print("What! Slash command is invalid")
 
