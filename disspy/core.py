@@ -496,7 +496,10 @@ class Flow:
                 _m = DisMessage(event.data, self.token)
 
                 if not event.data["author"]["id"] == self.user_id:
-                    await self.on_messagec(_m)
+                    try:
+                        await self.on_messagec(_m)
+                    except TypeError:
+                        pass
 
             if event.type == "INTERACTION_CREATE":
                 if event.data["type"] == 2:
@@ -549,7 +552,7 @@ class DisApi(_RequestsUserClass):
 
         for r in _raws:
             for j in self.app_commands_jsons:
-                if  r["name"] == j["name"] and r["type"] == j["type"]:
+                if r["name"] == j["name"] and r["type"] == j["type"]:
                     _res = r
 
                     try:
@@ -585,6 +588,9 @@ class DisApi(_RequestsUserClass):
         self.user: DisUser = self.get_user(self.f.user_id, False)
 
     async def _on_interaction(self, token, id, command_name, bot_token: str, type, data, type_of_command = None):
+
+        print("Hi")
+
         if type_of_command is None:
             return  # Not components!
         else:
@@ -602,10 +608,21 @@ class DisApi(_RequestsUserClass):
                 except KeyError:
                     _args = []
 
-
                 try:
-                    if type_of_command == 3: # Message Command
-                        await self.app_commands[type_of_command - 1][command_name](_ctx)
+                    if type_of_command == 3:  # Message Command
+                        rs: dict = data["data"]["resolved"]["messages"]
+
+                        _m_id = list(rs.keys())[0]
+                        _m_d: dict = rs[_m_id]
+
+                        try:
+                            _m_d["id"] = _m_id
+                        except KeyError:
+                            _m_d.setdefault("id", _m_id)
+
+                        _m = DisMessage(_m_d, self.token)
+
+                        await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
                     else:
                         await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
                 except KeyError:
