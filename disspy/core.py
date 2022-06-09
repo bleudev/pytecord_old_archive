@@ -620,10 +620,14 @@ class DisApi(_RequestsUserClass):
                         _m = DisMessage(_m_d, self.token)
 
                         await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
-                    else:
+                    elif type_of_command == 2: # User Command
+                        await self.app_commands[type_of_command - 1][command_name](_ctx)
+                    elif type_of_command == 1: # Slash Command
                         await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
+                    else:
+                        pass
                 except KeyError:
-                    print("What! Slash command is invalid")
+                    print("What! Application command is invalid")
 
     async def send_message(self, id: int, content: str = "", embed: Optional[DisEmbed] = None):
         """
