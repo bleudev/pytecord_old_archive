@@ -182,7 +182,7 @@ class Args:
     def __init__(self, values=None):
         if values is None:
             values = []
-        self._v = values
+        self._v: list[_Argument] = values
 
     def isempty(self) -> bool:
         return len(self._v) == 0
@@ -195,4 +195,19 @@ class Args:
     def getString(self, name: str) -> str:
         for a in self._v:
             if a.name == name and a.type == OptionType.STRING:
-                return a.value
+                return str(a.value)
+
+    def getInteger(self, name: str) -> int:
+        for a in self._v:
+            if a.name == name and a.type == OptionType.INTEGER:
+                return int(a.value)
+
+    def getNumber(self, name: str) -> int:
+        for a in self._v:
+            if a.name == name and a.type == OptionType.NUMBER:
+                return int(a.value)
+
+    def getBoolean(self, name: str) -> bool:
+        for a in self._v:
+            if a.name == name and a.type == OptionType.BOOLEAN:
+                return bool(a.value)
