@@ -99,7 +99,7 @@ class DisChannel:
         """
         return self.id == other.id
 
-    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None) -> int:
+    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None) -> DisMessage:
         """
         Sending messages to discord channel
 
@@ -134,7 +134,7 @@ class DisChannel:
 
         return DisMessage(d, self._t)
 
-    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None) -> int:
+    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None) -> DisMessage:
         """
         Sending messages to discord channel
 
