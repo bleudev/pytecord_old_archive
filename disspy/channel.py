@@ -59,6 +59,16 @@ class _GettingChannelData:
 
         return get(_u, headers=_h).json()
 
+    @staticmethod
+    def fetch(id, token, message_id):
+        from requests import get
+
+        _u = f"https://discord.com/api/v9/channels/{id}/messages/{message_id}"
+        _h = {'Authorization': f'Bot {token}'}
+
+        return get(_u, headers=_h).json()
+
+
 class DisChannel:
     """
     The class for sending messages to discord channels and fetching messages in channels
@@ -154,8 +164,16 @@ class DisChannel:
 
         return 0
 
-    def fetch(self, id: int):
-        return DisMessage(id, self.id, self._a)
+    def fetch(self, id: int) -> DisMessage:
+        """
+        Fetch message
+        -----
+        :param id: Id of message
+        :return DisMessage:
+        """
+        d = _GettingChannelData.fetch(self.id, self._t, id)
+
+        return DisMessage(d, self._t)
 
 
 class DisDm:
@@ -163,8 +181,14 @@ class DisDm:
     The class for sending messages to discord DMchannels and fetching messages in DMchannels
     """
     def __init__(self, id, api):
+        """
+        Init object
+        -----
+        :param id: Id of channel
+        :param api: DisApi object with token
+        """
         self._api = api
         self.id = id
 
-    def fetch(self, id: int):
-        return self._api.fetch(self.id, id)
+    # def fetch(self, id: int):
+    #     return self._api.fetch(self.id, id)
