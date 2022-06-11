@@ -99,15 +99,16 @@ class DisChannel:
         """
         return self.id == other.id
 
-    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None) -> int:
+    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None) -> DisMessage:
         """
         Sending messages to discord channel
 
         :param content: str = None -> Content of message which will be sended (default is None)
         :param embeds: list[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
-        :return: None
+        :return DisMessage: Message which was sended
         """
         _payload = {}
+
         if embeds:
             embeds_json = []
 
@@ -129,17 +130,17 @@ class DisChannel:
         elif not embeds and not content:
             return
 
-        await _SendingRestHandler.execute(self.id, _payload, self._t)
+        d = await _SendingRestHandler.execute(self.id, _payload, self._t)
 
-        return 0
+        return DisMessage(d, self._t)
 
-    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None) -> int:
+    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None) -> DisMessage:
         """
         Sending messages to discord channel
 
         :param content: str = None -> Content of message which will be sended (default is None)
         :param embed: DisEmbed = None -> Embed for message (DisEmbed - embed) (default is None)
-        :return: None
+        :return DisMessage: Message which was sended
         """
         _payload = {}
 
@@ -160,9 +161,9 @@ class DisChannel:
         elif not content and not embed:
             return
 
-        await _SendingRestHandler.execute(self.id, _payload, self._t)
+        d = await _SendingRestHandler.execute(self.id, _payload, self._t)
 
-        return 0
+        return DisMessage(d, self._t)
 
     def fetch(self, id: int) -> DisMessage:
         """
