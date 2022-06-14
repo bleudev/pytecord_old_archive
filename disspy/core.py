@@ -22,7 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# pckages imports
+# Imports
+# Other Packages
 import asyncio
 from aiohttp import ClientSession
 from requests import get, post, Response
@@ -33,13 +34,25 @@ from typing import (
     Type,
     TypeVar,
     Union,
-    Optional
+    Optional,
+    Awaitable,
+    Callable,
+    NewType,
+    ClassVar,
+    Dict,
+    List,
+    NoReturn,
+    Text,
+    Any,
+    Generic,
+    final,
+    overload
 )
 
 # disspy imports
 from disspy.application_commands import Context
 from disspy.channel import DisChannel
-from disspy.errs import ClassTypeError
+from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
 from disspy.message import DisMessage
 from disspy.user import DisUser
@@ -53,7 +66,6 @@ __all__: tuple[str] = (
     # Classes for simpler creating other classes
     "FlowOpcodes",
     "DisFlags",
-    "JsonOutput",
     "Showflake",
     # Private clients
     "Rest",
@@ -63,25 +75,41 @@ __all__: tuple[str] = (
 )
 
 
+T = TypeVar("T", str, int)
+
+
+JsonOutput = NewType("JsonOutput", Dict[str, Any])
+
+
 def _mainurl() -> str:
     return "https://discord.com/api/v9/"
 
 
 class FlowOpcodes:
-    DISPATCH = 0
-    HEARTBEAT = 1
-    IDENTIFY = 2
-    PRESENCE_UPDATE = 3
-    VOICE_STATE_UPDATE = 4
-    RESUME = 6
-    RECONNECT = 7
-    REQUEST_GUILD_MEMBERS = 8
-    INVALID_SESSION = 9
-    HELLO = 10
-    HEARTBEAT_ACK = 11
+    """
+    Flow Event Opcodes (see Discord Developer Portal docs (topics Gateway)
+    """
+    _T = TypeVar("FlowOpcodes")
+
+    DISPATCH: ClassVar[int] = 0
+    HEARTBEAT: ClassVar[int] = 1
+    IDENTIFY: ClassVar[int] = 2
+    PRESENCE_UPDATE: ClassVar[int] = 3
+    VOICE_STATE_UPDATE: ClassVar[int] = 4
+    RESUME: ClassVar[int] = 6
+    RECONNECT: ClassVar[int] = 7
+    REQUEST_GUILD_MEMBERS: ClassVar[int] = 8
+    INVALID_SESSION: ClassVar[int] = 9
+    HELLO: ClassVar[int] = 10
+    HEARTBEAT_ACK: ClassVar[int] = 11
 
     @staticmethod
-    def rotated_dict():
+    def rotated_dict() -> Dict[int, str]:
+        """
+        Return rotated dict with opcode and this name
+        -----
+        :return Dict[int, str]: Rotated dict
+        """
         return {
             0:  "DISPATCH",
             1:  "HEARTBEAT",
@@ -96,13 +124,24 @@ class FlowOpcodes:
             11: "HEARTBEAT ACK"
         }
 
+    @property
+    def __class__(self) -> Type[_T]:
+        """
+        Returns type of class
+        -----
+        :return TypeVar: Type of class
+        """
+        return self._T
 
-""" Debuging classes """
-colorama.init()
+
+colorama.init()  # Init Colorama
 
 
 class _DebugLoggingWebsocket:
-    def __new__(cls, *args, **kwargs):
+    """
+    Debug tool for Websocket
+    """
+    def __new__(cls, *args, **kwargs) -> Text:
         _data = args[0]
 
         try:
@@ -145,23 +184,46 @@ class _DebugLoggingWebsocket:
         return _result
 
 
-""" Other Classes """
-
-
 class _RequestsUserClass:
+    """
+    Class for Getting and Posting data in Discord
+    """
     @staticmethod
-    async def _aiopost(url, data, headers):
+    async def _aiopost(url, data, headers) -> JsonOutput:
+        """
+        Aiohttp post
+        -----
+        :param url: Url for post
+        :param data: Json data for post
+        :param headers: Headers for post
+        :return JsonOutput:
+        """
         async with ClientSession(headers=headers) as _s:
             async with _s.post(url=url, data=data) as _p:
                 return _p.json()
 
     @staticmethod
-    def _post(url: str, data: dict, headers: dict) -> dict:
+    def _post(url: str, data: dict, headers: dict) -> JsonOutput:
+        """
+        Request post
+        -----
+        :param url: Url for post
+        :param data: Json data for post
+        :param headers: Headers for post
+        :return JsonOutput:
+        """
         return post(url=url, json=data, headers=headers).json()
 
     @staticmethod
-    def _get(url: str, headers: dict) -> Response:
-        return get(url=url, headers=headers)
+    def _get(url: str, headers: dict) -> JsonOutput:
+        """
+        Request get
+        -----
+        :param url: Url for get
+        :param headers: Headers for get
+        :return JsonOutput:
+        """
+        return get(url=url, headers=headers).json()
 
 
 class _FlowEvent:
@@ -174,7 +236,7 @@ class _FlowEvent:
     :var opcode (int): Event's OpCode (For example, 0 (Dispatch))
     """
 
-    def __init__(self, json):
+    def __init__(self, json) -> NoReturn:
         """
         Init object
 
@@ -204,18 +266,20 @@ class DisFlags:
     def __class__(self) -> Type[_T]:
         """
         Returns type of class
-
+        -----
         :return TypeVar: Type of class
         """
         return self._T
 
-    def __all__(self):
+    def __all__(self) -> List[str]:
         return [str(self.default()), str(self.all())]
 
     @staticmethod
     def default() -> int:
         """
         Implements:
+            1. GUILD_MESSAGES
+            2. MESSAGE_CONTENT (Privilleged intent)
 
         :return int: integer value of intents
         """
@@ -234,42 +298,36 @@ class DisFlags:
             7.  GUILD_INVITES
             8.  GUILD_VOICE_STATES
             9.  GUILD_PRESENCES (Privileged intent)
-            10. GUILD_MESSAGES (Privileged intent)
+            10. GUILD_MESSAGES
             11. GUILD_MESSAGE_REACTIONS
             12. GUILD_MESSAGE_TYPING
             13. DIRECT_MESSAGES
             14. DIRECT_MESSAGE_REACTIONS
             15. DIRECT_MESSAGE_TYPING
             16. GUILD_SCHEDULED_EVENTS
+            17. MESSAGE_CONTENT (Privilleged intent)
 
         :return int: integer value of intents
         """
         return 98303
 
 
-class JsonOutput(dict):
-    _T = TypeVar("JsonOutput")
-
-    def __init__(self, **kwargs):
-        super().__init__(kwargs)
-
-    @property
-    def __class__(self: _T) -> Type[_T]:
-        return self._T
-
-
-class Showflake:
+@final
+class Showflake(Generic[T]):
     """
-Class info
+    Class info
 
-Showflake is using for simpled work with tokens and ids.
+    Showflake is using for simpled work with tokens and ids.
 
-Atributies:
     :var self.isid:
     """
 
-    def __init__(self, value: str):
-        if value.isdigit():
+    def __init__(self, value: T) -> NoReturn:
+        if isinstance(value, int):
+            self.isid = True
+            self.istoken = False
+            self.value: int = value
+        elif value.isdigit():
             self.isid = True
             self.istoken = False
             self.value = int(value)
@@ -278,19 +336,25 @@ Atributies:
             self.istoken = True
             self.value = value
 
-    def __int__(self):
+    def __int__(self) -> int:
         if not self.isid:
             raise ClassTypeError("Class Value is str, but this method needs for int!")
         else:
             return int(self.value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not self.istoken:
             raise ClassTypeError("Class Value is int, but this method needs for str!")
         else:
             return str(self.value)
 
 
+ChannelId = NewType("ChannelId", Union[int, Showflake])
+UserId = NewType("UserId", Union[int, Showflake])
+GuildlId = NewType("GuildId", Union[int, Showflake])
+
+
+@final
 class Rest(_RequestsUserClass):
     __classname__: str = "Rest"
 
@@ -316,23 +380,28 @@ class Rest(_RequestsUserClass):
         id = int(id)
 
         if goal.casefold() == 'guild':
-            return JsonOutput(kwargs=get(f'{_mainurl()}guilds/{str(id)}',
-                                         headers=self._headers).json())
+            _url = f'{_mainurl()}guilds/{str(id)}'
+            return get(url=_url,
+                       headers=self._headers).json()
 
         elif goal.casefold() == 'channel':
-            return JsonOutput(kwargs=get(f'https://discord.com/api/v10/channels/{str(id)}',
-                                         headers=self._headers).json())
+            _url = f'{_mainurl()}channels/{str(id)}'
+
+            return get(url=_url,
+                       headers=self._headers).json()
 
         elif goal.casefold() == "user":
-            _url = f'https://discord.com/api/v10/users/{str(id)}'
+            _url = f'{_mainurl()}users/{str(id)}'
 
-            return super()._get(_url, self._headers)
+            return get(url=_url,
+                       headers=self._headers).json()
 
     def fetch(self, channel_id, message_id) -> JsonOutput:
         _channel_id, _message_id = [str(channel_id), str(message_id)]
 
         _url = f"{_mainurl()}channels/{_channel_id}/messages/{_message_id}"
-        return super()._get(_url, self._headers).json()
+
+        return get(_url, self._headers).json()
 
     async def send_message(self, channel_id, json_post):
         _url = f"{_mainurl()}channels/{channel_id}/messages"
@@ -343,6 +412,7 @@ class Rest(_RequestsUserClass):
                 return j
 
 
+@final
 class Flow:
     __classname__: str = "Flow"
 
@@ -383,7 +453,7 @@ class Flow:
     async def on_messagec(self, m):
         pass
 
-    async def on_interaction(self, token, id, command_name, bot_token: str, type, data, type_of_command = None):
+    async def on_interaction(self, token, id, command_name: Text, bot_token: Showflake[str], type: int, data: JsonOutput, type_of_command: Optional[int] = None):
         pass
 
     async def on_register(self):
@@ -490,6 +560,8 @@ class Flow:
                 await self.register2()
                 await self.on_register()
 
+                assert (Type[self.on_ready] == Callable[None, None]), "Invalid on_ready() method args and returns"
+
                 await self.on_ready()
 
             if event.type == "MESSAGE_CREATE":
@@ -515,8 +587,16 @@ class Flow:
         await self.ws.close()
 
 
+@final
 class DisApi(_RequestsUserClass):
     def __init__(self, token: str, intents, application_id):
+        """
+        Init Class
+        -----
+        :param token: Token of bot (from Discord Developer Portal)
+        :param intents: Intents of bot
+        :param application_id: Application Id of bot (from Discord Developer Portal)
+        """
         super().__init__()
 
         self._headers = {'Authorization': f'Bot {token}', "content-type": "application/json"}
@@ -537,14 +617,25 @@ class DisApi(_RequestsUserClass):
         self.app_commands.append({})  # User Commands
         self.app_commands.append({})  # Message Commands
 
-    def fetch(self, channel_id, id):
-        _url = f"{_mainurl()}channels/{channel_id}/messages/{id}"
+    def fetch(self, channel_id, message_id) -> DisMessage:
+        _url = f"{_mainurl()}channels/{channel_id}/messages/{message_id}"
 
-        _d = get(_url, headers=self._headers).json()
+        _d = self._r.fetch(channel_id, message_id)
 
         return DisMessage(_d, self.token)
 
-    async def run(self, status, ons, debug, act):
+    async def run(self, status, ons: Dict[Text, Awaitable], debug: bool, act: Dict[str, Any]) -> NoReturn:
+        """
+        Run the flow of DisApi or run the bot.
+        Running bot in Discord, changing status and registering
+        and running events in discord Gateway
+        -----
+        :param status: Status of bot in Discord (default is "online")
+        :param ons: Events in dict format (Dict[Text, Awaitable])
+        :param debug: Process is debug?
+        :param act: Bot activity
+        :return None:
+        """
         ons["register2"] = self._register2
         ons["interaction"] = self._on_interaction
 
@@ -589,28 +680,17 @@ class DisApi(_RequestsUserClass):
 
     async def _register2(self):
         # pass
-        self.user: DisUser = self.get_user(self.f.user_id, False)
+        self.user: DisUser = self.get_user(self.f.user_id)
 
-    async def _on_interaction(self, token, id, command_name, bot_token: str, type, data, type_of_command = None):
+    async def _on_interaction(self, token, id, command_name, bot_token: str, type, data: JsonOutput, type_of_command: int = None):
         if type_of_command is None:
             return  # Not components!
         else:
             if type == 2:
                 _ctx = Context(token, id, bot_token)
-                _args = []
-
-                from disspy.application_commands import _Argument, Args
 
                 try:
-                    for o in data["data"]["options"]:
-                        _args.append(_Argument(o["name"],
-                                               o["type"],
-                                               o["value"]))
-                except KeyError:
-                    _args = []
-
-                try:
-                    if type_of_command == 3:  # Message Command
+                    if type_of_command == 3:  # Message Commands
                         rs: dict = data["data"]["resolved"]["messages"]
 
                         _m_id = list(rs.keys())[0]
@@ -625,7 +705,7 @@ class DisApi(_RequestsUserClass):
 
                         await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
 
-                    elif type_of_command == 2:  # User Command
+                    elif type_of_command == 2:  # User Commands
                         rs: dict = data["data"]["resolved"]["users"]
 
                         _u_id = list(rs.keys())[0]
@@ -640,17 +720,30 @@ class DisApi(_RequestsUserClass):
 
                         await self.app_commands[type_of_command - 1][command_name](_ctx, _u)
 
-                    elif type_of_command == 1:  # Slash Command
-                        await self.app_commands[type_of_command - 1][command_name](_ctx, Args(_args))
+                    elif type_of_command == 1:  # Slash Commands
+                        _args = []
+
+                        from disspy.application_commands import _Argument, OptionArgs
+
+                        try:
+                            for o in data["data"]["options"]:
+                                _args.append(_Argument(o["name"],
+                                                       o["type"],
+                                                       o["value"]))
+                        except KeyError:
+                            _args = []
+
+                        await self.app_commands[type_of_command - 1][command_name](_ctx, OptionArgs(_args))
                     else:
                         pass
                 except KeyError:
                     print("What! Application command is invalid")
 
+    @overload
     async def send_message(self, id: int, content: str = "", embed: Optional[DisEmbed] = None):
         """
         Sending messages to channel
-
+        -----
         :param id: Id of channel which use in sending messages to
         :param content: Message Content
         :param embed: Message Embed
@@ -662,10 +755,11 @@ class DisApi(_RequestsUserClass):
         else:
             await self._r.send_message(id, {"content": content})
 
+    @overload
     async def send_message(self, id: int, content: str = "", embeds: Optional[list[DisEmbed]] = None):
         """
         Sending messages to channel
-
+        -----
         :param id: Id of channel which use in sending messages to
         :param content: Message Content
         :param embeds: Message Embeds
@@ -681,73 +775,73 @@ class DisApi(_RequestsUserClass):
         else:
             await self._r.send_message(id, {"content": content})
 
-    def get_user(self, id: int, premium_gets: bool) -> DisUser:
+    def get_user(self, user_id: UserId) -> DisUser:
         """
         Get user by id
-
-        :param premium_gets: Premium gets to User (for example flags and user information (info which can't be got)
-        :param id: id of user
-        :return DisUser:
+        -----
+        :param user_id: id of user
+        :return DisUser: User
         """
-        from requests import get
 
-        _url = f"{_mainurl()}users/{id}"
+        return DisUser(self.get_user_json(user_id), self.token)
 
-        _d = get(_url, headers=self._headers).json()
-
-        return DisUser(_d, self.token)
-
-    def get_user_json(self, id: int) -> JsonOutput:
+    def get_user_json(self, user_id: UserId) -> JsonOutput:
         """
         Get user by id (Json Output)
-
-        :param id: id of user
+        -----
+        :param user_id: id of user
         :return JsonOutput:
         """
-        return self._r.get("user", id)
+        user_id = int(user_id)  # If Showflake this will be int
 
-    def get_channel(self, id: Union[int, Showflake]) -> DisChannel:
+        return self._r.get("user", user_id)
+
+    def get_channel(self, channel_id: ChannelId) -> DisChannel:
         """
         Get channel by id
-
-        :param id: id of channel
+        -----
+        :param channel_id: id of channel
         :return DisChannel:
         """
-        id = int(id)
+        channel_id = int(channel_id)  # If Showflake this will be int
 
-        return DisChannel(id, self)
+        return DisChannel(channel_id, self)
 
-    def get_channel_json(self, id: Union[int, Showflake]) -> JsonOutput:
+    def get_channel_json(self, channel_id: ChannelId) -> JsonOutput:
         """
         Get channel by id (Json Output)
-
-        :param id: id of channel
+        -----
+        :param channel_id: id of channel
         :return JsonOutput:
         """
-        return JsonOutput(kwargs=self._r.get("channel", id))
+        channel_id = int(channel_id)  # If Showflake this will be int
 
-    def get_guild(self, id: Union[int, Showflake]) -> DisGuild:
+        return self._r.get("channel", channel_id)
+
+    def get_guild(self, guild_id: GuildlId) -> DisGuild:
         """
         Get guild by id
 
-        :param id: id of guild
+        :param guild_id: id of guild
         :return DisGuild:
         """
-        id = int(id)
+        guild_id = int(guild_id)  # If Showflake this will be int
 
-        return DisGuild(id, self)
+        return DisGuild(guild_id, self)
 
-    def get_guild_json(self, id: int) -> JsonOutput:
+    def get_guild_json(self, guild_id: GuildlId) -> JsonOutput:
         """
         Get guild by id (Json Output)
 
-        :param id: id of guild
+        :param guild_id: id of guild
         :return JsonOutput:
         """
 
-        return JsonOutput(kwargs=self._r.get("guild", id))
+        guild_id = int(guild_id)  # If Showflake this will be int
 
-    def create_command(self, payload, func):
+        return self._r.get("guild", guild_id)
+
+    def create_command(self, payload, func: Awaitable):
         _url = f"https://discord.com/api/v10/applications/{self.application_id}/commands"
 
         def app_func_register(number):

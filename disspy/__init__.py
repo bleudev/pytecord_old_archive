@@ -37,7 +37,7 @@ from disspy.application_commands import (
     Context,
     Option,
     OptionType,
-    Args
+    OptionArgs
 )
 from disspy.channel import (
     DisChannel,
@@ -59,7 +59,7 @@ from disspy.embed import (
     DisField,
     DisColor
 )
-from disspy.errs import (
+from disspy.errors import (
     UserNitroTypeError,
     InternetError,
     MissingPerms,
@@ -110,7 +110,7 @@ __packagename__ = "dispy"
 import disspy._typing, disspy.activity,\
        disspy.application_commands, disspy.channel,\
        disspy.client, disspy.core, disspy.embed,\
-       disspy.errs, disspy.guild, disspy.logger,\
+       disspy.errors, disspy.guild, disspy.logger,\
        disspy.message, disspy.user
 
 # __all__
@@ -122,7 +122,7 @@ __alls__: list[tuple] = [
     disspy.client.__all__,
     disspy.core.__all__,
     disspy.embed.__all__,
-    disspy.errs.__all__,
+    disspy.errors.__all__,
     disspy.guild.__all__,
     disspy.logger.__all__,
     disspy.message.__all__,

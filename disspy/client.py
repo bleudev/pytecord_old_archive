@@ -22,17 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from asyncio import ensure_future, run
 # Typing imports
 from typing import (
     Optional,
     TypeVar,
     Union,
-    Type
+    Type,
+    Callable,
+    NoReturn,
+    final,
+    overload
 )
 
 # Package imports
-from disspy import errs
+from asyncio import run
+import requests.exceptions
+
+# Disspy imports
+from disspy import errors
 from disspy._typing import (
     TypeOf,
     Showflake,
@@ -43,7 +50,8 @@ from disspy.application_commands import (
     Option,
     SlashCommand,
     UserCommand,
-    MessageCommand
+    MessageCommand,
+    ApplicationCommandType
 )
 from disspy.channel import DisChannel
 from disspy.core import (
@@ -59,7 +67,11 @@ __all__: tuple[str] = (
     "DisBot"
 )
 
+# For Type Hints
+Wrapper = Callable
 
+
+@final
 class DisBotStatus:
     """
     Class for adding discord status for bot
@@ -101,6 +113,7 @@ class DisBotStatus:
         return self._T
 
 
+@final
 class DisBotEventType:
     """
     This class created for simplification adding events to DisBot.
@@ -168,6 +181,7 @@ class _BaseBot:
         return self._T
 
 
+@final
 class DisBot(_BaseBot):
     """
     Class for accessing and sending information in Discord API
@@ -187,7 +201,7 @@ class DisBot(_BaseBot):
                  status: Optional[TypeOf(DisBotStatus)] = None,
                  flags: Optional[TypeOf(DisFlags)] = None,
                  debug: Optional[bool] = False,
-                 activity: Optional[Union[Activity, dict]] = None):
+                 activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
         """
         Create bot
         -----
@@ -197,6 +211,8 @@ class DisBot(_BaseBot):
         """
 
         super().__init__(token)
+
+        self.token = str(token)
 
         if flags is None:
             self.intflags = DisFlags.default()
@@ -282,18 +298,18 @@ class DisBot(_BaseBot):
                 _err = f"Error! In method {__methodname__} was" \
                        "moved invalid event type!"
                 self.logger.log(_err)
-                raise errs.BotEventTypeError("Invalid type of event!")
+                raise errors.BotEventTypeError("Invalid type of event!")
 
         return wrapper
 
-    def slash_command(self, name, description, options: Optional[list[Option]] = None):
+    def slash_command(self, name, description, options: Optional[list[Option]] = None) -> Wrapper:
         """
         Create slash command
         -----
         :param name: Command's name
         :param description: Command's description
         :param options: Command's options
-        :return function: Wrapper
+        :return Wrapper:
         """
         _payload = {}
 
@@ -313,7 +329,7 @@ class DisBot(_BaseBot):
             _payload = {
                 "name": name,
                 "description": description,
-                "type": 1
+                "type": ApplicationCommandType.TEXT_INPUT3
             }
 
         def wrapper(func):
@@ -321,7 +337,7 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def add_slash_command(self, command: SlashCommand):
+    def add_slash_command(self, command: SlashCommand) -> NoReturn:
         """
         Create slash command
         -----
@@ -331,22 +347,22 @@ class DisBot(_BaseBot):
         _payload = {
             "name": command.name,
             "description": command.description,
-            "type": 1,
+            "type": ApplicationCommandType.TEXT_INPUT,
             "options": command.options
         }
 
         self._api.create_command(_payload, command.cmd)
 
-    def user_command(self, name):
+    def user_command(self, name) -> Wrapper:
         """
         Create user command
         -----
         :param name: Command's name
-        :return function: Wrapper
+        :return Wrapper:
         """
         _payload = {
             "name": name,
-            "type": 2
+            "type": ApplicationCommandType.USER
         }
 
         def wrapper(func):
@@ -354,7 +370,7 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def add_user_command(self, command: UserCommand):
+    def add_user_command(self, command: UserCommand) -> NoReturn:
         """
         Create user command
         -----
@@ -363,21 +379,21 @@ class DisBot(_BaseBot):
         """
         _payload = {
             "name": command.name,
-            "type": 2,
+            "type": ApplicationCommandType.USER,
         }
 
         self._api.create_command(_payload, command.cmd)
 
-    def message_command(self, name):
+    def message_command(self, name) -> Wrapper:
         """
         Create message command
         -----
         :param name: Command's name
-        :return function: Wrapper
+        :return Wrapper:
         """
         _payload = {
             "name": name,
-            "type": 3
+            "type": ApplicationCommandType.MESSAGE
         }
 
         def wrapper(func):
@@ -385,7 +401,7 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def add_message_command(self, command: MessageCommand):
+    def add_message_command(self, command: MessageCommand) -> NoReturn:
         """
         Create message command
         -----
@@ -394,26 +410,26 @@ class DisBot(_BaseBot):
         """
         _payload = {
             "name": command.name,
-            "type": 3,
+            "type": ApplicationCommandType.MESSAGE,
         }
 
         self._api.create_command(_payload, command.cmd)
 
-    def run(self, status: Union[DisBotStatus, str] = None) -> int:
+    def run(self, status: Optional[Union[DisBotStatus, str]] = None) -> NoReturn:
         """
         Running bot
         -----
         :param status: Status for bot user
         :return: None
         """
-        __methodname__ = f"{self.__classname__}.on()"
+        __methodname__ = f"{self.__classname__}.run()"
 
         if isinstance(status, DisBotStatus):
             _message = f"Error! In method {__methodname__} was moved " \
                        "invalid argument! Argument type is DisBotStatus, " \
                        "but in method have to type is str!"
             self.logger.log(_message)
-            raise errs.InvalidArgument("Invalid argument type!")
+            raise errors.InvalidArgument("Invalid argument type!")
 
         self.isready = True
 
@@ -423,7 +439,7 @@ class DisBot(_BaseBot):
             self.status = status
         elif status is not None and self.status is not None:
             _message = "You typed status and in run() and in __init__()"
-            raise errs.BotStatusError(_message)
+            raise errors.BotStatusError(_message)
 
         _err = self._runner()
 
@@ -432,39 +448,37 @@ class DisBot(_BaseBot):
 
         return _err
 
-    def _runner(self) -> int:
+    def _runner(self) -> NoReturn:
         try:
             self._coro = run(self._api.run(self.status, self._ons, debug=self._debug, act=self._act))
         except KeyboardInterrupt:
             pass
+        except requests.exceptions.ConnectionError:
+            raise errors.InternetError("Please turn on your Wifi-Fi!", "-1000")
 
-        return 0  # No errors
+    async def disconnect(self) -> NoReturn:
+        """
+        Disconnect from Gateway
+        -----
+        :return asyncio.Future:
+        """
+        await self._dissconnenter()
 
-    async def disconnect(self) -> int:
+    async def close(self) -> NoReturn:
         """
         Disconnect from Gateway
         :return asyncio.Future:
         """
-        return ensure_future(self._dissconnenter())
+        await self._dissconnenter()
 
-    async def close(self) -> int:
-        """
-        Disconnect from Gateway
-        :return asyncio.Future:
-        """
-        return ensure_future(self._dissconnenter())
-
-    async def _dissconnenter(self) -> int:
+    async def _dissconnenter(self) -> NoReturn:
         if self.isready:
             await self._api.disconnecter()
 
             for _var in self.__slots__:
                 del _var
 
-            return 0
-        else:
-            return -99
-
+    @overload
     async def send(self, channel_id: int, content: Optional[str] = None,
                    embeds: Optional[list[DisEmbed]] = None):
         """
@@ -479,8 +493,9 @@ class DisBot(_BaseBot):
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embeds=embeds)
         else:
-            raise errs.InternetError("Bot is not ready!")
+            raise errors.InternetError("Bot is not ready!")
 
+    @overload
     async def send(self, channel_id: int, content: Optional[str] = None,
                    embed: Optional[DisEmbed] = None):
         """
@@ -495,7 +510,7 @@ class DisBot(_BaseBot):
             channel = self.get_channel(channel_id)
             await channel.send(content=content, embed=embed)
         else:
-            raise errs.InternetError("Bot is not ready!")
+            raise errors.InternetError("Bot is not ready!")
 
     def get_channel(self, id: int) -> DisChannel:
         """
@@ -522,7 +537,7 @@ class DisBot(_BaseBot):
         :param id: User Id
         :return DisUser:
         """
-        return self._api.get_user(id, False)
+        return self._api.get_user(id)
 
     async def change_activity(self, activity: Union[Activity, dict]):
         """
@@ -543,7 +558,7 @@ class DisBot(_BaseBot):
             "op": 3,
             "d": {
                 "since": mktime(datetime.now().timetuple()) * 1000,
-                "afk": False,
+                "afk": self._api.f.isafk,
                 "status": self.status,
                 "activities": [act]
             }

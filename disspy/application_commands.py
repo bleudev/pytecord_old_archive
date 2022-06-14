@@ -37,7 +37,7 @@ __all__: tuple[str] = (
     "UserCommand",
     "MessageCommand",
     "Context",
-    "Args"
+    "OptionArgs"
 )
 
 
@@ -239,13 +239,13 @@ class _Argument:
         self.value = value
 
 
-class Args:
+class OptionArgs:
     """
     Class for receiving option values in interactions
 
     Example
     @bot.slash_command("Test", "Wow", options=[Option("Hi", "lol", OptionType.STRING)])
-    async def test(ctx: Context, args: Args):
+    async def test(ctx: Context, args: OptionArgs):
         await ctx.send(args.getString("Hi"))
     """
     def __init__(self, values=None):
