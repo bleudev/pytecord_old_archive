@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 
-from disspy.embed import DisEmbed
+from disspy.embed import DisEmbed, DisField
 
 
 class _EmbedGenerator:
@@ -31,7 +31,7 @@ class _EmbedGenerator:
         fields_jsons = []
 
         for f in obj.fields:
-            fields_jsons.append(f.tojson())
+            fields_jsons.append(_FieldGenerator(f))
 
         return {
             "title": obj.title,
@@ -39,4 +39,13 @@ class _EmbedGenerator:
             "footer": obj.footer,
             "color": obj.color,
             "fields": fields_jsons
+        }
+
+
+class _FieldGenerator:
+    def __new__(cls, obj: DisField):
+        return {
+            "name": obj.name,
+            "value": obj.value,
+            "inline": obj.inline
         }

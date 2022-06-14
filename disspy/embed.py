@@ -113,13 +113,6 @@ class DisField:
         self.value = value
         self.inline = inline
 
-    def tojson(self):
-        return {
-            "name": self.name,
-            "value": self.value,
-            "inline": self.inline
-        }
-
 
 class _EMBED:
     title: str = ""
