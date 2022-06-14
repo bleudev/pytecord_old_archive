@@ -26,12 +26,93 @@ __all__: tuple[str] = (
     "DisMessage"
 )
 
+from typing import (
+    Optional,
+    final,
+    overload
+)
 
+from disspy.embed import DisEmbed
+from disspy.jsongenerators import _EmbedGenerator
+
+
+@final
 class DisMessage:
     def __init__(self, _data, _token):
         from disspy.channel import DisChannel
 
         self.channel = DisChannel(_data["channel_id"], _token)
 
+        self._headers = {'Authorization': f'Bot {_token}', "content-type": "application/json"}
+
         self.content = _data["content"]
         self.id = _data["id"]
+
+        self._t = _token
+
+    @overload
+    async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
+        _url = ""
+
+        _d = {}
+
+        if embeds:
+            embeds_json = []
+
+            for i in embeds:
+                embeds_json.append(_EmbedGenerator(i))
+            if content:
+                _d = {
+                    "content": content,
+                    "embeds": embeds_json
+                }
+            elif not content:
+                _d = {
+                    "embeds": embeds_json
+                }
+        elif not embeds and content:
+            _d = {
+                "content": content
+            }
+        elif not embeds and not content:
+            return
+
+        from aiohttp import ClientSession
+
+        async with ClientSession(headers=self._headers) as s:
+            async with s.post(_url, data=_d) as p:
+                d = await p.json()
+
+                return DisMessage(d, self._t)
+
+    @overload
+    async def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
+        _url = ""
+
+        _payload = {}
+
+        if embed and content:
+            _payload = {
+                "content": content,
+                "embeds": [_EmbedGenerator(embed)]
+            }
+        elif embed and not content:
+            _payload = {
+                "embeds": [_EmbedGenerator(embed)]
+            }
+
+        elif content and not embed:
+            _payload = {
+                "content": content
+            }
+        elif not content and not embed:
+            return
+
+        from aiohttp import ClientSession
+
+        async with ClientSession(headers=self._headers) as s:
+            async with s.post(_url, data=_payload) as p:
+                d = await p.json()
+
+                return DisMessage(d, self._t)
+
