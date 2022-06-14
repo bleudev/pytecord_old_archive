@@ -62,6 +62,7 @@ from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.logger import Logger
 from disspy.user import DisUser
+from disspy.jsongenerators import _OptionGenerator
 
 __all__: tuple[str] = (
     "DisBot"
@@ -317,7 +318,7 @@ class DisBot(_BaseBot):
             _options_jsons = []
 
             for o in options:
-                _options_jsons.append(o.json())
+                _options_jsons.append(_OptionGenerator(o))
 
             _payload = {
                 "name": name,
@@ -329,7 +330,7 @@ class DisBot(_BaseBot):
             _payload = {
                 "name": name,
                 "description": description,
-                "type": ApplicationCommandType.TEXT_INPUT3
+                "type": ApplicationCommandType.TEXT_INPUT
             }
 
         def wrapper(func):

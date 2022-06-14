@@ -28,6 +28,8 @@ from typing import (
     Any
 )
 
+from disspy.jsongenerators import _OptionGenerator
+
 __all__: tuple[str] = (
     "ApplicationCommandType",
     "ApplicationCommand",
@@ -103,36 +105,6 @@ class Option:
         self.choices = choices
         self.required = required
 
-    def json(self) -> dict:
-        """
-        Get json data of option
-        -----
-        :return dict: Json data of option
-        """
-        if self.option_type == OptionType.STRING or self.option_type == OptionType.INTEGER or self.option_type == OptionType.NUMBER and self.choices:
-            if self.choices:
-                return {
-                    "name": self.name,
-                    "description": self.description,
-                    "type": self.option_type,
-                    "choices": self.choices,
-                    "required": self.required
-                }
-            else:
-                return {
-                    "name": self.name,
-                    "description": self.description,
-                    "type": self.option_type,
-                    "required": self.required
-                }
-        else:
-            return {
-                "name": self.name,
-                "description": self.description,
-                "type": self.option_type,
-                "required": self.required
-            }
-
 
 class OptionType:
     """
@@ -164,7 +136,7 @@ class SlashCommand(ApplicationCommand):
             _options_jsons = []
 
             for o in options:
-                _options_jsons.append(o.json())
+                _options_jsons.append(_OptionGenerator(o))
 
             self.options = _options_jsons
         else:
