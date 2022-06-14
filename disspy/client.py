@@ -442,12 +442,7 @@ class DisBot(_BaseBot):
             _message = "You typed status and in run() and in __init__()"
             raise errors.BotStatusError(_message)
 
-        _err = self._runner()
-
-        if not _err == 0:
-            raise RuntimeError(f"{_err} | Error!")
-
-        return _err
+        self._runner()
 
     def _runner(self) -> NoReturn:
         try:

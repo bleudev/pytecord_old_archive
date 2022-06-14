@@ -28,12 +28,25 @@ __all__: tuple[str] = (
 
 from typing import (
     Optional,
-    final,
-    overload
+    final
 )
 
 from disspy.embed import DisEmbed
 from disspy.jsongenerators import _EmbedGenerator
+
+
+class _SendingRestHandler:
+    @staticmethod
+    async def execute(channel_id, payload, token):
+        from aiohttp import ClientSession as CS
+
+        async with CS(headers={'Authorization': f'Bot {token}'}) as s:
+            _u = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+
+            async with s.post(_u, data=payload) as p:
+                j = await p.json()
+
+                return j
 
 
 @final
@@ -43,16 +56,15 @@ class DisMessage:
 
         self.channel = DisChannel(_data["channel_id"], _token)
 
-        self._headers = {'Authorization': f'Bot {_token}', "content-type": "application/json"}
+        self._headers = {'Authorization': f'Bot {_token}'}
 
         self.content = _data["content"]
         self.id = _data["id"]
 
         self._t = _token
 
-    @overload
     async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
-        _url = ""
+        _url = f"https://discord.com/api/v9/channels/{self.channel.id}/messages"
 
         _d = {}
 
@@ -64,55 +76,69 @@ class DisMessage:
             if content:
                 _d = {
                     "content": content,
-                    "embeds": embeds_json
+                    "embeds": embeds_json,
+                    "message_reference": {
+                        "message_id": self.id,
+                        "guild_id": self.channel.guild_id
+                    }
                 }
             elif not content:
                 _d = {
-                    "embeds": embeds_json
+                    "embeds": embeds_json,
+                    "message_reference": {
+                        "message_id": self.id,
+                        "guild_id": self.channel.guild_id
+                    }
                 }
         elif not embeds and content:
             _d = {
-                "content": content
+                "content": content,
+                "message_reference": {
+                    "message_id": self.id,
+                    "guild_id": self.channel.guild_id
+                }
             }
         elif not embeds and not content:
             return
 
-        from aiohttp import ClientSession
+        d = await _SendingRestHandler.execute(self.channel.id, _d, self._t)
 
-        async with ClientSession(headers=self._headers) as s:
-            async with s.post(_url, data=_d) as p:
-                d = await p.json()
+        print(d)
 
-                return DisMessage(d, self._t)
-
-    @overload
     async def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
-        _url = ""
+        _url = f"https://discord.com/api/v9/channels/{self.channel.id}/messages"
 
         _payload = {}
 
         if embed and content:
             _payload = {
                 "content": content,
-                "embeds": [_EmbedGenerator(embed)]
+                "embeds": [_EmbedGenerator(embed)],
+                "message_reference": {
+                    "message_id": self.id,
+                    "guild_id": self.channel.guild_id
+                }
             }
         elif embed and not content:
             _payload = {
-                "embeds": [_EmbedGenerator(embed)]
+                "embeds": [_EmbedGenerator(embed)],
+                "message_reference": {
+                    "message_id": self.id,
+                    "guild_id": self.channel.guild_id
+                }
             }
 
         elif content and not embed:
             _payload = {
-                "content": content
+                "content": content,
+                "message_reference": {
+                    "message_id": self.id,
+                    "guild_id": self.channel.guild_id
+                }
             }
         elif not content and not embed:
             return
 
-        from aiohttp import ClientSession
+        d = await _SendingRestHandler.execute(self.channel.id, _payload, self._t)
 
-        async with ClientSession(headers=self._headers) as s:
-            async with s.post(_url, data=_payload) as p:
-                d = await p.json()
-
-                return DisMessage(d, self._t)
-
+        print(d)
