@@ -24,6 +24,7 @@ SOFTWARE.
 
 from disspy.embed import DisEmbed
 from disspy.message import DisMessage
+from disspy.jsongenerators import _EmbedGenerator
 
 from typing import (
     Optional
@@ -113,7 +114,7 @@ class DisChannel:
             embeds_json = []
 
             for i in embeds:
-                embeds_json.append(i.tojson())
+                embeds_json.append(_EmbedGenerator(i))
             if content:
                 _payload = {
                     "content": content,
@@ -147,11 +148,11 @@ class DisChannel:
         if embed and content:
             _payload = {
                 "content": content,
-                "embeds": [embed.tojson()]
+                "embeds": [_EmbedGenerator(embed)]
             }
         elif embed and not content:
             _payload = {
-                "embeds": [embed.tojson()]
+                "embeds": [_EmbedGenerator(embed)]
             }
 
         elif content and not embed:

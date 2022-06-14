@@ -22,5 +22,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+
+from disspy.embed import DisEmbed
+
+
 class _EmbedGenerator:
-    pass  # Coming soon
+    def __new__(cls, obj: DisEmbed):
+        fields_jsons = []
+
+        for f in obj.fields:
+            fields_jsons.append(f.tojson())
+
+        return {
+            "title": obj.title,
+            "description": obj.description,
+            "footer": obj.footer,
+            "color": obj.color,
+            "fields": fields_jsons
+        }
