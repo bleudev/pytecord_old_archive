@@ -54,6 +54,8 @@ class DisMessage:
     def __init__(self, _data, _token):
         from disspy.channel import DisChannel
 
+        self._json = _data
+
         self.channel = DisChannel(_data["channel_id"], _token)
 
         self._headers = {'Authorization': f'Bot {_token}'}
@@ -66,79 +68,56 @@ class DisMessage:
     async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         _url = f"https://discord.com/api/v9/channels/{self.channel.id}/messages"
 
-        _d = {}
+        _d = {
+            "content": None,
+            "embeds": None,
+            "type": 19,
+            "message_reference": {
+                "message_id": self.id
+            },
+            "referenced_message": self._json
+            }
+
+        if content:
+            _d["content"] = content
 
         if embeds:
-            embeds_json = []
+            embeds_jsons = []
 
             for i in embeds:
-                embeds_json.append(_EmbedGenerator(i))
-            if content:
-                _d = {
-                    "content": content,
-                    "embeds": embeds_json,
-                    "message_reference": {
-                        "message_id": self.id,
-                        "guild_id": self.channel.guild_id
-                    }
-                }
-            elif not content:
-                _d = {
-                    "embeds": embeds_json,
-                    "message_reference": {
-                        "message_id": self.id,
-                        "guild_id": self.channel.guild_id
-                    }
-                }
-        elif not embeds and content:
-            _d = {
-                "content": content,
-                "message_reference": {
-                    "message_id": self.id,
-                    "guild_id": self.channel.guild_id
-                }
-            }
-        elif not embeds and not content:
+                embeds_jsons.append(_EmbedGenerator(i))
+
+            _d["embeds"] = embeds_jsons
+
+        if not embeds and not content:
             return
 
         d = await _SendingRestHandler.execute(self.channel.id, _d, self._t)
-
+        print(_d)
         print(d)
 
     async def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
         _url = f"https://discord.com/api/v9/channels/{self.channel.id}/messages"
 
-        _payload = {}
+        _d = {
+            "content": None,
+            "embeds": None,
+            "type": 19,
+            "message_reference": {
+                "message_id": self.id
+            },
+            "referenced_message": self._json
+        }
 
-        if embed and content:
-            _payload = {
-                "content": content,
-                "embeds": [_EmbedGenerator(embed)],
-                "message_reference": {
-                    "message_id": self.id,
-                    "guild_id": self.channel.guild_id
-                }
-            }
-        elif embed and not content:
-            _payload = {
-                "embeds": [_EmbedGenerator(embed)],
-                "message_reference": {
-                    "message_id": self.id,
-                    "guild_id": self.channel.guild_id
-                }
-            }
+        if embed:
+            _d["embeds"] = [_EmbedGenerator(embed)]
 
-        elif content and not embed:
-            _payload = {
-                "content": content,
-                "message_reference": {
-                    "message_id": self.id,
-                    "guild_id": self.channel.guild_id
-                }
-            }
-        elif not content and not embed:
+        if content:
+            _d["content"] = content
+
+        if not content and not embed:
             return
 
-        d = await _SendingRestHandler.execute(self.channel.id, _payload, self._t)
-
+        d = await _SendingRestHandler.execute(self.channel.id, _d, self._t)
+        print(_d)
         print(d)
