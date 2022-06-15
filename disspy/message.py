@@ -37,16 +37,12 @@ from disspy.jsongenerators import _EmbedGenerator
 
 class _SendingRestHandler:
     @staticmethod
-    async def execute(channel_id, payload, token):
-        from aiohttp import ClientSession as CS
+    def execute(channel_id, payload, token):
+        from requests import post
 
-        async with CS(headers={'Authorization': f'Bot {token}'}) as s:
-            _u = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+        _u = f"https://discord.com/api/v9/channels/{channel_id}/messages"
 
-            async with s.post(_u, data=payload) as p:
-                j = await p.json()
-
-                return j
+        return post(_u, headers={'Authorization': f'Bot {token}'}, json=payload).json()
 
 
 @final
@@ -65,18 +61,14 @@ class DisMessage:
 
         self._t = _token
 
-    async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
-        _url = f"https://discord.com/api/v9/channels/{self.channel.id}/messages"
-
+    def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         _d = {
             "content": None,
-            "embeds": None,
-            "type": 19,
+            "embeds": {},
             "message_reference": {
                 "message_id": self.id
-            },
-            "referenced_message": self._json
             }
+        }
 
         if content:
             _d["content"] = content
@@ -92,21 +84,15 @@ class DisMessage:
         if not embeds and not content:
             return
 
-        d = await _SendingRestHandler.execute(self.channel.id, _d, self._t)
-        print(_d)
-        print(d)
+        _SendingRestHandler.execute(self.channel.id, _d, self._t)
 
-    async def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
-        _url = f"https://discord.com/api/v9/channels/{self.channel.id}/messages"
-
+    def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
         _d = {
             "content": None,
-            "embeds": None,
-            "type": 19,
+            "embeds": {},
             "message_reference": {
                 "message_id": self.id
-            },
-            "referenced_message": self._json
+            }
         }
 
         if embed:
@@ -118,6 +104,4 @@ class DisMessage:
         if not content and not embed:
             return
 
-        d = await _SendingRestHandler.execute(self.channel.id, _d, self._t)
-        print(_d)
-        print(d)
+        _SendingRestHandler.execute(self.channel.id, _d, self._t)
