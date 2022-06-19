@@ -37,12 +37,19 @@ from disspy.jsongenerators import _EmbedGenerator
 
 class _SendingRestHandler:
     @staticmethod
-    def execute(channel_id, payload, token):
-        from requests import post
+    async def execute(channel_id, payload, token):
+        from aiohttp import ClientSession
+        from json import dumps
 
-        _u = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+        ds = dumps(payload)
 
-        return post(_u, headers={'Authorization': f'Bot {token}'}, json=payload).json()
+        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+            _u = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+
+            async with s.post(_u, data=ds) as p:
+                j = await p.json()
+
+                return j
 
 
 @final
@@ -61,7 +68,7 @@ class DisMessage:
 
         self._t = _token
 
-    def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
+    async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         _d = {
             "content": None,
             "embeds": {},
@@ -84,9 +91,9 @@ class DisMessage:
         if not embeds and not content:
             return
 
-        _SendingRestHandler.execute(self.channel.id, _d, self._t)
+        await _SendingRestHandler.execute(self.channel.id, _d, self._t)
 
-    def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
+    async def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
         _d = {
             "content": None,
             "embeds": {},
@@ -104,4 +111,4 @@ class DisMessage:
         if not content and not embed:
             return
 
-        _SendingRestHandler.execute(self.channel.id, _d, self._t)
+        await _SendingRestHandler.execute(self.channel.id, _d, self._t)
