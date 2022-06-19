@@ -23,12 +23,8 @@ SOFTWARE.
 """
 
 
-from disspy.embed import DisEmbed, DisField
-from disspy.application_commands import Option, OptionType
-
-
 class _EmbedGenerator:
-    def __new__(cls, obj: DisEmbed):
+    def __new__(cls, obj):
         fields_jsons = []
 
         for f in obj.fields:
@@ -44,7 +40,7 @@ class _EmbedGenerator:
 
 
 class _FieldGenerator:
-    def __new__(cls, obj: DisField):
+    def __new__(cls, obj):
         return {
             "name": obj.name,
             "value": obj.value,
@@ -53,8 +49,8 @@ class _FieldGenerator:
 
 
 class _OptionGenerator:
-    def __new__(cls, obj: Option):
-        if obj.option_type == OptionType.STRING or obj.option_type == OptionType.INTEGER or obj.option_type == OptionType.NUMBER and obj.choices:
+    def __new__(cls, obj):
+        if obj.option_type == 3 or obj.option_type == 4 or obj.option_type == 10 and obj.choices:
             return {
                 "name": obj.name,
                 "description": obj.description,

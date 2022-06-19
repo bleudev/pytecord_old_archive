@@ -560,8 +560,6 @@ class Flow:
                 await self.register2()
                 await self.on_register()
 
-                assert (Type[self.on_ready] == Callable[None, None]), "Invalid on_ready() method args and returns"
-
                 await self.on_ready()
 
             if event.type == "MESSAGE_CREATE":
