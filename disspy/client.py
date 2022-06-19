@@ -129,8 +129,9 @@ class DisBotEventType:
 
     _T = TypeVar("DisBotEventType")
 
-    ON_MESSAGEC = "messagec"
-    ON_READY = "ready"
+    ON_MESSAGEC: str = "messagec"
+    ON_READY: str = "ready"
+    ON_CLOSE: str = "close"
 
     @property
     def __class__(self) -> Type[_T]:
@@ -147,7 +148,7 @@ class DisBotEventType:
         -----
         :return list: All varibles in this class
         """
-        return [self.ON_READY, self.ON_MESSAGEC]
+        return [self.ON_READY, self.ON_MESSAGEC, self.ON_CLOSE]
 
     def __str__(self) -> str:
         """
