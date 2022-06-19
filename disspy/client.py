@@ -71,6 +71,13 @@ __all__: tuple[str] = (
 # For Type Hints
 Wrapper = Callable
 
+# Basics events
+_all_basic_events = [
+    "ready",
+    "messagec",
+    "close"
+]
+
 
 @final
 class DisBotStatus:
@@ -285,11 +292,6 @@ class DisBot(_BaseBot):
         """
 
         __methodname__ = f"{self.__classname__}.on()"
-        _all_basic_events = [
-            "ready",
-            "messagec",
-            "close"
-        ]
 
         if isinstance(t, DisBotEventType):
             _message = f"Error! In method {__methodname__} was moved" \
@@ -310,6 +312,26 @@ class DisBot(_BaseBot):
                 raise errors.BotEventTypeError("Invalid type of event!")
 
         return wrapper
+
+    def add_event(self, t: Event(DisBotEventType, str), func: Callable) -> NoReturn:
+        __methodname__ = f"{self.__classname__}.add_event()"
+
+        if isinstance(t, DisBotEventType):
+            _message = f"Error! In method {__methodname__} was moved" \
+                       "invalid argument! Argument type is DisBotEventType," \
+                       "but in method have to type is str!"
+            self.logger.log(_message)
+
+        if t in _all_basic_events:
+            if t == "close":
+                self._on_close = func
+            else:
+                self._ons[t] = func
+        else:
+            _err = f"Error! In method {__methodname__} was" \
+                   "moved invalid event type!"
+            self.logger.log(_err)
+            raise errors.BotEventTypeError("Invalid type of event!")
 
     def slash_command(self, name, description, options: Optional[list[Option]] = None) -> Wrapper:
         """
