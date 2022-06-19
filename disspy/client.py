@@ -129,8 +129,9 @@ class DisBotEventType:
 
     _T = TypeVar("DisBotEventType")
 
-    ON_MESSAGEC = "messagec"
-    ON_READY = "ready"
+    ON_MESSAGEC: str = "messagec"
+    ON_READY: str = "ready"
+    ON_CLOSE: str = "close"
 
     @property
     def __class__(self) -> Type[_T]:
@@ -147,7 +148,7 @@ class DisBotEventType:
         -----
         :return list: All varibles in this class
         """
-        return [self.ON_READY, self.ON_MESSAGEC]
+        return [self.ON_READY, self.ON_MESSAGEC, self.ON_CLOSE]
 
     def __str__(self) -> str:
         """
@@ -271,6 +272,9 @@ class DisBot(_BaseBot):
         """
         self.user: DisUser = self._api.user
 
+    def _on_close(self):
+        pass
+
     def on(self, t: Event(DisBotEventType, str)):
         """
         This method was created for changing on_ready and on_messagec
@@ -283,7 +287,8 @@ class DisBot(_BaseBot):
         __methodname__ = f"{self.__classname__}.on()"
         _all_basic_events = [
             "ready",
-            "messagec"
+            "messagec",
+            "close"
         ]
 
         if isinstance(t, DisBotEventType):
@@ -294,7 +299,10 @@ class DisBot(_BaseBot):
 
         def wrapper(func):
             if t in _all_basic_events:
-                self._ons[t] = func
+                if t == "close":
+                    self._on_close = func
+                else:
+                    self._ons[t] = func
             else:
                 _err = f"Error! In method {__methodname__} was" \
                        "moved invalid event type!"
@@ -562,11 +570,16 @@ class DisBot(_BaseBot):
 
         del datetime, mktime
 
+    def _check_ready(self):
+        return self.isready
+
     def __del__(self):
-        if self.isready:
-            try:
-                exit(0)
-            except NameError:
-                pass
-            except KeyboardInterrupt:
-                pass
+        assert self._check_ready(), "Bot is not Ready!"
+
+        self._on_close()
+        try:
+            exit(0)
+        except NameError:
+            pass
+        except KeyboardInterrupt:
+            pass
