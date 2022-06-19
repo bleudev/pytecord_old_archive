@@ -313,7 +313,7 @@ class DisBot(_BaseBot):
 
         return wrapper
 
-    def add_event(self, t: Event(DisBotEventType, str), func: Callable):
+    def add_event(self, t: Event(DisBotEventType, str), func: Callable) -> NoReturn:
         __methodname__ = f"{self.__classname__}.add_event()"
 
         if isinstance(t, DisBotEventType):
