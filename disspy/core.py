@@ -142,7 +142,7 @@ class _DebugLoggingWebsocket:
     Debug tool for Websocket
     """
     def __new__(cls, *args, **kwargs) -> Text:
-        _data = args[0]
+        _data: dict = args[0]
 
         try:
             _send = kwargs["send"]
