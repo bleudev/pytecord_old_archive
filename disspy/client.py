@@ -221,6 +221,17 @@ class DisBot(_BaseBot):
 
         super().__init__(token)
 
+        from requests import get
+
+        _u = "https://discord.com/api/v10/users/@me"
+        test_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
+
+        try:
+            if test_j["message"] == "401: Unauthorized" and test_j["code"] == 0:
+                raise errors.Unauthorized()
+        except KeyError:
+            pass
+
         self.token = str(token)
 
         if flags is None:
@@ -579,6 +590,8 @@ class DisBot(_BaseBot):
 
         if isinstance(activity, Activity):
             act = activity.json()
+        elif isinstance(activity, dict):
+            act = activity
 
         await self._api.fsend_request({
             "op": 3,
@@ -592,16 +605,5 @@ class DisBot(_BaseBot):
 
         del datetime, mktime
 
-    def _check_ready(self):
-        return self.isready
-
     def __del__(self):
-        assert self._check_ready(), "Bot is not Ready!"
-
         self._on_close()
-        try:
-            exit(0)
-        except NameError:
-            pass
-        except KeyboardInterrupt:
-            pass

@@ -72,6 +72,7 @@ class MissingPerms(_DisRunTimeError):
     def __init__(self, text):
         super().__init__("-2i", text)
 
+
 class Unauthorized(_DisError):
     def __init__(self):
         super().__init__("401", "Unauthorized")

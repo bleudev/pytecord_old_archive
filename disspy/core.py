@@ -242,10 +242,25 @@ class _FlowEvent:
 
         :param json: JSON data
         """
-        self.type = json["t"]
-        self.session = json["s"]
-        self.data = json["d"]
-        self.opcode = json["op"]
+        try:
+            self.type = json["t"]
+            self.session = json["s"]
+            self.data = json["d"]
+            self.opcode = json["op"]
+            self.json = json
+        except TypeError:
+            self.type = "ERROR"
+            self.session = None
+            self.data = {
+                "type": "json data is not dict!"
+            }
+            self.opcode = 0
+            self.json = {
+                "t": "ERROR",
+                "s": None,
+                "d": {},
+                "op": 0
+            }
 
 
 class DisFlags:
