@@ -54,18 +54,12 @@ class _SendingRestHandler:
                 return j
 
     @staticmethod
-    async def create_reaction(endpoint, payload, token):
+    async def create_reaction(endpoint, token):
         from aiohttp import ClientSession
 
         async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             _u = f"https://discord.com/api/v10{endpoint}"
-
-            print(_u)
-
-            async with s.put(_u) as p:
-                j = await p.json()
-
-                return j
+            await s.put(_u)
 
 
 @final
@@ -133,5 +127,4 @@ class DisMessage:
         if isinstance(emoji, DisEmoji):
             emoji = emoji.unicode
 
-        j =await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", {}, self._t)
-        print(j)
+        await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
