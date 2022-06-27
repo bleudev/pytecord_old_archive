@@ -52,6 +52,13 @@ class DisReaction:
     def __class__(self) -> TypeVar:
         return self._T
 
-    def __init__(self, emoji: str, author):
+    def __init__(self, emoji: str, message_id, channel_id, token):
         self.emoji = emoji
-        self.author = author
+        self._u = f"https://discord.com/api/v10/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
+        self._t = token
+
+    async def delete(self):
+        from aiohttp import ClientSession
+
+        async with ClientSession(headers={'Authorization': f'Bot {self._t}', 'content-type': 'application/json'}) as s:
+            await s.delete(self._u)

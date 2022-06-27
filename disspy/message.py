@@ -34,7 +34,7 @@ from typing import (
 
 from disspy.embed import DisEmbed
 from disspy.jsongenerators import _EmbedGenerator
-from disspy.reaction import DisEmoji
+from disspy.reaction import DisEmoji, DisReaction
 
 
 class _SendingRestHandler:
@@ -123,8 +123,10 @@ class DisMessage:
 
         await _SendingRestHandler.execute(self.channel.id, _d, self._t)
 
-    async def create_reaction(self, emoji: Union[DisEmoji, str]):
+    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisReaction:
         if isinstance(emoji, DisEmoji):
             emoji = emoji.unicode
 
         await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
+
+        return DisReaction(emoji, self.id, self.channel.id, self._t)
