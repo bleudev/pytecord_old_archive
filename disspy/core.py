@@ -161,21 +161,15 @@ class _DebugLoggingWebsocket:
 
         _result = ""
 
-        if _send:
-            _op_str = FlowOpcodes.rotated_dict()[_op]
-            _op_str = _op_str.capitalize()
+        _op_str = FlowOpcodes.rotated_dict()[_op]
+        _op_str = _op_str.capitalize()
 
+        if _send:
             _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
         else:
             if _isevent:
-                _op_str = FlowOpcodes.rotated_dict()[_op]
-                _op_str = _op_str.capitalize()
-
                 _result = f"{colorama.Fore.YELLOW}Getting Event{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
             else:
-                _op_str = FlowOpcodes.rotated_dict()[_op]
-                _op_str = _op_str.capitalize()
-
                 if _op == 11:
                     _op_str = "Heartbeat ACK"
 
