@@ -89,6 +89,11 @@ class BotStatusError(_DisError):
         super().__init__("102c", text)
 
 
+class BotEventVisibleError(_DisError):
+    def __init__(self, text):
+        super().__init__("103c", text)
+
+
 # Package errors
 class InvalidArgument(_DisError):
     def __init__(self, text):

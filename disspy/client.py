@@ -315,7 +315,13 @@ class DisBot(_BaseBot):
                 if t == "close":
                     self._on_close = func
                 else:
-                    self._ons[t] = func
+                    if t == "messagec":
+                        if self.intflags >= DisFlags.messages():
+                            self._ons[t] = func
+                        else:
+                            raise errors.BotEventVisibleError("messagec() event avaivable now because flags < DisFlags.messages()")
+                    else:
+                        self._ons[t] = func
             else:
                 _err = f"Error! In method {__methodname__} was" \
                        "moved invalid event type!"
