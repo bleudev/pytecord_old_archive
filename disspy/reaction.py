@@ -27,10 +27,9 @@ from typing import (
     TypeVar
 )
 
-
 __all__: tuple[str] = (
     "DisEmoji",
-    "DisReaction"
+    "DisOwnReaction"
 )
 
 
@@ -41,11 +40,21 @@ class DisEmoji:
     def __class__(self) -> TypeVar:
         return self._T
 
-    def __init__(self, unicode: str):
+    def __init__(self, unicode: Optional[str] = None, name: Optional[str] = None, emoji_id: Optional[int] = None):
         self.unicode = unicode
+        self.name = name
+        self.emoji_id = emoji_id
+
+        if name is not None:
+            if emoji_id is not None:
+                self.type = "custom"
+            else:
+                self.type = "normal"
+        else:
+            self.type = "normal"
 
 
-class DisReaction:
+class DisOwnReaction:
     _T = TypeVar("DisReaction")
 
     @property
