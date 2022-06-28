@@ -164,7 +164,17 @@ class _DebugLoggingWebsocket:
         _op_str = FlowOpcodes.rotated_dict()[_op]
         _op_str = _op_str.capitalize()
 
+        try:
+            del _data["d"]["_trace"]
+        except KeyError:
+            pass
+        except TypeError:
+            pass
+
         if _send:
+            if _op == 2:
+                _data["d"]["token"] = "TOKEN"
+
             _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
         else:
             if _isevent:
@@ -172,6 +182,8 @@ class _DebugLoggingWebsocket:
             else:
                 if _op == 11:
                     _op_str = "Heartbeat ACK"
+
+
 
                 _result = f"{colorama.Fore.YELLOW}Getting Responce{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
 
