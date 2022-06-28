@@ -287,12 +287,36 @@ class DisFlags:
     def default() -> int:
         """
         Implements:
-            1. GUILD_MESSAGES
-            2. MESSAGE_CONTENT (Privilleged intent)
+            None
 
         :return int: integer value of intents
         """
-        return 33280
+        return 0
+
+    @staticmethod
+    def messages() -> int:
+        """
+        Implements:
+            1. GUILD_MESSAGES
+            2. GUILD_MESSAGE_TYPING
+            3. DIRECT_MESSAGES
+            4. DIRECT_MESSAGE_TYPING
+            5. MESSAGE_CONTENT (Privilleged intent)
+
+        :return int: integer value of intents
+        """
+        return 55808
+
+    @staticmethod
+    def reactions() -> int:
+        """
+        Implements:
+            1. GUILD_MESSAGE_REACTIONS
+            2. DIRECT_MESSAGE_REACTIONS
+
+        :return int: integer value of intents
+        """
+        return 9216
 
     @staticmethod
     def all() -> int:
