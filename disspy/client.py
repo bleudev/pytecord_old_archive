@@ -76,7 +76,8 @@ _all_basic_events = [
     "ready",  # On ready
     "messagec",  # On message create
     "close",  # On closing bot
-    "reaction"  # On reaction add
+    "reaction",  # On reaction add
+    "reactionr"  # On reaction remove
 ]
 
 
@@ -141,6 +142,7 @@ class DisBotEventType:
     ON_READY: str = "ready"
     ON_CLOSE: str = "close"
     ON_REACTION: str = "reaction"
+    ON_REACTIONR: str = "reactionr"
 
     @property
     def __class__(self) -> Type[_T]:
@@ -157,7 +159,7 @@ class DisBotEventType:
         -----
         :return list: All varibles in this class
         """
-        return [self.ON_READY, self.ON_MESSAGEC, self.ON_CLOSE, self.ON_REACTION]
+        return [self.ON_READY, self.ON_MESSAGEC, self.ON_CLOSE, self.ON_REACTION, self.ON_REACTIONR]
 
     def __str__(self) -> str:
         """
@@ -257,7 +259,8 @@ class DisBot(_BaseBot):
             "register": self._on_register,
             "register2": None,
             "interaction": None,
-            "reaction": None
+            "reaction": None,
+            "reactionr": None
         }
 
         self._on_messagec = None
@@ -322,7 +325,12 @@ class DisBot(_BaseBot):
                         if self.intflags >= DisFlags.messages():
                             self._ons[t] = func
                         else:
-                            raise errors.BotEventVisibleError("messagec() event avaivable now because flags < DisFlags.messages()")
+                            raise errors.BotEventVisibleError("messagec() event don't avaivable right now because flags < DisFlags.messages()")
+                    elif t == "reaction" or t == "reactionr":
+                        if self.intflags >= DisFlags.reactions():
+                            self._ons[t] = func
+                        else:
+                            raise errors.BotEventVisibleError("reaction() or reactionr() event don't avaivable right now because flags < DisFlags.reactions()")
                     else:
                         self._ons[t] = func
             else:

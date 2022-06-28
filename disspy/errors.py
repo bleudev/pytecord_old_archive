@@ -34,6 +34,7 @@ __all__: tuple[str] = (
     "Unauthorized",
     "BotEventTypeError",
     "BotStatusError",
+    "BotEventVisibleError",
     "InvalidArgument",
     "ClassTypeError",
     "UserNitroTypeError"
