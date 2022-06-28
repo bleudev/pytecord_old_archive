@@ -29,7 +29,7 @@ __all__: tuple[str] = (
 
 class DisUser:
     def __init__(self, data, token):
-        self.id = data["id"]
+        self.id: int = int(data["id"])
         self._t = token
 
         self.username = data["username"]

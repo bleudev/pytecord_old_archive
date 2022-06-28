@@ -73,9 +73,11 @@ Wrapper = Callable
 
 # Basics events
 _all_basic_events = [
-    "ready",
-    "messagec",
-    "close"
+    "ready",  # On ready
+    "messagec",  # On message create
+    "close",  # On closing bot
+    "reaction",  # On reaction add
+    "reactionr"  # On reaction remove
 ]
 
 
@@ -139,6 +141,8 @@ class DisBotEventType:
     ON_MESSAGEC: str = "messagec"
     ON_READY: str = "ready"
     ON_CLOSE: str = "close"
+    ON_REACTION: str = "reaction"
+    ON_REACTIONR: str = "reactionr"
 
     @property
     def __class__(self) -> Type[_T]:
@@ -155,7 +159,7 @@ class DisBotEventType:
         -----
         :return list: All varibles in this class
         """
-        return [self.ON_READY, self.ON_MESSAGEC, self.ON_CLOSE]
+        return [self.ON_READY, self.ON_MESSAGEC, self.ON_CLOSE, self.ON_REACTION, self.ON_REACTIONR]
 
     def __str__(self) -> str:
         """
@@ -254,7 +258,9 @@ class DisBot(_BaseBot):
             "messagec": None,
             "register": self._on_register,
             "register2": None,
-            "interaction": None
+            "interaction": None,
+            "reaction": None,
+            "reactionr": None
         }
 
         self._on_messagec = None
@@ -315,7 +321,18 @@ class DisBot(_BaseBot):
                 if t == "close":
                     self._on_close = func
                 else:
-                    self._ons[t] = func
+                    if t == "messagec":
+                        if self.intflags >= DisFlags.messages():
+                            self._ons[t] = func
+                        else:
+                            raise errors.BotEventVisibleError("messagec() event don't avaivable right now because flags < DisFlags.messages()")
+                    elif t == "reaction" or t == "reactionr":
+                        if self.intflags >= DisFlags.reactions():
+                            self._ons[t] = func
+                        else:
+                            raise errors.BotEventVisibleError("reaction() or reactionr() event don't avaivable right now because flags < DisFlags.reactions()")
+                    else:
+                        self._ons[t] = func
             else:
                 _err = f"Error! In method {__methodname__} was" \
                        "moved invalid event type!"

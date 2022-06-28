@@ -34,6 +34,7 @@ __all__: tuple[str] = (
     "Unauthorized",
     "BotEventTypeError",
     "BotStatusError",
+    "BotEventVisibleError",
     "InvalidArgument",
     "ClassTypeError",
     "UserNitroTypeError"
@@ -87,6 +88,11 @@ class BotEventTypeError(_DisError):
 class BotStatusError(_DisError):
     def __init__(self, text):
         super().__init__("102c", text)
+
+
+class BotEventVisibleError(_DisError):
+    def __init__(self, text):
+        super().__init__("103c", text)
 
 
 # Package errors

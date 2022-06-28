@@ -287,12 +287,36 @@ class DisFlags:
     def default() -> int:
         """
         Implements:
-            1. GUILD_MESSAGES
-            2. MESSAGE_CONTENT (Privilleged intent)
+            None
 
         :return int: integer value of intents
         """
-        return 33280
+        return 0
+
+    @staticmethod
+    def messages() -> int:
+        """
+        Implements:
+            1. GUILD_MESSAGES
+            2. GUILD_MESSAGE_TYPING
+            3. DIRECT_MESSAGES
+            4. DIRECT_MESSAGE_TYPING
+            5. MESSAGE_CONTENT (Privilleged intent)
+
+        :return int: integer value of intents
+        """
+        return 55808
+
+    @staticmethod
+    def reactions() -> int:
+        """
+        Implements:
+            1. GUILD_MESSAGE_REACTIONS
+            2. DIRECT_MESSAGE_REACTIONS
+
+        :return int: integer value of intents
+        """
+        return 9216
 
     @staticmethod
     def all() -> int:
@@ -471,6 +495,12 @@ class Flow:
     async def register2(self):
         pass
 
+    async def on_reaction(self, r):
+        pass
+
+    async def on_reactionr(self, r):
+        pass
+
     async def register(self, d):
         self.user_id = d["user"]["id"]
 
@@ -506,12 +536,21 @@ class Flow:
         self.status = status
         self.activity = act
 
-        self.on_ready = ons["ready"]
-        self.on_messagec = ons["messagec"]
+        # Registering events
+        if ons["ready"] is not None:
+            self.on_ready = ons["ready"]
+        if ons["messagec"] is not None:
+            self.on_messagec = ons["messagec"]
+        if ons["reaction"] is not None:
+            self.on_reaction = ons["reaction"]
+        if ons["reactionr"] is not None:
+            self.on_reactionr = ons["reactionr"]
+
         self.on_interaction = ons["interaction"]
         self.on_register = ons["register"]
         self.register2 = ons["register2"]
 
+        # Other
         self.isrunning = True
         self.isafk = False
 
@@ -535,9 +574,9 @@ class Flow:
                     "token": self.token,
                     "intents": self.intents,
                     "properties": {
-                        "$os": "android",
+                        "$os": "linux",
                         "$browser": "disspy",
-                        "$device": "disspy"
+                        "$device": "iphone"
                     },
                     "presence": {
                         "since": mktime(datetime.now().timetuple()) * 1000,
@@ -587,6 +626,41 @@ class Flow:
                 else:
                     await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
                                               self.token, event.data["type"], event.data, None)
+
+            if event.type == "MESSAGE_REACTION_ADD":
+                from disspy.reaction import DisEmoji, DisReaction
+                _u = DisUser(event.data["member"]["user"], self.token)
+                _m_id = int(event.data["message_id"])
+                _c_id = int(event.data["channel_id"])
+                _g_id = int(event.data["guild_id"])
+
+                _e_json = event.data["emoji"]
+
+                if _e_json["id"] is None:
+                    _e = DisEmoji(unicode=_e_json["name"])
+                else:
+                    _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+
+                _r = DisReaction(_u, _m_id, _c_id, _g_id, _e, self.token)
+
+                await self.on_reaction(_r)
+
+            if event.type == "MESSAGE_REACTION_REMOVE":
+                from disspy.reaction import DisEmoji, DisRemovedReaction
+                _m_id = int(event.data["message_id"])
+                _c_id = int(event.data["channel_id"])
+                _g_id = int(event.data["guild_id"])
+
+                _e_json = event.data["emoji"]
+
+                if _e_json["id"] is None:
+                    _e = DisEmoji(unicode=_e_json["name"])
+                else:
+                    _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+
+                _r = DisRemovedReaction(_m_id, _c_id, _g_id, _e, self.token)
+
+                await self.on_reactionr(_r)
 
             await asyncio.sleep(0.5)
 

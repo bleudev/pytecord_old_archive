@@ -28,13 +28,16 @@ __all__: tuple[str] = (
 
 from typing import (
     Optional,
+    Union,
     final
 )
 
 from disspy.embed import DisEmbed
 from disspy.jsongenerators import _EmbedGenerator
+from disspy.reaction import DisEmoji, DisOwnReaction
 
 
+@final
 class _SendingRestHandler:
     @staticmethod
     async def execute(channel_id, payload, token):
@@ -50,6 +53,15 @@ class _SendingRestHandler:
                 j = await p.json()
 
                 return j
+
+    @staticmethod
+    async def create_reaction(endpoint, token):
+        from aiohttp import ClientSession
+
+        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+            _u = f"https://discord.com/api/v10{endpoint}"
+            print(_u)
+            await s.put(_u)
 
 
 @final
@@ -112,3 +124,14 @@ class DisMessage:
             return
 
         await _SendingRestHandler.execute(self.channel.id, _d, self._t)
+
+    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisOwnReaction:
+        if isinstance(emoji, DisEmoji):
+            if emoji.type == "custom":
+                emoji = f"{emoji.name}:{str(emoji.emoji_id)}"
+            elif emoji.type == "normal":
+                emoji = emoji.unicode
+
+        await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
+
+        return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
