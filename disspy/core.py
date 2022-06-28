@@ -495,10 +495,10 @@ class Flow:
     async def register2(self):
         pass
 
-    async def on_reaction(self):
+    async def on_reaction(self, r):
         pass
 
-    async def on_reactionr(self):
+    async def on_reactionr(self, r):
         pass
 
     async def register(self, d):
@@ -536,14 +536,21 @@ class Flow:
         self.status = status
         self.activity = act
 
-        self.on_ready = ons["ready"]
-        self.on_messagec = ons["messagec"]
+        # Registering events
+        if ons["ready"] is not None:
+            self.on_ready = ons["ready"]
+        if ons["messagec"] is not None:
+            self.on_messagec = ons["messagec"]
+        if ons["reaction"] is not None:
+            self.on_reaction = ons["reaction"]
+        if ons["reactionr"] is not None:
+            self.on_reactionr = ons["reactionr"]
+
         self.on_interaction = ons["interaction"]
         self.on_register = ons["register"]
         self.register2 = ons["register2"]
-        self.on_reaction = ons["reaction"]
-        self.on_reactionr = ons["reactionr"]
 
+        # Other
         self.isrunning = True
         self.isafk = False
 
@@ -636,10 +643,7 @@ class Flow:
 
                 _r = DisReaction(_u, _m_id, _c_id, _g_id, _e, self.token)
 
-                try:
-                    await self.on_reaction(_r)
-                except TypeError:
-                    pass
+                await self.on_reaction(_r)
 
             if event.type == "MESSAGE_REACTION_REMOVE":
                 from disspy.reaction import DisEmoji, DisRemovedReaction
