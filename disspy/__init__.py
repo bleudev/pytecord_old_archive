@@ -75,7 +75,8 @@ from disspy.message import DisMessage
 from disspy.user import DisUser
 from disspy.reaction import (
     DisEmoji,
-    DisOwnReaction
+    DisOwnReaction,
+    DisReaction
 )
 
 

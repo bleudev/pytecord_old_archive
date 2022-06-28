@@ -73,9 +73,10 @@ Wrapper = Callable
 
 # Basics events
 _all_basic_events = [
-    "ready",
-    "messagec",
-    "close"
+    "ready",  # On ready
+    "messagec",  # On message create
+    "close",  # On closing bot
+    "reaction"  # On reaction add
 ]
 
 
@@ -254,7 +255,8 @@ class DisBot(_BaseBot):
             "messagec": None,
             "register": self._on_register,
             "register2": None,
-            "interaction": None
+            "interaction": None,
+            "reaction": None
         }
 
         self._on_messagec = None

@@ -27,9 +27,12 @@ from typing import (
     TypeVar
 )
 
+from disspy.user import DisUser
+
 __all__: tuple[str] = (
     "DisEmoji",
-    "DisOwnReaction"
+    "DisOwnReaction",
+    "DisReaction"
 )
 
 
@@ -71,3 +74,19 @@ class DisOwnReaction:
 
         async with ClientSession(headers={'Authorization': f'Bot {self._t}', 'content-type': 'application/json'}) as s:
             await s.delete(self._u)
+
+
+class DisReaction:
+    _T = TypeVar("DisReaction")
+
+    @property
+    def __class__(self) -> TypeVar:
+        return self._T
+
+    def __init__(self, user: DisUser, message_id: int, channel_id: int, guild_id: int, emoji: DisEmoji, token: str):
+        self.user = user
+        self.message_id = message_id
+        self.channel_id = channel_id
+        self.guild_id = guild_id
+        self.emoji = emoji
+        self._t = token

@@ -495,6 +495,9 @@ class Flow:
     async def register2(self):
         pass
 
+    async def on_reaction(self):
+        pass
+
     async def register(self, d):
         self.user_id = d["user"]["id"]
 
@@ -535,6 +538,7 @@ class Flow:
         self.on_interaction = ons["interaction"]
         self.on_register = ons["register"]
         self.register2 = ons["register2"]
+        self.on_reaction = ons["reaction"]
 
         self.isrunning = True
         self.isafk = False
@@ -559,9 +563,9 @@ class Flow:
                     "token": self.token,
                     "intents": self.intents,
                     "properties": {
-                        "$os": "android",
+                        "$os": "linux",
                         "$browser": "disspy",
-                        "$device": "disspy"
+                        "$device": "iphone"
                     },
                     "presence": {
                         "since": mktime(datetime.now().timetuple()) * 1000,
@@ -611,6 +615,24 @@ class Flow:
                 else:
                     await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
                                               self.token, event.data["type"], event.data, None)
+
+            if event.type == "MESSAGE_REACTION_ADD":
+                from disspy.reaction import DisEmoji, DisReaction
+                _u = DisUser(event.data["member"]["user"], self.token)
+                _m_id = int(event.data["message_id"])
+                _c_id = int(event.data["channel_id"])
+                _g_id = int(event.data["guild_id"])
+
+                _e_json = event.data["emoji"]
+
+                if _e_json["id"] is None:
+                    _e = DisEmoji(unicode=_e_json["name"])
+                else:
+                    _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+
+                _r = DisReaction(_u, _m_id, _c_id, _g_id, _e, self.token)
+
+                await self.on_reaction(_r)
 
             await asyncio.sleep(0.5)
 
