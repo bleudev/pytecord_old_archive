@@ -183,8 +183,6 @@ class _DebugLoggingWebsocket:
                 if _op == 11:
                     _op_str = "Heartbeat ACK"
 
-
-
                 _result = f"{colorama.Fore.YELLOW}Getting Responce{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
 
         return _result
