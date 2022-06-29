@@ -48,7 +48,6 @@ from typing import (
 )
 
 # disspy imports
-from disspy.application_commands import Context
 from disspy.channel import DisChannel, DisDm
 from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
@@ -809,6 +808,7 @@ class DisApi(_RequestsUserClass):
             return  # Not components!
         else:
             if type == 2:
+                from disspy.application_commands import Context
                 _ctx = Context(token, id, bot_token)
 
                 try:

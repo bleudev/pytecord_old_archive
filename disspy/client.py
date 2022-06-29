@@ -42,7 +42,6 @@ import requests.exceptions
 from disspy import errors
 from disspy._typing import (
     TypeOf,
-    Showflake,
     Event
 )
 from disspy.activity import Activity
@@ -56,7 +55,8 @@ from disspy.application_commands import (
 from disspy.channel import DisChannel
 from disspy.core import (
     DisApi,
-    DisFlags
+    DisFlags,
+    Showflake
 )
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
