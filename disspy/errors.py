@@ -35,6 +35,7 @@ __all__: tuple[str] = (
     "BotEventTypeError",
     "BotStatusError",
     "BotEventVisibleError",
+    "BotApplicationIdInvalid",
     "InvalidArgument",
     "ClassTypeError",
     "UserNitroTypeError"
@@ -76,7 +77,7 @@ class MissingPerms(_DisRunTimeError):
 
 class Unauthorized(_DisError):
     def __init__(self):
-        super().__init__("401", "Invalid token!")
+        super().__init__("-3i", "Invalid token!")
 
 
 # Client errors
@@ -93,6 +94,11 @@ class BotStatusError(_DisError):
 class BotEventVisibleError(_DisError):
     def __init__(self, text):
         super().__init__("103c", text)
+
+
+class BotApplicationIdInvalid(_DisError):
+    def __init__(self, text):
+        super().__init__("104c", text)
 
 
 # Package errors

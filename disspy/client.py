@@ -210,7 +210,7 @@ class DisBot(_BaseBot):
     __parent__ = TypeVar("_BaseBot")
     __classname__ = "DisBot"
 
-    def __init__(self, token: Showflake[str], application_id: Showflake[int],
+    def __init__(self, token: Showflake[str], application_id: Optional[Showflake[int]] = None,
                  status: Optional[TypeOf(DisBotStatus)] = None,
                  flags: Optional[TypeOf(DisFlags)] = None,
                  debug: Optional[bool] = False,
@@ -267,6 +267,20 @@ class DisBot(_BaseBot):
         self._on_ready = None
 
         self.user = None
+
+        if application_id is None or application_id == 0:
+            application_id = 0
+        else:
+            from requests import get
+
+            _u = f"https://discord.com/api/v10/applications/{application_id}/commands"
+            test2_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
+
+            try:
+                if test2_j["message"] == "Unknown Application" and test2_j["code"] == 10002:
+                    raise errors.BotApplicationIdInvalid("Invalid Application id!")
+            except KeyError:
+                pass
 
         self._api = DisApi(self.token, self.intflags, application_id)
         self.application_id = application_id
@@ -370,31 +384,34 @@ class DisBot(_BaseBot):
         :param options: Command's options
         :return Wrapper:
         """
-        _payload = {}
+        if self.application_id != 0:
+            _payload = {}
 
-        if options:
-            _options_jsons = []
+            if options:
+                _options_jsons = []
 
-            for o in options:
-                _options_jsons.append(_OptionGenerator(o))
+                for o in options:
+                    _options_jsons.append(_OptionGenerator(o))
 
-            _payload = {
-                "name": name,
-                "description": description,
-                "type": 1,
-                "options": _options_jsons
-            }
+                _payload = {
+                    "name": name,
+                    "description": description,
+                    "type": 1,
+                    "options": _options_jsons
+                }
+            else:
+                _payload = {
+                    "name": name,
+                    "description": description,
+                    "type": ApplicationCommandType.TEXT_INPUT
+                }
+
+            def wrapper(func):
+                self._api.create_command(_payload, func)
+
+            return wrapper
         else:
-            _payload = {
-                "name": name,
-                "description": description,
-                "type": ApplicationCommandType.TEXT_INPUT
-            }
-
-        def wrapper(func):
-            self._api.create_command(_payload, func)
-
-        return wrapper
+            print("There is not application id")
 
     def add_slash_command(self, command: SlashCommand) -> NoReturn:
         """
@@ -403,14 +420,17 @@ class DisBot(_BaseBot):
         :param command: Slash Command
         :return None:
         """
-        _payload = {
-            "name": command.name,
-            "description": command.description,
-            "type": ApplicationCommandType.TEXT_INPUT,
-            "options": command.options
-        }
+        if self.application_id != 0:
+            _payload = {
+                "name": command.name,
+                "description": command.description,
+                "type": ApplicationCommandType.TEXT_INPUT,
+                "options": command.options
+            }
 
-        self._api.create_command(_payload, command.cmd)
+            self._api.create_command(_payload, command.cmd)
+        else:
+            print("There is not application id")
 
     def user_command(self, name) -> Wrapper:
         """
@@ -419,15 +439,18 @@ class DisBot(_BaseBot):
         :param name: Command's name
         :return Wrapper:
         """
-        _payload = {
-            "name": name,
-            "type": ApplicationCommandType.USER
-        }
+        if self.application_id != 0:
+            _payload = {
+                "name": name,
+                "type": ApplicationCommandType.USER
+            }
 
-        def wrapper(func):
-            self._api.create_command(_payload, func)
+            def wrapper(func):
+                self._api.create_command(_payload, func)
 
-        return wrapper
+            return wrapper
+        else:
+            print("There is not application id")
 
     def add_user_command(self, command: UserCommand) -> NoReturn:
         """
@@ -436,12 +459,15 @@ class DisBot(_BaseBot):
         :param command: User Command
         :return None:
         """
-        _payload = {
-            "name": command.name,
-            "type": ApplicationCommandType.USER,
-        }
+        if self.application_id != 0:
+            _payload = {
+                "name": command.name,
+                "type": ApplicationCommandType.USER,
+            }
 
-        self._api.create_command(_payload, command.cmd)
+            self._api.create_command(_payload, command.cmd)
+        else:
+            print("There is not application id")
 
     def message_command(self, name) -> Wrapper:
         """
@@ -450,15 +476,18 @@ class DisBot(_BaseBot):
         :param name: Command's name
         :return Wrapper:
         """
-        _payload = {
-            "name": name,
-            "type": ApplicationCommandType.MESSAGE
-        }
+        if self.application_id != 0:
+            _payload = {
+                "name": name,
+                "type": ApplicationCommandType.MESSAGE
+            }
 
-        def wrapper(func):
-            self._api.create_command(_payload, func)
+            def wrapper(func):
+                self._api.create_command(_payload, func)
 
-        return wrapper
+            return wrapper
+        else:
+            print("There is not application id")
 
     def add_message_command(self, command: MessageCommand) -> NoReturn:
         """
@@ -467,12 +496,15 @@ class DisBot(_BaseBot):
         :param command: Message Command
         :return None:
         """
-        _payload = {
-            "name": command.name,
-            "type": ApplicationCommandType.MESSAGE,
-        }
+        if self.application_id != 0:
+            _payload = {
+                "name": command.name,
+                "type": ApplicationCommandType.MESSAGE,
+            }
 
-        self._api.create_command(_payload, command.cmd)
+            self._api.create_command(_payload, command.cmd)
+        else:
+            print("There is not application id")
 
     def run(self, status: Optional[Union[DisBotStatus, str]] = None) -> NoReturn:
         """

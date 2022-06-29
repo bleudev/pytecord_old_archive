@@ -66,7 +66,9 @@ from disspy.errors import (
     InvalidArgument,
     BotEventTypeError,
     BotStatusError,
-    ClassTypeError
+    ClassTypeError,
+    BotApplicationIdInvalid,
+    BotEventVisibleError
 )
 from disspy.guild import DisGuild
 # User imports
