@@ -511,6 +511,9 @@ class Flow:
     async def on_reactionr(self, r):
         pass
 
+    async def on_typing_start(self, u: DisUser, channel: DisChannel):
+        pass
+
     async def register(self, d):
         self.user_id = d["user"]["id"]
 
@@ -555,6 +558,8 @@ class Flow:
             self.on_reaction = ons["reaction"]
         if ons["reactionr"] is not None:
             self.on_reactionr = ons["reactionr"]
+        if ons["typing_start"] is not None:
+            self.on_typing_start = ons["typing_start"]
 
         self.on_interaction = ons["interaction"]
         self.on_register = ons["register"]

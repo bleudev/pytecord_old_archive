@@ -77,7 +77,8 @@ _all_basic_events = [
     "messagec",  # On message create
     "close",  # On closing bot
     "reaction",  # On reaction add
-    "reactionr"  # On reaction remove
+    "reactionr",  # On reaction remove
+    "typing_start"  # Typing start
 ]
 
 
@@ -143,6 +144,7 @@ class DisBotEventType:
     ON_CLOSE: str = "close"
     ON_REACTION: str = "reaction"
     ON_REACTIONR: str = "reactionr"
+    ON_TYPING_START: str = "typing_start"
 
     @property
     def __class__(self) -> Type[_T]:
@@ -260,7 +262,8 @@ class DisBot(_BaseBot):
             "register2": None,
             "interaction": None,
             "reaction": None,
-            "reactionr": None
+            "reactionr": None,
+            "typing_start": None
         }
 
         self._on_messagec = None
@@ -335,16 +338,16 @@ class DisBot(_BaseBot):
                 if t == "close":
                     self._on_close = func
                 else:
-                    if t == "messagec":
+                    if t == "messagec" or t == "typing_start":
                         if self.intflags >= DisFlags.messages():
                             self._ons[t] = func
                         else:
-                            raise errors.BotEventVisibleError("messagec() event don't avaivable right now because flags < DisFlags.messages()")
+                            raise errors.BotEventVisibleError("messagec() and typing_start() events don't avaivable right now because flags < DisFlags.messages()")
                     elif t == "reaction" or t == "reactionr":
                         if self.intflags >= DisFlags.reactions():
                             self._ons[t] = func
                         else:
-                            raise errors.BotEventVisibleError("reaction() or reactionr() event don't avaivable right now because flags < DisFlags.reactions()")
+                            raise errors.BotEventVisibleError("reaction() and reactionr() evens don't avaivable right now because flags < DisFlags.reactions()")
                     else:
                         self._ons[t] = func
             else:
