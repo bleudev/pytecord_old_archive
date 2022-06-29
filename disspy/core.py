@@ -677,6 +677,12 @@ class Flow:
 
                 await self.on_reactionr(_r)
 
+            if event.type == "TYPING_START":
+                _u: DisUser = DisUser(event.data["member"]["user"], self.token)
+                _c: DisChannel = DisChannel(event.data["channel_id"], self.token)
+
+                await self.on_typing_start(_u, _c)
+
             await asyncio.sleep(0.5)
 
     async def disconnecter(self):
