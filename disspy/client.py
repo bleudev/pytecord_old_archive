@@ -236,7 +236,7 @@ class DisBot(_BaseBot):
         except KeyError:
             pass
 
-        self.token = str(token)
+        self.token: str = str(token)
 
         if flags is None:
             self.intflags = DisFlags.default()

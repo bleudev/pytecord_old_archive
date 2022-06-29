@@ -76,7 +76,7 @@ class MissingPerms(_DisRunTimeError):
 
 class Unauthorized(_DisError):
     def __init__(self):
-        super().__init__("401", "Unauthorized")
+        super().__init__("401", "Invalid token!")
 
 
 # Client errors

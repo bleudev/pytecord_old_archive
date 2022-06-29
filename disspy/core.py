@@ -75,9 +75,6 @@ __all__: tuple[str] = (
 )
 
 
-T = TypeVar("T", str, int)
-
-
 JsonOutput = NewType("JsonOutput", Dict[str, Any])
 
 
@@ -353,6 +350,9 @@ class DisFlags:
         :return int: integer value of intents
         """
         return 98303
+
+
+T = TypeVar("T", str, int)
 
 
 @final
