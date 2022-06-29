@@ -34,22 +34,18 @@ class DisGuild:
     Class for manage Guilds in discord
     Atributies
     --------
-    :var id: ID of guild
+    :var guild_id: ID of guild
 
     System atributies
     --------
-    :var _api: Api client with Rest and Gatewat client.
+    :var _t: Token of the bot
     """
-    def __init__(self, id, api):
+    def __init__(self, data, token):
         """
         init object
 
-        :param id: Id for json data getter
-        :param api: Api Client for uptade guild and getting data of guild
+        :param data: Json data of guild
+        :param token: Token of the bot
         """
-        self._api = api
-        self.id = id
-
-        _data = self._api.get_guild_json(id)
-
-        self.json = _data
+        self.guild_id = data["id"]
+        self._t = token

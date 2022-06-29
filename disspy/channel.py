@@ -24,6 +24,7 @@ SOFTWARE.
 
 from disspy.embed import DisEmbed
 from disspy.message import DisMessage
+from disspy.guild import DisGuild
 from disspy.jsongenerators import _EmbedGenerator
 
 from typing import (
@@ -70,6 +71,17 @@ class _GettingChannelData:
         return get(_u, headers=_h).json()
 
 
+class _GettingGuildData:
+    @staticmethod
+    def execute(id, token):
+        from requests import get
+
+        _u = f"https://discord.com/api/v9/guilds/{id}"
+        _h = {'Authorization': f'Bot {token}'}
+
+        return get(_u, headers=_h).json()
+
+
 class DisChannel:
     """
     The class for sending messages to discord channels and fetching messages in channels
@@ -87,7 +99,11 @@ class DisChannel:
         _data = _GettingChannelData.execute(self.id, self._t)
 
         try:
-            self.guild_id = _data["guild_id"]
+            g_id = _data["guild_id"]
+
+            _d = _GettingGuildData.execute(g_id, self._t)
+
+            self.guild = DisGuild(_d, self._t)
         except KeyError:
             pass
 
