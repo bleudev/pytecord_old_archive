@@ -47,5 +47,5 @@ class DisGuild:
         :param data: Json data of guild
         :param token: Token of the bot
         """
-        self.guild_id = data["id"]
+        self.id = data["id"]
         self._t = token
