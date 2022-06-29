@@ -29,12 +29,39 @@ __all__: tuple[str] = (
 from typing import (
     Optional,
     Union,
-    final
+    final,
+    ClassVar
 )
 
 from disspy.embed import DisEmbed
 from disspy.jsongenerators import _EmbedGenerator
 from disspy.reaction import DisEmoji, DisOwnReaction
+
+
+class _MessageType:
+    DEFAULT: ClassVar[int] = 0
+    RECIPIENT_ADD: ClassVar[int] = 1
+    RECIPIENT_REMOVE: ClassVar[int] = 2
+    CALL: ClassVar[int] = 3
+    CHANNEL_NAME_CHANGE: ClassVar[int] = 4
+    CHANNEL_ICON_CHANGE: ClassVar[int] = 5
+    CHANNEL_PINNED_MESSAGE: ClassVar[int] = 6
+    GUILD_MEMBER_JOIN: ClassVar[int] = 7
+    USER_PREMIUM_GUILD_SUBSCRIPTION: ClassVar[int] = 8
+    USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1: ClassVar[int] = 9
+    USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2: ClassVar[int] = 10
+    USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3: ClassVar[int] = 11
+    CHANNEL_FOLLOW_ADD: ClassVar[int] = 12
+    GUILD_DISCOVERY_DISQUALIFIED: ClassVar[int] = 14
+    GUILD_DISCOVERY_REQUALIFIED: ClassVar[int] = 15
+    GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING: ClassVar[int] = 16
+    GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING: ClassVar[int] = 17
+    THREAD_CREATED: ClassVar[int] = 18
+    REPLY: ClassVar[int] = 19
+    CHAT_INPUT_COMMAND: ClassVar[int] = 20
+    THREAD_STARTER_MESSAGE: ClassVar[int] = 21
+    GUILD_INVITE_REMINDER: ClassVar[int] = 22
+    CONTEXT_MENU_COMMAND: ClassVar[int] = 23
 
 
 @final
@@ -77,8 +104,15 @@ class DisMessage:
 
         self.content = _data["content"]
         self.id = _data["id"]
+        self._type = _data["type"]
 
         self._t = _token
+
+    def is_reply(self):
+        return self._type == _MessageType.REPLY
+
+    def is_default(self):
+        return self._type == _MessageType.DEFAULT
 
     async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
         _d = {
