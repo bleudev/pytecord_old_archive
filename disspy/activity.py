@@ -29,12 +29,20 @@ __all__: tuple[str] = (
 )
 
 
+from typing import (
+    NoReturn,
+    Dict,
+    Any,
+    ClassVar
+)
+
+
 class Activity:
-    def __init__(self, name: str, activity_type: int):
+    def __init__(self, name: str, activity_type: int) -> NoReturn:
         self.name: str = name
         self.activity_type: int = activity_type
 
-    def json(self):
+    def json(self) -> Dict[str, Any]:
         return {
             "name": self.name,
             "type": self.activity_type
@@ -42,9 +50,9 @@ class Activity:
 
 
 class ActivityType:
-    GAME = 0
-    STREAMING = 1
-    LISTENING = 2
-    WATCHING = 3
-    CUSTOM = 4
-    COMPETING = 5
+    GAME: ClassVar[int] = 0
+    STREAMING: ClassVar[int] = 1
+    LISTENING: ClassVar[int] = 2
+    WATCHING: ClassVar[int] = 3
+    CUSTOM: ClassVar[int] = 4
+    COMPETING: ClassVar[int] = 5
