@@ -198,15 +198,14 @@ class DisDm:
     """
     The class for sending messages to discord DMchannels and fetching messages in DMchannels
     """
-    def __init__(self, id, api):
+    def __init__(self, dm_id: dict, token):
         """
         Init object
         -----
         :param id: Id of channel
         :param api: DisApi object with token
         """
-        self._api = api
-        self.id = id
+        _data = _GettingChannelData.execute(dm_id, token)
 
-    # def fetch(self, id: int):
-    #     return self._api.fetch(self.id, id)
+        self.id = _data["id"]
+        self._t = token

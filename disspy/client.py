@@ -78,7 +78,8 @@ _all_basic_events = [
     "close",  # On closing bot
     "reaction",  # On reaction add
     "reactionr",  # On reaction remove
-    "typing_start"  # Typing start
+    "typing",  # Typing start
+    "dm_typing"  # Typig start in dm channel
 ]
 
 
@@ -144,8 +145,8 @@ class DisBotEventType:
     ON_CLOSE: str = "close"
     ON_REACTION: str = "reaction"
     ON_REACTIONR: str = "reactionr"
-    ON_TYPING_START: str = "typing_start"
-
+    ON_TYPING: str = "typing"
+    ON_DM_TYPING: str = "dm_typing"
     @property
     def __class__(self) -> Type[_T]:
         """
@@ -161,7 +162,7 @@ class DisBotEventType:
         -----
         :return list: All varibles in this class
         """
-        return [self.ON_READY, self.ON_MESSAGEC, self.ON_CLOSE, self.ON_REACTION, self.ON_REACTIONR]
+        return [self.ON_READY, self.ON_MESSAGEC, self.ON_CLOSE, self.ON_REACTION, self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
 
     def __str__(self) -> str:
         """
@@ -263,7 +264,8 @@ class DisBot(_BaseBot):
             "interaction": None,
             "reaction": None,
             "reactionr": None,
-            "typing_start": None
+            "typing": None,
+            "dm_typing": None
         }
 
         self._on_messagec = None
@@ -338,11 +340,11 @@ class DisBot(_BaseBot):
                 if t == "close":
                     self._on_close = func
                 else:
-                    if t == "messagec" or t == "typing_start":
+                    if t == "messagec" or t == "typing" or t == "dm_typing":
                         if self.intflags >= DisFlags.messages():
                             self._ons[t] = func
                         else:
-                            raise errors.BotEventVisibleError("messagec() and typing_start() events don't avaivable right now because flags < DisFlags.messages()")
+                            raise errors.BotEventVisibleError("messagec(), typing() and dm_typing() events don't avaivable right now because flags < DisFlags.messages()")
                     elif t == "reaction" or t == "reactionr":
                         if self.intflags >= DisFlags.reactions():
                             self._ons[t] = func

@@ -51,7 +51,7 @@ from typing import (
 
 # disspy imports
 from disspy.application_commands import Context
-from disspy.channel import DisChannel
+from disspy.channel import DisChannel, DisDm
 from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
 from disspy.message import DisMessage
@@ -514,6 +514,9 @@ class Flow:
     async def on_typing_start(self, u: DisUser, channel: DisChannel):
         pass
 
+    async def on_dm_typing_start(self, u: DisUser, channel: DisDm):
+        pass
+
     async def register(self, d):
         self.user_id = d["user"]["id"]
 
@@ -558,8 +561,10 @@ class Flow:
             self.on_reaction = ons["reaction"]
         if ons["reactionr"] is not None:
             self.on_reactionr = ons["reactionr"]
-        if ons["typing_start"] is not None:
-            self.on_typing_start = ons["typing_start"]
+        if ons["typing"] is not None:
+            self.on_typing_start = ons["typing"]
+        if ons["dm_typing"] is not None:
+            self.on_dm_typing_start = ons["dm_typing"]
 
         self.on_interaction = ons["interaction"]
         self.on_register = ons["register"]
@@ -678,10 +683,28 @@ class Flow:
                 await self.on_reactionr(_r)
 
             if event.type == "TYPING_START":
-                _u: DisUser = DisUser(event.data["member"]["user"], self.token)
-                _c: DisChannel = DisChannel(event.data["channel_id"], self.token)
+                try:
+                    if event.data["guild_id"]:
+                        _u: DisUser = DisUser(event.data["member"]["user"], self.token)
+                        _c: DisChannel = DisChannel(event.data["channel_id"], self.token)
 
-                await self.on_typing_start(_u, _c)
+                        await self.on_typing_start(_u, _c)
+                    else:
+                        _u_id = event.data["user_id"]
+                        _u_json = Rest(self.token).get("user", _u_id)
+
+                        _u: DisUser = DisUser(_u_json, self.token)
+                        _c: DisDm = DisDm(event.data["channel_id"], self.token)
+
+                        await self.on_dm_typing_start(_u, _c)
+                except KeyError:
+                    _u_id = event.data["user_id"]
+                    _u_json = Rest(self.token).get("user", _u_id)
+
+                    _u: DisUser = DisUser(_u_json, self.token)
+                    _c: DisDm = DisDm(event.data["channel_id"], self.token)
+
+                    await self.on_dm_typing_start(_u, _c)
 
             await asyncio.sleep(0.5)
 
