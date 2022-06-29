@@ -27,8 +27,6 @@ __all__: tuple[str] = (
     "TypeOf"
 )
 
-from typing import Any
-
 
 class TypeOf:
     """
@@ -39,15 +37,15 @@ class TypeOf:
         ...
     """
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs) -> type:
         """
         :param args: [0] is type
         :param kwargs: No
         :return type:
         """
-        _type = list(args)[0]
-        _obj = _type()
-        _all = _obj.__all__()
+        _type: type = list(args)[0]
+        _obj: _type = _type()
+        _all: list = _obj.__all__()
 
         if str(_all[0]).isdigit():
             return int
@@ -55,12 +53,6 @@ class TypeOf:
             return str
 
 
-Showflake: dict[Any, Any] = {
-    str: str,
-    int: int
-}
-
-
 class Event:
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs) -> list:
         return list(args)[1]

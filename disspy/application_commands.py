@@ -24,11 +24,17 @@ SOFTWARE.
 
 
 from typing import (
+    Union,
     Optional,
-    Any
+    Any,
+    NoReturn,
+    ClassVar,
+    Callable,
+    final
 )
 
 from disspy.jsongenerators import _OptionGenerator
+from disspy.core import Showflake
 
 __all__: tuple[str] = (
     "ApplicationCommandType",
@@ -43,30 +49,32 @@ __all__: tuple[str] = (
 )
 
 
+@final
 class _MessageFlags:
     """
     Flags for messages in discord API. Varibles is constants.
 
     This use in send() method of Context class.
     """
-    CROSSPOSTED = 1 << 0
-    IS_CROSSPOST = 1 << 1
-    SUPPRESS_EMBEDS = 1 << 2
-    SOURCE_MESSAGE_DELETED = 1 << 3
-    URGENT = 1 << 4
-    HAS_THREAD = 1 << 5
-    EPHEMERAL = 1 << 6
-    LOADING = 1 << 7
-    FAILED_TO_MENTION_SOME_ROLES_IN_THREAD = 1 << 8
+    CROSSPOSTED: ClassVar[int] = 1 << 0
+    IS_CROSSPOST: ClassVar[int] = 1 << 1
+    SUPPRESS_EMBEDS: ClassVar[int] = 1 << 2
+    SOURCE_MESSAGE_DELETED: ClassVar[int] = 1 << 3
+    URGENT: ClassVar[int] = 1 << 4
+    HAS_THREAD: ClassVar[int] = 1 << 5
+    EPHEMERAL: ClassVar[int] = 1 << 6
+    LOADING: ClassVar[int] = 1 << 7
+    FAILED_TO_MENTION_SOME_ROLES_IN_THREAD: ClassVar[int] = 1 << 8
 
 
+@final
 class ApplicationCommandType:
     """
     Application command types (see discord docs)
     """
-    TEXT_INPUT = 1  # Slash Command
-    USER = 2  # User Command
-    MESSAGE = 3  # Message Command
+    TEXT_INPUT: ClassVar[int] = 1  # Slash Command
+    USER: ClassVar[int] = 2  # User Command
+    MESSAGE: ClassVar[int] = 3  # Message Command
 
 
 class ApplicationCommand:
@@ -79,17 +87,18 @@ class ApplicationCommand:
     :var cmd: Method to use in on_interaction
     :var command_type: Type of application command
     """
-    def __init__(self, name, cmd, command_type: int):
-        self.name = name
-        self.cmd = cmd
-        self.command_type = command_type
+    def __init__(self, name: str, cmd: Callable, command_type: int) -> NoReturn:
+        self.name: str = name
+        self.cmd: Callable = cmd
+        self.command_type: int = command_type
 
 
+@final
 class Option:
     """
     Class for using options in application commands (TEXT_INPUT)
     """
-    def __init__(self, name, description, option_type: int, choices: Optional[list[dict]] = None, required: bool = False):
+    def __init__(self, name: str, description: str, option_type: int, choices: Optional[list[dict]] = None, required: Optional[bool] = False) -> NoReturn:
         """
         Init class
         -----
@@ -99,78 +108,83 @@ class Option:
         :param choices: Option's Choices
         :param required: Option's required var (bool)
         """
-        self.name = name
-        self.description = description
-        self.option_type = option_type
-        self.choices = choices
-        self.required = required
+        self.name: str = name
+        self.description: str = description
+        self.option_type: int = option_type
+        self.choices: Union[list[dict], None] = choices
+        self.required: bool = required
 
 
+@final
 class OptionType:
     """
     Option types (see discord docs)
     """
-    SUB_COMMAND = 1
-    SUB_COMMAND_GROUP = 2
-    STRING = 3
-    INTEGER = 4
-    BOOLEAN = 5
-    USER = 6
-    CHANNEL = 7
-    ROLE = 8
-    MENTIONABLE = 9
-    NUMBER = 10
-    ATTACHMENT = 11
+    SUB_COMMAND: ClassVar[int] = 1
+    SUB_COMMAND_GROUP: ClassVar[int] = 2
+    STRING: ClassVar[int] = 3
+    INTEGER: ClassVar[int] = 4
+    BOOLEAN: ClassVar[int] = 5
+    USER: ClassVar[int] = 6
+    CHANNEL: ClassVar[int] = 7
+    ROLE: ClassVar[int] = 8
+    MENTIONABLE: ClassVar[int] = 9
+    NUMBER: ClassVar[int] = 10
+    ATTACHMENT: ClassVar[int] = 11
 
 
+@final
 class SlashCommand(ApplicationCommand):
     """
     Application Command with type number 1 (TEXT_INPUT)
     """
-    def __init__(self, name, description, cmd, options: list[Option] = None):
+    def __init__(self, name: str, description: str, cmd: Callable, options: Optional[list[Option]] = None) -> NoReturn:
         super().__init__(name, cmd, 1)
 
         self.description = description
 
-        if not options:
+        if options:
             _options_jsons = []
 
             for o in options:
                 _options_jsons.append(_OptionGenerator(o))
 
-            self.options = _options_jsons
+            self.options: Union[list[Option], None] = _options_jsons
         else:
-            self.options = None
+            self.options: Union[list[Option], None] = None
 
 
+@final
 class UserCommand(ApplicationCommand):
     """
     Application Command with type number 2 (USER)
     """
-    def __init__(self, name, cmd):
+    def __init__(self, name: str, cmd: Callable) -> NoReturn:
         super().__init__(name, cmd, 2)
 
 
+@final
 class MessageCommand(ApplicationCommand):
     """
     Application Command with type number 3 (MESSAGE)
     """
-    def __init__(self, name, cmd):
+    def __init__(self, name: str, cmd: Callable) -> NoReturn:
         super().__init__(name, cmd, 3)
 
 
+@final
 class Context:
     """
     Class for receiving interaction content and sending messages to users
 
     There are some methods for responding to interaction (Slash Command)
     """
-    def __init__(self, interaction_token, interaction_id, bot_token):
-        self._interaction_token = interaction_token
-        self._interaction_id = interaction_id
+    def __init__(self, interaction_token: Union[Showflake[str], str], interaction_id: Union[Showflake[int], int], bot_token) -> NoReturn:
+        self._interaction_token: str = str(interaction_token)
+        self._interaction_id: int = int(interaction_id)
         self._headers = {'Authorization': f'Bot {bot_token}'}
 
-    async def send(self, content: str, ephemeral: bool = False) -> None:
+    async def send(self, content: str, ephemeral: bool = False) -> NoReturn:
         """
 
         :param content: (str) Message content
@@ -204,13 +218,15 @@ class Context:
         del post
 
 
+@final
 class _Argument:
-    def __init__(self, name, type, value):
-        self.name = name
-        self.type = type
-        self.value = value
+    def __init__(self, name: str, type: int, value: Any) -> NoReturn:
+        self.name: str = name
+        self.type: int = type
+        self.value: Any = value
 
 
+@final
 class OptionArgs:
     """
     Class for receiving option values in interactions
@@ -220,7 +236,7 @@ class OptionArgs:
     async def test(ctx: Context, args: OptionArgs):
         await ctx.send(args.getString("Hi"))
     """
-    def __init__(self, values=None):
+    def __init__(self, values: Optional[list[_Argument]] = None) -> NoReturn:
         """
         Init object
         -----
@@ -262,7 +278,7 @@ class OptionArgs:
 
     def getInteger(self, name: str) -> int:
         """
-        Get integer value from name
+        Get integer value from na1me
         -----
         :param name: Name of option
         :return int: Option value (always integer)
