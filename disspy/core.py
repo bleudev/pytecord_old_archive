@@ -26,7 +26,7 @@ SOFTWARE.
 # Other Packages
 import asyncio
 from aiohttp import ClientSession
-from requests import get, post, Response
+from requests import get, post
 import colorama
 
 # Typing imports
@@ -36,7 +36,6 @@ from typing import (
     Union,
     Optional,
     Awaitable,
-    Callable,
     NewType,
     ClassVar,
     Dict,
@@ -45,8 +44,7 @@ from typing import (
     Text,
     Any,
     Generic,
-    final,
-    overload
+    final
 )
 
 # disspy imports
@@ -56,7 +54,6 @@ from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
 from disspy.message import DisMessage
 from disspy.user import DisUser
-from disspy.embed import DisEmbed
 
 __name__: str = "core"
 
@@ -720,7 +717,7 @@ class DisApi(_RequestsUserClass):
         -----
         :param token: Token of bot (from Discord Developer Portal)
         :param intents: Intents of bot
-        :param application_id: Application Id of bot (from Discord Developer Portal)
+        :param application_id: Application id of bot (from Discord Developer Portal)
         """
         super().__init__()
 
@@ -863,42 +860,6 @@ class DisApi(_RequestsUserClass):
                         pass
                 except KeyError:
                     print("What! Application command is invalid")
-
-    @overload
-    async def send_message(self, id: int, content: str = "", embed: Optional[DisEmbed] = None):
-        """
-        Sending messages to channel
-        -----
-        :param id: Id of channel which use in sending messages to
-        :param content: Message Content
-        :param embed: Message Embed
-        :return None:
-        """
-
-        if embed:
-            await self._r.send_message(id, {"content": content, "embeds": [embed.tojson()]})
-        else:
-            await self._r.send_message(id, {"content": content})
-
-    @overload
-    async def send_message(self, id: int, content: str = "", embeds: Optional[list[DisEmbed]] = None):
-        """
-        Sending messages to channel
-        -----
-        :param id: Id of channel which use in sending messages to
-        :param content: Message Content
-        :param embeds: Message Embeds
-        :return None:
-        """
-
-        embeds_send_jsons = []
-        if embeds:
-            for e in embeds:
-                embeds_send_jsons.append(e.tojson())
-
-            await self._r.send_message(id, {"content": content, "embeds": embeds_send_jsons})
-        else:
-            await self._r.send_message(id, {"content": content})
 
     def get_user(self, user_id: UserId) -> DisUser:
         """
