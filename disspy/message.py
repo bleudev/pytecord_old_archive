@@ -104,14 +104,14 @@ class DisMessage:
 
         self.content = _data["content"]
         self.id = _data["id"]
-        self._type = _data["type"]
+        self._type: int = int(_data["type"])
 
         self._t = _token
 
-    def is_reply(self):
+    def is_reply(self) -> bool:
         return self._type == _MessageType.REPLY
 
-    def is_default(self):
+    def is_default(self) -> bool:
         return self._type == _MessageType.DEFAULT
 
     async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
