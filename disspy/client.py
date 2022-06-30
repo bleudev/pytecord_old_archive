@@ -318,13 +318,13 @@ class DisBot(_BaseBot):
     def _on_close(self):
         pass
 
-    def on(self, t: Event(DisBotEventType, str)):
+    def on(self, t: Event(DisBotEventType, str)) -> Wrapper:
         """
-        This method was created for changing on_ready and on_messagec
-        method that using in runner
+        This method was created for changing on_ready(), on_messagec()
+        and other methods that using in _runner
         -----
         :param t: Type of event
-        :return function: Wrapper
+        :return Wrapper:
         """
 
         __methodname__ = f"{self.__classname__}.on()"
@@ -379,6 +379,32 @@ class DisBot(_BaseBot):
                    "moved invalid event type!"
             self.logger.log(_err)
             raise errors.BotEventTypeError("Invalid type of event!")
+
+    def on_message(self, t: str) -> Wrapper:
+        """
+        Method for changing on_message() events
+        -----
+        :param t: Type of on_message() event
+        :return Wrapper:
+        """
+        _ts: list[str] = [
+            "create",  # Message create
+            "edit",  # Message edit (Don't supported)
+            "delete"  # Message delete (Don't supported)
+        ]
+
+        _mse: list[str] = [
+            "messagec",  # Message create
+            "messagee",  # Message edit (Don't supported)
+            "messaged"  # Message delete (Don't supported)
+        ]
+
+        def wrapper(func):
+            if t in _ts:
+                if t == _ts[0]:  # Message create
+                    self._ons[_mse] = func
+
+        return wrapper
 
     def slash_command(self, name, description, options: Optional[list[Option]] = None) -> Wrapper:
         """
