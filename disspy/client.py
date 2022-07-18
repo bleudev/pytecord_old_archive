@@ -56,7 +56,8 @@ from disspy.channel import DisChannel
 from disspy.core import (
     DisApi,
     DisFlags,
-    Showflake
+    Showflake,
+    ChannelId
 )
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
@@ -265,7 +266,8 @@ class DisBot(_BaseBot):
             "reaction": None,
             "reactionr": None,
             "typing": None,
-            "dm_typing": None
+            "dm_typing": None,
+            "channel": [None, 0]
         }
 
         self._on_messagec = None
@@ -402,8 +404,13 @@ class DisBot(_BaseBot):
         def wrapper(func):
             if t in _ts:
                 if t == _ts[0]:  # Message create
-                    self._ons[_mse] = func
+                    self._ons[_mse[0]] = func
 
+        return wrapper
+
+    def on_channel(self, channel_id: ChannelId) -> Wrapper:
+        def wrapper(func):
+            self._ons["channel"] = [func, channel_id]
         return wrapper
 
     def slash_command(self, name, description, options: Optional[list[Option]] = None) -> Wrapper:
@@ -595,7 +602,6 @@ class DisBot(_BaseBot):
             for _var in self.__slots__:
                 del _var
 
-    @overload
     async def send(self, channel_id: int, content: Optional[str] = None,
                    embeds: Optional[list[DisEmbed]] = None):
         """
@@ -612,7 +618,6 @@ class DisBot(_BaseBot):
         else:
             raise errors.InternetError("Bot is not ready!")
 
-    @overload
     async def send(self, channel_id: int, content: Optional[str] = None,
                    embed: Optional[DisEmbed] = None):
         """
@@ -629,7 +634,7 @@ class DisBot(_BaseBot):
         else:
             raise errors.InternetError("Bot is not ready!")
 
-    def get_channel(self, id: int) -> DisChannel:
+    def get_channel(self, id: ChannelId) -> DisChannel:
         """
         Get channel from id
         -----
