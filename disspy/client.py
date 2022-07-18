@@ -76,6 +76,7 @@ _all_basic_events = [
     "ready",  # On ready
     "messagec",  # On message create
     "messageu",  # On message update
+    "messaged",  # On message delete
     "close",  # On closing bot
     "reaction",  # On reaction add
     "reactionr",  # On reaction remove
@@ -143,6 +144,7 @@ class DisBotEventType:
 
     ON_MESSAGEC: str = "messagec"
     ON_MESSAGEU: str = "messageu"
+    ON_MESSAGED: str = "messaged"
     ON_READY: str = "ready"
     ON_CLOSE: str = "close"
     ON_REACTION: str = "reaction"
@@ -165,8 +167,8 @@ class DisBotEventType:
         -----
         :return list: All varibles in this class
         """
-        return [self.ON_READY, self.ON_MESSAGEC, self.ON_MESSAGEU, self.ON_CLOSE,
-                self.ON_REACTION, self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
+        return [self.ON_READY, self.ON_MESSAGEC, self.ON_MESSAGEU, self.ON_MESSAGED,
+                self.ON_CLOSE, self.ON_REACTION, self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
 
     def __str__(self) -> str:
         """
@@ -264,6 +266,7 @@ class DisBot(_BaseBot):
             "ready": None,
             "messagec": None,
             "messageu": None,
+            "messaged": None,
             "register": self._on_register,
             "register2": None,
             "interaction": None,
@@ -396,13 +399,13 @@ class DisBot(_BaseBot):
         _ts: list[str] = [
             "create",  # Message create
             "update",  # Message update
-            "delete"  # Message delete (Don't supported)
+            "delete"  # Message delete
         ]
 
         _mse: list[str] = [
             "messagec",  # Message create
             "messageu",  # Message edit
-            "messaged"  # Message delete (Don't supported)
+            "messaged"  # Message delete
         ]
 
         def wrapper(func):
@@ -411,6 +414,8 @@ class DisBot(_BaseBot):
                     self._ons[_mse[0]] = func
                 elif t == _ts[1]:  # Message update
                     self._ons[_mse[1]] = func
+                elif t == _ts[2]:  # Message delete
+                    self._ons[_mse[2]] = func
 
         return wrapper
 
