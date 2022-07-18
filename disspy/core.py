@@ -464,6 +464,7 @@ class Flow:
     def __init__(self, gateway_version: int, token: str, intents: int,
                  activity: dict):
 
+        self.on_channel__id = 0
         self.user_id = "null"
         self.heartbeat_interval = 0
 
