@@ -170,3 +170,10 @@ class DisMessage:
         await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
 
         return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
+
+
+class MessageDeleteEvent:
+    def __init__(self, d: dict):
+        self.message_id = d['id']
+        self.channel_id = d['channel_id']
+        self.guild_id = d['guild_id']

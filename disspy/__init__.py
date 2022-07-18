@@ -23,7 +23,6 @@ SOFTWARE.
 """
 
 # Imports
-# Basic imports
 from disspy.activity import (
     Activity,
     ActivityType
@@ -71,9 +70,11 @@ from disspy.errors import (
     BotEventVisibleError
 )
 from disspy.guild import DisGuild
-# User imports
 from disspy.logger import Logger
-from disspy.message import DisMessage
+from disspy.message import (
+    DisMessage,
+    MessageDeleteEvent
+)
 from disspy.user import DisUser
 from disspy.reaction import (
     DisEmoji,
