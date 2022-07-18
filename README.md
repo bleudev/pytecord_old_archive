@@ -6,16 +6,26 @@
 
 ## Download stable version
 ```
-# Windows/Mac Os/Ubuntu
-pip install disspy
+# Windows
+pip install --upgrade disspy
+
+# Linux/MacOS
+python3 -m pip install --upgrade disspy
+```
+
+## Download dev version
+```
+git clone https://github.com/itttgg/dispy.git
+cd dispy
+pip install --upgrade .
 ```
 
 ## Links
+<p><a href="https://github.com/itttgg/dispy">https://github.com/itttgg/dispy</a> - GitHub repo</p>
 <p><a href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</a> - Project site on PyPi</p>
 <p><a href="https://dispydocs.herokuapp.com/">https://dispydocs.herokuapp.com/</a> - Site with docs for package</p>
 
 ## Using
-
 ### Creating and running bot
 
 ```python
