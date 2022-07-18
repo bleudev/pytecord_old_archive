@@ -173,7 +173,8 @@ class DisMessage:
 
 
 class MessageDeleteEvent:
-    def __init__(self, d: dict):
+    def __init__(self, d: dict, t: str):
+        from disspy.channel import DisChannel
+
         self.message_id = d['id']
-        self.channel_id = d['channel_id']
-        self.guild_id = d['guild_id']
+        self.channel = DisChannel(d['channel_id'], t)
