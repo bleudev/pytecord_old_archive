@@ -489,7 +489,7 @@ class Flow:
     async def on_ready(self):
         pass
 
-    async def on_messagec(self, m):
+    async def on_messagec(self, m: DisMessage):
         pass
 
     async def on_interaction(self, token, id, command_name: Text, bot_token: Showflake[str], type: int, data: JsonOutput, type_of_command: Optional[int] = None):
@@ -511,6 +511,9 @@ class Flow:
         pass
 
     async def on_dm_typing_start(self, u: DisUser, channel: DisDm):
+        pass
+
+    async def on_channel(self, m: DisMessage):
         pass
 
     async def register(self, d):
@@ -561,6 +564,9 @@ class Flow:
             self.on_typing_start = ons["typing"]
         if ons["dm_typing"] is not None:
             self.on_dm_typing_start = ons["dm_typing"]
+        if ons["channel"][0] is not None:
+            self.on_channel = ons["channel"][0]
+            self.on_channel__id = ons["channel"][1]
 
         self.on_interaction = ons["interaction"]
         self.on_register = ons["register"]
@@ -630,10 +636,10 @@ class Flow:
                 _m = DisMessage(event.data, self.token)
 
                 if not event.data["author"]["id"] == self.user_id:
-                    try:
-                        await self.on_messagec(_m)
-                    except TypeError:
-                        pass
+                    if int(event.data["channel_id"]) == int(self.on_channel__id):
+                        await self.on_channel(_m)
+
+                    await self.on_messagec(_m)
 
             if event.type == "INTERACTION_CREATE":
                 if event.data["type"] == 2:
