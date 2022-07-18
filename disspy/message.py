@@ -98,12 +98,13 @@ class DisMessage:
 
         self._json = _data
 
-        self.channel = DisChannel(_data["channel_id"], _token)
+        self.channel: DisChannel = DisChannel(_data["channel_id"], _token)
 
         self._headers = {'Authorization': f'Bot {_token}'}
 
-        self.content = _data["content"]
-        self.id = _data["id"]
+        self.content: str = str(_data["content"])
+
+        self.id: int = int(_data["id"])
         self._type: int = int(_data["type"])
 
         self._t = _token
@@ -169,3 +170,11 @@ class DisMessage:
         await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
 
         return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
+
+
+class MessageDeleteEvent:
+    def __init__(self, d: dict, t: str):
+        from disspy.channel import DisChannel
+
+        self.message_id = d['id']
+        self.channel = DisChannel(d['channel_id'], t)

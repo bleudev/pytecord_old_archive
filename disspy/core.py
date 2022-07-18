@@ -51,7 +51,10 @@ from typing import (
 from disspy.channel import DisChannel, DisDm
 from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
-from disspy.message import DisMessage
+from disspy.message import (
+    DisMessage,
+    MessageDeleteEvent
+)
 from disspy.user import DisUser
 
 __name__: str = "core"
@@ -493,6 +496,12 @@ class Flow:
     async def on_messagec(self, m: DisMessage):
         pass
 
+    async def on_messageu(self, m: DisMessage):
+        pass
+
+    async def on_messaged(self, e: MessageDeleteEvent):
+        pass
+
     async def on_interaction(self, token, id, command_name: Text, bot_token: Showflake[str], type: int, data: JsonOutput, type_of_command: Optional[int] = None):
         pass
 
@@ -557,6 +566,10 @@ class Flow:
             self.on_ready = ons["ready"]
         if ons["messagec"] is not None:
             self.on_messagec = ons["messagec"]
+        if ons["messageu"] is not None:
+            self.on_messageu = ons["messageu"]
+        if ons["messaged"] is not None:
+            self.on_messaged = ons["messaged"]
         if ons["reaction"] is not None:
             self.on_reaction = ons["reaction"]
         if ons["reactionr"] is not None:
@@ -633,7 +646,7 @@ class Flow:
 
                 await self.on_ready()
 
-            if event.type == "MESSAGE_CREATE":
+            elif event.type == "MESSAGE_CREATE":
                 _m = DisMessage(event.data, self.token)
 
                 if not event.data["author"]["id"] == self.user_id:
@@ -642,7 +655,18 @@ class Flow:
 
                     await self.on_messagec(_m)
 
-            if event.type == "INTERACTION_CREATE":
+            elif event.type == "MESSAGE_UPDATE":
+                _m = DisMessage(event.data, self.token)
+
+                if not event.data["author"]["id"] == self.user_id:
+                    await self.on_messageu(_m)
+
+            elif event.type == "MESSAGE_DELETE":
+                _e = MessageDeleteEvent(event.data, self.token)
+
+                await self.on_messaged(_e)
+
+            elif event.type == "INTERACTION_CREATE":
                 if event.data["type"] == 2:
                     await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
                                               self.token, event.data["type"], event.data, event.data["data"]["type"])
@@ -650,7 +674,7 @@ class Flow:
                     await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
                                               self.token, event.data["type"], event.data, None)
 
-            if event.type == "MESSAGE_REACTION_ADD":
+            elif event.type == "MESSAGE_REACTION_ADD":
                 from disspy.reaction import DisEmoji, DisReaction
                 _u = DisUser(event.data["member"]["user"], self.token)
                 _m_id = int(event.data["message_id"])
@@ -668,7 +692,7 @@ class Flow:
 
                 await self.on_reaction(_r)
 
-            if event.type == "MESSAGE_REACTION_REMOVE":
+            elif event.type == "MESSAGE_REACTION_REMOVE":
                 from disspy.reaction import DisEmoji, DisRemovedReaction
                 _m_id = int(event.data["message_id"])
                 _c_id = int(event.data["channel_id"])
@@ -685,7 +709,7 @@ class Flow:
 
                 await self.on_reactionr(_r)
 
-            if event.type == "TYPING_START":
+            elif event.type == "TYPING_START":
                 try:
                     if event.data["guild_id"]:
                         _u: DisUser = DisUser(event.data["member"]["user"], self.token)

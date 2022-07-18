@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+# Package imports
+from asyncio import run
 # Typing imports
 from typing import (
     Optional,
@@ -30,12 +32,9 @@ from typing import (
     Type,
     Callable,
     NoReturn,
-    final,
-    overload
+    final
 )
 
-# Package imports
-from asyncio import run
 import requests.exceptions
 
 # Disspy imports
@@ -61,9 +60,9 @@ from disspy.core import (
 )
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
+from disspy.jsongenerators import _OptionGenerator
 from disspy.logger import Logger
 from disspy.user import DisUser
-from disspy.jsongenerators import _OptionGenerator
 
 __all__: tuple[str] = (
     "DisBot"
@@ -76,6 +75,8 @@ Wrapper = Callable
 _all_basic_events = [
     "ready",  # On ready
     "messagec",  # On message create
+    "messageu",  # On message update
+    "messaged",  # On message delete
     "close",  # On closing bot
     "reaction",  # On reaction add
     "reactionr",  # On reaction remove
@@ -142,12 +143,15 @@ class DisBotEventType:
     _T = TypeVar("DisBotEventType")
 
     ON_MESSAGEC: str = "messagec"
+    ON_MESSAGEU: str = "messageu"
+    ON_MESSAGED: str = "messaged"
     ON_READY: str = "ready"
     ON_CLOSE: str = "close"
     ON_REACTION: str = "reaction"
     ON_REACTIONR: str = "reactionr"
     ON_TYPING: str = "typing"
     ON_DM_TYPING: str = "dm_typing"
+
     @property
     def __class__(self) -> Type[_T]:
         """
@@ -163,7 +167,8 @@ class DisBotEventType:
         -----
         :return list: All varibles in this class
         """
-        return [self.ON_READY, self.ON_MESSAGEC, self.ON_CLOSE, self.ON_REACTION, self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
+        return [self.ON_READY, self.ON_MESSAGEC, self.ON_MESSAGEU, self.ON_MESSAGED,
+                self.ON_CLOSE, self.ON_REACTION, self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
 
     def __str__(self) -> str:
         """
@@ -260,6 +265,8 @@ class DisBot(_BaseBot):
         self._ons = {
             "ready": None,
             "messagec": None,
+            "messageu": None,
+            "messaged": None,
             "register": self._on_register,
             "register2": None,
             "interaction": None,
@@ -391,20 +398,24 @@ class DisBot(_BaseBot):
         """
         _ts: list[str] = [
             "create",  # Message create
-            "edit",  # Message edit (Don't supported)
-            "delete"  # Message delete (Don't supported)
+            "update",  # Message update
+            "delete"  # Message delete
         ]
 
         _mse: list[str] = [
             "messagec",  # Message create
-            "messagee",  # Message edit (Don't supported)
-            "messaged"  # Message delete (Don't supported)
+            "messageu",  # Message edit
+            "messaged"  # Message delete
         ]
 
         def wrapper(func):
             if t in _ts:
                 if t == _ts[0]:  # Message create
                     self._ons[_mse[0]] = func
+                elif t == _ts[1]:  # Message update
+                    self._ons[_mse[1]] = func
+                elif t == _ts[2]:  # Message delete
+                    self._ons[_mse[2]] = func
 
         return wrapper
 
