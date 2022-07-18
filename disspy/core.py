@@ -493,6 +493,9 @@ class Flow:
     async def on_messagec(self, m: DisMessage):
         pass
 
+    async def on_messageu(self, m: DisMessage):
+        pass
+
     async def on_interaction(self, token, id, command_name: Text, bot_token: Showflake[str], type: int, data: JsonOutput, type_of_command: Optional[int] = None):
         pass
 
@@ -557,6 +560,8 @@ class Flow:
             self.on_ready = ons["ready"]
         if ons["messagec"] is not None:
             self.on_messagec = ons["messagec"]
+        if ons["messageu"] is not None:
+            self.on_messageu = ons["messageu"]
         if ons["reaction"] is not None:
             self.on_reaction = ons["reaction"]
         if ons["reactionr"] is not None:
@@ -641,6 +646,12 @@ class Flow:
                         await self.on_channel(_m)
 
                     await self.on_messagec(_m)
+
+            if event.type == "MESSAGE_UPDATE":
+                _m = DisMessage(event.data, self.token)
+
+                if not event.data["author"]["id"] == self.user_id:
+                    await self.on_messageu(_m)
 
             if event.type == "INTERACTION_CREATE":
                 if event.data["type"] == 2:
