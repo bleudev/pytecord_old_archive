@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+# Package imports
+from asyncio import run
 # Typing imports
 from typing import (
     Optional,
@@ -30,12 +32,9 @@ from typing import (
     Type,
     Callable,
     NoReturn,
-    final,
-    overload
+    final
 )
 
-# Package imports
-from asyncio import run
 import requests.exceptions
 
 # Disspy imports
@@ -61,9 +60,9 @@ from disspy.core import (
 )
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
+from disspy.jsongenerators import _OptionGenerator
 from disspy.logger import Logger
 from disspy.user import DisUser
-from disspy.jsongenerators import _OptionGenerator
 
 __all__: tuple[str] = (
     "DisBot"
