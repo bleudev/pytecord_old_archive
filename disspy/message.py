@@ -98,12 +98,13 @@ class DisMessage:
 
         self._json = _data
 
-        self.channel = DisChannel(_data["channel_id"], _token)
+        self.channel: DisChannel = DisChannel(_data["channel_id"], _token)
 
         self._headers = {'Authorization': f'Bot {_token}'}
 
-        self.content = _data["content"]
-        self.id = _data["id"]
+        self.content: str = str(_data["content"])
+
+        self.id: int = int(_data["id"])
         self._type: int = int(_data["type"])
 
         self._t = _token
