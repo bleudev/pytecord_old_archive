@@ -10,6 +10,7 @@
 /disspy.egg-info
 /dist
 /sdist
+/build
 
 # Tests
 test.py
