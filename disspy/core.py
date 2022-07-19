@@ -973,7 +973,7 @@ class DisApi(_RequestsUserClass):
         elif payload["type"] == 2:
             # Register interaction func to User Commands
             try:
-                if payload["description"]:
+                if not payload["description"]:
                     self.app_commands_jsons.append(payload)
 
                     app_func_register(1)
@@ -985,7 +985,7 @@ class DisApi(_RequestsUserClass):
         elif payload["type"] == 3:
             # Register interaction func to Message Commands
             try:
-                if payload["description"]:
+                if not payload["description"]:
                     self.app_commands_jsons.append(payload)
 
                     app_func_register(2)
