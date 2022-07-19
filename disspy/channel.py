@@ -26,9 +26,11 @@ from disspy.embed import DisEmbed
 from disspy.message import DisMessage
 from disspy.guild import DisGuild
 from disspy.jsongenerators import _EmbedGenerator
+from disspy.ui import ActionRow
 
 from typing import (
-    Optional
+    Optional,
+    Union
 )
 
 __all__: tuple[str] = (
@@ -41,11 +43,12 @@ class _SendingRestHandler:
     @staticmethod
     async def execute(id, payload, token):
         from aiohttp import ClientSession as CS
+        from json import dumps
 
-        async with CS(headers={'Authorization': f'Bot {token}'}) as s:
+        async with CS(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             _u = f"https://discord.com/api/v9/channels/{id}/messages"
 
-            async with s.post(_u, data=payload) as p:
+            async with s.post(_u, data=dumps(payload)) as p:
                 j = await p.json()
 
                 return j
@@ -116,71 +119,90 @@ class DisChannel:
         """
         return self.id == other.id
 
-    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None) -> DisMessage:
+    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None, action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
         """
         Sending messages to discord channel
 
         :param content: str = None -> Content of message which will be sended (default is None)
         :param embeds: list[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
+        :param action_row: ActionRow = None -> Action Row with components (default is None)
         :return DisMessage: Message which was sended
         """
-        _payload = {}
+        _payload = {
+            "content": None,
+            "embeds": None,
+            "components": None
+        }
 
         if embeds:
             embeds_json = []
 
             for i in embeds:
                 embeds_json.append(_EmbedGenerator(i))
-            if content:
-                _payload = {
-                    "content": content,
-                    "embeds": embeds_json
-                }
-            elif not content:
-                _payload = {
-                    "embeds": embeds_json
-                }
-        elif not embeds and content:
-            _payload = {
-                "content": content
-            }
-        elif not embeds and not content:
-            return
 
-        d = await _SendingRestHandler.execute(self.id, _payload, self._t)
+            _payload["embeds"] = embeds_json
+        else:
+            del _payload["embeds"]
 
-        return DisMessage(d, self._t)
+        if content:
+            _payload["content"] = content
+        else:
+            del _payload["content"]
 
-    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None) -> DisMessage:
+        if action_row.components:
+            _payload["components"] = action_row.components
+        else:
+            del _payload["components"]
+
+        if _payload:
+            print(_payload)
+            d = await _SendingRestHandler.execute(self.id, _payload, self._t)
+
+            print(d)
+
+            return DisMessage(d, self._t)
+        else:
+            return None
+
+    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None, action_row: Optional[ActionRow] = None) -> DisMessage:
         """
         Sending messages to discord channel
 
         :param content: str = None -> Content of message which will be sended (default is None)
         :param embed: DisEmbed = None -> Embed for message (DisEmbed - embed) (default is None)
+        :param action_row: ActionRow = None -> Action Row with components (default is None)
         :return DisMessage: Message which was sended
         """
-        _payload = {}
+        _payload = {
+            "content": None,
+            "embeds": None,
+            "components": None
+        }
 
-        if embed and content:
-            _payload = {
-                "content": content,
-                "embeds": [_EmbedGenerator(embed)]
-            }
-        elif embed and not content:
-            _payload = {
-                "embeds": [_EmbedGenerator(embed)]
-            }
+        if embed:
+            _payload["embeds"] = [_EmbedGenerator(embed)]
+        else:
+            del _payload["embeds"]
 
-        elif content and not embed:
-            _payload = {
-                "content": content
-            }
-        elif not content and not embed:
-            return
+        if content:
+            _payload["content"] = content
+        else:
+            del _payload["content"]
 
-        d = await _SendingRestHandler.execute(self.id, _payload, self._t)
+        if action_row.components:
+            _payload["components"] = action_row.components
+        else:
+            del _payload["components"]
 
-        return DisMessage(d, self._t)
+        if _payload:
+            print(_payload)
+            d = await _SendingRestHandler.execute(self.id, _payload, self._t)
+
+            print(d)
+
+            return DisMessage(d, self._t)
+        else:
+            return None
 
     def fetch(self, id: int) -> DisMessage:
         """

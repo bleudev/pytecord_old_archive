@@ -82,6 +82,10 @@ from disspy.reaction import (
     DisReaction,
     DisRemovedReaction
 )
+from disspy.ui import (
+    Component,
+    ActionRow
+)
 
 
 # Methods for other varibles

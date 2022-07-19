@@ -307,6 +307,8 @@ class DisBot(_BaseBot):
         self.__slots__ = [self._api, self._on_ready, self._on_messagec,
                           self.token, self.user, self.isready, self.status]
 
+        self._comsevs = {}  # exaple "custom id": func
+
     @property
     def __class__(self) -> Type[_T]:
         """
