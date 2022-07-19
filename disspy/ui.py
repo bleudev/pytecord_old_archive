@@ -24,18 +24,19 @@ SOFTWARE.
 
 from typing import (
     NoReturn,
-    Dict,
-    Union
+    Dict
 )
-from disspy.client import DisBot
 
 
 class Component:
     def __init__(self, ctype, custom_id, label=None, style=None) -> NoReturn:
-        self.type = ctype
-        self.custom_id = custom_id
-        self.label = label
-        self.style = style
+        if ctype == 1:
+            print("Action Rows don't can to use by users")
+        else:
+            self.type = ctype
+            self.custom_id = custom_id
+            self.label = label
+            self.style = style
 
 
 class Button(Component):
@@ -54,16 +55,18 @@ class _ComponentGenerator:
 
 
 class ActionRow:
-    def __init__(self, bot: DisBot) -> NoReturn:
+    def __init__(self, bot) -> NoReturn:
         self.components = [{
             "type": 1,
             "components": []
         }]
         self._b = bot
 
-    def add(self, c: Component) -> Union[Button]:
+    def add(self, c: Component):
         def wrapper(func):
             self.components[0]["components"].append(_ComponentGenerator(c))
-
+            from disspy.client import DisBot
+            self._b: DisBot = self._b
+            self._b.api.comsevs[c.custom_id] = func
 
         return wrapper

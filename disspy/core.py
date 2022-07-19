@@ -36,6 +36,7 @@ from typing import (
     Union,
     Optional,
     Awaitable,
+    Callable,
     NewType,
     ClassVar,
     Dict,
@@ -505,6 +506,9 @@ class Flow:
     async def on_interaction(self, token, id, command_name: Text, bot_token: Showflake[str], type: int, data: JsonOutput, type_of_command: Optional[int] = None):
         pass
 
+    async def on_components(self, d):
+        pass
+
     async def on_register(self):
         pass
 
@@ -583,6 +587,7 @@ class Flow:
             self.on_channel__id = ons["channel"][1]
 
         self.on_interaction = ons["interaction"]
+        self.on_components = ons["components"]
         self.on_register = ons["register"]
         self.register2 = ons["register2"]
 
@@ -667,9 +672,11 @@ class Flow:
                 await self.on_messaged(_e)
 
             elif event.type == "INTERACTION_CREATE":
-                if event.data["type"] == 2:
+                if event.data["type"] == 2:  # Application Commands
                     await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
                                               self.token, event.data["type"], event.data, event.data["data"]["type"])
+                if event.data["type"] == 3:  # Components
+                    await self.on_components(event.data)
                 else:
                     await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
                                               self.token, event.data["type"], event.data, None)
@@ -751,6 +758,7 @@ class DisApi(_RequestsUserClass):
         """
         super().__init__()
 
+        self.comsevs = {}
         self._headers = {'Authorization': f'Bot {token}', "content-type": "application/json"}
         self.app_commands_jsons = []
 
@@ -776,7 +784,7 @@ class DisApi(_RequestsUserClass):
 
         return DisMessage(_d, self.token)
 
-    async def run(self, status, ons: Dict[Text, Awaitable], debug: bool, act: Dict[str, Any]) -> NoReturn:
+    async def run(self, status, ons: Dict[Text, Callable], debug: bool, act: Dict[str, Any]) -> NoReturn:
         """
         Run the flow of DisApi or run the bot.
         Running bot in Discord, changing status and registering
@@ -790,6 +798,7 @@ class DisApi(_RequestsUserClass):
         """
         ons["register2"] = self._register2
         ons["interaction"] = self._on_interaction
+        ons["components"] = self._on_components
 
         _url = f"{_mainurl()}applications/{self.application_id}/commands"
 
@@ -891,6 +900,11 @@ class DisApi(_RequestsUserClass):
                         pass
                 except KeyError:
                     print("What! Application command is invalid")
+
+    async def _on_components(self, d):
+        from disspy.application_commands import Context
+        _ctx = Context(d["token"], d["id"], self.token)
+        await self.comsevs[d["data"]["custom_id"]](_ctx)
 
     def get_user(self, user_id: UserId) -> DisUser:
         """

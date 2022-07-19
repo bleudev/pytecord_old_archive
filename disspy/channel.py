@@ -155,10 +155,7 @@ class DisChannel:
             del _payload["components"]
 
         if _payload:
-            print(_payload)
             d = await _SendingRestHandler.execute(self.id, _payload, self._t)
-
-            print(d)
 
             return DisMessage(d, self._t)
         else:
@@ -195,10 +192,7 @@ class DisChannel:
             del _payload["components"]
 
         if _payload:
-            print(_payload)
             d = await _SendingRestHandler.execute(self.id, _payload, self._t)
-
-            print(d)
 
             return DisMessage(d, self._t)
         else:
