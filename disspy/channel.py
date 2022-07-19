@@ -157,6 +157,8 @@ class DisChannel:
         if _payload:
             d = await _SendingRestHandler.execute(self.id, _payload, self._t)
 
+            print(d)
+
             return DisMessage(d, self._t)
         else:
             return None
@@ -193,6 +195,8 @@ class DisChannel:
 
         if _payload:
             d = await _SendingRestHandler.execute(self.id, _payload, self._t)
+
+            print(d)
 
             return DisMessage(d, self._t)
         else:

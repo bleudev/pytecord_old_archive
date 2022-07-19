@@ -85,7 +85,8 @@ from disspy.reaction import (
 from disspy.ui import (
     Component,
     ActionRow,
-    Button
+    Button,
+    ButtonStyle
 )
 
 

@@ -29,19 +29,34 @@ from typing import (
 
 
 class Component:
-    def __init__(self, ctype, custom_id, label=None, style=None) -> NoReturn:
+    def __init__(self, ctype, custom_id=None, label=None, style=None, url=None) -> NoReturn:
         if ctype == 1:
             print("Action Rows don't can to use by users")
         else:
-            self.type = ctype
-            self.custom_id = custom_id
-            self.label = label
-            self.style = style
+            if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
+                print("Error!")
+            else:
+                self.type = ctype
+                self.custom_id = custom_id
+                self.label = label
+                self.style = style
+                self.url = url
 
 
 class Button(Component):
-    def __init__(self, custom_id, label, style) -> NoReturn:
-        super().__init__(2, custom_id, label, style)
+    def __init__(self,  label, style, url=None, custom_id=None,) -> NoReturn:
+        if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
+            print("Error!")
+        else:
+            super().__init__(2, custom_id, label, style, url)
+
+
+class ButtonStyle:
+    BLUE = 1
+    GREY = 2
+    GREEN = 3
+    RED = 4
+    LINK = 5
 
 
 class _ComponentGenerator:
@@ -50,7 +65,8 @@ class _ComponentGenerator:
             "type": c.type,
             "custom_id": c.custom_id,
             "label": c.label,
-            "style": c.style
+            "style": c.style,
+            "url": c.url
         }
 
 
