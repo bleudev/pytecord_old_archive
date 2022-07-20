@@ -509,6 +509,9 @@ class Flow:
     async def on_components(self, d):
         pass
 
+    async def on_modal_sumbit(self, d):
+        pass
+
     async def on_register(self):
         pass
 
@@ -588,6 +591,7 @@ class Flow:
 
         self.on_interaction = ons["interaction"]
         self.on_components = ons["components"]
+        self.on_modal_sumbit = ons["modalsumbit"]
         self.on_register = ons["register"]
         self.register2 = ons["register2"]
 
@@ -677,9 +681,9 @@ class Flow:
                                               self.token, event.data["type"], event.data, event.data["data"]["type"])
                 if event.data["type"] == 3:  # Components
                     await self.on_components(event.data)
-                else:
-                    await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
-                                              self.token, event.data["type"], event.data, None)
+
+                if event.data["type"] == 5:  # Modal Sumbit
+                    await self.on_modal_sumbit(event.data)
 
             elif event.type == "MESSAGE_REACTION_ADD":
                 from disspy.reaction import DisEmoji, DisReaction
@@ -799,6 +803,7 @@ class DisApi(_RequestsUserClass):
         ons["register2"] = self._register2
         ons["interaction"] = self._on_interaction
         ons["components"] = self._on_components
+        ons["modalsumbit"] = self._on_modal_sumbit
 
         _url = f"{_mainurl()}applications/{self.application_id}/commands"
 
@@ -905,6 +910,18 @@ class DisApi(_RequestsUserClass):
         from disspy.application_commands import Context
         _ctx = Context(d["token"], d["id"], self.token)
         await self.comsevs[d["data"]["custom_id"]](_ctx)
+
+    async def _on_modal_sumbit(self, d):
+        from disspy.application_commands import Context
+        _ctx = Context(d["token"], d["id"], self.token)
+        coms = d["data"]["components"][0]["components"]
+        _v = ""
+
+        for i in coms:
+            if i["custom_id"] == d["data"]["custom_id"]:
+                _v = i["value"]
+
+        await self.comsevs[d["data"]["custom_id"]](_ctx, _v)
 
     def get_user(self, user_id: UserId) -> DisUser:
         """

@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
 from typing import (
     Union,
     Optional,
@@ -67,6 +66,19 @@ class _MessageFlags:
     FAILED_TO_MENTION_SOME_ROLES_IN_THREAD: ClassVar[int] = 1 << 8
 
 
+class _SendingRestHandler:
+    @staticmethod
+    async def execute(url, payload, token):
+        from aiohttp import ClientSession as CS
+        from json import dumps
+
+        async with CS(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+            async with s.post(url, data=dumps(payload)) as d:
+                j = await d.text()
+
+                return j
+
+
 @final
 class ApplicationCommandType:
     """
@@ -87,6 +99,7 @@ class ApplicationCommand:
     :var cmd: Method to use in on_interaction
     :var command_type: Type of application command
     """
+
     def __init__(self, name: str, cmd: Callable, command_type: int) -> NoReturn:
         self.name: str = name
         self.cmd: Callable = cmd
@@ -98,7 +111,9 @@ class Option:
     """
     Class for using options in application commands (TEXT_INPUT)
     """
-    def __init__(self, name: str, description: str, option_type: int, choices: Optional[list[dict]] = None, required: Optional[bool] = False) -> NoReturn:
+
+    def __init__(self, name: str, description: str, option_type: int, choices: Optional[list[dict]] = None,
+                 required: Optional[bool] = False) -> NoReturn:
         """
         Init class
         -----
@@ -138,6 +153,7 @@ class SlashCommand(ApplicationCommand):
     """
     Application Command with type number 1 (TEXT_INPUT)
     """
+
     def __init__(self, name: str, description: str, cmd: Callable, options: Optional[list[Option]] = None) -> NoReturn:
         super().__init__(name, cmd, 1)
 
@@ -159,6 +175,7 @@ class UserCommand(ApplicationCommand):
     """
     Application Command with type number 2 (USER)
     """
+
     def __init__(self, name: str, cmd: Callable) -> NoReturn:
         super().__init__(name, cmd, 2)
 
@@ -168,6 +185,7 @@ class MessageCommand(ApplicationCommand):
     """
     Application Command with type number 3 (MESSAGE)
     """
+
     def __init__(self, name: str, cmd: Callable) -> NoReturn:
         super().__init__(name, cmd, 3)
 
@@ -179,10 +197,12 @@ class Context:
 
     There are some methods for responding to interaction (Slash Command)
     """
-    def __init__(self, interaction_token: Union[Showflake[str], str], interaction_id: Union[Showflake[int], int], bot_token) -> NoReturn:
+
+    def __init__(self, interaction_token: Union[Showflake[str], str], interaction_id: Union[Showflake[int], int],
+                 bot_token) -> NoReturn:
         self._interaction_token: str = str(interaction_token)
         self._interaction_id: int = int(interaction_id)
-        self._headers = {'Authorization': f'Bot {bot_token}'}
+        self._t = bot_token
 
     async def send(self, content: str, ephemeral: bool = False) -> NoReturn:
         """
@@ -211,11 +231,24 @@ class Context:
 
         _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
 
-        from requests import post
+        await _SendingRestHandler.execute(_url, _payload, self._t)
 
-        post(_url, json=_payload, headers=self._headers)
+    from disspy.ui import ActionRow
+    async def send_modal(self, title, custom_id, action_row: ActionRow):
+        _payload = {
+            "type": 9,
+            "data": {
+                "title": title,
+                "custom_id": custom_id,
+                "components": action_row.json
+            }
+        }
 
-        del post
+        _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
+
+        j = await _SendingRestHandler.execute(_url, _payload, self._t)
+
+        print(j)
 
 
 @final
@@ -236,6 +269,7 @@ class OptionArgs:
     async def test(ctx: Context, args: OptionArgs):
         await ctx.send(args.getString("Hi"))
     """
+
     def __init__(self, values: Optional[list[_Argument]] = None) -> NoReturn:
         """
         Init object

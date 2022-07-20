@@ -268,6 +268,7 @@ class DisBot(_BaseBot):
             "register2": None,
             "interaction": None,
             "components": None,
+            "modalsumbit": None,
             "reaction": None,
             "reactionr": None,
             "typing": None,
@@ -292,6 +293,8 @@ class DisBot(_BaseBot):
                 if test2_j["message"] == "Unknown Application" and test2_j["code"] == 10002:
                     raise errors.BotApplicationIdInvalid("Invalid Application id!")
             except KeyError:
+                pass
+            except TypeError:
                 pass
 
         self.api = DisApi(self.token, self.intflags, application_id)

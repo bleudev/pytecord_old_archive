@@ -149,8 +149,8 @@ class DisChannel:
         else:
             del _payload["content"]
 
-        if action_row.components:
-            _payload["components"] = action_row.components
+        if action_row.json["components"]:
+            _payload["components"] = action_row.json
         else:
             del _payload["components"]
 
@@ -188,8 +188,8 @@ class DisChannel:
         else:
             del _payload["content"]
 
-        if action_row.components:
-            _payload["components"] = action_row.components
+        if action_row.json["components"]:
+            _payload["components"] = action_row.json
         else:
             del _payload["components"]
 

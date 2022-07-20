@@ -86,7 +86,8 @@ from disspy.ui import (
     Component,
     ActionRow,
     Button,
-    ButtonStyle
+    ButtonStyle,
+    TextInput
 )
 
 

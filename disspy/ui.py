@@ -29,18 +29,28 @@ from typing import (
 
 
 class Component:
-    def __init__(self, ctype, custom_id=None, label=None, style=None, url=None) -> NoReturn:
+    def __init__(self, ctype, custom_id=None, label=None, style=None, url=None, min_length=None, max_length=None, placeholder=None, required=None) -> NoReturn:
         if ctype == 1:
             print("Action Rows don't can to use by users")
         else:
-            if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
-                print("Error!")
-            else:
+            if ctype == 2:
+                if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
+                    print("Error!")
+                else:
+                    self.type = ctype
+                    self.custom_id = custom_id
+                    self.label = label
+                    self.style = style
+                    self.url = url
+            elif ctype == 4:
                 self.type = ctype
-                self.custom_id = custom_id
-                self.label = label
                 self.style = style
-                self.url = url
+                self.label = label
+                self.custom_id = custom_id
+                self.min_length = min_length
+                self.max_length = max_length
+                self.placeholder = placeholder
+                self.required = required
 
 
 class Button(Component):
@@ -59,20 +69,38 @@ class ButtonStyle:
     LINK = 5
 
 
+class TextInput(Component):
+    def __init__(self, label, style, min_length, max_length, placeholder, required=False):
+        super().__init__(4, custom_id=label, style=style, label=label, min_length=min_length, max_length=max_length,
+                         placeholder=placeholder, required=required)
+
+
 class _ComponentGenerator:
     def __new__(cls, c: Component) -> Dict:
-        return {
-            "type": c.type,
-            "custom_id": c.custom_id,
-            "label": c.label,
-            "style": c.style,
-            "url": c.url
-        }
+        if c.type == 2:
+            return {
+                "type": c.type,
+                "custom_id": c.custom_id,
+                "label": c.label,
+                "style": c.style,
+                "url": c.url
+            }
+        elif c.type == 4:
+            return {
+                "type": c.type,
+                "custom_id": c.custom_id,
+                "style": c.style,
+                "label": c.label,
+                "min_length": c.min_length,
+                "max_length": c.max_length,
+                "placeholder": c.placeholder,
+                "required": c.required
+            }
 
 
 class ActionRow:
     def __init__(self, bot) -> NoReturn:
-        self.components = [{
+        self.json = [{
             "type": 1,
             "components": []
         }]
@@ -80,7 +108,7 @@ class ActionRow:
 
     def add(self, c: Component):
         def wrapper(func):
-            self.components[0]["components"].append(_ComponentGenerator(c))
+            self.json[0]["components"].append(_ComponentGenerator(c))
             from disspy.client import DisBot
             self._b: DisBot = self._b
             self._b.api.comsevs[c.custom_id] = func
