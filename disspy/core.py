@@ -696,15 +696,41 @@ class Flow:
                                 await self.on_dmessagec(_m)
 
             elif event.type == "MESSAGE_UPDATE":
-                _m = DisMessage(event.data, self.token)
+                _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
+
+                from aiohttp import ClientSession
 
                 if not event.data["author"]["id"] == self.user_id:
-                    await self.on_messageu(_m)
+                    async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
+                        async with s.get(_u) as g:
+                            j = await g.json()
+
+                            if j["type"] == 0:
+                                _m = DisMessage(event.data, self.token)
+
+                                await self.on_messageu(_m)
+                            elif j["type"] == 1:
+                                _m = DmMessage(event.data, self.token)
+
+                                await self.on_dmessageu(_m)
 
             elif event.type == "MESSAGE_DELETE":
-                _e = MessageDeleteEvent(event.data, self.token)
+                _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
-                await self.on_messaged(_e)
+                from aiohttp import ClientSession
+
+                async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
+                    async with s.get(_u) as g:
+                        j = await g.json()
+
+                        if j["type"] == 0:
+                            _e = MessageDeleteEvent(event.data, self.token)
+
+                            await self.on_messaged(_e)
+                        elif j["type"] == 1:
+                            _e = DmMessageDeleteEvent(event.data, self.token)
+
+                            await self.on_dmessaged(_e)
 
             elif event.type == "INTERACTION_CREATE":
                 if event.data["type"] == 2:  # Application Commands
