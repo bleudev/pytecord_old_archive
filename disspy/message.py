@@ -186,8 +186,13 @@ class DisMessage:
 
 class DmMessage:
     def __init__(self, d, token):
+        from disspy.channel import DisDmChannel
+
         self.json = d
         self._t = token
+
+        self.content = d["content"]
+        self.channel = DisDmChannel(d['channel_id'], self._t)
 
 
 class MessageDeleteEvent:
@@ -199,6 +204,8 @@ class MessageDeleteEvent:
 
 
 class DmMessageDeleteEvent:
-    def __init__(self, d: dict):
+    def __init__(self, d: dict, t: str):
+        from disspy.channel import DisDmChannel
+
         self.message_id = d['id']
-        self.channel_id = d['channel_id']
+        self.channel = DisDmChannel(d['channel_id'], t)

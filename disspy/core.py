@@ -49,7 +49,7 @@ from typing import (
 )
 
 # disspy imports
-from disspy.channel import DisChannel, DisDm
+from disspy.channel import DisChannel, DisDmChannel
 from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
 from disspy.message import (
@@ -538,7 +538,7 @@ class Flow:
     async def on_typing_start(self, u: DisUser, channel: DisChannel):
         pass
 
-    async def on_dm_typing_start(self, u: DisUser, channel: DisDm):
+    async def on_dm_typing_start(self, u: DisUser, channel: DisDmChannel):
         pass
 
     async def on_channel(self, m: DisMessage):
@@ -695,9 +695,6 @@ class Flow:
 
                                 await self.on_dmessagec(_m)
 
-
-
-
             elif event.type == "MESSAGE_UPDATE":
                 _m = DisMessage(event.data, self.token)
 
@@ -766,7 +763,7 @@ class Flow:
                         _u_json = Rest(self.token).get("user", _u_id)
 
                         _u: DisUser = DisUser(_u_json, self.token)
-                        _c: DisDm = DisDm(event.data["channel_id"], self.token)
+                        _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
 
                         await self.on_dm_typing_start(_u, _c)
                 except KeyError:
@@ -774,7 +771,7 @@ class Flow:
                     _u_json = Rest(self.token).get("user", _u_id)
 
                     _u: DisUser = DisUser(_u_json, self.token)
-                    _c: DisDm = DisDm(event.data["channel_id"], self.token)
+                    _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
 
                     await self.on_dm_typing_start(_u, _c)
 
