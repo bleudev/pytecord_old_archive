@@ -27,4 +27,19 @@ async def text_input(ctx: disspy.Context, args: disspy.OptionArgs):
     await ctx.send_modal(title="Enter your name", custom_id="name_input", action_row=ar)
 
 
+# Select menu
+@bot.slash_command(name="select_menu", description="Show message with select menu")
+async def select_menu(ctx: disspy.Context, args: disspy.OptionArgs):
+    ar = disspy.ActionRow(bot)
+    options = []
+
+    options.append(disspy.SelectMenuOption(label="Moderator", description="person who is moderate users", value="moderator", emoji='😁'))
+    options.append(disspy.SelectMenuOption(label="User", description="Just person", value="user", default=True, emoji='😎'))
+
+    @ar.add(disspy.SelectMenu(custom_id="selectrole", options=options, placeholder="Owner", min_values=1, max_values=2))
+    async def test(menu_ctx: disspy.Context, values: list[str]):
+        await menu_ctx.send(content=str(values))
+
+    await ctx.send(content="Choice role", action_row=ar)
+
 bot.run()  # Running bot

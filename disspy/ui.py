@@ -26,7 +26,8 @@ from typing import (
     NoReturn,
     Dict,
     Optional,
-    Text
+    Text,
+    Union
 )
 
 
@@ -84,29 +85,37 @@ class ButtonStyle:
 from disspy.reaction import DisEmoji
 
 class SelectMenuOption:
-    def __init__(self, label: str, value: str, description: str, emoji: DisEmoji):
+    def __init__(self, label: str, value: str, description: str, emoji: Union[DisEmoji, str], default: bool = False):
         self.label = label
         self.value = value
         self.description = description
         self.emoji = emoji
+        self.default = default
 
     def json(self):
-        if self.emoji.unicode:
+        if isinstance(self.emoji, DisEmoji):
+            if self.emoji.unicode:
+                e_j = {
+                    "name": self.emoji.unicode,
+                    "id": self.emoji.emoji_id
+                }
+            else:
+                e_j = {
+                    "name": self.emoji.name,
+                    "id": self.emoji.emoji_id
+                }
+        elif isinstance(self.emoji, str):
             e_j = {
-                "name": self.emoji.unicode,
-                "id": self.emoji.emoji_id
-            }
-        else:
-            e_j = {
-                "name": self.emoji.name,
-                "id": self.emoji.emoji_id
+                "name": self.emoji,
+                "id": None
             }
 
         return {
             "label": self.label,
             "value": self.value,
             "description": self.description,
-            "emoji": e_j
+            "emoji": e_j,
+            "default": self.default
         }
 
 
