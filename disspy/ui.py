@@ -24,7 +24,9 @@ SOFTWARE.
 
 from typing import (
     NoReturn,
-    Dict
+    Dict,
+    Optional,
+    Text
 )
 
 
@@ -54,10 +56,12 @@ class Component:
 
 
 class Button(Component):
-    def __init__(self,  label, style, url=None, custom_id=None,) -> NoReturn:
+    def __init__(self, label: Text, style: Optional[int] = None, url: Optional[str] = None, custom_id: Optional[Text] = None,) -> NoReturn:
         if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
             print("Error!")
         else:
+            if style is None:  # Default
+                style = 1  # Blue
             super().__init__(2, custom_id, label, style, url)
 
 
@@ -70,9 +74,16 @@ class ButtonStyle:
 
 
 class TextInput(Component):
-    def __init__(self, label, style, min_length, max_length, placeholder, required=False):
+    def __init__(self, label, min_length, max_length, placeholder, required=False, style=None):
+        if style is None:  # Default
+            style = 1  # Short
         super().__init__(4, custom_id=label, style=style, label=label, min_length=min_length, max_length=max_length,
                          placeholder=placeholder, required=required)
+
+
+class TextInputStyle:
+    SHORT = 1
+    PARAGRAPH = 2
 
 
 class _ComponentGenerator:

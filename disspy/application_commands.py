@@ -73,10 +73,7 @@ class _SendingRestHandler:
         from json import dumps
 
         async with CS(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
-            async with s.post(url, data=dumps(payload)) as d:
-                j = await d.text()
-
-                return j
+            await s.post(url, data=dumps(payload))
 
 
 @final
@@ -204,7 +201,9 @@ class Context:
         self._interaction_id: int = int(interaction_id)
         self._t = bot_token
 
-    async def send(self, content: str, ephemeral: bool = False) -> NoReturn:
+    from disspy.ui import ActionRow
+
+    async def send(self, content: str, action_row: Optional[ActionRow] = None, ephemeral: bool = False) -> NoReturn:
         """
 
         :param content: (str) Message content
@@ -214,26 +213,44 @@ class Context:
         _payload = {}
 
         if ephemeral:
-            _payload = {
-                "type": 4,
-                "data": {
-                    "content": content,
-                    "flags": _MessageFlags.EPHEMERAL
+            if action_row:
+                _payload = {
+                    "type": 4,
+                    "data": {
+                        "content": content,
+                        "flags": _MessageFlags.EPHEMERAL,
+                        "components": action_row.json
+                    }
                 }
-            }
+            else:
+                _payload = {
+                    "type": 4,
+                    "data": {
+                        "content": content,
+                        "flags": _MessageFlags.EPHEMERAL
+                    }
+                }
         else:
-            _payload = {
-                "type": 4,
-                "data": {
-                    "content": content
+            if action_row:
+                _payload = {
+                    "type": 4,
+                    "data": {
+                        "content": content,
+                        "components": action_row.json
+                    }
                 }
-            }
+            else:
+                _payload = {
+                    "type": 4,
+                    "data": {
+                        "content": content
+                    }
+                }
 
         _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
 
         await _SendingRestHandler.execute(_url, _payload, self._t)
 
-    from disspy.ui import ActionRow
     async def send_modal(self, title, custom_id, action_row: ActionRow):
         _payload = {
             "type": 9,
