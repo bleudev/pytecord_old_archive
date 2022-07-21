@@ -679,7 +679,7 @@ class Flow:
                 if event.data["type"] == 2:  # Application Commands
                     await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
                                               self.token, event.data["type"], event.data, event.data["data"]["type"])
-                if event.data["type"] == 3:  # Components
+                if event.data["type"] == 3 or event.data["type"] == 4:  # Components
                     await self.on_components(event.data)
 
                 if event.data["type"] == 5:  # Modal Sumbit
@@ -907,9 +907,15 @@ class DisApi(_RequestsUserClass):
                     print("What! Application command is invalid")
 
     async def _on_components(self, d):
-        from disspy.application_commands import Context
-        _ctx = Context(d["token"], d["id"], self.token)
-        await self.comsevs[d["data"]["custom_id"]](_ctx)
+        if d["data"]["component_type"] == 2:
+            from disspy.application_commands import Context
+            _ctx = Context(d["token"], d["id"], self.token)
+            await self.comsevs[d["data"]["custom_id"]](_ctx)
+        if d["data"]["component_type"] == 3:
+            from disspy.application_commands import Context
+            _ctx = Context(d["token"], d["id"], self.token)
+            _vs = d["data"]["values"]
+            await self.comsevs[d["data"]["custom_id"]](_ctx, _vs)
 
     async def _on_modal_sumbit(self, d):
         from disspy.application_commands import Context

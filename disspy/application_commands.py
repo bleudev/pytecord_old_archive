@@ -32,6 +32,8 @@ from typing import (
     final
 )
 
+import aiohttp.client_exceptions
+
 from disspy.jsongenerators import _OptionGenerator
 from disspy.core import Showflake
 
@@ -71,10 +73,18 @@ class _SendingRestHandler:
     async def execute(url, payload, token):
         from aiohttp import ClientSession as CS
         from json import dumps
+        import aiohttp
 
         async with CS(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             await s.post(url, data=dumps(payload))
+            try:
+                async with s.post(url, data=dumps(payload)) as d:
+                    j = await d.json()
 
+                    return j
+            except aiohttp.client_exceptions.ContentTypeError:
+                await s.post(url, data=dumps(payload))
+                return None
 
 @final
 class ApplicationCommandType:
@@ -249,7 +259,9 @@ class Context:
 
         _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
 
-        await _SendingRestHandler.execute(_url, _payload, self._t)
+        print(_payload)
+        d = await _SendingRestHandler.execute(_url, _payload, self._t)
+        print(d)
 
     async def send_modal(self, title, custom_id, action_row: ActionRow):
         _payload = {

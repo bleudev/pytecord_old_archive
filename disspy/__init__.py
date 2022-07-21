@@ -87,7 +87,9 @@ from disspy.ui import (
     ActionRow,
     Button,
     ButtonStyle,
-    TextInput
+    TextInput,
+    SelectMenu,
+    SelectMenuOption
 )
 
 
