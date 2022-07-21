@@ -53,6 +53,13 @@ class _SendingRestHandler:
 
                 return j
 
+    @staticmethod
+    async def delete_channel(url, token):
+        from aiohttp import ClientSession
+
+        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+            await s.delete(url=url)
+
 
 class _GettingChannelData:
     @staticmethod
@@ -212,6 +219,11 @@ class DisChannel:
         d = _GettingChannelData.fetch(self.id, self._t, id)
 
         return DisMessage(d, self._t)
+
+    async def delete(self):
+        _u = f"https://discord.com/api/v10/channels/{self.id}"
+
+        await _SendingRestHandler.delete_channel(_u, self._t)
 
 
 class DisDm:
