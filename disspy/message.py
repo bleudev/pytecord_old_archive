@@ -90,6 +90,13 @@ class _SendingRestHandler:
             print(_u)
             await s.put(_u)
 
+    @staticmethod
+    async def delete_message(url, token):
+        from aiohttp import ClientSession
+
+        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+            await s.delete(url)
+
 
 @final
 class DisMessage:
@@ -170,6 +177,11 @@ class DisMessage:
         await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
 
         return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
+
+    async def delete(self):
+        _u = f"htttps://discord.com/api/v10/channels/{self.channel.id}/messages/{self.id}"
+
+        await _SendingRestHandler.delete_message(_u, self._t)
 
 
 class MessageDeleteEvent:
