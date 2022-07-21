@@ -32,7 +32,9 @@ from typing import (
     Type,
     Callable,
     NoReturn,
-    final
+    final,
+    NewType,
+    Generic
 )
 
 import requests.exceptions
@@ -43,15 +45,9 @@ from disspy._typing import (
     TypeOf,
     Event
 )
-from disspy.activity import Activity
-from disspy.application_commands import (
-    Option,
-    SlashCommand,
-    UserCommand,
-    MessageCommand,
-    ApplicationCommandType
-)
-from disspy.channel import DisChannel
+from disspy.activity import *
+from disspy.application_commands import *
+from disspy.channel import *
 from disspy.core import (
     DisApi,
     DisFlags,
@@ -215,6 +211,7 @@ class DisBot(_BaseBot):
     :var flags: Flags (Intents) for bot
     :var user: Bot User object
     """
+
     _T = TypeVar("DisBot")
     __parent__ = TypeVar("_BaseBot")
     __classname__ = "DisBot"
@@ -270,6 +267,8 @@ class DisBot(_BaseBot):
             "register": self._on_register,
             "register2": None,
             "interaction": None,
+            "components": None,
+            "modalsumbit": None,
             "reaction": None,
             "reactionr": None,
             "typing": None,
@@ -295,8 +294,10 @@ class DisBot(_BaseBot):
                     raise errors.BotApplicationIdInvalid("Invalid Application id!")
             except KeyError:
                 pass
+            except TypeError:
+                pass
 
-        self._api = DisApi(self.token, self.intflags, application_id)
+        self.api = DisApi(self.token, self.intflags, application_id)
         self.application_id = application_id
 
         self.isready = False
@@ -304,7 +305,7 @@ class DisBot(_BaseBot):
         self.logger = Logger()
         self.__classname__ = "DisBot"
 
-        self.__slots__ = [self._api, self._on_ready, self._on_messagec,
+        self.__slots__ = [self.api, self._on_ready, self._on_messagec,
                           self.token, self.user, self.isready, self.status]
 
     @property
@@ -322,7 +323,7 @@ class DisBot(_BaseBot):
         -----
         :return None:
         """
-        self.user: DisUser = self._api.user
+        self.user: DisUser = self.api.user
 
     def _on_close(self):
         pass
@@ -353,12 +354,14 @@ class DisBot(_BaseBot):
                         if self.intflags >= DisFlags.messages():
                             self._ons[t] = func
                         else:
-                            raise errors.BotEventVisibleError("messagec(), typing() and dm_typing() events don't avaivable right now because flags < DisFlags.messages()")
+                            raise errors.BotEventVisibleError(
+                                "messagec(), typing() and dm_typing() events don't avaivable right now because flags < DisFlags.messages()")
                     elif t == "reaction" or t == "reactionr":
                         if self.intflags >= DisFlags.reactions():
                             self._ons[t] = func
                         else:
-                            raise errors.BotEventVisibleError("reaction() and reactionr() evens don't avaivable right now because flags < DisFlags.reactions()")
+                            raise errors.BotEventVisibleError(
+                                "reaction() and reactionr() evens don't avaivable right now because flags < DisFlags.reactions()")
                     else:
                         self._ons[t] = func
             else:
@@ -422,6 +425,7 @@ class DisBot(_BaseBot):
     def on_channel(self, channel_id: ChannelId) -> Wrapper:
         def wrapper(func):
             self._ons["channel"] = [func, channel_id]
+
         return wrapper
 
     def slash_command(self, name, description, options: Optional[list[Option]] = None) -> Wrapper:
@@ -456,7 +460,7 @@ class DisBot(_BaseBot):
                 }
 
             def wrapper(func):
-                self._api.create_command(_payload, func)
+                self.api.create_command(_payload, func)
 
             return wrapper
         else:
@@ -477,7 +481,7 @@ class DisBot(_BaseBot):
                 "options": command.options
             }
 
-            self._api.create_command(_payload, command.cmd)
+            self.api.create_command(_payload, command.cmd)
         else:
             print("There is not application id")
 
@@ -495,7 +499,7 @@ class DisBot(_BaseBot):
             }
 
             def wrapper(func):
-                self._api.create_command(_payload, func)
+                self.api.create_command(_payload, func)
 
             return wrapper
         else:
@@ -532,7 +536,7 @@ class DisBot(_BaseBot):
             }
 
             def wrapper(func):
-                self._api.create_command(_payload, func)
+                self.api.create_command(_payload, func)
 
             return wrapper
         else:
@@ -551,7 +555,7 @@ class DisBot(_BaseBot):
                 "type": ApplicationCommandType.MESSAGE,
             }
 
-            self._api.create_command(_payload, command.cmd)
+            self.api.create_command(_payload, command.cmd)
         else:
             print("There is not application id")
 
@@ -585,7 +589,7 @@ class DisBot(_BaseBot):
 
     def _runner(self) -> NoReturn:
         try:
-            self._coro = run(self._api.run(self.status, self._ons, debug=self._debug, act=self._act))
+            self._coro = run(self.api.run(self.status, self._ons, debug=self._debug, act=self._act))
         except KeyboardInterrupt:
             pass
         except requests.exceptions.ConnectionError:
@@ -608,7 +612,7 @@ class DisBot(_BaseBot):
 
     async def _dissconnenter(self) -> NoReturn:
         if self.isready:
-            await self._api.disconnecter()
+            await self.api.disconnecter()
 
             for _var in self.__slots__:
                 del _var
@@ -652,7 +656,7 @@ class DisBot(_BaseBot):
         :param id: Channel Id
         :return DisChannel:
         """
-        return self._api.get_channel(id)
+        return self.api.get_channel(id)
 
     def get_guild(self, id: int) -> DisGuild:
         """
@@ -661,7 +665,7 @@ class DisBot(_BaseBot):
         :param id: Guild Id
         :return DisGuild:
         """
-        return self._api.get_guild(id)
+        return self.api.get_guild(id)
 
     def get_user(self, id: int) -> DisUser:
         """
@@ -670,7 +674,7 @@ class DisBot(_BaseBot):
         :param id: User Id
         :return DisUser:
         """
-        return self._api.get_user(id)
+        return self.api.get_user(id)
 
     async def change_activity(self, activity: Union[Activity, dict]):
         """
@@ -689,11 +693,11 @@ class DisBot(_BaseBot):
         elif isinstance(activity, dict):
             act = activity
 
-        await self._api.fsend_request({
+        await self.api.fsend_request({
             "op": 3,
             "d": {
                 "since": mktime(datetime.now().timetuple()) * 1000,
-                "afk": self._api.f.isafk,
+                "afk": self.api.f.isafk,
                 "status": self.status,
                 "activities": [act]
             }
