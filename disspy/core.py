@@ -54,7 +54,9 @@ from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
 from disspy.message import (
     DisMessage,
-    MessageDeleteEvent
+    DmMessage,
+    MessageDeleteEvent,
+    DmMessageDeleteEvent
 )
 from disspy.user import DisUser
 
@@ -503,6 +505,15 @@ class Flow:
     async def on_messaged(self, e: MessageDeleteEvent):
         pass
 
+    async def on_dmessagec(self, m: DmMessage):
+        pass
+
+    async def on_dmessageu(self, m: DmMessage):
+        pass
+
+    async def on_dmessaged(self, e: DmMessageDeleteEvent):
+        pass
+
     async def on_interaction(self, token, id, command_name: Text, bot_token: Showflake[str], type: int, data: JsonOutput, type_of_command: Optional[int] = None):
         pass
 
@@ -577,6 +588,12 @@ class Flow:
             self.on_messageu = ons["messageu"]
         if ons["messaged"] is not None:
             self.on_messaged = ons["messaged"]
+        if ons["dmessagec"] is not None:
+            self.on_dmessagec = ons["dmessagec"]
+        if ons["dmessageu"] is not None:
+            self.on_dmessageu = ons["dmessageu"]
+        if ons["dmessaged"] is not None:
+            self.on_dmessaged = ons["dmessaged"]
         if ons["reaction"] is not None:
             self.on_reaction = ons["reaction"]
         if ons["reactionr"] is not None:

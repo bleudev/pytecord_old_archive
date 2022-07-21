@@ -184,9 +184,21 @@ class DisMessage:
         await _SendingRestHandler.delete_message(_u, self._t)
 
 
+class DmMessage:
+    def __init__(self, d, token):
+        self.json = d
+        self._t = token
+
+
 class MessageDeleteEvent:
     def __init__(self, d: dict, t: str):
         from disspy.channel import DisChannel
 
         self.message_id = d['id']
         self.channel = DisChannel(d['channel_id'], t)
+
+
+class DmMessageDeleteEvent:
+    def __init__(self, d: dict):
+        self.message_id = d['id']
+        self.channel_id = d['channel_id']
