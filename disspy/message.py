@@ -30,7 +30,8 @@ from typing import (
     Optional,
     Union,
     final,
-    ClassVar
+    ClassVar,
+    Any
 )
 
 from disspy.embed import DisEmbed
@@ -120,7 +121,7 @@ class DisMessage:
     def is_default(self) -> bool:
         return self._type == _MessageType.DEFAULT
 
-    async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
+    async def reply(self, content: Optional[Any] = None, embeds: Optional[list[DisEmbed]] = None):
         _d = {
             "content": None,
             "embeds": {},
@@ -128,6 +129,8 @@ class DisMessage:
                 "message_id": self.id
             }
         }
+
+        content = str(content)
 
         if content:
             _d["content"] = content
@@ -145,7 +148,7 @@ class DisMessage:
 
         await _SendingRestHandler.execute(self.channel.id, _d, self._t)
 
-    async def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
+    async def reply(self, content: Optional[Any] = None, embed: Optional[DisEmbed] = None):
         _d = {
             "content": None,
             "embeds": {},
@@ -153,6 +156,8 @@ class DisMessage:
                 "message_id": self.id
             }
         }
+
+        content = str(content)
 
         if embed:
             _d["embeds"] = [_EmbedGenerator(embed)]
@@ -202,8 +207,7 @@ class DmMessage:
     def is_default(self) -> bool:
         return self._type == _MessageType.DEFAULT
 
-
-    async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
+    async def reply(self, content: Optional[Any] = None, embeds: Optional[list[DisEmbed]] = None):
         _d = {
             "content": None,
             "embeds": {},
@@ -211,6 +215,8 @@ class DmMessage:
                 "message_id": self.id
             }
         }
+
+        content = str(content)
 
         if content:
             _d["content"] = content
@@ -228,18 +234,7 @@ class DmMessage:
 
         await _SendingRestHandler.execute(self.channel.id, _d, self._t)
 
-    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisOwnReaction:
-        if isinstance(emoji, DisEmoji):
-            if emoji.type == "custom":
-                emoji = f"{emoji.name}:{str(emoji.emoji_id)}"
-            elif emoji.type == "normal":
-                emoji = emoji.unicode
-
-        await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
-
-        return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
-
-    async def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
+    async def reply(self, content: Optional[Any] = None, embed: Optional[DisEmbed] = None):
         _d = {
             "content": None,
             "embeds": {},
@@ -247,6 +242,8 @@ class DmMessage:
                 "message_id": self.id
             }
         }
+
+        content = str(content)
 
         if embed:
             _d["embeds"] = [_EmbedGenerator(embed)]
@@ -258,6 +255,17 @@ class DmMessage:
             return
 
         await _SendingRestHandler.execute(self.channel.id, _d, self._t)
+
+    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisOwnReaction:
+        if isinstance(emoji, DisEmoji):
+            if emoji.type == "custom":
+                emoji = f"{emoji.name}:{str(emoji.emoji_id)}"
+            elif emoji.type == "normal":
+                emoji = emoji.unicode
+
+        await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
+
+        return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
 
 
 class MessageDeleteEvent:
