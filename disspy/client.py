@@ -414,7 +414,7 @@ class DisBot(_BaseBot):
 
         _mse: list[str] = [
             "messagec",  # Message create
-            "messageu",  # Message edit
+            "messageu",  # Message update
             "messaged"  # Message delete
         ]
 
@@ -444,7 +444,7 @@ class DisBot(_BaseBot):
 
         _mse: list[str] = [
             "dmessagec",  # Message create
-            "dmessageu",  # Message edit
+            "dmessageu",  # Message update
             "dmessaged"  # Message delete
         ]
 
