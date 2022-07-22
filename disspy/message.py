@@ -189,8 +189,10 @@ class DmMessage:
         self.json = d
         self._t = token
 
+        self.id = d["id"]
+
         self.content = d["content"]
-        self.channel = DisDmChannel(d['channel_id'], self._t)
+        self.channel = DisDmChannel(d["channel_id"], self._t)
 
         self._type: int = int(d["type"])
 
