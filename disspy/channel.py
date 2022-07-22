@@ -319,3 +319,14 @@ class DisDmChannel:
             return DisMessage(d, self._t)
         else:
             return None
+
+    def fetch(self, id: int) -> DisMessage:
+        """
+        Fetch message
+        -----
+        :param id: Id of message
+        :return DisMessage:
+        """
+        d = _GettingChannelData.fetch(self.id, self._t, id)
+
+        return DisMessage(d, self._t)

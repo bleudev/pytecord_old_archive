@@ -686,14 +686,24 @@ class DisBot(_BaseBot):
         else:
             raise errors.InternetError("Bot is not ready!")
 
-    def get_channel(self, id: ChannelId) -> DisChannel:
+    def get_channel(self, id: ChannelId) -> Union[DisChannel, DisDmChannel]:
         """
         Get channel from id
         -----
         :param id: Channel Id
-        :return DisChannel:
+        :return Union[DisChannel, DisDmChannel]:
         """
-        return self.api.get_channel(id)
+        _u = f"https://discord.com/v10/channels/{id}"
+        _hdrs = {'Authorization': f'Bot {self.token}'}
+
+        from requests import get
+
+        j = get(_u, headers=_hdrs)
+
+        if j["type"] == 1:  # Dm Channels
+            return DisDmChannel(id, self.token)
+        else:
+            return DisChannel(id, self.token)
 
     def get_guild(self, id: int) -> DisGuild:
         """
