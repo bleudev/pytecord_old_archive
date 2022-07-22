@@ -698,7 +698,7 @@ class DisBot(_BaseBot):
 
         from requests import get
 
-        j = get(_u, headers=_hdrs)
+        j = get(_u, headers=_hdrs).json()
 
         if j["type"] == 1:  # Dm Channels
             return DisDmChannel(id, self.token)
