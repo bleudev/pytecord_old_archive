@@ -49,12 +49,14 @@ from typing import (
 )
 
 # disspy imports
-from disspy.channel import DisChannel, DisDm
+from disspy.channel import DisChannel, DisDmChannel
 from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
 from disspy.message import (
     DisMessage,
-    MessageDeleteEvent
+    DmMessage,
+    MessageDeleteEvent,
+    DmMessageDeleteEvent
 )
 from disspy.user import DisUser
 
@@ -503,6 +505,15 @@ class Flow:
     async def on_messaged(self, e: MessageDeleteEvent):
         pass
 
+    async def on_dmessagec(self, m: DmMessage):
+        pass
+
+    async def on_dmessageu(self, m: DmMessage):
+        pass
+
+    async def on_dmessaged(self, e: DmMessageDeleteEvent):
+        pass
+
     async def on_interaction(self, token, id, command_name: Text, bot_token: Showflake[str], type: int, data: JsonOutput, type_of_command: Optional[int] = None):
         pass
 
@@ -527,7 +538,7 @@ class Flow:
     async def on_typing_start(self, u: DisUser, channel: DisChannel):
         pass
 
-    async def on_dm_typing_start(self, u: DisUser, channel: DisDm):
+    async def on_dm_typing_start(self, u: DisUser, channel: DisDmChannel):
         pass
 
     async def on_channel(self, m: DisMessage):
@@ -577,6 +588,12 @@ class Flow:
             self.on_messageu = ons["messageu"]
         if ons["messaged"] is not None:
             self.on_messaged = ons["messaged"]
+        if ons["dmessagec"] is not None:
+            self.on_dmessagec = ons["dmessagec"]
+        if ons["dmessageu"] is not None:
+            self.on_dmessageu = ons["dmessageu"]
+        if ons["dmessaged"] is not None:
+            self.on_dmessaged = ons["dmessaged"]
         if ons["reaction"] is not None:
             self.on_reaction = ons["reaction"]
         if ons["reactionr"] is not None:
@@ -656,24 +673,64 @@ class Flow:
                 await self.on_ready()
 
             elif event.type == "MESSAGE_CREATE":
-                _m = DisMessage(event.data, self.token)
+                _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
+
+                from aiohttp import ClientSession
 
                 if not event.data["author"]["id"] == self.user_id:
-                    if int(event.data["channel_id"]) == int(self.on_channel__id):
-                        await self.on_channel(_m)
+                    async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
+                        async with s.get(_u) as g:
+                            j = await g.json()
 
-                    await self.on_messagec(_m)
+                            if j["type"] == 0:
+
+                                _m = DisMessage(event.data, self.token)
+
+                                if int(event.data["channel_id"]) == int(self.on_channel__id):
+                                    await self.on_channel(_m)
+
+                                await self.on_messagec(_m)
+                            elif j["type"] == 1:
+                                _m = DmMessage(event.data, self.token)
+
+                                await self.on_dmessagec(_m)
 
             elif event.type == "MESSAGE_UPDATE":
-                _m = DisMessage(event.data, self.token)
+                _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
+
+                from aiohttp import ClientSession
 
                 if not event.data["author"]["id"] == self.user_id:
-                    await self.on_messageu(_m)
+                    async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
+                        async with s.get(_u) as g:
+                            j = await g.json()
+
+                            if j["type"] == 0:
+                                _m = DisMessage(event.data, self.token)
+
+                                await self.on_messageu(_m)
+                            elif j["type"] == 1:
+                                _m = DmMessage(event.data, self.token)
+
+                                await self.on_dmessageu(_m)
 
             elif event.type == "MESSAGE_DELETE":
-                _e = MessageDeleteEvent(event.data, self.token)
+                _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
-                await self.on_messaged(_e)
+                from aiohttp import ClientSession
+
+                async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
+                    async with s.get(_u) as g:
+                        j = await g.json()
+
+                        if j["type"] == 0:
+                            _e = MessageDeleteEvent(event.data, self.token)
+
+                            await self.on_messaged(_e)
+                        elif j["type"] == 1:
+                            _e = DmMessageDeleteEvent(event.data, self.token)
+
+                            await self.on_dmessaged(_e)
 
             elif event.type == "INTERACTION_CREATE":
                 if event.data["type"] == 2:  # Application Commands
@@ -732,7 +789,7 @@ class Flow:
                         _u_json = Rest(self.token).get("user", _u_id)
 
                         _u: DisUser = DisUser(_u_json, self.token)
-                        _c: DisDm = DisDm(event.data["channel_id"], self.token)
+                        _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
 
                         await self.on_dm_typing_start(_u, _c)
                 except KeyError:
@@ -740,7 +797,7 @@ class Flow:
                     _u_json = Rest(self.token).get("user", _u_id)
 
                     _u: DisUser = DisUser(_u_json, self.token)
-                    _c: DisDm = DisDm(event.data["channel_id"], self.token)
+                    _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
 
                     await self.on_dm_typing_start(_u, _c)
 

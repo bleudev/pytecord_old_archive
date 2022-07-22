@@ -40,7 +40,7 @@ from disspy.application_commands import (
 )
 from disspy.channel import (
     DisChannel,
-    DisDm
+    DisDmChannel
 )
 from disspy.client import (
     DisBot,
@@ -73,7 +73,9 @@ from disspy.guild import DisGuild
 from disspy.logger import Logger
 from disspy.message import (
     DisMessage,
-    MessageDeleteEvent
+    DmMessage,
+    MessageDeleteEvent,
+    DmMessageDeleteEvent
 )
 from disspy.user import DisUser
 from disspy.reaction import (

@@ -73,6 +73,9 @@ _all_basic_events = [
     "messagec",  # On message create
     "messageu",  # On message update
     "messaged",  # On message delete
+    "dmessagec",  # On dm message create
+    "dmessageu",  # On dm message update
+    "dmessaged",  # On dm message delete
     "close",  # On closing bot
     "reaction",  # On reaction add
     "reactionr",  # On reaction remove
@@ -264,6 +267,9 @@ class DisBot(_BaseBot):
             "messagec": None,
             "messageu": None,
             "messaged": None,
+            "dmessagec": None,
+            "dmessageu": None,
+            "dmessaged": None,
             "register": self._on_register,
             "register2": None,
             "interaction": None,
@@ -350,12 +356,13 @@ class DisBot(_BaseBot):
                 if t == "close":
                     self._on_close = func
                 else:
-                    if t == "messagec" or t == "typing" or t == "dm_typing":
+                    if t == "messagec" or t == "messageu" or t == "messaged"\
+                       or t == "typing" or t == "dm_typing" or t == "dmessagec" or t == "dmessageu" or t == "dmessaged":
                         if self.intflags >= DisFlags.messages():
                             self._ons[t] = func
                         else:
                             raise errors.BotEventVisibleError(
-                                "messagec(), typing() and dm_typing() events don't avaivable right now because flags < DisFlags.messages()")
+                                "messagec(), typing(), dm_typing() and other events don't avaivable right now because flags < DisFlags.messages()")
                     elif t == "reaction" or t == "reactionr":
                         if self.intflags >= DisFlags.reactions():
                             self._ons[t] = func
@@ -409,6 +416,36 @@ class DisBot(_BaseBot):
             "messagec",  # Message create
             "messageu",  # Message edit
             "messaged"  # Message delete
+        ]
+
+        def wrapper(func):
+            if t in _ts:
+                if t == _ts[0]:  # Message create
+                    self._ons[_mse[0]] = func
+                elif t == _ts[1]:  # Message update
+                    self._ons[_mse[1]] = func
+                elif t == _ts[2]:  # Message delete
+                    self._ons[_mse[2]] = func
+
+        return wrapper
+
+    def on_dm_message(self, t: str) -> Wrapper:
+        """
+        Method for changing on_dm_message() events
+        -----
+        :param t: Type of on_dm_message() event
+        :return Wrapper:
+        """
+        _ts: list[str] = [
+            "create",  # Message create
+            "update",  # Message update
+            "delete"  # Message delete
+        ]
+
+        _mse: list[str] = [
+            "dmessagec",  # Message create
+            "dmessageu",  # Message edit
+            "dmessaged"  # Message delete
         ]
 
         def wrapper(func):
@@ -649,14 +686,24 @@ class DisBot(_BaseBot):
         else:
             raise errors.InternetError("Bot is not ready!")
 
-    def get_channel(self, id: ChannelId) -> DisChannel:
+    def get_channel(self, id: ChannelId) -> Union[DisChannel, DisDmChannel]:
         """
         Get channel from id
         -----
         :param id: Channel Id
-        :return DisChannel:
+        :return Union[DisChannel, DisDmChannel]:
         """
-        return self.api.get_channel(id)
+        _u = f"https://discord.com/v10/channels/{id}"
+        _hdrs = {'Authorization': f'Bot {self.token}'}
+
+        from requests import get
+
+        j = get(_u, headers=_hdrs).json()
+
+        if j["type"] == 1:  # Dm Channels
+            return DisDmChannel(id, self.token)
+        else:
+            return DisChannel(id, self.token)
 
     def get_guild(self, id: int) -> DisGuild:
         """

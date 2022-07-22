@@ -21,7 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-
 from disspy.embed import DisEmbed
 from disspy.message import DisMessage
 from disspy.guild import DisGuild
@@ -35,7 +34,7 @@ from typing import (
 
 __all__: tuple[str] = (
     "DisChannel",
-    "DisDm"
+    "DisDmChannel"
 )
 
 
@@ -156,15 +155,14 @@ class DisChannel:
         else:
             del _payload["content"]
 
-        if action_row.json["components"]:
-            _payload["components"] = action_row.json
-        else:
-            del _payload["components"]
+        if action_row:
+            if action_row.json["components"]:
+                _payload["components"] = action_row.json
+            else:
+                del _payload["components"]
 
         if _payload:
             d = await _SendingRestHandler.execute(self.id, _payload, self._t)
-
-            print(d)
 
             return DisMessage(d, self._t)
         else:
@@ -195,15 +193,14 @@ class DisChannel:
         else:
             del _payload["content"]
 
-        if action_row.json["components"]:
-            _payload["components"] = action_row.json
-        else:
-            del _payload["components"]
+        if action_row:
+            if action_row.json["components"]:
+                _payload["components"] = action_row.json
+            else:
+                del _payload["components"]
 
         if _payload:
             d = await _SendingRestHandler.execute(self.id, _payload, self._t)
-
-            print(d)
 
             return DisMessage(d, self._t)
         else:
@@ -226,7 +223,7 @@ class DisChannel:
         await _SendingRestHandler.delete_channel(_u, self._t)
 
 
-class DisDm:
+class DisDmChannel:
     """
     The class for sending messages to discord DMchannels and fetching messages in DMchannels
     """
@@ -241,3 +238,95 @@ class DisDm:
 
         self.id = _data["id"]
         self._t = token
+
+    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None, action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
+        """
+        Sending messages to discord channel
+
+        :param content: str = None -> Content of message which will be sended (default is None)
+        :param embeds: list[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
+        :param action_row: ActionRow = None -> Action Row with components (default is None)
+        :return DisMessage: Message which was sended
+        """
+        _payload = {
+            "content": None,
+            "embeds": None,
+            "components": None
+        }
+
+        if embeds:
+            embeds_json = []
+
+            for i in embeds:
+                embeds_json.append(_EmbedGenerator(i))
+
+            _payload["embeds"] = embeds_json
+        else:
+            del _payload["embeds"]
+
+        if content:
+            _payload["content"] = content
+        else:
+            del _payload["content"]
+
+        if action_row:
+            if action_row.json["components"]:
+                _payload["components"] = action_row.json
+            else:
+                del _payload["components"]
+
+        if _payload:
+            d = await _SendingRestHandler.execute(self.id, _payload, self._t)
+
+            return DisMessage(d, self._t)
+        else:
+            return None
+
+    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None, action_row: Optional[ActionRow] = None) -> DisMessage:
+        """
+        Sending messages to discord channel
+
+        :param content: str = None -> Content of message which will be sended (default is None)
+        :param embed: DisEmbed = None -> Embed for message (DisEmbed - embed) (default is None)
+        :param action_row: ActionRow = None -> Action Row with components (default is None)
+        :return DisMessage: Message which was sended
+        """
+        _payload = {
+            "content": None,
+            "embeds": None,
+            "components": None
+        }
+
+        if embed:
+            _payload["embeds"] = [_EmbedGenerator(embed)]
+        else:
+            del _payload["embeds"]
+
+        if content:
+            _payload["content"] = content
+        else:
+            del _payload["content"]
+
+        if action_row:
+            if action_row.json["components"]:
+                _payload["components"] = action_row.json
+            else:
+                del _payload["components"]
+
+        if _payload:
+            d = await _SendingRestHandler.execute(self.id, _payload, self._t)
+
+            return DisMessage(d, self._t)
+        else:
+            return None
+
+    def fetch(self, id: int) -> DisMessage:
+        """
+        Fetch message
+        -----
+        :param id: Id of message
+        :return DisMessage:
+        """
+        d = _GettingChannelData.fetch(self.id, self._t, id)
+
+        return DisMessage(d, self._t)

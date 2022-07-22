@@ -30,7 +30,8 @@ from typing import (
     Optional,
     Union,
     final,
-    ClassVar
+    ClassVar,
+    Any
 )
 
 from disspy.embed import DisEmbed
@@ -103,11 +104,9 @@ class DisMessage:
     def __init__(self, _data, _token):
         from disspy.channel import DisChannel
 
-        self._json = _data
+        self.json = _data
 
         self.channel = DisChannel(_data["channel_id"], _token)
-
-        self._headers = {'Authorization': f'Bot {_token}'}
 
         self.content: str = str(_data["content"])
 
@@ -122,7 +121,7 @@ class DisMessage:
     def is_default(self) -> bool:
         return self._type == _MessageType.DEFAULT
 
-    async def reply(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None):
+    async def reply(self, content: Optional[Any] = None, embeds: Optional[list[DisEmbed]] = None):
         _d = {
             "content": None,
             "embeds": {},
@@ -130,6 +129,8 @@ class DisMessage:
                 "message_id": self.id
             }
         }
+
+        content = str(content)
 
         if content:
             _d["content"] = content
@@ -147,7 +148,7 @@ class DisMessage:
 
         await _SendingRestHandler.execute(self.channel.id, _d, self._t)
 
-    async def reply(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None):
+    async def reply(self, content: Optional[Any] = None, embed: Optional[DisEmbed] = None):
         _d = {
             "content": None,
             "embeds": {},
@@ -155,6 +156,8 @@ class DisMessage:
                 "message_id": self.id
             }
         }
+
+        content = str(content)
 
         if embed:
             _d["embeds"] = [_EmbedGenerator(embed)]
@@ -184,9 +187,98 @@ class DisMessage:
         await _SendingRestHandler.delete_message(_u, self._t)
 
 
+class DmMessage:
+    def __init__(self, d, token):
+        from disspy.channel import DisDmChannel
+
+        self.json = d
+        self._t = token
+
+        self.id = d["id"]
+
+        self.content = d["content"]
+        self.channel = DisDmChannel(d["channel_id"], self._t)
+
+        self._type: int = int(d["type"])
+
+    def is_reply(self) -> bool:
+        return self._type == _MessageType.REPLY
+
+    def is_default(self) -> bool:
+        return self._type == _MessageType.DEFAULT
+
+    async def reply(self, content: Optional[Any] = None, embeds: Optional[list[DisEmbed]] = None):
+        _d = {
+            "content": None,
+            "embeds": {},
+            "message_reference": {
+                "message_id": self.id
+            }
+        }
+
+        content = str(content)
+
+        if content:
+            _d["content"] = content
+
+        if embeds:
+            embeds_jsons = []
+
+            for i in embeds:
+                embeds_jsons.append(_EmbedGenerator(i))
+
+            _d["embeds"] = embeds_jsons
+
+        if not embeds and not content:
+            return
+
+        await _SendingRestHandler.execute(self.channel.id, _d, self._t)
+
+    async def reply(self, content: Optional[Any] = None, embed: Optional[DisEmbed] = None):
+        _d = {
+            "content": None,
+            "embeds": {},
+            "message_reference": {
+                "message_id": self.id
+            }
+        }
+
+        content = str(content)
+
+        if embed:
+            _d["embeds"] = [_EmbedGenerator(embed)]
+
+        if content:
+            _d["content"] = content
+
+        if not content and not embed:
+            return
+
+        await _SendingRestHandler.execute(self.channel.id, _d, self._t)
+
+    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisOwnReaction:
+        if isinstance(emoji, DisEmoji):
+            if emoji.type == "custom":
+                emoji = f"{emoji.name}:{str(emoji.emoji_id)}"
+            elif emoji.type == "normal":
+                emoji = emoji.unicode
+
+        await _SendingRestHandler.create_reaction(f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
+
+        return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
+
+
 class MessageDeleteEvent:
     def __init__(self, d: dict, t: str):
         from disspy.channel import DisChannel
 
         self.message_id = d['id']
         self.channel = DisChannel(d['channel_id'], t)
+
+
+class DmMessageDeleteEvent:
+    def __init__(self, d: dict, t: str):
+        from disspy.channel import DisDmChannel
+
+        self.message_id = d['id']
+        self.channel = DisDmChannel(d['channel_id'], t)
