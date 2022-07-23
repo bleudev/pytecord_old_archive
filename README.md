@@ -4,6 +4,58 @@
 
 ![version](https://img.shields.io/badge/version-0.3-informational?style=flat) ![project language](https://img.shields.io/badge/lang-python-informational)
 ### Needs minimal 3.8 python version
+# Mini Tutorial
+Dispy is package for creating bots in Discord. This package use discord API and discord Gateway
+for handle events or, for example, sending messages. Bot use for different goals; handle information
+on your server, creating mini games in discord, auto moderation in your discord server and other.
+For example, you can send messages use this code:
+```python
+import disspy  # Import package
+
+bot = disspy.DisBot(token="YOUR_TOKEN", application_id=00000)  # Create a bot
+
+async def test():  # Send messages needs to execute in the async function
+    channel_id = 000000  # Yours channel id
+    channel = bot.get_channel(channel_id)  # Get the channel for sending to this channel a message
+    
+    await channel.send(content="Message!")  # Sending a message
+    
+if __name__ == '__main__':  # If file is started as a main file
+    from asyncio import run  # Import asyncio.run
+    
+    run(test())  # Run async function
+    
+```
+<p>What's token? For starting using this package, you must create bot in
+<a href="https://discord.com/developers/applications">Discord Developer Portal</a></p>
+<p><img src="tutorial/1.png"/>Just click on the "New application" button</p>
+<p><img src="tutorial/2.png"/>Now come up with a name and click "Create" button</p>
+<p><img src="tutorial/3.png"/>Put application id in your mind and click to the "Bot" button</p>
+<p><img src="tutorial/4.png"/>Click the "Add bot" button</p>
+<p><img src="tutorial/5.png"/>"Yes, do it!"</p>
+<p><img src="tutorial/6.png"/>Click "Reset Token"</p>
+<p><img src="tutorial/7.png"/>Copy token to clipboard</p>
+<p><img src="tutorial/8.png"/></p>
+
+Now need open cmd and type "pip install --upgrade disspy" command and click the "Enter" button.
+After this, open your IDE or file editor, create new python file and type this code with your data:
+```python
+import disspy
+
+token = "TOKEN_FROM_SITE"
+application_id = 0000000  # Application id from your mind
+
+bot = disspy.DisBot(token=token, application_id=application_id)  # You created bot!
+```
+*This is creating bot in this library*
+
+Now you can add events to bot (for example, on_ready(), on_messagec() and other) and in end of file you must type this text:
+```python
+bot.run()
+```
+This command run bot. After this command you can see that bot is online. Tutorial is over!
+
+# Download
 ## Download stable version
 ```
 # Windows
