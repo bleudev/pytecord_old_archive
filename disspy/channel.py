@@ -168,44 +168,6 @@ class DisChannel:
         else:
             return None
 
-    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None, action_row: Optional[ActionRow] = None) -> DisMessage:
-        """
-        Sending messages to discord channel
-
-        :param content: str = None -> Content of message which will be sended (default is None)
-        :param embed: DisEmbed = None -> Embed for message (DisEmbed - embed) (default is None)
-        :param action_row: ActionRow = None -> Action Row with components (default is None)
-        :return DisMessage: Message which was sended
-        """
-        _payload = {
-            "content": None,
-            "embeds": None,
-            "components": None
-        }
-
-        if embed:
-            _payload["embeds"] = [_EmbedGenerator(embed)]
-        else:
-            del _payload["embeds"]
-
-        if content:
-            _payload["content"] = content
-        else:
-            del _payload["content"]
-
-        if action_row:
-            if action_row.json["components"]:
-                _payload["components"] = action_row.json
-            else:
-                del _payload["components"]
-
-        if _payload:
-            d = await _SendingRestHandler.execute(self.id, _payload, self._t)
-
-            return DisMessage(d, self._t)
-        else:
-            return None
-
     def fetch(self, id: int) -> DisMessage:
         """
         Fetch message
@@ -261,44 +223,6 @@ class DisDmChannel:
                 embeds_json.append(_EmbedGenerator(i))
 
             _payload["embeds"] = embeds_json
-        else:
-            del _payload["embeds"]
-
-        if content:
-            _payload["content"] = content
-        else:
-            del _payload["content"]
-
-        if action_row:
-            if action_row.json["components"]:
-                _payload["components"] = action_row.json
-            else:
-                del _payload["components"]
-
-        if _payload:
-            d = await _SendingRestHandler.execute(self.id, _payload, self._t)
-
-            return DisMessage(d, self._t)
-        else:
-            return None
-
-    async def send(self, content: Optional[str] = None, embed: Optional[DisEmbed] = None, action_row: Optional[ActionRow] = None) -> DisMessage:
-        """
-        Sending messages to discord channel
-
-        :param content: str = None -> Content of message which will be sended (default is None)
-        :param embed: DisEmbed = None -> Embed for message (DisEmbed - embed) (default is None)
-        :param action_row: ActionRow = None -> Action Row with components (default is None)
-        :return DisMessage: Message which was sended
-        """
-        _payload = {
-            "content": None,
-            "embeds": None,
-            "components": None
-        }
-
-        if embed:
-            _payload["embeds"] = [_EmbedGenerator(embed)]
         else:
             del _payload["embeds"]
 

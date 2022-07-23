@@ -22,10 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# Package imports
-from asyncio import run
-from requests import get
-
 # Typing imports
 from typing import (
     Optional,
@@ -37,7 +33,13 @@ from typing import (
     final
 )
 
+# Package imports
+from asyncio import run
+from datetime import datetime
+from time import mktime
+from requests import get
 import requests.exceptions
+
 
 # Disspy imports
 from disspy import errors
@@ -213,8 +215,6 @@ class DisBot:
             :param status: Status that use in run()
             :param flags: Flags (Intents) for bot (default is 512)
             """
-
-            super().__init__(token)
 
             _u = "https://discord.com/api/v10/users/@me"
             test_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
@@ -460,7 +460,7 @@ class DisBot:
 
         def slash_command(self, name: str, description: str,
                           options: Optional[list[appc.Option]]
-                          = None) -> Wrapper:
+                          = None) -> Union[Wrapper, None]:
             """
             Create slash command
             -----
@@ -514,10 +514,12 @@ class DisBot:
                 }
 
                 self.api.create_command(_payload, command.cmd)
-            else:
-                raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-        def user_command(self, name) -> Wrapper:
+                return None
+
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
+
+        def user_command(self, name) -> Union[Wrapper, None]:
             """
             Create user command
             -----
@@ -534,8 +536,8 @@ class DisBot:
                     self.api.create_command(_payload, func)
 
                 return wrapper
-            else:
-                raise errors.ApplicationIdIsNone("Application commands is blocked")
+
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
 
         def add_user_command(self, command: appc.UserCommand) -> NoReturn:
             """
@@ -551,10 +553,12 @@ class DisBot:
                 }
 
                 self.api.create_command(_payload, command.cmd)
-            else:
-                raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-        def message_command(self, name) -> Wrapper:
+                return None
+
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
+
+        def message_command(self, name) -> Union[Wrapper, None]:
             """
             Create message command
             -----
@@ -571,8 +575,8 @@ class DisBot:
                     self.api.create_command(_payload, func)
 
                 return wrapper
-            else:
-                raise errors.ApplicationIdIsNone("Application commands is blocked")
+
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
 
         def add_message_command(self,
                                 command: appc.MessageCommand) -> NoReturn:
@@ -589,8 +593,10 @@ class DisBot:
                 }
 
                 self.api.create_command(_payload, command.cmd)
-            else:
-                raise errors.ApplicationIdIsNone("Application commands is blocked")
+
+                return None
+
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
 
         def run(self, status: Optional[Union[DisBotStatus, str]] = None) -> NoReturn:
             """
@@ -667,56 +673,40 @@ class DisBot:
             else:
                 raise errors.InternetError("Bot is not ready!")
 
-        async def send(self, channel_id: int, content: Optional[str] = None,
-                       embed: Optional[DisEmbed] = None):
-            """
-            Send message to channel
-            -----
-            :param channel_id: Channel Id
-            :param content: Message Content
-            :param embed: Message embed
-            :return None:
-            """
-            if self.isready:
-                channel = self.get_channel(channel_id)
-                await channel.send(content=content, embed=embed)
-            else:
-                raise errors.InternetError("Bot is not ready!")
-
-        def get_channel(self, id: ChannelId) -> Union[DisChannel, DisDmChannel]:
+        def get_channel(self, channel_id: ChannelId) -> Union[DisChannel, DisDmChannel]:
             """
             Get channel from id
             -----
-            :param id: Channel Id
+            :param channel_id: Channel Id
             :return Union[DisChannel, DisDmChannel]:
             """
-            _u = f"https://discord.com/v10/channels/{id}"
+            _u = f"https://discord.com/v10/channels/{channel_id}"
             _hdrs = {'Authorization': f'Bot {self.token}'}
 
             j = get(_u, headers=_hdrs).json()
 
             if j["type"] == 1:  # Dm Channels
-                return DisDmChannel(id, self.token)
-            else:
-                return DisChannel(id, self.token)
+                return DisDmChannel(channel_id, self.token)
 
-        def get_guild(self, id: int) -> DisGuild:
+            return DisChannel(channel_id, self.token)
+
+        def get_guild(self, guild_id: int) -> DisGuild:
             """
             Get guild from id
             -----
-            :param id: Guild Id
+            :param guild_id: Guild Id
             :return DisGuild:
             """
-            return self.api.get_guild(id)
+            return self.api.get_guild(guild_id)
 
-        def get_user(self, id: int) -> DisUser:
+        def get_user(self, user_id: int) -> DisUser:
             """
             Get user from id
             -----
-            :param id: User Id
+            :param user_id: User Id
             :return DisUser:
             """
-            return self.api.get_user(id)
+            return self.api.get_user(user_id)
 
         async def change_activity(self, activity: Union[Activity, dict]):
             """
@@ -725,9 +715,6 @@ class DisBot:
             :param activity: Activity to change
             :return None:
             """
-            from datetime import datetime
-            from time import mktime
-
             act = {}
 
             if isinstance(activity, Activity):
@@ -744,8 +731,6 @@ class DisBot:
                     "activities": [act]
                 }
             })
-
-            del datetime, mktime
 
         def __del__(self):
             self._on_close()
