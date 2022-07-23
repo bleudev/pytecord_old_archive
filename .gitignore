@@ -1,5 +1,6 @@
-# Pycharm Idea folder
+# Pycharm Idea folder and Vs Code folder
 /.idea
+/.vscode
 
 # Cache files and modules
 /.venv
