@@ -29,7 +29,7 @@ if __name__ == '__main__':  # If file is started as a main file
 <p>What's token? For starting using this package, you must create bot in
 <a href="https://discord.com/developers/applications">Discord Developer Portal</a></p>
 <p><img src="tutorial/1.png"/>Just click on the "New application" button</p>
-<p><img src="tutorial/2.png"/>Now come up with a name and click "Create" button</p>
+<p><img src="tutorial/2.png"/></p><p>Now come up with a name and click "Create" button</p>
 <p><img src="tutorial/3.png"/>Put application id in your mind and click to the "Bot" button</p>
 <p><img src="tutorial/4.png"/>Click the "Add bot" button</p>
 <p><img src="tutorial/5.png"/>"Yes, do it!"</p>
