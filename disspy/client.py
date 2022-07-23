@@ -282,7 +282,7 @@ class DisBot:
                     pass
 
             self.api = DisApi(self.token, self.intflags, application_id)
-            self.application_id = application_id
+            self.application_id: int = int(application_id)
 
             self.isready = False
 
