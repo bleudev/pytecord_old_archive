@@ -30,11 +30,11 @@ if __name__ == '__main__':  # If file is started as a main file
 <a href="https://discord.com/developers/applications">Discord Developer Portal</a></p>
 <p><img src="tutorial/1.png"/>Just click on the "New application" button</p>
 <p><img src="tutorial/2.png"/></p><p>Now come up with a name and click "Create" button</p>
-<p><img src="tutorial/3.png"/>Put application id in your mind and click to the "Bot" button</p>
-<p><img src="tutorial/4.png"/>Click the "Add bot" button</p>
-<p><img src="tutorial/5.png"/>"Yes, do it!"</p>
-<p><img src="tutorial/6.png"/>Click "Reset Token"</p>
-<p><img src="tutorial/7.png"/>Copy token to clipboard</p>
+<p><img src="tutorial/3.png"/></p><p>Put application id in your mind and click to the "Bot" button</p>
+<p><img src="tutorial/4.png"/></p><p>Click the "Add bot" button</p>
+<p><img src="tutorial/5.png"/></p><p>"Yes, do it!"</p>
+<p><img src="tutorial/6.png"/></p><p>Click "Reset Token"</p>
+<p><img src="tutorial/7.png"/></p><p>Copy token to clipboard</p>
 <p><img src="tutorial/8.png"/></p>
 
 Now need open cmd and type "pip install --upgrade disspy" command and click the "Enter" button.
