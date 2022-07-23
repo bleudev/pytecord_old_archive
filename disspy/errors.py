@@ -36,6 +36,7 @@ __all__: tuple[str] = (
     "BotStatusError",
     "BotEventVisibleError",
     "BotApplicationIdInvalid",
+    "ApplicationIdIsNone",
     "InvalidArgument",
     "ClassTypeError",
     "UserNitroTypeError"
@@ -99,6 +100,11 @@ class BotEventVisibleError(_DisError):
 class BotApplicationIdInvalid(_DisError):
     def __init__(self, text):
         super().__init__("104c", text)
+
+
+class ApplicationIdIsNone(_DisRunTimeError):
+    def __init__(self, text):
+        super().__init__("105c", text)
 
 
 # Package errors

@@ -30,6 +30,8 @@ from typing import (
     Union
 )
 
+from disspy.reaction import DisEmoji
+
 
 class Component:
     def __init__(self, ctype, custom_id=None, label=None, style=None, url=None,
@@ -66,7 +68,8 @@ class Component:
 
 
 class Button(Component):
-    def __init__(self, label: Text, style: Optional[int] = None, url: Optional[str] = None, custom_id: Optional[Text] = None,) -> NoReturn:
+    def __init__(self, label: Text, style: Optional[int] = None, url: Optional[str] = None,
+                 custom_id: Optional[Text] = None, ) -> NoReturn:
         if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
             print("Error!")
         else:
@@ -82,7 +85,6 @@ class ButtonStyle:
     RED = 4
     LINK = 5
 
-from disspy.reaction import DisEmoji
 
 class SelectMenuOption:
     def __init__(self, label: str, value: str, description: str, emoji: Union[DisEmoji, str], default: bool = False):
@@ -104,7 +106,7 @@ class SelectMenuOption:
                     "name": self.emoji.name,
                     "id": self.emoji.emoji_id
                 }
-        elif isinstance(self.emoji, str):
+        else:
             e_j = {
                 "name": self.emoji,
                 "id": None
@@ -126,7 +128,8 @@ class SelectMenu(Component):
         for i in options:
             oj.append(i.json())
 
-        super().__init__(3, custom_id=custom_id, options=oj, min_values=min_values, max_values=max_values, placeholder=placeholder)
+        super().__init__(3, custom_id=custom_id, options=oj, min_values=min_values, max_values=max_values,
+                         placeholder=placeholder)
 
 
 class TextInput(Component):

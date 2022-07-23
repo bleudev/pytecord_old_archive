@@ -259,9 +259,7 @@ class Context:
 
         _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
 
-        print(_payload)
-        d = await _SendingRestHandler.execute(_url, _payload, self._t)
-        print(d)
+        await _SendingRestHandler.execute(_url, _payload, self._t)
 
     async def send_modal(self, title, custom_id, action_row: ActionRow):
         _payload = {
@@ -275,9 +273,7 @@ class Context:
 
         _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
 
-        j = await _SendingRestHandler.execute(_url, _payload, self._t)
-
-        print(j)
+        await _SendingRestHandler.execute(_url, _payload, self._t)
 
 
 @final

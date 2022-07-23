@@ -64,8 +64,13 @@ __name__: str = "core"
 
 __package__: str = "disspy"
 
+
+JsonOutput = NewType("JsonOutput", Dict[str, Any])
+
+# __all__
 __all__: tuple[str] = (
     # Classes for simpler creating other classes
+    "JsonOutput",
     "FlowOpcodes",
     "DisFlags",
     "Showflake",
@@ -76,12 +81,8 @@ __all__: tuple[str] = (
     "DisApi"
 )
 
-
-JsonOutput = NewType("JsonOutput", Dict[str, Any])
-
-
 def _mainurl() -> str:
-    return "https://discord.com/api/v9/"
+    return "https://discord.com/api/v10/"
 
 
 class FlowOpcodes:

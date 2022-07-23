@@ -474,7 +474,7 @@ class DisBot(_BaseBot):
         :param options: Command's options
         :return Wrapper:
         """
-        if self.application_id != 0:
+        if self.application_id != 0 or self.application_id:
             _payload = {}
 
             if options:
@@ -501,7 +501,7 @@ class DisBot(_BaseBot):
 
             return wrapper
         else:
-            print("There is not application id")
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
 
     def add_slash_command(self, command: SlashCommand) -> NoReturn:
         """
@@ -510,7 +510,7 @@ class DisBot(_BaseBot):
         :param command: Slash Command
         :return None:
         """
-        if self.application_id != 0:
+        if self.application_id != 0 or self.application_id:
             _payload = {
                 "name": command.name,
                 "description": command.description,
@@ -520,7 +520,7 @@ class DisBot(_BaseBot):
 
             self.api.create_command(_payload, command.cmd)
         else:
-            print("There is not application id")
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
 
     def user_command(self, name) -> Wrapper:
         """
@@ -529,7 +529,7 @@ class DisBot(_BaseBot):
         :param name: Command's name
         :return Wrapper:
         """
-        if self.application_id != 0:
+        if self.application_id != 0 or self.application_id:
             _payload = {
                 "name": name,
                 "type": ApplicationCommandType.USER
@@ -540,7 +540,7 @@ class DisBot(_BaseBot):
 
             return wrapper
         else:
-            print("There is not application id")
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
 
     def add_user_command(self, command: UserCommand) -> NoReturn:
         """
@@ -549,15 +549,15 @@ class DisBot(_BaseBot):
         :param command: User Command
         :return None:
         """
-        if self.application_id != 0:
+        if self.application_id != 0 or self.application_id:
             _payload = {
                 "name": command.name,
                 "type": ApplicationCommandType.USER,
             }
 
-            self._api.create_command(_payload, command.cmd)
+            self.api.create_command(_payload, command.cmd)
         else:
-            print("There is not application id")
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
 
     def message_command(self, name) -> Wrapper:
         """
@@ -566,7 +566,7 @@ class DisBot(_BaseBot):
         :param name: Command's name
         :return Wrapper:
         """
-        if self.application_id != 0:
+        if self.application_id != 0 or self.application_id:
             _payload = {
                 "name": name,
                 "type": ApplicationCommandType.MESSAGE
@@ -577,7 +577,7 @@ class DisBot(_BaseBot):
 
             return wrapper
         else:
-            print("There is not application id")
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
 
     def add_message_command(self, command: MessageCommand) -> NoReturn:
         """
@@ -586,7 +586,7 @@ class DisBot(_BaseBot):
         :param command: Message Command
         :return None:
         """
-        if self.application_id != 0:
+        if self.application_id != 0 or self.application_id:
             _payload = {
                 "name": command.name,
                 "type": ApplicationCommandType.MESSAGE,
@@ -594,7 +594,7 @@ class DisBot(_BaseBot):
 
             self.api.create_command(_payload, command.cmd)
         else:
-            print("There is not application id")
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
 
     def run(self, status: Optional[Union[DisBotStatus, str]] = None) -> NoReturn:
         """

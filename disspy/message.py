@@ -88,7 +88,7 @@ class _SendingRestHandler:
 
         async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             _u = f"https://discord.com/api/v10{endpoint}"
-            print(_u)
+
             await s.put(_u)
 
     @staticmethod
