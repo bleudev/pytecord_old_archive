@@ -44,7 +44,7 @@ __all__: tuple[str] = (
 
 
 # Parents for all errors
-class _DisRunTimeError(RuntimeWarning):
+class DisRunTimeError(RuntimeWarning):
     def __init__(self, code: str, message: str):
         self.__code__ = code
         self.__text__ = message
@@ -63,7 +63,7 @@ class _DisError(RuntimeError):
 
 
 # InternetErrors (Will be called when errors code returned)
-class InternetError(_DisRunTimeError):
+class InternetError(_DisError):
     def __init__(self, text, code: Optional[str] = None):
         if code is None:
             super().__init__("-1i", text)
@@ -71,7 +71,7 @@ class InternetError(_DisRunTimeError):
             super().__init__(code, text)
 
 
-class MissingPerms(_DisRunTimeError):
+class MissingPerms(DisRunTimeError):
     def __init__(self, text):
         super().__init__("-2i", text)
 
@@ -102,9 +102,14 @@ class BotApplicationIdInvalid(_DisError):
         super().__init__("104c", text)
 
 
-class ApplicationIdIsNone(_DisRunTimeError):
+class ApplicationIdIsNone(DisRunTimeError):
     def __init__(self, text):
         super().__init__("105c", text)
+
+
+class MessageComponentIsBlocked(_DisError):
+    def __init__(self, text):
+        super().__init__("106c", text)
 
 
 # Package errors
@@ -113,7 +118,7 @@ class InvalidArgument(_DisError):
         super().__init__("150p", text)
 
 
-class ClassTypeError(_DisRunTimeError):
+class ClassTypeError(DisRunTimeError):
     def __init__(self, text):
         super().__init__("151p", text)
 

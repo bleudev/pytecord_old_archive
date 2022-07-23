@@ -215,542 +215,545 @@ class DisBot(_BaseBot):
     :var user: Bot User object
     """
 
-    _T = TypeVar("DisBot")
-    __parent__ = TypeVar("_BaseBot")
-    __classname__ = "DisBot"
+    try:
+        _T = TypeVar("DisBot")
+        __parent__ = TypeVar("_BaseBot")
+        __classname__ = "DisBot"
 
-    def __init__(self, token: Showflake[str], application_id: Optional[Showflake[int]] = None,
-                 status: Optional[TypeOf(DisBotStatus)] = None,
-                 flags: Optional[TypeOf(DisFlags)] = None,
-                 debug: Optional[bool] = False,
-                 activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
-        """
-        Create bot
-        -----
-        :param token: Discord Developers Portal Bot Token
-        :param status: Status that use in run()
-        :param flags: Flags (Intents) for bot (default is 512)
-        """
+        def __init__(self, token: Showflake[str], application_id: Optional[Showflake[int]] = None,
+                     status: Optional[TypeOf(DisBotStatus)] = None,
+                     flags: Optional[TypeOf(DisFlags)] = None,
+                     debug: Optional[bool] = False,
+                     activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
+            """
+            Create bot
+            -----
+            :param token: Discord Developers Portal Bot Token
+            :param status: Status that use in run()
+            :param flags: Flags (Intents) for bot (default is 512)
+            """
 
-        super().__init__(token)
+            super().__init__(token)
 
-        from requests import get
-
-        _u = "https://discord.com/api/v10/users/@me"
-        test_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
-
-        try:
-            if test_j["message"] == "401: Unauthorized" and test_j["code"] == 0:
-                raise errors.Unauthorized()
-        except KeyError:
-            pass
-
-        self.token: str = str(token)
-
-        if flags is None:
-            self.intflags = DisFlags.default()
-        else:
-            self.intflags = flags
-
-        if activity is None:
-            activity = {}
-
-        if isinstance(activity, Activity):
-            activity = activity.json()
-
-        self._act = activity
-
-        self.status = status
-        self._debug = debug
-        self._ons = {
-            "ready": None,
-            "messagec": None,
-            "messageu": None,
-            "messaged": None,
-            "dmessagec": None,
-            "dmessageu": None,
-            "dmessaged": None,
-            "register": self._on_register,
-            "register2": None,
-            "interaction": None,
-            "components": None,
-            "modalsumbit": None,
-            "reaction": None,
-            "reactionr": None,
-            "typing": None,
-            "dm_typing": None,
-            "channel": [None, 0]
-        }
-
-        self._on_messagec = None
-        self._on_ready = None
-
-        self.user = None
-
-        if application_id is None or application_id == 0:
-            application_id = 0
-        else:
             from requests import get
 
-            _u = f"https://discord.com/api/v10/applications/{application_id}/commands"
-            test2_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
+            _u = "https://discord.com/api/v10/users/@me"
+            test_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
 
             try:
-                if test2_j["message"] == "Unknown Application" and test2_j["code"] == 10002:
-                    raise errors.BotApplicationIdInvalid("Invalid Application id!")
+                if test_j["message"] == "401: Unauthorized" and test_j["code"] == 0:
+                    raise errors.Unauthorized()
             except KeyError:
                 pass
-            except TypeError:
-                pass
 
-        self.api = DisApi(self.token, self.intflags, application_id)
-        self.application_id = application_id
+            self.token: str = str(token)
 
-        self.isready = False
+            if flags is None:
+                self.intflags = DisFlags.default()
+            else:
+                self.intflags = flags
 
-        self.logger = Logger()
-        self.__classname__ = "DisBot"
+            if activity is None:
+                activity = {}
 
-        self.__slots__ = [self.api, self._on_ready, self._on_messagec,
-                          self.token, self.user, self.isready, self.status]
+            if isinstance(activity, Activity):
+                activity = activity.json()
 
-    @property
-    def __class__(self) -> Type[_T]:
-        """
-        Returns type of this class
-        -----
-        :return TypeVar: Type of class
-        """
-        return self._T
+            self._act = activity
 
-    async def _on_register(self):
-        """
-        Register user var
-        -----
-        :return None:
-        """
-        self.user: DisUser = self.api.user
+            self.status = status
+            self._debug = debug
+            self._ons = {
+                "ready": None,
+                "messagec": None,
+                "messageu": None,
+                "messaged": None,
+                "dmessagec": None,
+                "dmessageu": None,
+                "dmessaged": None,
+                "register": self._on_register,
+                "register2": None,
+                "interaction": None,
+                "components": None,
+                "modalsumbit": None,
+                "reaction": None,
+                "reactionr": None,
+                "typing": None,
+                "dm_typing": None,
+                "channel": [None, 0]
+            }
 
-    def _on_close(self):
-        pass
+            self._on_messagec = None
+            self._on_ready = None
 
-    def on(self, t: Event(DisBotEventType, str)) -> Wrapper:
-        """
-        This method was created for changing on_ready(), on_messagec()
-        and other methods that using in _runner
-        -----
-        :param t: Type of event
-        :return Wrapper:
-        """
+            self.user = None
 
-        __methodname__ = f"{self.__classname__}.on()"
+            if application_id is None or application_id == 0:
+                application_id = 0
+            else:
+                from requests import get
 
-        if isinstance(t, DisBotEventType):
-            _message = f"Error! In method {__methodname__} was moved" \
-                       "invalid argument! Argument type is DisBotEventType," \
-                       "but in method have to type is str!"
-            self.logger.log(_message)
+                _u = f"https://discord.com/api/v10/applications/{application_id}/commands"
+                test2_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
 
-        def wrapper(func):
+                try:
+                    if test2_j["message"] == "Unknown Application" and test2_j["code"] == 10002:
+                        raise errors.BotApplicationIdInvalid("Invalid Application id!")
+                except KeyError:
+                    pass
+                except TypeError:
+                    pass
+
+            self.api = DisApi(self.token, self.intflags, application_id)
+            self.application_id = application_id
+
+            self.isready = False
+
+            self.logger = Logger()
+            self.__classname__ = "DisBot"
+
+            self.__slots__ = [self.api, self._on_ready, self._on_messagec,
+                              self.token, self.user, self.isready, self.status]
+
+        @property
+        def __class__(self) -> Type[_T]:
+            """
+            Returns type of this class
+            -----
+            :return TypeVar: Type of class
+            """
+            return self._T
+
+        async def _on_register(self):
+            """
+            Register user var
+            -----
+            :return None:
+            """
+            self.user: DisUser = self.api.user
+
+        def _on_close(self):
+            pass
+
+        def on(self, t: Event(DisBotEventType, str)) -> Wrapper:
+            """
+            This method was created for changing on_ready(), on_messagec()
+            and other methods that using in _runner
+            -----
+            :param t: Type of event
+            :return Wrapper:
+            """
+
+            __methodname__ = f"{self.__classname__}.on()"
+
+            if isinstance(t, DisBotEventType):
+                _message = f"Error! In method {__methodname__} was moved" \
+                           "invalid argument! Argument type is DisBotEventType," \
+                           "but in method have to type is str!"
+                self.logger.log(_message)
+
+            def wrapper(func):
+                if t in _all_basic_events:
+                    if t == "close":
+                        self._on_close = func
+                    else:
+                        if t == "messagec" or t == "messageu" or t == "messaged"\
+                           or t == "typing" or t == "dm_typing" or t == "dmessagec" or t == "dmessageu" or t == "dmessaged":
+                            if self.intflags >= DisFlags.messages():
+                                self._ons[t] = func
+                            else:
+                                raise errors.BotEventVisibleError(
+                                    "messagec(), typing(), dm_typing() and other events don't avaivable right now because flags < DisFlags.messages()")
+                        elif t == "reaction" or t == "reactionr":
+                            if self.intflags >= DisFlags.reactions():
+                                self._ons[t] = func
+                            else:
+                                raise errors.BotEventVisibleError(
+                                    "reaction() and reactionr() evens don't avaivable right now because flags < DisFlags.reactions()")
+                        else:
+                            self._ons[t] = func
+                else:
+                    _err = f"Error! In method {__methodname__} was" \
+                           "moved invalid event type!"
+                    self.logger.log(_err)
+                    raise errors.BotEventTypeError("Invalid type of event!")
+
+            return wrapper
+
+        def add_event(self, t: Event(DisBotEventType, str), func: Callable) -> NoReturn:
+            __methodname__ = f"{self.__classname__}.add_event()"
+
+            if isinstance(t, DisBotEventType):
+                _message = f"Error! In method {__methodname__} was moved" \
+                           "invalid argument! Argument type is DisBotEventType," \
+                           "but in method have to type is str!"
+                self.logger.log(_message)
+
             if t in _all_basic_events:
                 if t == "close":
                     self._on_close = func
                 else:
-                    if t == "messagec" or t == "messageu" or t == "messaged"\
-                       or t == "typing" or t == "dm_typing" or t == "dmessagec" or t == "dmessageu" or t == "dmessaged":
-                        if self.intflags >= DisFlags.messages():
-                            self._ons[t] = func
-                        else:
-                            raise errors.BotEventVisibleError(
-                                "messagec(), typing(), dm_typing() and other events don't avaivable right now because flags < DisFlags.messages()")
-                    elif t == "reaction" or t == "reactionr":
-                        if self.intflags >= DisFlags.reactions():
-                            self._ons[t] = func
-                        else:
-                            raise errors.BotEventVisibleError(
-                                "reaction() and reactionr() evens don't avaivable right now because flags < DisFlags.reactions()")
-                    else:
-                        self._ons[t] = func
+                    self._ons[t] = func
             else:
                 _err = f"Error! In method {__methodname__} was" \
                        "moved invalid event type!"
                 self.logger.log(_err)
                 raise errors.BotEventTypeError("Invalid type of event!")
 
-        return wrapper
+        def on_message(self, t: str) -> Wrapper:
+            """
+            Method for changing on_message() events
+            -----
+            :param t: Type of on_message() event
+            :return Wrapper:
+            """
+            _ts: list[str] = [
+                "create",  # Message create
+                "update",  # Message update
+                "delete"  # Message delete
+            ]
 
-    def add_event(self, t: Event(DisBotEventType, str), func: Callable) -> NoReturn:
-        __methodname__ = f"{self.__classname__}.add_event()"
+            _mse: list[str] = [
+                "messagec",  # Message create
+                "messageu",  # Message update
+                "messaged"  # Message delete
+            ]
 
-        if isinstance(t, DisBotEventType):
-            _message = f"Error! In method {__methodname__} was moved" \
-                       "invalid argument! Argument type is DisBotEventType," \
-                       "but in method have to type is str!"
-            self.logger.log(_message)
+            def wrapper(func):
+                if t in _ts:
+                    if t == _ts[0]:  # Message create
+                        self._ons[_mse[0]] = func
+                    elif t == _ts[1]:  # Message update
+                        self._ons[_mse[1]] = func
+                    elif t == _ts[2]:  # Message delete
+                        self._ons[_mse[2]] = func
 
-        if t in _all_basic_events:
-            if t == "close":
-                self._on_close = func
+            return wrapper
+
+        def on_dm_message(self, t: str) -> Wrapper:
+            """
+            Method for changing on_dm_message() events
+            -----
+            :param t: Type of on_dm_message() event
+            :return Wrapper:
+            """
+            _ts: list[str] = [
+                "create",  # Message create
+                "update",  # Message update
+                "delete"  # Message delete
+            ]
+
+            _mse: list[str] = [
+                "dmessagec",  # Message create
+                "dmessageu",  # Message update
+                "dmessaged"  # Message delete
+            ]
+
+            def wrapper(func):
+                if t in _ts:
+                    if t == _ts[0]:  # Message create
+                        self._ons[_mse[0]] = func
+                    elif t == _ts[1]:  # Message update
+                        self._ons[_mse[1]] = func
+                    elif t == _ts[2]:  # Message delete
+                        self._ons[_mse[2]] = func
+
+            return wrapper
+
+        def on_channel(self, channel_id: ChannelId) -> Wrapper:
+            def wrapper(func):
+                self._ons["channel"] = [func, channel_id]
+
+            return wrapper
+
+        def slash_command(self, name, description, options: Optional[list[Option]] = None) -> Wrapper:
+            """
+            Create slash command
+            -----
+            :param name: Command's name
+            :param description: Command's description
+            :param options: Command's options
+            :return Wrapper:
+            """
+            if self.application_id != 0 or self.application_id:
+                _payload = {}
+
+                if options:
+                    _options_jsons = []
+
+                    for o in options:
+                        _options_jsons.append(_OptionGenerator(o))
+
+                    _payload = {
+                        "name": name,
+                        "description": description,
+                        "type": 1,
+                        "options": _options_jsons
+                    }
+                else:
+                    _payload = {
+                        "name": name,
+                        "description": description,
+                        "type": ApplicationCommandType.TEXT_INPUT
+                    }
+
+                def wrapper(func):
+                    self.api.create_command(_payload, func)
+
+                return wrapper
             else:
-                self._ons[t] = func
-        else:
-            _err = f"Error! In method {__methodname__} was" \
-                   "moved invalid event type!"
-            self.logger.log(_err)
-            raise errors.BotEventTypeError("Invalid type of event!")
+                raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-    def on_message(self, t: str) -> Wrapper:
-        """
-        Method for changing on_message() events
-        -----
-        :param t: Type of on_message() event
-        :return Wrapper:
-        """
-        _ts: list[str] = [
-            "create",  # Message create
-            "update",  # Message update
-            "delete"  # Message delete
-        ]
+        def add_slash_command(self, command: SlashCommand) -> NoReturn:
+            """
+            Create slash command
+            -----
+            :param command: Slash Command
+            :return None:
+            """
+            if self.application_id != 0 or self.application_id:
+                _payload = {
+                    "name": command.name,
+                    "description": command.description,
+                    "type": ApplicationCommandType.TEXT_INPUT,
+                    "options": command.options
+                }
 
-        _mse: list[str] = [
-            "messagec",  # Message create
-            "messageu",  # Message update
-            "messaged"  # Message delete
-        ]
+                self.api.create_command(_payload, command.cmd)
+            else:
+                raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-        def wrapper(func):
-            if t in _ts:
-                if t == _ts[0]:  # Message create
-                    self._ons[_mse[0]] = func
-                elif t == _ts[1]:  # Message update
-                    self._ons[_mse[1]] = func
-                elif t == _ts[2]:  # Message delete
-                    self._ons[_mse[2]] = func
-
-        return wrapper
-
-    def on_dm_message(self, t: str) -> Wrapper:
-        """
-        Method for changing on_dm_message() events
-        -----
-        :param t: Type of on_dm_message() event
-        :return Wrapper:
-        """
-        _ts: list[str] = [
-            "create",  # Message create
-            "update",  # Message update
-            "delete"  # Message delete
-        ]
-
-        _mse: list[str] = [
-            "dmessagec",  # Message create
-            "dmessageu",  # Message update
-            "dmessaged"  # Message delete
-        ]
-
-        def wrapper(func):
-            if t in _ts:
-                if t == _ts[0]:  # Message create
-                    self._ons[_mse[0]] = func
-                elif t == _ts[1]:  # Message update
-                    self._ons[_mse[1]] = func
-                elif t == _ts[2]:  # Message delete
-                    self._ons[_mse[2]] = func
-
-        return wrapper
-
-    def on_channel(self, channel_id: ChannelId) -> Wrapper:
-        def wrapper(func):
-            self._ons["channel"] = [func, channel_id]
-
-        return wrapper
-
-    def slash_command(self, name, description, options: Optional[list[Option]] = None) -> Wrapper:
-        """
-        Create slash command
-        -----
-        :param name: Command's name
-        :param description: Command's description
-        :param options: Command's options
-        :return Wrapper:
-        """
-        if self.application_id != 0 or self.application_id:
-            _payload = {}
-
-            if options:
-                _options_jsons = []
-
-                for o in options:
-                    _options_jsons.append(_OptionGenerator(o))
-
+        def user_command(self, name) -> Wrapper:
+            """
+            Create user command
+            -----
+            :param name: Command's name
+            :return Wrapper:
+            """
+            if self.application_id != 0 or self.application_id:
                 _payload = {
                     "name": name,
-                    "description": description,
-                    "type": 1,
-                    "options": _options_jsons
+                    "type": ApplicationCommandType.USER
                 }
+
+                def wrapper(func):
+                    self.api.create_command(_payload, func)
+
+                return wrapper
             else:
+                raise errors.ApplicationIdIsNone("Application commands is blocked")
+
+        def add_user_command(self, command: UserCommand) -> NoReturn:
+            """
+            Create user command
+            -----
+            :param command: User Command
+            :return None:
+            """
+            if self.application_id != 0 or self.application_id:
+                _payload = {
+                    "name": command.name,
+                    "type": ApplicationCommandType.USER,
+                }
+
+                self.api.create_command(_payload, command.cmd)
+            else:
+                raise errors.ApplicationIdIsNone("Application commands is blocked")
+
+        def message_command(self, name) -> Wrapper:
+            """
+            Create message command
+            -----
+            :param name: Command's name
+            :return Wrapper:
+            """
+            if self.application_id != 0 or self.application_id:
                 _payload = {
                     "name": name,
-                    "description": description,
-                    "type": ApplicationCommandType.TEXT_INPUT
+                    "type": ApplicationCommandType.MESSAGE
                 }
 
-            def wrapper(func):
-                self.api.create_command(_payload, func)
+                def wrapper(func):
+                    self.api.create_command(_payload, func)
 
-            return wrapper
-        else:
-            raise errors.ApplicationIdIsNone("Application commands is blocked")
+                return wrapper
+            else:
+                raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-    def add_slash_command(self, command: SlashCommand) -> NoReturn:
-        """
-        Create slash command
-        -----
-        :param command: Slash Command
-        :return None:
-        """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": command.name,
-                "description": command.description,
-                "type": ApplicationCommandType.TEXT_INPUT,
-                "options": command.options
-            }
+        def add_message_command(self, command: MessageCommand) -> NoReturn:
+            """
+            Create message command
+            -----
+            :param command: Message Command
+            :return None:
+            """
+            if self.application_id != 0 or self.application_id:
+                _payload = {
+                    "name": command.name,
+                    "type": ApplicationCommandType.MESSAGE,
+                }
 
-            self.api.create_command(_payload, command.cmd)
-        else:
-            raise errors.ApplicationIdIsNone("Application commands is blocked")
+                self.api.create_command(_payload, command.cmd)
+            else:
+                raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-    def user_command(self, name) -> Wrapper:
-        """
-        Create user command
-        -----
-        :param name: Command's name
-        :return Wrapper:
-        """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": name,
-                "type": ApplicationCommandType.USER
-            }
+        def run(self, status: Optional[Union[DisBotStatus, str]] = None) -> NoReturn:
+            """
+            Running bot
+            -----
+            :param status: Status for bot user
+            :return: None
+            """
+            __methodname__ = f"{self.__classname__}.run()"
 
-            def wrapper(func):
-                self.api.create_command(_payload, func)
+            if isinstance(status, DisBotStatus):
+                _message = f"Error! In method {__methodname__} was moved " \
+                           "invalid argument! Argument type is DisBotStatus, " \
+                           "but in method have to type is str!"
+                self.logger.log(_message)
+                raise errors.InvalidArgument("Invalid argument type!")
 
-            return wrapper
-        else:
-            raise errors.ApplicationIdIsNone("Application commands is blocked")
+            self.isready = True
 
-    def add_user_command(self, command: UserCommand) -> NoReturn:
-        """
-        Create user command
-        -----
-        :param command: User Command
-        :return None:
-        """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": command.name,
-                "type": ApplicationCommandType.USER,
-            }
+            if status is None and self.status is None:
+                self.status = "online"
+            elif status is not None and self.status is None:
+                self.status = status
+            elif status is not None and self.status is not None:
+                _message = "You typed status and in run() and in __init__()"
+                raise errors.BotStatusError(_message)
 
-            self.api.create_command(_payload, command.cmd)
-        else:
-            raise errors.ApplicationIdIsNone("Application commands is blocked")
+            self._runner()
 
-    def message_command(self, name) -> Wrapper:
-        """
-        Create message command
-        -----
-        :param name: Command's name
-        :return Wrapper:
-        """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": name,
-                "type": ApplicationCommandType.MESSAGE
-            }
+        def _runner(self) -> NoReturn:
+            try:
+                self._coro = run(self.api.run(self.status, self._ons, debug=self._debug, act=self._act))
+            except KeyboardInterrupt:
+                pass
+            except requests.exceptions.ConnectionError:
+                raise errors.InternetError("Please turn on your Wifi-Fi!", "-1000")
 
-            def wrapper(func):
-                self.api.create_command(_payload, func)
+        async def disconnect(self) -> NoReturn:
+            """
+            Disconnect from Gateway
+            -----
+            :return asyncio.Future:
+            """
+            await self._dissconnenter()
 
-            return wrapper
-        else:
-            raise errors.ApplicationIdIsNone("Application commands is blocked")
+        async def close(self) -> NoReturn:
+            """
+            Disconnect from Gateway
+            :return asyncio.Future:
+            """
+            await self._dissconnenter()
 
-    def add_message_command(self, command: MessageCommand) -> NoReturn:
-        """
-        Create message command
-        -----
-        :param command: Message Command
-        :return None:
-        """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": command.name,
-                "type": ApplicationCommandType.MESSAGE,
-            }
+        async def _dissconnenter(self) -> NoReturn:
+            if self.isready:
+                await self.api.disconnecter()
 
-            self.api.create_command(_payload, command.cmd)
-        else:
-            raise errors.ApplicationIdIsNone("Application commands is blocked")
+                for _var in self.__slots__:
+                    del _var
 
-    def run(self, status: Optional[Union[DisBotStatus, str]] = None) -> NoReturn:
-        """
-        Running bot
-        -----
-        :param status: Status for bot user
-        :return: None
-        """
-        __methodname__ = f"{self.__classname__}.run()"
+        async def send(self, channel_id: int, content: Optional[str] = None,
+                       embeds: Optional[list[DisEmbed]] = None):
+            """
+            Send message to channel
+            -----
+            :param channel_id: Channel Id
+            :param content: Message Content
+            :param embeds: Message embeds
+            :return None:
+            """
+            if self.isready:
+                channel = self.get_channel(channel_id)
+                await channel.send(content=content, embeds=embeds)
+            else:
+                raise errors.InternetError("Bot is not ready!")
 
-        if isinstance(status, DisBotStatus):
-            _message = f"Error! In method {__methodname__} was moved " \
-                       "invalid argument! Argument type is DisBotStatus, " \
-                       "but in method have to type is str!"
-            self.logger.log(_message)
-            raise errors.InvalidArgument("Invalid argument type!")
+        async def send(self, channel_id: int, content: Optional[str] = None,
+                       embed: Optional[DisEmbed] = None):
+            """
+            Send message to channel
+            -----
+            :param channel_id: Channel Id
+            :param content: Message Content
+            :param embed: Message embed
+            :return None:
+            """
+            if self.isready:
+                channel = self.get_channel(channel_id)
+                await channel.send(content=content, embed=embed)
+            else:
+                raise errors.InternetError("Bot is not ready!")
 
-        self.isready = True
+        def get_channel(self, id: ChannelId) -> Union[DisChannel, DisDmChannel]:
+            """
+            Get channel from id
+            -----
+            :param id: Channel Id
+            :return Union[DisChannel, DisDmChannel]:
+            """
+            _u = f"https://discord.com/v10/channels/{id}"
+            _hdrs = {'Authorization': f'Bot {self.token}'}
 
-        if status is None and self.status is None:
-            self.status = "online"
-        elif status is not None and self.status is None:
-            self.status = status
-        elif status is not None and self.status is not None:
-            _message = "You typed status and in run() and in __init__()"
-            raise errors.BotStatusError(_message)
+            from requests import get
 
-        self._runner()
+            j = get(_u, headers=_hdrs).json()
 
-    def _runner(self) -> NoReturn:
-        try:
-            self._coro = run(self.api.run(self.status, self._ons, debug=self._debug, act=self._act))
-        except KeyboardInterrupt:
-            pass
-        except requests.exceptions.ConnectionError:
-            raise errors.InternetError("Please turn on your Wifi-Fi!", "-1000")
+            if j["type"] == 1:  # Dm Channels
+                return DisDmChannel(id, self.token)
+            else:
+                return DisChannel(id, self.token)
 
-    async def disconnect(self) -> NoReturn:
-        """
-        Disconnect from Gateway
-        -----
-        :return asyncio.Future:
-        """
-        await self._dissconnenter()
+        def get_guild(self, id: int) -> DisGuild:
+            """
+            Get guild from id
+            -----
+            :param id: Guild Id
+            :return DisGuild:
+            """
+            return self.api.get_guild(id)
 
-    async def close(self) -> NoReturn:
-        """
-        Disconnect from Gateway
-        :return asyncio.Future:
-        """
-        await self._dissconnenter()
+        def get_user(self, id: int) -> DisUser:
+            """
+            Get user from id
+            -----
+            :param id: User Id
+            :return DisUser:
+            """
+            return self.api.get_user(id)
 
-    async def _dissconnenter(self) -> NoReturn:
-        if self.isready:
-            await self.api.disconnecter()
+        async def change_activity(self, activity: Union[Activity, dict]):
+            """
+            Change activity
+            -----
+            :param activity: Activity to change
+            :return None:
+            """
+            from datetime import datetime
+            from time import mktime
 
-            for _var in self.__slots__:
-                del _var
+            act = {}
 
-    async def send(self, channel_id: int, content: Optional[str] = None,
-                   embeds: Optional[list[DisEmbed]] = None):
-        """
-        Send message to channel
-        -----
-        :param channel_id: Channel Id
-        :param content: Message Content
-        :param embeds: Message embeds
-        :return None:
-        """
-        if self.isready:
-            channel = self.get_channel(channel_id)
-            await channel.send(content=content, embeds=embeds)
-        else:
-            raise errors.InternetError("Bot is not ready!")
+            if isinstance(activity, Activity):
+                act = activity.json()
+            elif isinstance(activity, dict):
+                act = activity
 
-    async def send(self, channel_id: int, content: Optional[str] = None,
-                   embed: Optional[DisEmbed] = None):
-        """
-        Send message to channel
-        -----
-        :param channel_id: Channel Id
-        :param content: Message Content
-        :param embed: Message embed
-        :return None:
-        """
-        if self.isready:
-            channel = self.get_channel(channel_id)
-            await channel.send(content=content, embed=embed)
-        else:
-            raise errors.InternetError("Bot is not ready!")
+            await self.api.fsend_request({
+                "op": 3,
+                "d": {
+                    "since": mktime(datetime.now().timetuple()) * 1000,
+                    "afk": self.api.f.isafk,
+                    "status": self.status,
+                    "activities": [act]
+                }
+            })
 
-    def get_channel(self, id: ChannelId) -> Union[DisChannel, DisDmChannel]:
-        """
-        Get channel from id
-        -----
-        :param id: Channel Id
-        :return Union[DisChannel, DisDmChannel]:
-        """
-        _u = f"https://discord.com/v10/channels/{id}"
-        _hdrs = {'Authorization': f'Bot {self.token}'}
+            del datetime, mktime
 
-        from requests import get
-
-        j = get(_u, headers=_hdrs).json()
-
-        if j["type"] == 1:  # Dm Channels
-            return DisDmChannel(id, self.token)
-        else:
-            return DisChannel(id, self.token)
-
-    def get_guild(self, id: int) -> DisGuild:
-        """
-        Get guild from id
-        -----
-        :param id: Guild Id
-        :return DisGuild:
-        """
-        return self.api.get_guild(id)
-
-    def get_user(self, id: int) -> DisUser:
-        """
-        Get user from id
-        -----
-        :param id: User Id
-        :return DisUser:
-        """
-        return self.api.get_user(id)
-
-    async def change_activity(self, activity: Union[Activity, dict]):
-        """
-        Change activity
-        -----
-        :param activity: Activity to change
-        :return None:
-        """
-        from datetime import datetime
-        from time import mktime
-
-        act = {}
-
-        if isinstance(activity, Activity):
-            act = activity.json()
-        elif isinstance(activity, dict):
-            act = activity
-
-        await self.api.fsend_request({
-            "op": 3,
-            "d": {
-                "since": mktime(datetime.now().timetuple()) * 1000,
-                "afk": self.api.f.isafk,
-                "status": self.status,
-                "activities": [act]
-            }
-        })
-
-        del datetime, mktime
-
-    def __del__(self):
-        self._on_close()
+        def __del__(self):
+            self._on_close()
+    except errors.DisRunTimeError as exc:
+        print(exc.__message__)

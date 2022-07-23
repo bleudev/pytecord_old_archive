@@ -31,6 +31,7 @@ from typing import (
 )
 
 from disspy.reaction import DisEmoji
+from disspy import errors
 
 
 class Component:
@@ -38,11 +39,11 @@ class Component:
                  options=None, min_values=None, max_values=None,
                  min_length=None, max_length=None, placeholder=None, required=None) -> NoReturn:
         if ctype == 1:
-            print("Action Rows don't can to use by users")
+            raise errors.MessageComponentIsBlocked("Action Rows don't can to use by users")
         else:
             if ctype == 2:
                 if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
-                    print("Error!")
+                    raise RuntimeError("Error with creating components!")
                 else:
                     self.type = ctype
                     self.custom_id = custom_id
@@ -71,7 +72,7 @@ class Button(Component):
     def __init__(self, label: Text, style: Optional[int] = None, url: Optional[str] = None,
                  custom_id: Optional[Text] = None, ) -> NoReturn:
         if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
-            print("Error!")
+            raise RuntimeError("Error with creating buttons!")
         else:
             if style is None:  # Default
                 style = 1  # Blue
