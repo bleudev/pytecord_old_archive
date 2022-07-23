@@ -56,7 +56,7 @@ bot.run()
 ```
 This command run bot. After this command you can see that bot is online. Tutorial is over!
 
-# Download
+# Download package
 ## Download stable version
 ```
 # Windows
