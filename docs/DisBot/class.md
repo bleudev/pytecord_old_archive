@@ -1,5 +1,9 @@
 ```python
-class DisBot(token: str, status: Optional[str])
+class DisBot(token: Showflake[str], application_id: Optional[Showflake[int]],
+             status: Optional[TypeOf(DisBotStatus)],
+             flags: Optional[TypeOf(DisFlags)],
+             debug: Optional[bool] = False,
+             activity: Optional[Union[Activity, dict]])
 ```
 This class maked for create bot.
 
