@@ -72,12 +72,12 @@ cd dispy
 pip install --upgrade .
 ```
 
-## Links
+# Links
 <p><a href="https://github.com/itttgg/dispy">https://github.com/itttgg/dispy</a> - GitHub repo</p>
 <p><a href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</a> - Project site on PyPi</p>
 <p><a href="https://dispydocs.herokuapp.com/">https://dispydocs.herokuapp.com/</a> - Site with docs for package</p>
 
-## Using
+# Using
 ### Creating and running bot
 
 ```python
@@ -105,16 +105,51 @@ bot.run()
 ```
 
 ### bot.on("messagec")
+*message create event*
 
 ```python
 import disspy
 
-bot = disspy.DisBot(token="YOUR_TOKEN")
+bot = disspy.DisBot(token="YOUR_TOKEN", flags=disspy.DisFlags.messages())
 
 
 @bot.on("messagec")
-async def on_messagec(message):
-    await message.channel.send("Test!")
+async def on_messagec(message: disspy.DisMessage):
+    await message.channel.send("Content: " + message.content)
+
+
+bot.run()
+```
+
+### bot.on("messageu")
+*message update event*
+
+```python
+import disspy
+
+bot = disspy.DisBot(token="YOUR_TOKEN", flags=disspy.DisFlags.messages())
+
+
+@bot.on("messageu")
+async def on_messageu(message: disspy.DisMessage):
+    await message.channel.send("New content of message: " + message.content)
+
+
+bot.run()
+```
+
+### bot.on("messaged")
+*message delete event*
+
+```python
+import disspy
+
+bot = disspy.DisBot(token="YOUR_TOKEN", flags=disspy.DisFlags.messages())
+
+
+@bot.on("messaged")
+async def on_messaged(e: disspy.MessageDeleteEvent):
+    await e.channel.send("You deleted message!")
 
 
 bot.run()
