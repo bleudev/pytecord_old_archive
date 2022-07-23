@@ -1,10 +1,10 @@
 <p><img src="logo.png" width="250" alt="logo"/></p>
 
 # Dispy
-
-![version](https://img.shields.io/badge/version-0.3-informational?style=flat) ![project language](https://img.shields.io/badge/lang-python-informational) ![analyzing tool](https://img.shields.io/badge/analyzing_tool-PyLint-informational?style=flat)
-### Needs minimal 3.8 python version
-# Mini Tutorial
+![version](https://img.shields.io/badge/version-0.3-informational?style=flat)
+![project language](https://img.shields.io/badge/lang-python-informational?style=flat)
+![analyzing tool](https://img.shields.io/badge/analyzing_tool-pylint-informational?style=flat)
+## Needs minimal 3.8 python version
 Dispy is package for creating bots in Discord. This package use discord API and discord Gateway
 for handle events or, for example, sending messages. Bot use for different goals; handle information
 on your server, creating mini games in discord, auto moderation in your discord server and other.
@@ -26,6 +26,7 @@ if __name__ == '__main__':  # If file is started as a main file
     run(test())  # Run async function
     
 ```
+# Mini Tutorial
 <p>What's token? For starting using this package, you must create bot in
 <a href="https://discord.com/developers/applications">Discord Developer Portal</a></p>
 <p><img src="tutorial/1.png"/>Just click on the "New application" button</p>
