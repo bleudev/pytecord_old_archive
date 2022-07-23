@@ -74,6 +74,9 @@ __all__: tuple[str] = (
     "FlowOpcodes",
     "DisFlags",
     "Showflake",
+    "ChannelId",
+    "UserId",
+    "GuildlId",
     # Private clients
     "Rest",
     "Flow",

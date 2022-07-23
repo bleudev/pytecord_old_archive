@@ -24,6 +24,8 @@ SOFTWARE.
 
 # Package imports
 from asyncio import run
+from requests import get
+
 # Typing imports
 from typing import (
     Optional,
@@ -32,9 +34,7 @@ from typing import (
     Type,
     Callable,
     NoReturn,
-    final,
-    NewType,
-    Generic
+    final
 )
 
 import requests.exceptions
@@ -45,9 +45,12 @@ from disspy._typing import (
     TypeOf,
     Event
 )
-from disspy.activity import *
-from disspy.application_commands import *
-from disspy.channel import *
+from disspy.activity import Activity
+import disspy.application_commands as appc
+from disspy.channel import (
+    DisChannel,
+    DisDmChannel
+)
 from disspy.core import (
     DisApi,
     DisFlags,
@@ -61,6 +64,8 @@ from disspy.logger import Logger
 from disspy.user import DisUser
 
 __all__: tuple[str] = (
+    "DisBotStatus",
+    "DisBotEventType",
     "DisBot"
 )
 
@@ -166,8 +171,9 @@ class DisBotEventType:
         -----
         :return list: All varibles in this class
         """
-        return [self.ON_READY, self.ON_MESSAGEC, self.ON_MESSAGEU, self.ON_MESSAGED,
-                self.ON_CLOSE, self.ON_REACTION, self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
+        return [self.ON_READY, self.ON_MESSAGEC, self.ON_MESSAGEU,
+                self.ON_MESSAGED, self.ON_CLOSE, self.ON_REACTION,
+                self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
 
     def __str__(self) -> str:
         """
@@ -178,32 +184,8 @@ class DisBotEventType:
         return self.ON_READY
 
 
-class _BaseBot:
-    """
-    Class parent for DisBot
-    """
-    _T = TypeVar("_BaseBot")
-
-    def __init__(self, token: Showflake[str]):
-        """
-        Create bot
-        -----
-        :param token: Discord Developers Portal Bot Token
-        """
-        self.token = token
-
-    @property
-    def __class__(self) -> Type[_T]:
-        """
-        Returns type of this class
-        -----
-        :return TypeVar: Type of class
-        """
-        return self._T
-
-
 @final
-class DisBot(_BaseBot):
+class DisBot:
     """
     Class for accessing and sending information in Discord API
     -----
@@ -217,7 +199,6 @@ class DisBot(_BaseBot):
 
     try:
         _T = TypeVar("DisBot")
-        __parent__ = TypeVar("_BaseBot")
         __classname__ = "DisBot"
 
         def __init__(self, token: Showflake[str], application_id: Optional[Showflake[int]] = None,
@@ -234,8 +215,6 @@ class DisBot(_BaseBot):
             """
 
             super().__init__(token)
-
-            from requests import get
 
             _u = "https://discord.com/api/v10/users/@me"
             test_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
@@ -291,8 +270,6 @@ class DisBot(_BaseBot):
             if application_id is None or application_id == 0:
                 application_id = 0
             else:
-                from requests import get
-
                 _u = f"https://discord.com/api/v10/applications/{application_id}/commands"
                 test2_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
 
@@ -357,19 +334,21 @@ class DisBot(_BaseBot):
                     if t == "close":
                         self._on_close = func
                     else:
-                        if t == "messagec" or t == "messageu" or t == "messaged"\
-                           or t == "typing" or t == "dm_typing" or t == "dmessagec" or t == "dmessageu" or t == "dmessaged":
+                        if t in ["messagec", "messageu", "messaged", "typing", "dm_typing",
+                                 "dmessagec", "dmessageu", "dmessaged"]:
                             if self.intflags >= DisFlags.messages():
                                 self._ons[t] = func
                             else:
                                 raise errors.BotEventVisibleError(
-                                    "messagec(), typing(), dm_typing() and other events don't avaivable right now because flags < DisFlags.messages()")
-                        elif t == "reaction" or t == "reactionr":
+                                    "messagec(), typing(), dm_typing() and other events" +
+                                    "don't avaivable right now because flags < DisFlags.messages()")
+                        elif t in ["reaction", "reactionr"]:
                             if self.intflags >= DisFlags.reactions():
                                 self._ons[t] = func
                             else:
                                 raise errors.BotEventVisibleError(
-                                    "reaction() and reactionr() evens don't avaivable right now because flags < DisFlags.reactions()")
+                                    "reaction() and reactionr() events don't" +
+                                    " avaivable right now because flags < DisFlags.reactions()")
                         else:
                             self._ons[t] = func
                 else:
@@ -381,6 +360,13 @@ class DisBot(_BaseBot):
             return wrapper
 
         def add_event(self, t: Event(DisBotEventType, str), func: Callable) -> NoReturn:
+            """
+            Add event to bot with function and event type
+            -----
+            :param t: Type of Event
+            :param func: Function
+            :return None:
+            """
             __methodname__ = f"{self.__classname__}.add_event()"
 
             if isinstance(t, DisBotEventType):
@@ -461,12 +447,20 @@ class DisBot(_BaseBot):
             return wrapper
 
         def on_channel(self, channel_id: ChannelId) -> Wrapper:
+            """
+            On channel event (on_messagec event only in the channel)
+            -----
+            :param channel_id: Channel id
+            :return Wrapper:
+            """
             def wrapper(func):
                 self._ons["channel"] = [func, channel_id]
 
             return wrapper
 
-        def slash_command(self, name, description, options: Optional[list[Option]] = None) -> Wrapper:
+        def slash_command(self, name: str, description: str,
+                          options: Optional[list[appc.Option]]
+                          = None) -> Wrapper:
             """
             Create slash command
             -----
@@ -494,17 +488,17 @@ class DisBot(_BaseBot):
                     _payload = {
                         "name": name,
                         "description": description,
-                        "type": ApplicationCommandType.TEXT_INPUT
+                        "type": appc.ApplicationCommandType.TEXT_INPUT
                     }
 
                 def wrapper(func):
                     self.api.create_command(_payload, func)
 
                 return wrapper
-            else:
-                raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-        def add_slash_command(self, command: SlashCommand) -> NoReturn:
+            raise errors.ApplicationIdIsNone("Application commands is blocked")
+
+        def add_slash_command(self, command: appc.SlashCommand) -> NoReturn:
             """
             Create slash command
             -----
@@ -515,7 +509,7 @@ class DisBot(_BaseBot):
                 _payload = {
                     "name": command.name,
                     "description": command.description,
-                    "type": ApplicationCommandType.TEXT_INPUT,
+                    "type": appc.ApplicationCommandType.TEXT_INPUT,
                     "options": command.options
                 }
 
@@ -533,7 +527,7 @@ class DisBot(_BaseBot):
             if self.application_id != 0 or self.application_id:
                 _payload = {
                     "name": name,
-                    "type": ApplicationCommandType.USER
+                    "type": appc.ApplicationCommandType.USER
                 }
 
                 def wrapper(func):
@@ -543,7 +537,7 @@ class DisBot(_BaseBot):
             else:
                 raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-        def add_user_command(self, command: UserCommand) -> NoReturn:
+        def add_user_command(self, command: appc.UserCommand) -> NoReturn:
             """
             Create user command
             -----
@@ -553,7 +547,7 @@ class DisBot(_BaseBot):
             if self.application_id != 0 or self.application_id:
                 _payload = {
                     "name": command.name,
-                    "type": ApplicationCommandType.USER,
+                    "type": appc.ApplicationCommandType.USER,
                 }
 
                 self.api.create_command(_payload, command.cmd)
@@ -570,7 +564,7 @@ class DisBot(_BaseBot):
             if self.application_id != 0 or self.application_id:
                 _payload = {
                     "name": name,
-                    "type": ApplicationCommandType.MESSAGE
+                    "type": appc.ApplicationCommandType.MESSAGE
                 }
 
                 def wrapper(func):
@@ -580,7 +574,8 @@ class DisBot(_BaseBot):
             else:
                 raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-        def add_message_command(self, command: MessageCommand) -> NoReturn:
+        def add_message_command(self,
+                                command: appc.MessageCommand) -> NoReturn:
             """
             Create message command
             -----
@@ -590,7 +585,7 @@ class DisBot(_BaseBot):
             if self.application_id != 0 or self.application_id:
                 _payload = {
                     "name": command.name,
-                    "type": ApplicationCommandType.MESSAGE,
+                    "type": appc.ApplicationCommandType.MESSAGE,
                 }
 
                 self.api.create_command(_payload, command.cmd)
@@ -627,11 +622,12 @@ class DisBot(_BaseBot):
 
         def _runner(self) -> NoReturn:
             try:
-                self._coro = run(self.api.run(self.status, self._ons, debug=self._debug, act=self._act))
+                run(self.api.run(self.status, self._ons,
+                                 debug=self._debug, act=self._act))
             except KeyboardInterrupt:
                 pass
             except requests.exceptions.ConnectionError:
-                raise errors.InternetError("Please turn on your Wifi-Fi!", "-1000")
+                raise errors.InternetError("Please turn on your internet!", "-1000")
 
         async def disconnect(self) -> NoReturn:
             """
@@ -697,8 +693,6 @@ class DisBot(_BaseBot):
             _u = f"https://discord.com/v10/channels/{id}"
             _hdrs = {'Authorization': f'Bot {self.token}'}
 
-            from requests import get
-
             j = get(_u, headers=_hdrs).json()
 
             if j["type"] == 1:  # Dm Channels
@@ -755,5 +749,6 @@ class DisBot(_BaseBot):
 
         def __del__(self):
             self._on_close()
+
     except errors.DisRunTimeError as exc:
         print(exc.__message__)
