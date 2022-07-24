@@ -38,6 +38,7 @@ from typing import (
 )
 
 import disspy.user
+import json
 
 Json = NewType("Json", dict)
 
@@ -51,7 +52,6 @@ class _SendingRestHandler:
         return self._mainurl + endpoint
     
     async def post(self, endpoint, _payload=None):
-        import json
         if _payload:
             async with ClientSession(headers=self.hdrs) as s:
                 async with s.post(self._gen_url(endpoint), data=json.dumps(_payload)) as d:
@@ -68,7 +68,7 @@ class _SendingRestHandler:
         
     async def patch(self, endpoint, _payload):
         async with ClientSession(headers=self.hdrs) as s:
-            async with s.patch(self._gen_url(endpoint), data=_payload) as d:
+            async with s.patch(self._gen_url(endpoint), data=json.dumps(_payload)) as d:
                 j = await d.json()
                     
                 return j
@@ -87,11 +87,11 @@ class _SendingRestHandler:
                         
                     return j
     
-    async def delete(self, endpont):
+    async def delete(self, endpoint):
         async with ClientSession(headers=self.hdrs) as s:
             async with s.delete(self._gen_url(endpoint)) as d:
                 j = await d.json()
-                    
+
                 return j
     
     def get(self, endpoint):
@@ -134,8 +134,8 @@ class DisGuildTemplate:
         if not name:
             del _payload["name"]
             
-        await _SendingRestHandler(self._t).put(f"/guilds/{self.guild_id}/templates/{self.code}")
-        
+        j = await _SendingRestHandler(self._t).patch(f"/guilds/{self.guild_id}/templates/{self.code}", _payload)
+
         if name:
             self.name = name
             
@@ -143,7 +143,8 @@ class DisGuildTemplate:
             self.description = description
             
     async def delete(self):
-        await _SendingRestHandler(self._t).delete(f"/guilds/{self.guild_id}/templates/{self.code}")
+        j =await _SendingRestHandler(self._t).delete(f"/guilds/{self.guild_id}/templates/{self.code}")
+        print(j)
         
     async def sync(self):
         await _SendingRestHandler(self._t).put(f"/guilds/{self.guild_id}/templates/{self.code}")
