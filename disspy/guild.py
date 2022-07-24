@@ -27,16 +27,76 @@ __all__: tuple[str] = (
     "DisGuildTemplate"
 )
 
-from re import S
+from email import header
+from aiohttp import ClientSession
+from requests import get
 from typing import (
     Text,
     NewType,
-    Union
+    Union,
+    Optional
 )
 
 import disspy.user
 
 Json = NewType("Json", dict)
+
+class _SendingRestHandler:
+    _mainurl = "https://discord.com/api/v10"
+    
+    def __init__(self, token: str):
+        self.hdrs = {'Authorization': f'Bot {token}', "content-type": "application/json"}
+        
+    def _gen_url(self, endpoint) -> str:
+        return self._mainurl + endpoint
+    
+    async def post(self, endpoint, _payload=None):
+        if _payload:
+            async with ClientSession(headers=self.hdrs) as s:
+                async with s.post(self._gen_url(endpoint), data=_payload) as d:
+                    j = await d.json()
+                    
+                    return j
+        
+        else:
+            async with ClientSession(headers=self.hdrs) as s:
+                async with s.post(self._gen_url(endpoint)) as d:
+                    j = await d.json()
+                    
+                    return j
+        
+    async def patch(self, endpoint, _payload):
+        async with ClientSession(headers=self.hdrs) as s:
+            async with s.patch(self._gen_url(endpoint), data=_payload) as d:
+                j = await d.json()
+                    
+                return j
+    
+    async def put(self, endpoint, _payload=None):
+        if _payload:
+            async with ClientSession(headers=self.hdrs) as s:
+                async with s.post(self._gen_url(endpoint), data=_payload) as d:
+                    j = await d.json()
+                    
+                    return j
+        else:
+            async with ClientSession(headers=self.hdrs) as s:
+                async with s.put(self._gen_url(endpoint)) as d:
+                    j = await d.json()
+                        
+                    return j
+    
+    async def delete(self, endpont):
+        async with ClientSession(headers=self.hdrs) as s:
+            async with s.delete(self._gen_url(endpoint)) as d:
+                j = await d.json()
+                    
+                return j
+    
+    def get(self, endpoint):
+        data = get(self._gen_url(endpoint), headers=self.hdrs).json()
+        
+        return data
 
 
 class DisGuild:
@@ -62,8 +122,22 @@ class DisGuild:
         self.id = data["id"]
         self._t = token
         
-    def create_template(self):
-        pass
+    async def create_template(self, name: Text, description: Optional[Text] = None):
+        """create_template()
+
+        Args:
+            name (Text): Name of template
+            description (Optional[Text], optional): Description of template (Optional)
+        """
+        _payload = {
+            "name": name,
+            "description": description
+        }
+        
+        if not description:
+            del _payload["description"]
+        
+        
 
     
 class DisGuildTemplate:
