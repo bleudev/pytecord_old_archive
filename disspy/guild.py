@@ -23,8 +23,8 @@ SOFTWARE.
 """
 
 __all__: tuple[str] = (
-    "DisGuild",
-    "DisGuildTemplate"
+    "DisGuildTemplate",
+    "DisGuild"
 )
 
 from email import header
@@ -97,6 +97,55 @@ class _SendingRestHandler:
         data = get(self._gen_url(endpoint), headers=self.hdrs).json()
         
         return data
+    
+    
+class DisGuildTemplate:
+    def __init__(self, data: Json, token: str) -> None:
+        self._t: str = str(token)
+        
+        self.code: str = data["code"]
+        self.name = data["name"]
+        self.description: Union[str, None] = data["description"]
+        self.usage_count: int = int(data["usage_count"])
+        self.creator: disspy.user.DisUser = disspy.user.DisUser(data["creator"], self._t)
+        
+        self.guild_id: int = int(data["source_guild_id"])
+        
+    async def modify(self, name: Optional[Text], description: Optional[Text] = None):
+        """modify()
+
+        Args:
+            name (Optional[Text]): New name of template (Optional)
+            description (Optional[Text], optional): New description of template (Optional)
+        """
+        
+        if not name and not description:
+            return
+        
+        _payload = {
+            "name": name,
+            "description": description
+        }
+        
+        if not description:
+            del _payload["description"]
+        
+        if not name:
+            del _payload["name"]
+            
+        await _SendingRestHandler(self._t).put(f"/guilds/{self.guild_id}/templates/{self.code}")
+        
+        if name:
+            self.name = name
+            
+        if description:
+            self.description = description
+            
+    async def delete(self):
+        await _SendingRestHandler(self._t).delete(f"/guilds/{self.guild_id}/templates/{self.code}")
+        
+    async def sync(self):
+        await _SendingRestHandler(self._t).put(f"/guilds/{self.guild_id}/templates/{self.code}")
 
 
 class DisGuild:
@@ -136,18 +185,7 @@ class DisGuild:
         
         if not description:
             del _payload["description"]
+            
+        j = await _SendingRestHandler(self._t).post(f"/guilds/{self.id}/templates")
         
-        
-
-    
-class DisGuildTemplate:
-    def __init__(self, data: Json, token: str) -> None:
-        self._t: str = str(token)
-        
-        self.code: str = data["code"]
-        self.name = data["name"]
-        self.description: Union[str, None] = data["description"]
-        self.usage_count: int = int(data["usage_count"])
-        self.creator: disspy.user.DisUser = disspy.user.DisUser(data["creator"], self._t)
-        
-        self.guild_id: int = int(data["source_guild_id"])
+        return DisGuildTemplate(j, self._t)
