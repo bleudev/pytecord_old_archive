@@ -8,16 +8,14 @@ assignees: ''
 ---
 
 **For what thing this feature?**
-Testing
+
+Type here
+
 **Ideal solution**
 ```python
-@bot.command()
-async def test(ctx):
-    await ctx.send("Test!")
+# Type Here your ideal code
 ```
-**Not ideal but cool colution**
+**Not ideal solution**
 ```python
-async def test(ctx):
-    await ctx.send("Test!")
-bot.add_command(test)
+# Type Here your not ideal code
 ```
