@@ -1,9 +1,9 @@
 <p><img src="logo.png" width="250" alt="logo"/></p>
 
 # Dispy
-![version](https://img.shields.io/badge/version-0.3-informational?style=flat)
-![project language](https://img.shields.io/badge/lang-python-informational?style=flat)
-![analyzing tool](https://img.shields.io/badge/analyzing_tool-pylint-informational?style=flat)
+![version](https://img.shields.io/badge/pypi-0.3-blueviolet?style=flat)
+![project language](https://img.shields.io/badge/lang-python-blueviolet?style=flat)
+![analyzing tool](https://img.shields.io/badge/analyzing_tool-pylint-blueviolet?style=flat)\
 [![Documentation Status](https://readthedocs.org/projects/dispy-api-docs/badge/?version=latest)](https://dispy-api-docs.readthedocs.io/en/latest/?badge=latest)
 ## Needs minimal 3.8 python version
 Dispy is package for creating bots in Discord. This package use discord API and discord Gateway
