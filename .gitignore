@@ -5,6 +5,7 @@
 # Cache files and modules
 /.venv
 /__pycache__
+disspy/__pycache__
 /node_modules
 
 # Package builds
