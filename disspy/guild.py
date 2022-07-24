@@ -148,6 +148,16 @@ class DisGuildTemplate:
         
     async def sync(self):
         await _SendingRestHandler(self._t).put(f"/guilds/{self.guild_id}/templates/{self.code}")
+    
+    async def create_guild(self, name: Text):
+        _payload = {
+            "name": name
+        }
+        
+        j = await _SendingRestHandler(self._t).post(f"/guilds/templates/{self.code}", _payload)
+        
+        return DisGuild(j, self._t)
+        
 
 
 class DisGuild:
