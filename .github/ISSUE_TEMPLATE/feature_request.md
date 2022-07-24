@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**For what thing this feature?**
+**Description of your idea**
 
 Type here
 
