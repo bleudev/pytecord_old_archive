@@ -144,7 +144,6 @@ class DisGuildTemplate:
             
     async def delete(self):
         j =await _SendingRestHandler(self._t).delete(f"/guilds/{self.guild_id}/templates/{self.code}")
-        print(j)
         
     async def sync(self):
         await _SendingRestHandler(self._t).put(f"/guilds/{self.guild_id}/templates/{self.code}")
