@@ -51,9 +51,10 @@ class _SendingRestHandler:
         return self._mainurl + endpoint
     
     async def post(self, endpoint, _payload=None):
+        import json
         if _payload:
             async with ClientSession(headers=self.hdrs) as s:
-                async with s.post(self._gen_url(endpoint), data=_payload) as d:
+                async with s.post(self._gen_url(endpoint), data=json.dumps(_payload)) as d:
                     j = await d.json()
                     
                     return j
@@ -171,21 +172,18 @@ class DisGuild:
         self.id = data["id"]
         self._t = token
         
-    async def create_template(self, name: Text, description: Optional[Text] = None):
+    async def create_template(self, name: Text, description: Text):
         """create_template()
 
         Args:
             name (Text): Name of template
-            description (Optional[Text], optional): Description of template (Optional)
+            description (Text): Description of template
         """
         _payload = {
             "name": name,
             "description": description
         }
-        
-        if not description:
-            del _payload["description"]
-            
-        j = await _SendingRestHandler(self._t).post(f"/guilds/{self.id}/templates")
+                
+        j = await _SendingRestHandler(self._t).post(f"/guilds/{self.id}/templates", _payload)
         
         return DisGuildTemplate(j, self._t)
