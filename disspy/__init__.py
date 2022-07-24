@@ -112,7 +112,7 @@ def _all_generator(alls: list[tuple]) -> tuple:
 
 # Varibles
 # Version of disspy (b - beta, a - alpha)
-__version__ = "0.3"
+__version__ = "0.4"
 
 # Link to GitHub repo
 __github__ = "https://github.com/itttgg/dispy"
