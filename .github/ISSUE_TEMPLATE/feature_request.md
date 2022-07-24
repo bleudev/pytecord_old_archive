@@ -13,9 +13,9 @@ Type here
 
 **Ideal solution**
 ```python
-# Type Here your ideal code
+# Type here your ideal code
 ```
 **Not ideal solution**
 ```python
-# Type Here your not ideal code
+# Type here your not ideal code
 ```
