@@ -102,10 +102,9 @@ class DisBotStatus:
     bot.run(disspy.DisBotStatus.DND)
 
     bot.run(disspy.DisBotStatus.IDLE)
-    ---------------
+
     And you may use status in __init__()
-    bot = disspy.DisBot(token="TOKEN", type="message",
-                        status=disspy.DisBotStatus.ONLINE)
+    bot = disspy.DisBot(token="TOKEN", status=disspy.DisBotStatus.ONLINE)
     """
 
     _T = TypeVar("DisBotStatus")
