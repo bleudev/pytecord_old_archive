@@ -23,8 +23,20 @@ SOFTWARE.
 """
 
 __all__: tuple[str] = (
-    "DisGuild"
+    "DisGuild",
+    "DisGuildTemplate"
 )
+
+from re import S
+from typing import (
+    Text,
+    NewType,
+    Union
+)
+
+import disspy.user
+
+Json = NewType("Json", dict)
 
 
 class DisGuild:
@@ -40,7 +52,7 @@ class DisGuild:
     --------
     :var _t: Token of the bot
     """
-    def __init__(self, data, token):
+    def __init__(self, data: Json, token: Text):
         """
         init object
 
@@ -49,3 +61,19 @@ class DisGuild:
         """
         self.id = data["id"]
         self._t = token
+        
+    def create_template(self):
+        pass
+
+    
+class DisGuildTemplate:
+    def __init__(self, data: Json, token: str) -> None:
+        self._t: str = str(token)
+        
+        self.code: str = data["code"]
+        self.name = data["name"]
+        self.description: Union[str, None] = data["description"]
+        self.usage_count: int = int(data["usage_count"])
+        self.creator: disspy.user.DisUser = disspy.user.DisUser(data["creator"], self._t)
+        
+        self.guild_id: int = int(data["source_guild_id"])
