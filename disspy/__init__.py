@@ -110,12 +110,9 @@ def _all_generator(alls: list[tuple]) -> tuple:
 
     return tuple(r)
 
-
-# Version of dipsy (b - beta, a - alpha)
+# Varibles
+# Version of disspy (b - beta, a - alpha)
 __version__ = "0.3"
-
-# Minimal python version for using package
-__pythonversion__ = "3.8"
 
 # Link to GitHub repo
 __github__ = "https://github.com/itttgg/dispy"
@@ -153,27 +150,3 @@ __alls__: list[tuple] = [
 ]
 
 __all__: tuple = _all_generator(__alls__)
-
-
-# Info
-def __info__():
-    from time import sleep as tsleep
-
-    print(
-        "Dispy is package for creating bots in Discord. This use aiohttp, requests and other packages for using discord API")
-
-    tsleep(1)  # 1-second sleep
-
-    print("""
-For staring you must create DisBot object:
-                    
-    import disspy
-        
-    bot = disspy.DisBot("YOUR_TOKEN")
-        
-    bot.run()
-        
-run() method use for running bot Gateway client and starting bot work.
-    """)
-
-    del tsleep  # Delete import
