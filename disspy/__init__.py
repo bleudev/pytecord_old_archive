@@ -23,6 +23,22 @@ SOFTWARE.
 """
 
 # Imports
+# Files
+from unittest import result
+import disspy.activity
+import disspy.application_commands
+import disspy.channel
+import disspy.client
+import disspy.core
+import disspy.embed
+import disspy.errors
+import disspy.guild
+import disspy.logger
+import disspy.message
+import disspy.user
+import disspy.reaction
+
+# Classes
 from disspy.activity import (
     Activity,
     ActivityType
@@ -99,16 +115,16 @@ from disspy.ui import (
 
 # Methods for other varibles
 def _all_generator(alls: list[tuple]) -> tuple:
-    r = []
+    result = []
 
-    for t in alls:
-        if isinstance(t, str):
-            r.append(t)
+    for file_all in alls:
+        if isinstance(file_all, str):
+            result.append(file_all)
         else:
-            for e in t:
-                r.append(e)
+            for element in file_all:
+                result.append(element)
 
-    return tuple(r)
+    return tuple(result)
 
 # Varibles
 # Version of disspy (b - beta, a - alpha)
@@ -118,7 +134,7 @@ __version__ = "0.4"
 __github__ = "https://github.com/itttgg/dispy"
 
 # Link to stable version of package
-__latest_version__ = f"https://github.com/itttgg/dispy/releases/latest"
+__latest_version__ = "https://github.com/itttgg/dispy/releases/latest"
 
 # Description of package
 __description__ = "Dispy - package for creating bots in discord."
@@ -126,15 +142,10 @@ __description__ = "Dispy - package for creating bots in discord."
 # Name of package
 __packagename__ = "dispy"
 
-import disspy._typing, disspy.activity,\
-       disspy.application_commands, disspy.channel,\
-       disspy.client, disspy.core, disspy.embed,\
-       disspy.errors, disspy.guild, disspy.logger,\
-       disspy.message, disspy.user, disspy.reaction
+
 
 # __all__
 __alls__: list[tuple] = [
-    disspy._typing.__all__,
     disspy.activity.__all__,
     disspy.application_commands.__all__,
     disspy.channel.__all__,
