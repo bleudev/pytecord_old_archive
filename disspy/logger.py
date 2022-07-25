@@ -27,42 +27,25 @@ __all__: tuple[str] = (
 )
 
 
-from typing import (
-    Type,
-    TypeVar
-)
-
-
 class Logger:
     """
     Logger tool for DisBot
 
     Created for logging messages and printing it
     """
-    _T = TypeVar("Logger")
-
     def __init__(self):
         """
         Init object
         """
         self.logs: list = []
 
-    @property
-    def __class__(self) -> Type[_T]:
-        """
-        Returns self class
-        -----
-        :return TypeVar: Type of class
-        """
-        return self._T
-
-    def log(self, string: str) -> str:
+    def log(self, message: str) -> str:
         """
         Log to logger
         -----
         :param string: Message
         :return str: This message (var string)
         """
-        self.logs.append(string)
+        self.logs.append(message)
 
-        return string
+        return message

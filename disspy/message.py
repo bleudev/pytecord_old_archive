@@ -23,7 +23,10 @@ SOFTWARE.
 """
 
 __all__: tuple[str] = (
-    "DisMessage"
+    "DisMessage",
+    "DmMessage",
+    "MessageDeleteEvent",
+    "DmMessageDeleteEvent"
 )
 
 from typing import (
@@ -33,6 +36,8 @@ from typing import (
     ClassVar,
     Any
 )
+from json import dumps
+from aiohttp import ClientSession
 
 from disspy.embed import DisEmbed
 from disspy.jsongenerators import _EmbedGenerator
@@ -68,24 +73,29 @@ class _MessageType:
 @final
 class _SendingRestHandler:
     @staticmethod
-    async def execute(channel_id, payload, token):
-        from aiohttp import ClientSession
-        from json import dumps
+    async def execute(channel_id: int, payload: dict, token: str):
+        """execute()
 
-        ds = dumps(payload)
+        Args:
+            channel_id (int): Channel id
+            payload (dict): Json payload
+            token (str): Bot token
 
-        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
-            _u = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+        Returns:
+            dict: Json data
+        """
+        dump_data = dumps(payload)
+        hdrs = {'Authorization': f'Bot {token}', 'content-type': 'application/json'}
+        _u = f"https://discord.com/api/v9/channels/{channel_id}/messages"
 
-            async with s.post(_u, data=ds) as p:
-                j = await p.json()
+        async with ClientSession(headers=hdrs) as session:
+            async with session.post(_u, data=dump_data) as post_data:
+                j = await post_data.json()
 
                 return j
 
     @staticmethod
     async def create_reaction(endpoint, token):
-        from aiohttp import ClientSession
-
         async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             _u = f"https://discord.com/api/v10{endpoint}"
 
@@ -93,8 +103,6 @@ class _SendingRestHandler:
 
     @staticmethod
     async def delete_message(url, token):
-        from aiohttp import ClientSession
-
         async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             await s.delete(url=url)
 
@@ -144,28 +152,6 @@ class DisMessage:
             _d["embeds"] = embeds_jsons
 
         if not embeds and not content:
-            return
-
-        await _SendingRestHandler.execute(self.channel.id, _d, self._t)
-
-    async def reply(self, content: Optional[Any] = None, embed: Optional[DisEmbed] = None):
-        _d = {
-            "content": None,
-            "embeds": {},
-            "message_reference": {
-                "message_id": self.id
-            }
-        }
-
-        content = str(content)
-
-        if embed:
-            _d["embeds"] = [_EmbedGenerator(embed)]
-
-        if content:
-            _d["content"] = content
-
-        if not content and not embed:
             return
 
         await _SendingRestHandler.execute(self.channel.id, _d, self._t)
@@ -230,28 +216,6 @@ class DmMessage:
             _d["embeds"] = embeds_jsons
 
         if not embeds and not content:
-            return
-
-        await _SendingRestHandler.execute(self.channel.id, _d, self._t)
-
-    async def reply(self, content: Optional[Any] = None, embed: Optional[DisEmbed] = None):
-        _d = {
-            "content": None,
-            "embeds": {},
-            "message_reference": {
-                "message_id": self.id
-            }
-        }
-
-        content = str(content)
-
-        if embed:
-            _d["embeds"] = [_EmbedGenerator(embed)]
-
-        if content:
-            _d["content"] = content
-
-        if not content and not embed:
             return
 
         await _SendingRestHandler.execute(self.channel.id, _d, self._t)
