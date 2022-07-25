@@ -25,13 +25,7 @@ SOFTWARE.
 # Imports
 # Other Packages
 import asyncio
-from aiohttp import ClientSession
-from requests import get, post
-import colorama
-
-# Typing imports
 from typing import (
-    Type,
     TypeVar,
     Union,
     Optional,
@@ -47,6 +41,9 @@ from typing import (
     Generic,
     final
 )
+from aiohttp import ClientSession
+from requests import delete, post, get, patch
+import colorama
 
 # disspy imports
 from disspy.channel import DisChannel, DisDmChannel
@@ -59,10 +56,6 @@ from disspy.message import (
     DmMessageDeleteEvent
 )
 from disspy.user import DisUser
-
-__name__: str = "core"
-
-__package__: str = "disspy"
 
 
 JsonOutput = NewType("JsonOutput", Dict[str, Any])
@@ -92,8 +85,6 @@ class FlowOpcodes:
     """
     Flow Event Opcodes (see Discord Developer Portal docs (topics Gateway)
     """
-    _T = TypeVar("FlowOpcodes")
-
     DISPATCH: ClassVar[int] = 0
     HEARTBEAT: ClassVar[int] = 1
     IDENTIFY: ClassVar[int] = 2
@@ -127,15 +118,6 @@ class FlowOpcodes:
             11: "HEARTBEAT ACK"
         }
 
-    @property
-    def __class__(self) -> Type[_T]:
-        """
-        Returns type of class
-        -----
-        :return TypeVar: Type of class
-        """
-        return self._T
-
 
 colorama.init()  # Init Colorama
 
@@ -167,6 +149,8 @@ class _DebugLoggingWebsocket:
         _op_str = FlowOpcodes.rotated_dict()[_op]
         _op_str = _op_str.capitalize()
 
+        _2part = f" | {_op_str}:{colorama.Fore.RESET} {_data}"
+
         try:
             del _data["d"]["_trace"]
         except KeyError:
@@ -178,15 +162,21 @@ class _DebugLoggingWebsocket:
             if _op == 2:
                 _data["d"]["token"] = "TOKEN"
 
-            _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
+            if _op == 11:
+                _op_str = "Heartbeat ACK"
+
+            _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.RED}{_2part}"
         else:
             if _isevent:
-                _result = f"{colorama.Fore.YELLOW}Getting Event{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
+                if _op == 11:
+                    _op_str = "Heartbeat ACK"
+
+                _result = f"{colorama.Fore.YELLOW}Getting Event{colorama.Fore.RED}{_2part}"
             else:
                 if _op == 11:
                     _op_str = "Heartbeat ACK"
 
-                _result = f"{colorama.Fore.YELLOW}Getting Responce{colorama.Fore.RED} | {_op_str}:{colorama.Fore.RESET} {_data}"
+                _result = f"{colorama.Fore.YELLOW}Getting Responce{colorama.Fore.RED}{_2part}"
 
         return _result
 
@@ -281,17 +271,6 @@ class DisFlags:
             Implements all Gateway Intents
     """
     __classname__: str = "DisFlags"
-
-    _T: TypeVar = TypeVar(__classname__)
-
-    @property
-    def __class__(self) -> Type[_T]:
-        """
-        Returns type of class
-        -----
-        :return TypeVar: Type of class
-        """
-        return self._T
 
     def __all__(self) -> List[str]:
         return [str(self.default()), str(self.all())]
@@ -398,54 +377,58 @@ class Showflake(Generic[T]):
             return str(self.value)
 
 
-ChannelId = NewType("ChannelId", Union[int, Showflake])
-UserId = NewType("UserId", Union[int, Showflake])
-GuildlId = NewType("GuildId", Union[int, Showflake])
+ChannelId = NewType("ChannelId", int, Showflake)
+UserId = NewType("UserId", int, Showflake)
+GuildlId = NewType("GuildId", int, Showflake)
 
 
 @final
-class Rest(_RequestsUserClass):
+class Rest:
+    """
+    Rest class
+    """
     __classname__: str = "Rest"
 
-    _T: TypeVar = TypeVar(__classname__)
-
     def __init__(self, token: str):
-        super().__init__()
-
         self._headers = {'Authorization': f'Bot {token}', "content-type": "application/json"}
 
         self.__slots__ = [self._headers]
 
-    @property
-    def __class__(self: _T) -> Type[_T]:
-        return Type[self._T]
-
-    def get(self, goal: str, id: Union[int, Showflake]) -> JsonOutput:
+    def get(self, goal: str, goal_id: Union[int, Showflake]) -> JsonOutput:
         """
         :param goal: guild/channel/user
         :param id: id of guild/channel/user
         :return JsonOutput: Json answer from Discord API server
         """
-        id = int(id)
+        goal_id = int(goal_id)
 
         if goal.casefold() == 'guild':
-            _url = f'{_mainurl()}guilds/{str(id)}'
+            _url = f'{_mainurl()}guilds/{str(goal_id)}'
             return get(url=_url,
                        headers=self._headers).json()
 
         elif goal.casefold() == 'channel':
-            _url = f'{_mainurl()}channels/{str(id)}'
+            _url = f'{_mainurl()}channels/{str(goal_id)}'
 
             return get(url=_url,
                        headers=self._headers).json()
 
         elif goal.casefold() == "user":
-            _url = f'{_mainurl()}users/{str(id)}'
+            _url = f'{_mainurl()}users/{str(goal_id)}'
 
             return get(url=_url,
                        headers=self._headers).json()
 
     def fetch(self, channel_id, message_id) -> JsonOutput:
+        """fetch()
+
+        Args:
+            channel_id (_type_): Channel id
+            message_id (_type_): Message id from this channel
+
+        Returns:
+            JsonOutput: Json data about fetched message
+        """
         _channel_id, _message_id = [str(channel_id), str(message_id)]
 
         _url = f"{_mainurl()}channels/{_channel_id}/messages/{_message_id}"
@@ -455,21 +438,18 @@ class Rest(_RequestsUserClass):
     async def send_message(self, channel_id, json_post):
         _url = f"{_mainurl()}channels/{channel_id}/messages"
 
-        async with ClientSession(headers=self._headers) as s:
-            async with s.post(_url, data=json_post) as p:
-                j = await p.json()
+        async with ClientSession(headers=self._headers) as session:
+            async with session.post(_url, data=json_post) as post_process:
+                j = await post_process.json()
                 return j
 
 
 @final
 class Flow:
+    """
+    Flow class was created for opening and working with Discord Gateway
+    """
     __classname__: str = "Flow"
-
-    _T = TypeVar(__classname__)
-
-    @property
-    def __class__(self: _T) -> Type[_T]:
-        return self._T
 
     def __init__(self, gateway_version: int, token: str, intents: int,
                  activity: dict):
@@ -518,7 +498,7 @@ class Flow:
     async def on_dmessaged(self, e: DmMessageDeleteEvent):
         pass
 
-    async def on_interaction(self, token, id, command_name: Text, bot_token: Showflake[str], type: int, data: JsonOutput, type_of_command: Optional[int] = None):
+    async def on_interaction(self, token, interaction_id, command_name: Text, bot_token: Showflake[str], interaction_type: int, data: JsonOutput, type_of_command: Optional[int] = None):
         pass
 
     async def on_components(self, d):
@@ -679,8 +659,6 @@ class Flow:
             elif event.type == "MESSAGE_CREATE":
                 _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
-                from aiohttp import ClientSession
-
                 if not event.data["author"]["id"] == self.user_id:
                     async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
                         async with s.get(_u) as g:
@@ -702,8 +680,6 @@ class Flow:
             elif event.type == "MESSAGE_UPDATE":
                 _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
-                from aiohttp import ClientSession
-
                 if not event.data["author"]["id"] == self.user_id:
                     async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
                         async with s.get(_u) as g:
@@ -720,8 +696,6 @@ class Flow:
 
             elif event.type == "MESSAGE_DELETE":
                 _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
-
-                from aiohttp import ClientSession
 
                 async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
                     async with s.get(_u) as g:
@@ -837,6 +811,8 @@ class DisApi(_RequestsUserClass):
 
         self.app_commands = []
         self.raw_app_commands = []
+        
+        self.user = None
 
         self.app_commands.append({})  # Slash Commands
         self.app_commands.append({})  # User Commands
@@ -868,8 +844,6 @@ class DisApi(_RequestsUserClass):
 
         _url = f"{_mainurl()}applications/{self.application_id}/commands"
 
-        from requests import delete, post, get, patch
-
         _raws = get(_url, headers=self._headers).json()
 
         for r in _raws:
@@ -892,8 +866,6 @@ class DisApi(_RequestsUserClass):
                     delete(f"{_url}/{r['id']}", headers=self._headers)
                     post(url=_url, json=j, headers=self._headers)
 
-        del delete
-
         await self.f.run(ons, status, debug, act)
 
     async def disconnecter(self):
@@ -909,13 +881,13 @@ class DisApi(_RequestsUserClass):
         # pass
         self.user: DisUser = self.get_user(self.f.user_id)
 
-    async def _on_interaction(self, token, id, command_name, bot_token: str, type, data: JsonOutput, type_of_command: int = None):
+    async def _on_interaction(self, token, interaction_id, command_name, bot_token: str, interaction_type, data: JsonOutput, type_of_command: int = None):
         if type_of_command is None:
             return  # Not components!
         else:
-            if type == 2:
+            if interaction_type == 2:
                 from disspy.application_commands import Context
-                _ctx = Context(token, id, bot_token)
+                _ctx = Context(token, interaction_id, bot_token)
 
                 try:
                     if type_of_command == 3:  # Message Commands
@@ -1092,5 +1064,12 @@ class DisApi(_RequestsUserClass):
 
                 app_func_register(2)
 
-    async def fsend_request(self, data):
+    async def fsend_request(self, data: dict):
+        """fsend_request()
+
+        Send to Flow websocket a json request
+
+        Args:
+            data (dict): Json data for sending request
+        """
         await self.f.send_request(data, self.f.ws)

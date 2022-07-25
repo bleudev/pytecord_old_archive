@@ -107,8 +107,6 @@ class DisBotStatus:
     bot = disspy.DisBot(token="TOKEN", status=disspy.DisBotStatus.ONLINE)
     """
 
-    _T = TypeVar("DisBotStatus")
-
     ONLINE = "online"
     DND = "dnd"
     INVISIBLE = "invisible"
@@ -121,15 +119,6 @@ class DisBotStatus:
         :return list: All varibles in this class
         """
         return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
-
-    @property
-    def __class__(self) -> Type[_T]:
-        """
-        Returns type of this class
-        -----
-        :return type: Type of class
-        """
-        return self._T
 
 
 @final
@@ -145,8 +134,6 @@ class DisBotEventType:
         await message.channel.send('Test!')
     """
 
-    _T = TypeVar("DisBotEventType")
-
     ON_MESSAGEC: str = "messagec"
     ON_MESSAGEU: str = "messageu"
     ON_MESSAGED: str = "messaged"
@@ -156,15 +143,6 @@ class DisBotEventType:
     ON_REACTIONR: str = "reactionr"
     ON_TYPING: str = "typing"
     ON_DM_TYPING: str = "dm_typing"
-
-    @property
-    def __class__(self) -> Type[_T]:
-        """
-        Returns type of this class
-        -----
-        :return type: Type of class
-        """
-        return self._T
 
     def __all__(self) -> list:
         """
@@ -199,7 +177,6 @@ class DisBot:
     """
 
     try:
-        _T = TypeVar("DisBot")
         __classname__ = "DisBot"
 
         def __init__(self, token: Showflake[str], application_id: Optional[Showflake[int]] = None,
@@ -291,15 +268,6 @@ class DisBot:
             self.__slots__ = [self.api, self._on_ready, self._on_messagec,
                               self.token, self.user, self.isready, self.status]
 
-        @property
-        def __class__(self) -> Type[_T]:
-            """
-            Returns type of this class
-            -----
-            :return TypeVar: Type of class
-            """
-            return self._T
-
         async def _on_register(self):
             """
             Register user var
@@ -311,7 +279,7 @@ class DisBot:
         def _on_close(self):
             pass
 
-        def on(self, t: Event(DisBotEventType, str)) -> Wrapper:
+        def on(self, event_type: Event(DisBotEventType, str)) -> Wrapper:
             """
             This method was created for changing on_ready(), on_messagec()
             and other methods that using in _runner
@@ -322,34 +290,34 @@ class DisBot:
 
             __methodname__ = f"{self.__classname__}.on()"
 
-            if isinstance(t, DisBotEventType):
+            if isinstance(event_type, DisBotEventType):
                 _message = f"Error! In method {__methodname__} was moved" \
                            "invalid argument! Argument type is DisBotEventType," \
                            "but in method have to type is str!"
                 self.logger.log(_message)
 
             def wrapper(func):
-                if t in _all_basic_events:
-                    if t == "close":
+                if event_type in _all_basic_events:
+                    if event_type == "close":
                         self._on_close = func
                     else:
-                        if t in ["messagec", "messageu", "messaged", "typing", "dm_typing",
+                        if event_type in ["messagec", "messageu", "messaged", "typing", "dm_typing",
                                  "dmessagec", "dmessageu", "dmessaged"]:
                             if self.intflags >= DisFlags.messages():
-                                self._ons[t] = func
+                                self._ons[event_type] = func
                             else:
                                 raise errors.BotEventVisibleError(
                                     "messagec(), typing(), dm_typing() and other events" +
                                     "don't avaivable right now because flags < DisFlags.messages()")
-                        elif t in ["reaction", "reactionr"]:
+                        elif event_type in ["reaction", "reactionr"]:
                             if self.intflags >= DisFlags.reactions():
-                                self._ons[t] = func
+                                self._ons[event_type] = func
                             else:
                                 raise errors.BotEventVisibleError(
                                     "reaction() and reactionr() events don't" +
                                     " avaivable right now because flags < DisFlags.reactions()")
                         else:
-                            self._ons[t] = func
+                            self._ons[event_type] = func
                 else:
                     _err = f"Error! In method {__methodname__} was" \
                            "moved invalid event type!"
@@ -358,7 +326,7 @@ class DisBot:
 
             return wrapper
 
-        def add_event(self, t: Event(DisBotEventType, str), func: Callable) -> NoReturn:
+        def add_event(self, event_type: Event(DisBotEventType, str), func: Callable) -> NoReturn:
             """
             Add event to bot with function and event type
             -----
@@ -368,24 +336,24 @@ class DisBot:
             """
             __methodname__ = f"{self.__classname__}.add_event()"
 
-            if isinstance(t, DisBotEventType):
+            if isinstance(event_type, DisBotEventType):
                 _message = f"Error! In method {__methodname__} was moved" \
                            "invalid argument! Argument type is DisBotEventType," \
                            "but in method have to type is str!"
                 self.logger.log(_message)
 
-            if t in _all_basic_events:
-                if t == "close":
+            if event_type in _all_basic_events:
+                if event_type == "close":
                     self._on_close = func
                 else:
-                    self._ons[t] = func
+                    self._ons[event_type] = func
             else:
                 _err = f"Error! In method {__methodname__} was" \
                        "moved invalid event type!"
                 self.logger.log(_err)
                 raise errors.BotEventTypeError("Invalid type of event!")
 
-        def on_message(self, t: str) -> Wrapper:
+        def on_message(self, event_type: str) -> Wrapper:
             """
             Method for changing on_message() events
             -----
@@ -405,17 +373,17 @@ class DisBot:
             ]
 
             def wrapper(func):
-                if t in _ts:
-                    if t == _ts[0]:  # Message create
+                if event_type in _ts:
+                    if event_type == _ts[0]:  # Message create
                         self._ons[_mse[0]] = func
-                    elif t == _ts[1]:  # Message update
+                    elif event_type == _ts[1]:  # Message update
                         self._ons[_mse[1]] = func
-                    elif t == _ts[2]:  # Message delete
+                    elif event_type == _ts[2]:  # Message delete
                         self._ons[_mse[2]] = func
 
             return wrapper
 
-        def on_dm_message(self, t: str) -> Wrapper:
+        def on_dm_message(self, event_type: str) -> Wrapper:
             """
             Method for changing on_dm_message() events
             -----
@@ -435,12 +403,12 @@ class DisBot:
             ]
 
             def wrapper(func):
-                if t in _ts:
-                    if t == _ts[0]:  # Message create
+                if event_type in _ts:
+                    if event_type == _ts[0]:  # Message create
                         self._ons[_mse[0]] = func
-                    elif t == _ts[1]:  # Message update
+                    elif event_type == _ts[1]:  # Message update
                         self._ons[_mse[1]] = func
-                    elif t == _ts[2]:  # Message delete
+                    elif event_type == _ts[2]:  # Message delete
                         self._ons[_mse[2]] = func
 
             return wrapper
@@ -474,8 +442,8 @@ class DisBot:
                 if options:
                     _options_jsons = []
 
-                    for o in options:
-                        _options_jsons.append(_OptionGenerator(o))
+                    for option in options:
+                        _options_jsons.append(_OptionGenerator(option))
 
                     _payload = {
                         "name": name,
