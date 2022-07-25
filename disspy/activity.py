@@ -38,11 +38,20 @@ from typing import (
 
 
 class Activity:
+    """
+    Activity class for changing activities in Discord
+    """
     def __init__(self, name: str, activity_type: int) -> NoReturn:
         self.name: str = name
         self.activity_type: int = activity_type
 
     def json(self) -> Dict[str, Any]:
+        """
+        json()
+
+        Returns:
+            Dict[str, Any]: Json data of activity
+        """
         return {
             "name": self.name,
             "type": self.activity_type
@@ -50,6 +59,18 @@ class Activity:
 
 
 class ActivityType:
+    """
+    Activity types for Activity class
+
+    Attributies: (
+        GAME -> Label "Playing in {some_game}"
+        STREAMING -> Label "Streaming {some_game}"
+        LISTENING -> Label "Listening {some_music}"
+        WATCHING -> Label "Watching {some_film}"
+        CUSTOM -> Don't Supported
+        COMPETING -> Dont't Supported too
+    )
+    """
     GAME: ClassVar[int] = 0
     STREAMING: ClassVar[int] = 1
     LISTENING: ClassVar[int] = 2

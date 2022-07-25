@@ -24,7 +24,6 @@ SOFTWARE.
 
 # Imports
 # Files
-from unittest import result
 import disspy.activity
 import disspy.application_commands
 import disspy.channel
