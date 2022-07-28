@@ -25,9 +25,7 @@ SOFTWARE.
 # Typing imports
 from typing import (
     Optional,
-    TypeVar,
     Union,
-    Type,
     Callable,
     NoReturn,
     final
