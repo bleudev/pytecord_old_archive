@@ -36,7 +36,6 @@ import aiohttp
 
 
 from disspy.jsongenerators import _OptionGenerator
-from disspy.core import Showflake
 from disspy.ui import ActionRow
 
 __all__: tuple[str] = (
@@ -216,8 +215,8 @@ class Context:
     There are some methods for responding to interaction (Slash Command)
     """
 
-    def __init__(self, interaction_token: Union[Showflake[str], str],
-                 interaction_id: Union[Showflake[int], int], bot_token) -> NoReturn:
+    def __init__(self, interaction_token: str,
+                 interaction_id: int, bot_token) -> NoReturn:
         self._interaction_token: str = str(interaction_token)
         self._interaction_id: int = int(interaction_id)
 

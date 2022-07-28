@@ -32,7 +32,6 @@ from typing import (
 
 from disspy.reaction import DisEmoji
 from disspy import errors
-from disspy.client import DisBot
 
 
 class Component:
@@ -228,7 +227,7 @@ class ActionRow:
         """
         def wrapper(func):
             self.json[0]["components"].append(_ComponentGenerator(c))
-            self._b: DisBot = self._b
+            self._b = self._b
             self._b.api.comsevs[c.custom_id] = func
 
         return wrapper
