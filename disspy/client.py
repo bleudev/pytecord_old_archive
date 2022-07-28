@@ -605,15 +605,12 @@ class DisBot:
         async def disconnect(self) -> NoReturn:
             """
             Disconnect from Gateway
-            -----
-            :return asyncio.Future:
             """
             await self._dissconnenter()
 
         async def close(self) -> NoReturn:
             """
             Disconnect from Gateway
-            :return asyncio.Future:
             """
             await self._dissconnenter()
 
