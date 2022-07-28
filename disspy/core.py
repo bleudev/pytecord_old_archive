@@ -377,9 +377,9 @@ class Showflake(Generic[T]):
             return str(self.value)
 
 
-ChannelId = NewType("ChannelId", int, Showflake)
-UserId = NewType("UserId", int, Showflake)
-GuildlId = NewType("GuildId", int, Showflake)
+ChannelId = NewType("ChannelId", int)
+UserId = NewType("UserId", int)
+GuildlId = NewType("GuildId", int)
 
 
 @final

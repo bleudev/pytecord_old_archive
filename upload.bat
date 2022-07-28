@@ -5,6 +5,8 @@ python setup.py sdist
 twine upload dist\*
 del disspy.egg-info\*
 del dist\*
+del build\*
 rmdir disspy.egg-info
 rmdir dist
+rmdir build
 pause
