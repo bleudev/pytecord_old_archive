@@ -24,8 +24,9 @@ SOFTWARE.
 
 from typing import (
     Optional,
-    TypeVar
+    NoReturn
 )
+from aiohttp import ClientSession
 
 from disspy.user import DisUser
 
@@ -38,13 +39,11 @@ __all__: tuple[str] = (
 
 
 class DisEmoji:
-    _T = TypeVar("DisEmoji")
-
-    @property
-    def __class__(self) -> TypeVar:
-        return self._T
-
-    def __init__(self, unicode: Optional[str] = None, name: Optional[str] = None, emoji_id: Optional[int] = None):
+    """
+    Emoji for reaction and other things
+    """
+    def __init__(self, unicode: Optional[str] = None, name: Optional[str] = None,
+                 emoji_id: Optional[int] = None) -> NoReturn:
         self.unicode = unicode
         self.name = name
         self.emoji_id = emoji_id
@@ -59,32 +58,30 @@ class DisEmoji:
 
 
 class DisOwnReaction:
-    _T = TypeVar("DisReaction")
-
-    @property
-    def __class__(self) -> TypeVar:
-        return self._T
-
+    """
+    Bot's own reaction
+    """
     def __init__(self, emoji: str, message_id, channel_id, token):
         self.emoji = emoji
         self._u = f"https://discord.com/api/v10/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
         self._t = token
 
     async def delete(self):
-        from aiohttp import ClientSession
+        """delete()
 
-        async with ClientSession(headers={'Authorization': f'Bot {self._t}', 'content-type': 'application/json'}) as s:
-            await s.delete(self._u)
+        Delete own reaction
+        """
+        async with ClientSession(headers={'Authorization': f'Bot {self._t}',
+                                          'content-type': 'application/json'}) as session:
+            await session.delete(self._u)
 
 
 class DisReaction:
-    _T = TypeVar("DisReaction")
-
-    @property
-    def __class__(self) -> TypeVar:
-        return self._T
-
-    def __init__(self, user: DisUser, message_id: int, channel_id: int, guild_id: int, emoji: DisEmoji, token: str):
+    """
+    Reaction
+    """
+    def __init__(self, user: DisUser, message_id: int, channel_id: int,
+                 guild_id: int, emoji: DisEmoji, token: str) -> NoReturn:
         self.user = user
         self.message_id = message_id
         self.channel_id = channel_id
@@ -94,13 +91,11 @@ class DisReaction:
 
 
 class DisRemovedReaction:
-    _T = TypeVar("DisRemovedReaction")
-
-    @property
-    def __class__(self) -> TypeVar:
-        return self._T
-
-    def __init__(self, message_id: int, channel_id: int, guild_id: int, emoji: DisEmoji, token: str):
+    """
+    Removed reaction
+    """
+    def __init__(self, message_id: int, channel_id: int, guild_id: int, emoji: DisEmoji,
+                 token: str) -> NoReturn:
         self.message_id = message_id
         self.channel_id = channel_id
         self.guild_id = guild_id

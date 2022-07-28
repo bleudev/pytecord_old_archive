@@ -86,7 +86,7 @@ class _SendingRestHandler:
         """
         dump_data = dumps(payload)
         hdrs = {'Authorization': f'Bot {token}', 'content-type': 'application/json'}
-        _u = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+        _u = f"https://discord.com/api/v10/channels/{channel_id}/messages"
 
         async with ClientSession(headers=hdrs) as session:
             async with session.post(_u, data=dump_data) as post_data:
@@ -96,10 +96,17 @@ class _SendingRestHandler:
 
     @staticmethod
     async def create_reaction(endpoint, token):
-        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+        """create_reaction()
+
+        Args:
+            endpoint (str): Url endpoint
+            token (str): Bot token
+        """
+        async with ClientSession(headers={'Authorization': f'Bot {token}',
+                                          'content-type': 'application/json'}) as session:
             _u = f"https://discord.com/api/v10{endpoint}"
 
-            await s.put(_u)
+            await session.put(_u)
 
     @staticmethod
     async def delete_message(url, token):
