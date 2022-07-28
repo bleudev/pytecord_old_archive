@@ -31,7 +31,7 @@ class TypeOf:
         ...
     """
 
-    def __new__(cls, *args, **kwargs) -> type:
+    def __new__(cls, *args) -> type:
         """
         :param args: [0] is type
         :param kwargs: No
@@ -48,5 +48,10 @@ class TypeOf:
 
 
 class Event:
-    def __new__(cls, *args, **kwargs) -> list:
+    """
+    Class for event typing
+
+    Ex, Event(DisBotEventType, str)
+    """
+    def __new__(cls, *args) -> list:
         return list(args)[1]

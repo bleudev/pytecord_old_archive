@@ -563,7 +563,8 @@ class DisBot:
 
             raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-        def run(self, status: Optional[Union[DisBotStatus, str]] = None, activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
+        def run(self, status: Optional[Union[DisBotStatus, str]] = None,
+                activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
             """
             Running bot
             -----

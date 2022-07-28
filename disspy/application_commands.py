@@ -31,11 +31,13 @@ from typing import (
     Callable,
     final
 )
+from json import dumps
+import aiohttp
 
-import aiohttp.client_exceptions
 
 from disspy.jsongenerators import _OptionGenerator
 from disspy.core import Showflake
+from disspy.ui import ActionRow
 
 __all__: tuple[str] = (
     "ApplicationCommandType",
@@ -71,11 +73,18 @@ class _MessageFlags:
 class _SendingRestHandler:
     @staticmethod
     async def execute(url, payload, token):
-        from aiohttp import ClientSession as CS
-        from json import dumps
-        import aiohttp
+        """execute()
 
-        async with CS(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+        Args:
+            url (str): Url for post
+            payload (_type_): Json payload for post
+            token (_type_): Bot token for headers
+
+        Returns:
+            _type_: _description_
+        """
+        async with aiohttp.ClientSession(
+            headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             await s.post(url, data=dumps(payload))
             try:
                 async with s.post(url, data=dumps(payload)) as d:
@@ -119,7 +128,8 @@ class Option:
     Class for using options in application commands (TEXT_INPUT)
     """
 
-    def __init__(self, name: str, description: str, option_type: int, choices: Optional[list[dict]] = None,
+    def __init__(self, name: str, description: str, option_type: int,
+                 choices: Optional[list[dict]] = None,
                  required: Optional[bool] = False) -> NoReturn:
         """
         Init class
@@ -161,7 +171,8 @@ class SlashCommand(ApplicationCommand):
     Application Command with type number 1 (TEXT_INPUT)
     """
 
-    def __init__(self, name: str, description: str, cmd: Callable, options: Optional[list[Option]] = None) -> NoReturn:
+    def __init__(self, name: str, description: str, cmd: Callable,
+                 options: Optional[list[Option]] = None) -> NoReturn:
         super().__init__(name, cmd, 1)
 
         self.description = description
@@ -205,15 +216,15 @@ class Context:
     There are some methods for responding to interaction (Slash Command)
     """
 
-    def __init__(self, interaction_token: Union[Showflake[str], str], interaction_id: Union[Showflake[int], int],
-                 bot_token) -> NoReturn:
+    def __init__(self, interaction_token: Union[Showflake[str], str],
+                 interaction_id: Union[Showflake[int], int], bot_token) -> NoReturn:
         self._interaction_token: str = str(interaction_token)
         self._interaction_id: int = int(interaction_id)
+
         self._t = bot_token
 
-    from disspy.ui import ActionRow
-
-    async def send(self, content: str, action_row: Optional[ActionRow] = None, ephemeral: bool = False) -> NoReturn:
+    async def send(self, content: str, action_row: Optional[ActionRow] = None,
+                   ephemeral: bool = False) -> NoReturn:
         """
 
         :param content: (str) Message content
@@ -257,11 +268,19 @@ class Context:
                     }
                 }
 
-        _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
+        _url = "https://discord.com/api/v10/interactions/{0}/{1}/callback".format(
+            self._interaction_id, self._interaction_token)
 
         await _SendingRestHandler.execute(_url, _payload, self._t)
 
-    async def send_modal(self, title, custom_id, action_row: ActionRow):
+    async def send_modal(self, title: str, custom_id: str, action_row: ActionRow):
+        """send_modal()
+
+        Args:
+            title (str): Title of modal
+            custom_id (str): Custom id of modal
+            action_row (ActionRow): Action row with components for modal
+        """
         _payload = {
             "type": 9,
             "data": {
@@ -271,16 +290,17 @@ class Context:
             }
         }
 
-        _url = f"https://discord.com/api/v9/interactions/{self._interaction_id}/{self._interaction_token}/callback"
+        _url = "https://discord.com/api/v10/interactions/{0}/{1}/callback".format(
+            self._interaction_id, self._interaction_token)
 
         await _SendingRestHandler.execute(_url, _payload, self._t)
 
 
 @final
 class _Argument:
-    def __init__(self, name: str, type: int, value: Any) -> NoReturn:
+    def __init__(self, name: str, option_type: int, value: Any) -> NoReturn:
         self.name: str = name
-        self.type: int = type
+        self.type: int = option_type
         self.value: Any = value
 
 
