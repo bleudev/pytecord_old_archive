@@ -451,8 +451,7 @@ class Flow:
     """
     __classname__: str = "Flow"
 
-    def __init__(self, gateway_version: int, token: str, intents: int,
-                 activity: dict):
+    def __init__(self, gateway_version: int, token: str, intents: int):
 
         self.on_channel__id = 0
         self.user_id = "null"
@@ -461,7 +460,7 @@ class Flow:
         self.gateway_version: int = gateway_version
 
         self.intents = intents
-        self.activity = activity
+        self.activity = None
         self.status = "online"
 
         # ISes
@@ -606,7 +605,7 @@ class Flow:
 
     async def _runner(self):
         async with ClientSession() as s:
-            async with s.ws_connect("wss://gateway.discord.gg/?v=9&encoding=json") as ws:
+            async with s.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
                 self.ws = ws
 
                 j = await self.get_responce(ws)
@@ -622,7 +621,7 @@ class Flow:
                     "properties": {
                         "$os": "linux",
                         "$browser": "disspy",
-                        "$device": "iphone"
+                        "$device": "disspy"
                     },
                     "presence": {
                         "since": mktime(datetime.now().timetuple()) * 1000,
@@ -806,7 +805,7 @@ class DisApi(_RequestsUserClass):
         self.token = token
         self.application_id = application_id
 
-        self.f = Flow(10, self.token, intents, {})
+        self.f = Flow(10, self.token, intents)
         self._r = Rest(self.token)
 
         self.app_commands = []

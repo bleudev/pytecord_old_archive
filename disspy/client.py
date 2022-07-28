@@ -565,7 +565,7 @@ class DisBot:
 
             raise errors.ApplicationIdIsNone("Application commands is blocked")
 
-        def run(self, status: Optional[Union[DisBotStatus, str]] = None) -> NoReturn:
+        def run(self, status: Optional[Union[DisBotStatus, str]] = None, activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
             """
             Running bot
             -----
@@ -583,13 +583,13 @@ class DisBot:
 
             self.isready = True
 
-            if status is None and self.status is None:
-                self.status = "online"
-            elif status is not None and self.status is None:
+            if status:
                 self.status = status
-            elif status is not None and self.status is not None:
-                _message = "You typed status and in run() and in __init__()"
-                raise errors.BotStatusError(_message)
+            elif not status and not self.status:
+                self.status = "online"
+
+            if activity:
+                self._act = activity
 
             self._runner()
 
