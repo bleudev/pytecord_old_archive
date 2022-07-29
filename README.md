@@ -4,7 +4,7 @@
 ![version](https://img.shields.io/badge/pypi-0.3-blueviolet?style=flat)
 ![project language](https://img.shields.io/badge/lang-python-blueviolet?style=flat)
 ![linting tool](https://img.shields.io/badge/linting_tool-pylint-blueviolet?style=flat)
-![pylint mark](https://img.shields.io/badge/pylink_mark-5.27/10-blueviolet?style=flat)\
+![pylint mark](https://img.shields.io/badge/pylink_mark-5.29/10-blueviolet?style=flat)\
 [![Documentation Status](https://readthedocs.org/projects/dispy-api-docs/badge/?version=latest)](https://dispy-api-docs.readthedocs.io/en/latest/?badge=latest)
 # Advantages
 - Package for ``async/await`` support
