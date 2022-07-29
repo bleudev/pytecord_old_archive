@@ -6,6 +6,11 @@
 ![linting tool](https://img.shields.io/badge/linting_tool-pylint-blueviolet?style=flat)
 ![pylint mark](https://img.shields.io/badge/pylink_mark-5.27/10-blueviolet?style=flat)\
 [![Documentation Status](https://readthedocs.org/projects/dispy-api-docs/badge/?version=latest)](https://dispy-api-docs.readthedocs.io/en/latest/?badge=latest)
+# Advantages
+- Package for ``async/await`` support
+- Registering events with wrappers
+- Easy code with syntax sugar
+
 ## Needs minimal 3.8 python version
 Dispy is package for creating bots in Discord. This package use discord API and discord Gateway
 for handle events or, for example, sending messages. Bot use for different goals; handle information
