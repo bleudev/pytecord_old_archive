@@ -69,8 +69,11 @@ This command run bot. After this command you can see that bot is online. Tutoria
 # Windows
 pip install --upgrade disspy
 
-# Linux/MacOS
-python3 -m pip install --upgrade disspy
+# MacOS
+py3 -m pip install --upgrade disspy
+
+# Lunix
+sudo pip install --upgrade disspy
 ```
 
 ## Download dev version
@@ -83,8 +86,7 @@ pip install --upgrade .
 # Links
 <p><a href="https://github.com/itttgg/dispy">https://github.com/itttgg/dispy</a> - GitHub repo</p>
 <p><a href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</a> - Project site on PyPi</p>
-<p><a href="https://dispydocs.herokuapp.com/">https://dispydocs.herokuapp.com/</a> - Site with docs for package</p>
-
+<p><a href="">In developerment</a> - Site with docs for package</p>
 # Using
 ### Creating and running bot
 
