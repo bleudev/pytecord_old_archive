@@ -157,7 +157,7 @@ __alls__: list = [
     disspy.logger.__all__,
     disspy.message.__all__,
     disspy.user.__all__,
-    disspy.reaction.__all__
+    disspy.reaction.__all__,
     disspy.ui.__all__
 ]
 
