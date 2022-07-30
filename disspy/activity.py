@@ -38,6 +38,8 @@ from typing import (
     ClassVar
 )
 
+import disspy.errors as errors
+
 Url = NewType("Url", str)
 
 
@@ -58,9 +60,9 @@ class Activity:
                 if url.startswith('https://twitch.tv/') or url.startswith('https://youtube.com/'):
                     self.url = url
                 else:
-                    raise RuntimeError("Only https://youtube.com/ or https://twitch.tv/ links supported")
+                    raise errors.ActivityUrlError("Only https://youtube.com/ or https://twitch.tv/ links supported")
             else:
-                raise RuntimeError("Url is supported only for streaming status")
+                raise errors.JsonError("Url is supported only for streaming status")
             
 
     def json(self) -> Dict[str, Any]:

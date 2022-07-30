@@ -37,9 +37,12 @@ __all__: tuple = (
     "BotEventVisibleError",
     "BotApplicationIdInvalid",
     "ApplicationIdIsNone",
+    "MessageComponentIsBlocked",
     "InvalidArgument",
     "ClassTypeError",
-    "UserNitroTypeError"
+    "UserNitroTypeError",
+    "JsonError",
+    "ActivityUrlError"
 )
 
 
@@ -115,15 +118,26 @@ class MessageComponentIsBlocked(_DisError):
 # Package errors
 class InvalidArgument(_DisError):
     def __init__(self, text):
-        super().__init__("150p", text)
+        super().__init__("151p", text)
 
 
 class ClassTypeError(DisRunTimeError):
     def __init__(self, text):
-        super().__init__("151p", text)
+        super().__init__("152p", text)
 
 
 # User errors
 class UserNitroTypeError(_DisError):
     def __init__(self, text):
         super().__init__("201u", text)
+
+
+# Json errors
+class JsonError(_DisError):
+    def __init__(self, text):
+        super().__init__("251j", text)
+
+
+class ActivityUrlError(_DisError):
+    def __init__(self, text):
+        super().__init__("252j", text)

@@ -85,7 +85,10 @@ from disspy.errors import (
     BotApplicationIdInvalid,
     BotEventVisibleError,
     ApplicationIdIsNone,
-    Unauthorized
+    MessageComponentIsBlocked,
+    Unauthorized,
+    JsonError,
+    ActivityUrlError
 )
 from disspy.guild import DisGuild
 from disspy.logger import Logger
