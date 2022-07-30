@@ -4,10 +4,7 @@ import disspy
 with open("README.md", "r", encoding="utf-8") as mdf:
     long_description = mdf.read()
 
-requires = ''
-    
-with open("requirements.txt","r") as f:
-    requires = f.read().splitlines()
+requires = ['aiohttp>=3.6.0,<4', 'requests', 'typing', 'asyncio', 'colorama']
 
 
 setup(
