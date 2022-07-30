@@ -15,7 +15,7 @@ Type Here
 # Your code
 ```
 
-**Debug log from your console (in create bot ``debug=True``, tokens, ids and other c. info mark as "C. info")**
+**Debug log from your console (in create bot ``debug=True``; tokens, ids and other c. info* mark as "C. info" (*c. info - contifical info))**
 ```
 {"hi": "error!"}
 ```
