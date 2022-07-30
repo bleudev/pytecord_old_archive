@@ -11,7 +11,7 @@
 - Registering events with wrappers
 - Easy code with syntax sugar
 
-## Needs minimal 3.8 python version
+## Needs minimal 3.9 python version
 Dispy is package for creating bots in Discord. This package use discord API and discord Gateway
 for handle events or, for example, sending messages. Bot use for different goals; handle information
 on your server, creating mini games in discord, auto moderation in your discord server and other.
