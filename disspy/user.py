@@ -35,18 +35,17 @@ class DisUser:
         self.username = data["username"]
         self.discriminator = data["discriminator"]
         self.fullname = f"{self.username}#{self.discriminator}"
+        self.is_bot = None
+        self.is_verified = None
+        self.email = None
 
-        try:
-            self.isbot: bool = data["bot"]
-        except KeyError:
-            pass
-        try:
-            self.isverified: bool = data["verified"]
-        except KeyError:
-            pass
-        try:
+        if "bot" in data:
+            self.is_bot: bool = data["bot"]
+
+        if "verified" in data:
+            self.is_verified: bool = data["verified"]
+
+        if "email" in data:
             self.email: bool = data["email"]  # May be ""
-        except KeyError:
-            pass
 
         self.flags: int = int(data["public_flags"])

@@ -31,6 +31,7 @@ Examples:
 """
 
 # Imports
+from disspy import errors
 from random import random
 from math import floor
 import typing
@@ -127,7 +128,7 @@ class DisEmbed(_EMBED):
     def __init__(self, title: str, description: str = None, color=0xffffff, footer: str = None):
         self.title: str = title
         self.description: str = description
-        self.color: str = color
+        self.color: int = color
         self.footer: str = footer
         self.author = None
         self.image = None

@@ -330,11 +330,11 @@ class DisFlags:
             14. DIRECT_MESSAGE_REACTIONS
             15. DIRECT_MESSAGE_TYPING
             16. GUILD_SCHEDULED_EVENTS
-            17. MESSAGE_CONTENT (Privilleged intent)
+            17. MESSAGE_CONTENT (Privileged intent)
 
         :return int: integer value of intents
         """
-        return 98303
+        return 3276541
 
 
 T = TypeVar("T", str, int)
