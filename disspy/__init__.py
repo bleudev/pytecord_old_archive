@@ -113,7 +113,7 @@ from disspy.ui import (
 )
 
 
-# Methods for other varibles
+# Methods for other variables
 def _all_generator(alls: list) -> tuple:
     result = []
 
@@ -126,7 +126,8 @@ def _all_generator(alls: list) -> tuple:
 
     return tuple(result)
 
-# Varibles
+
+# Variables
 # Version of disspy (b - beta, a - alpha)
 __version__ = "0.5.2"
 
@@ -141,7 +142,6 @@ __description__ = "Dispy - package for creating bots in discord."
 
 # Name of package
 __packagename__ = "dispy"
-
 
 
 # __all__
