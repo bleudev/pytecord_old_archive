@@ -67,7 +67,7 @@ from disspy.core import (
     DisApi,
     DisFlags,
     JsonOutput,
-    Showflake
+    Snowflake
 )
 from disspy.embed import (
     DisEmbed,

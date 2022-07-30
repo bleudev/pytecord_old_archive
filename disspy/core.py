@@ -66,7 +66,7 @@ __all__: tuple = (
     "JsonOutput",
     "FlowOpcodes",
     "DisFlags",
-    "Showflake",
+    "Snowflake",
     "ChannelId",
     "UserId",
     "GuildlId",
@@ -341,11 +341,11 @@ T = TypeVar("T", str, int)
 
 
 @final
-class Showflake(Generic[T]):
+class Snowflake(Generic[T]):
     """
     Class info
 
-    Showflake is using for simpled work with tokens and ids.
+    Snowflake is using for simpled work with tokens and ids.
 
     :var self.isid:
     """
@@ -394,7 +394,7 @@ class Rest:
 
         self.__slots__ = [self._headers]
 
-    def get(self, goal: str, goal_id: Union[int, Showflake]) -> JsonOutput:
+    def get(self, goal: str, goal_id: Union[int, Snowflake]) -> JsonOutput:
         """
         :param goal: guild/channel/user
         :param id: id of guild/channel/user
@@ -497,7 +497,7 @@ class Flow:
     async def on_dmessaged(self, e: DmMessageDeleteEvent):
         pass
 
-    async def on_interaction(self, token, interaction_id, command_name: Text, bot_token: Showflake[str], interaction_type: int, data: JsonOutput, type_of_command: Optional[int] = None):
+    async def on_interaction(self, token, interaction_id, command_name: Text, bot_token: Snowflake[str], interaction_type: int, data: JsonOutput, type_of_command: Optional[int] = None):
         pass
 
     async def on_components(self, d):
@@ -978,7 +978,7 @@ class DisApi(_RequestsUserClass):
         :param user_id: id of user
         :return JsonOutput:
         """
-        user_id = int(user_id)  # If Showflake this will be int
+        user_id = int(user_id)  # If Snowflake this will be int
 
         return self._r.get("user", user_id)
 
@@ -989,7 +989,7 @@ class DisApi(_RequestsUserClass):
         :param channel_id: id of channel
         :return DisChannel:
         """
-        channel_id = int(channel_id)  # If Showflake this will be int
+        channel_id = int(channel_id)  # If Snowflake this will be int
 
         return DisChannel(channel_id, self)
 
@@ -1000,7 +1000,7 @@ class DisApi(_RequestsUserClass):
         :param channel_id: id of channel
         :return JsonOutput:
         """
-        channel_id = int(channel_id)  # If Showflake this will be int
+        channel_id = int(channel_id)  # If Snowflake this will be int
 
         return self._r.get("channel", channel_id)
 
@@ -1011,7 +1011,7 @@ class DisApi(_RequestsUserClass):
         :param guild_id: id of guild
         :return DisGuild:
         """
-        guild_id = int(guild_id)  # If Showflake this will be int
+        guild_id = int(guild_id)  # If Snowflake this will be int
 
         return DisGuild(guild_id, self)
 
@@ -1023,7 +1023,7 @@ class DisApi(_RequestsUserClass):
         :return JsonOutput:
         """
 
-        guild_id = int(guild_id)  # If Showflake this will be int
+        guild_id = int(guild_id)  # If Snowflake this will be int
 
         return self._r.get("guild", guild_id)
 

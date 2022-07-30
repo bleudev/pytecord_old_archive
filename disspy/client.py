@@ -54,7 +54,7 @@ from disspy.channel import (
 from disspy.core import (
     DisApi,
     DisFlags,
-    Showflake,
+    Snowflake,
     ChannelId
 )
 from disspy.embed import DisEmbed
@@ -177,7 +177,7 @@ class DisBot:
     try:
         __classname__ = "DisBot"
 
-        def __init__(self, token: Showflake[str], application_id: Optional[Showflake[int]] = None,
+        def __init__(self, token: Snowflake[str], application_id: Optional[Snowflake[int]] = None,
                      status: Optional[TypeOf(DisBotStatus)] = None,
                      flags: Optional[TypeOf(DisFlags)] = None,
                      debug: Optional[bool] = False,

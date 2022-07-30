@@ -1,5 +1,5 @@
 ```python
-class DisBot(token: Showflake[str], application_id: Optional[Showflake[int]],
+class DisBot(token: Snowflake[str], application_id: Optional[Snowflake[int]],
              status: Optional[TypeOf(DisBotStatus)],
              flags: Optional[TypeOf(DisFlags)],
              debug: Optional[bool] = False,
