@@ -33,8 +33,12 @@ from typing import (
     NoReturn,
     Dict,
     Any,
+    Optional,
+    Union,
     ClassVar
 )
+
+from disspy.reaction import DisEmoji
 
 
 class Activity:
@@ -44,6 +48,9 @@ class Activity:
     def __init__(self, name: str, activity_type: int) -> NoReturn:
         self.name: str = name
         self.activity_type: int = activity_type
+        
+        if self.activity_type == 4:  # Custom activity
+            raise RuntimeError("Custom activity don't supported!")
 
     def json(self) -> Dict[str, Any]:
         """
@@ -63,17 +70,14 @@ class ActivityType:
     Activity types for Activity class
 
     Attributes: (
-        GAME -> Label "Playing in {some_game}"
+        GAME -> Label "Playing {some_game}"
         STREAMING -> Label "Streaming {some_game}"
-        LISTENING -> Label "Listening {some_music}"
+        LISTENING -> Label "Listening to {name}"
         WATCHING -> Label "Watching {some_film}"
-        CUSTOM -> Don't Supported
-        COMPETING -> Don't Supported too
-    )
+        COMPETING -> Label "Competing in {some_game}"
     """
     GAME: ClassVar[int] = 0
     STREAMING: ClassVar[int] = 1
     LISTENING: ClassVar[int] = 2
     WATCHING: ClassVar[int] = 3
-    CUSTOM: ClassVar[int] = 4
     COMPETING: ClassVar[int] = 5
