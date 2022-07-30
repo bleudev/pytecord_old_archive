@@ -34,23 +34,31 @@ from typing import (
     Dict,
     Any,
     Optional,
-    Union,
+    NewType,
     ClassVar
 )
 
-from disspy.reaction import DisEmoji
+Url = NewType("Url", str)
 
 
 class Activity:
     """
     Activity class for changing activities in Discord
     """
-    def __init__(self, name: str, activity_type: int) -> NoReturn:
+    def __init__(self, name: str, activity_type: int, url: Optional[Url] = None) -> NoReturn:
         self.name: str = name
         self.activity_type: int = activity_type
+        self.url = None
         
         if self.activity_type == 4:  # Custom activity
             raise RuntimeError("Custom activity don't supported!")
+        
+        if url:
+            if self.activity_type == 1:  # Streaming
+                self.url = url
+            else:
+                raise RuntimeError("Url is supported only for streaming status")
+            
 
     def json(self) -> Dict[str, Any]:
         """
@@ -59,10 +67,17 @@ class Activity:
         Returns:
             Dict[str, Any]: Json data of activity
         """
-        return {
-            "name": self.name,
-            "type": self.activity_type
-        }
+        if self.url:
+            return {
+                "name": self.name,
+                "type": self.activity_type,
+                "url": self.url
+            }
+        else:
+            return {
+                "name": self.name,
+                "type": self.activity_type
+            }
 
 
 class ActivityType:
