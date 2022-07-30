@@ -31,7 +31,6 @@ Examples:
 """
 
 # Imports
-from disspy import errors
 from random import random
 from math import floor
 import typing
