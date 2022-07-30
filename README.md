@@ -1,7 +1,7 @@
 <p><img src="logo.png" width="250" alt="logo"/></p>
 
 # Dispy
-![version](https://img.shields.io/badge/pypi-0.3-blueviolet?style=flat)
+![version](https://img.shields.io/badge/pypi-0.5.3-blueviolet?style=flat)
 ![project language](https://img.shields.io/badge/lang-python-blueviolet?style=flat)
 ![linting tool](https://img.shields.io/badge/linting_tool-pylint-blueviolet?style=flat)
 ![pylint mark](https://img.shields.io/badge/pylink_mark-6.40/10-blueviolet?style=flat)\
