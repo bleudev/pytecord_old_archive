@@ -62,13 +62,13 @@ class ActivityType:
     """
     Activity types for Activity class
 
-    Attributies: (
+    Attributes: (
         GAME -> Label "Playing in {some_game}"
         STREAMING -> Label "Streaming {some_game}"
         LISTENING -> Label "Listening {some_music}"
         WATCHING -> Label "Watching {some_film}"
         CUSTOM -> Don't Supported
-        COMPETING -> Dont't Supported too
+        COMPETING -> Don't Supported too
     )
     """
     GAME: ClassVar[int] = 0

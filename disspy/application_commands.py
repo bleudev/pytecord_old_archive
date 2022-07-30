@@ -34,7 +34,6 @@ from typing import (
 from json import dumps
 import aiohttp
 
-
 from disspy.jsongenerators import _OptionGenerator
 from disspy.ui import ActionRow
 
@@ -54,7 +53,7 @@ __all__: tuple = (
 @final
 class _MessageFlags:
     """
-    Flags for messages in discord API. Varibles is constants.
+    Flags for messages in discord API. Variables are constants.
 
     This use in send() method of Context class.
     """
@@ -82,17 +81,17 @@ class _SendingRestHandler:
         Returns:
             _type_: _description_
         """
-        async with aiohttp.ClientSession(
-            headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+        async with aiohttp.ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             await s.post(url, data=dumps(payload))
             try:
                 async with s.post(url, data=dumps(payload)) as d:
                     j = await d.json()
 
                     return j
-            except aiohttp.client_exceptions.ContentTypeError:
+            except aiohttp.ContentTypeError:
                 await s.post(url, data=dumps(payload))
                 return None
+
 
 @final
 class ApplicationCommandType:

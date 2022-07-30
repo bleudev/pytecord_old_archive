@@ -129,6 +129,7 @@ class DisEmbed(_EMBED):
         self.description: str = description
         self.color: str = color
         self.footer: str = footer
+        self.author = None
 
         self.fields: list[DisField] = []
 
@@ -138,16 +139,27 @@ class DisEmbed(_EMBED):
     def add_field(self, field: DisField):
         self.fields.append(field)
 
+    def set_author(self, name: str, url: str = None, icon_url: str = None, proxy_icon_url: str = None):
+        self.author = {
+            "name": name,
+            "url": url,
+            "icon_url": icon_url,
+            "proxy_icon_url": proxy_icon_url
+        }
+
     def tojson(self):
         fields_jsons = []
 
         for f in self.fields:
             fields_jsons.append(f.tojson())
 
-        return {
+        embed_json = {
             "title": self.title,
             "description": self.description,
             "footer": self.footer,
             "color": self.color,
-            "fields": fields_jsons
+            "fields": fields_jsons,
+            "author": self.author
         }
+
+        return embed_json

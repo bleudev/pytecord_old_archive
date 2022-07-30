@@ -656,7 +656,7 @@ class Flow:
                 await self.on_ready()
 
             elif event.type == "MESSAGE_CREATE":
-                _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
+                _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
                 if not event.data["author"]["id"] == self.user_id:
                     async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
@@ -677,7 +677,7 @@ class Flow:
                                 await self.on_dmessagec(_m)
 
             elif event.type == "MESSAGE_UPDATE":
-                _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
+                _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
                 if not event.data["author"]["id"] == self.user_id:
                     async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
