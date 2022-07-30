@@ -74,22 +74,7 @@ from disspy.embed import (
     DisField,
     DisColor
 )
-from disspy.errors import (
-    UserNitroTypeError,
-    InternetError,
-    MissingPerms,
-    InvalidArgument,
-    BotEventTypeError,
-    BotStatusError,
-    ClassTypeError,
-    BotApplicationIdInvalid,
-    BotEventVisibleError,
-    ApplicationIdIsNone,
-    MessageComponentIsBlocked,
-    Unauthorized,
-    JsonError,
-    ActivityUrlError
-)
+
 from disspy.guild import DisGuild
 from disspy.logger import Logger
 from disspy.message import (

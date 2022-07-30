@@ -25,7 +25,7 @@ SOFTWARE.
 from typing import Optional
 
 # Constants for messages
-missingperms = "Missing permissions!"
+MISSINGPERMS = "Missing permissions!"
 
 # __all__
 __all__: tuple = (
@@ -48,6 +48,9 @@ __all__: tuple = (
 
 # Parents for all errors
 class DisRunTimeError(RuntimeWarning):
+    """DisRunTimeError
+    Parent for other classes
+    """
     def __init__(self, code: str, message: str):
         self.__code__ = code
         self.__text__ = message
@@ -67,6 +70,9 @@ class _DisError(RuntimeError):
 
 # InternetErrors (Will be called when errors code returned)
 class InternetError(_DisError):
+    """InternetError
+    Error with internet (For example, with Wi-Fi)
+    """
     def __init__(self, text, code: Optional[str] = None):
         if code is None:
             super().__init__("-1i", text)
@@ -75,69 +81,108 @@ class InternetError(_DisError):
 
 
 class MissingPerms(DisRunTimeError):
+    """MissingPerms
+    Missing permissions in Discord
+    """
     def __init__(self, text):
         super().__init__("-2i", text)
 
 
 class Unauthorized(_DisError):
+    """Unauthorized
+    Invalid token!
+    """
     def __init__(self):
         super().__init__("-3i", "Invalid token!")
 
 
 # Client errors
 class BotEventTypeError(_DisError):
+    """BotEventTypeError
+    Invalid bot event type
+    """
     def __init__(self, text):
         super().__init__("101c", text)
 
 
 class BotStatusError(_DisError):
+    """BotStatusError
+    Invalid bot status
+    """
     def __init__(self, text):
         super().__init__("102c", text)
 
 
 class BotEventVisibleError(_DisError):
+    """BotEventVisibleError
+    Bot don't can see this event (because bot intents < need intents)
+    """
     def __init__(self, text):
         super().__init__("103c", text)
 
 
 class BotApplicationIdInvalid(_DisError):
+    """BotApplicationIdInvalid
+    Invalid bot application id
+    """
     def __init__(self, text):
         super().__init__("104c", text)
 
 
 class ApplicationIdIsNone(DisRunTimeError):
+    """ApplicationIdIsNone
+    You don't type application id but you want to create application command
+    """
     def __init__(self, text):
         super().__init__("105c", text)
 
 
 class MessageComponentIsBlocked(_DisError):
+    """MessageComponentIsBlocked
+    Message component is blocked to you
+    """
     def __init__(self, text):
         super().__init__("106c", text)
 
 
 # Package errors
 class InvalidArgument(_DisError):
+    """InvalidArgument
+    Invalid argument in method
+    """
     def __init__(self, text):
         super().__init__("151p", text)
 
 
 class ClassTypeError(DisRunTimeError):
+    """ClassTypeError
+    Error with class type
+    """
     def __init__(self, text):
         super().__init__("152p", text)
 
 
 # User errors
 class UserNitroTypeError(_DisError):
+    """UserNitroTypeError
+    Invalid user nitro!
+    """
     def __init__(self, text):
         super().__init__("201u", text)
 
 
 # Json errors
 class JsonError(_DisError):
+    """JsonError
+    Error with json
+    """
     def __init__(self, text):
         super().__init__("251j", text)
 
 
 class ActivityUrlError(_DisError):
+    """ActivityUrlError
+    Invalid activity url error
+    """
     def __init__(self, text):
         super().__init__("252j", text)
