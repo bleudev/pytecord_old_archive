@@ -55,7 +55,10 @@ class Activity:
         
         if url:
             if self.activity_type == 1:  # Streaming
-                self.url = url
+                if url.startswith('https://twitch.tv/') or url.startswith('https://youtube.com/'):
+                    self.url = url
+                else:
+                    raise RuntimeError("Only https://youtube.com/ or https://twitch.tv/ links supported")
             else:
                 raise RuntimeError("Url is supported only for streaming status")
             
