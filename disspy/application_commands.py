@@ -38,7 +38,7 @@ import aiohttp
 from disspy.jsongenerators import _OptionGenerator
 from disspy.ui import ActionRow
 
-__all__: tuple[str] = (
+__all__: tuple = (
     "ApplicationCommandType",
     "ApplicationCommand",
     "Option",

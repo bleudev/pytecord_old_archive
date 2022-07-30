@@ -61,7 +61,7 @@ from disspy.user import DisUser
 JsonOutput = NewType("JsonOutput", Dict[str, Any])
 
 # __all__
-__all__: tuple[str] = (
+__all__: tuple = (
     # Classes for simpler creating other classes
     "JsonOutput",
     "FlowOpcodes",

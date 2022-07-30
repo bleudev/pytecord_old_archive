@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 
-__all__: tuple[str] = (
+__all__: tuple = (
     "Activity",
     "ActivityType"
 )

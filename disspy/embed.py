@@ -35,7 +35,7 @@ from random import random
 from math import floor
 import typing
 
-__all__: tuple[str] = (
+__all__: tuple = (
     "DisColor",
     "DisField",
     "DisEmbed"

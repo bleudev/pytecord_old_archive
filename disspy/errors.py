@@ -28,7 +28,7 @@ from typing import Optional
 missingperms = "Missing permissions!"
 
 # __all__
-__all__: tuple[str] = (
+__all__: tuple = (
     "InternetError",
     "MissingPerms",
     "Unauthorized",

@@ -32,7 +32,7 @@ from typing import (
     Union
 )
 
-__all__: tuple[str] = (
+__all__: tuple = (
     "DisChannel",
     "DisDmChannel"
 )

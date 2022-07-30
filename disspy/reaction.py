@@ -30,7 +30,7 @@ from aiohttp import ClientSession
 
 from disspy.user import DisUser
 
-__all__: tuple[str] = (
+__all__: tuple = (
     "DisEmoji",
     "DisOwnReaction",
     "DisReaction",

@@ -4,7 +4,10 @@ import disspy
 with open("README.md", "r", encoding="utf-8") as mdf:
     long_description = mdf.read()
 
-requires = ["aiohttp>=3.6.0,<4", "requests", "typing", "asyncio", "colorama"]
+requires = ''
+    
+with open("requirements.txt","r") as f:
+    requires = f.read().splitlines()
 
 
 setup(
@@ -18,6 +21,9 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/itttgg/dispy",
     packages=['disspy'],
+    classifiers = [
+        "Programming Language :: Python :: 3"
+    ],
     zip_safe=False,
     python_requires=">=3.8",
     install_requires=requires

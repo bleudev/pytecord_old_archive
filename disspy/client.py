@@ -63,7 +63,7 @@ from disspy.jsongenerators import _OptionGenerator
 from disspy.logger import Logger
 from disspy.user import DisUser
 
-__all__: tuple[str] = (
+__all__: tuple = (
     "DisBotStatus",
     "DisBotEventType",
     "DisBot"

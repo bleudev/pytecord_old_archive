@@ -36,6 +36,7 @@ import disspy.logger
 import disspy.message
 import disspy.user
 import disspy.reaction
+import disspy.ui
 
 # Classes
 from disspy.activity import (
@@ -113,7 +114,7 @@ from disspy.ui import (
 
 
 # Methods for other varibles
-def _all_generator(alls: list[tuple]) -> tuple:
+def _all_generator(alls: list) -> tuple:
     result = []
 
     for file_all in alls:
@@ -144,7 +145,7 @@ __packagename__ = "dispy"
 
 
 # __all__
-__alls__: list[tuple] = [
+__alls__: list = [
     disspy.activity.__all__,
     disspy.application_commands.__all__,
     disspy.channel.__all__,
@@ -157,6 +158,7 @@ __alls__: list[tuple] = [
     disspy.message.__all__,
     disspy.user.__all__,
     disspy.reaction.__all__
+    disspy.ui.__all__
 ]
 
 __all__: tuple = _all_generator(__alls__)
