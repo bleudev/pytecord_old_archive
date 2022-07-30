@@ -36,7 +36,9 @@ class _EmbedGenerator:
             "footer": obj.footer,
             "color": obj.color,
             "fields": fields_jsons,
-            "author": obj.author
+            "author": obj.author,
+            "image": obj.image,
+            "thumbnail": obj.thumbnail,
         }
 
 

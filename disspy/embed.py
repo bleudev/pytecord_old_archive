@@ -130,6 +130,8 @@ class DisEmbed(_EMBED):
         self.color: str = color
         self.footer: str = footer
         self.author = None
+        self.image = None
+        self.thumbnail = None
 
         self.fields: list[DisField] = []
 
@@ -140,11 +142,36 @@ class DisEmbed(_EMBED):
         self.fields.append(field)
 
     def set_author(self, name: str, url: str = None, icon_url: str = None, proxy_icon_url: str = None):
+        """
+        Set author for embed
+        """
         self.author = {
             "name": name,
             "url": url,
             "icon_url": icon_url,
             "proxy_icon_url": proxy_icon_url
+        }
+
+    def set_thumbnail(self, url: str, proxy_url: str = None, height: int = None, width: int = None):
+        """
+        Set thumbnail for embed
+        """
+        self.thumbnail = {
+            "url": url,
+            "proxy_url": proxy_url,
+            "height": height,
+            "width": width
+        }
+
+    def set_image(self, url: str, proxy_url: str = None, height: int = None, width: int = None):
+        """
+        Set image for embed
+        """
+        self.image = {
+            "url": url,
+            "proxy_url": proxy_url,
+            "height": height,
+            "width": width
         }
 
     def tojson(self):
