@@ -45,15 +45,15 @@ __all__: tuple = (
 class _DocObject:
     __description__: str = ""  # Description to class
     __doc__: str = ""  # Mini doc with using
-    __varibles__: dict[str, str] = {}  # Description to varibles
-    __slots__: list[str] = []  # Slots with varibles names
+    __variables__: dict[str, str] = {}  # Description to variables
+    __slots__: list[str] = []  # Slots with variables names
 
     _T: typing.TypeVar = None
 
     def __str__(self) -> str:  # Using in str()
         r = ""
 
-        for i in self.__varibles__.keys():
+        for i in self.__variables__.keys():
             if r == "":
                 r += i
             else:
