@@ -28,7 +28,6 @@ import asyncio
 from typing import (
     TypeVar,
     Union,
-    Optional,
     Awaitable,
     Callable,
     NewType,
@@ -41,9 +40,12 @@ from typing import (
     Generic,
     final
 )
+from datetime import datetime
+from time import mktime
 from aiohttp import ClientSession
 from requests import delete, post, get, patch
 import colorama
+
 
 # disspy imports
 from disspy.channel import DisChannel, DisDmChannel
@@ -55,8 +57,9 @@ from disspy.message import (
     MessageDeleteEvent,
     DmMessageDeleteEvent
 )
+from disspy.reaction import DisEmoji, DisReaction, DisRemovedReaction
 from disspy.user import DisUser
-
+from disspy.application_commands import Context, _Argument, OptionArgs
 
 JsonOutput = NewType("JsonOutput", Dict[str, Any])
 
@@ -436,6 +439,16 @@ class Rest:
         return get(_url, self._headers).json()
 
     async def send_message(self, channel_id, json_post):
+        """send_message
+        Send messages in channels
+
+        Args:
+            channel_id (int): Channel id
+            json_post (dict): Json data for send
+
+        Returns:
+            dict: Json output
+        """
         _url = f"{_mainurl()}channels/{channel_id}/messages"
 
         async with ClientSession(headers=self._headers) as session:
@@ -474,64 +487,39 @@ class Flow:
         self._headers = {}
 
         self.ws = None
+        self.ons = None
 
     # Event methods
-    async def on_ready(self):
-        pass
-
-    async def on_messagec(self, m: DisMessage):
-        pass
-
-    async def on_messageu(self, m: DisMessage):
-        pass
-
-    async def on_messaged(self, e: MessageDeleteEvent):
-        pass
-
-    async def on_dmessagec(self, m: DmMessage):
-        pass
-
-    async def on_dmessageu(self, m: DmMessage):
-        pass
-
-    async def on_dmessaged(self, e: DmMessageDeleteEvent):
-        pass
-
-    async def on_interaction(self, token, interaction_id, command_name: Text, bot_token: Snowflake[str], interaction_type: int, data: JsonOutput, type_of_command: Optional[int] = None):
-        pass
-
-    async def on_components(self, d):
-        pass
-
-    async def on_modal_sumbit(self, d):
-        pass
-
-    async def on_register(self):
-        pass
-
-    async def register2(self):
-        pass
-
-    async def on_reaction(self, r):
-        pass
-
-    async def on_reactionr(self, r):
-        pass
-
-    async def on_typing_start(self, u: DisUser, channel: DisChannel):
-        pass
-
-    async def on_dm_typing_start(self, u: DisUser, channel: DisDmChannel):
-        pass
-
     async def on_channel(self, m: DisMessage):
-        pass
+        """on_channel
+        "MESSAGE CREATE" event, but only in one channel
+
+        Args:
+            m (DisMessage): Message that was created
+        """
+        return m.content
 
     async def register(self, d):
+        """register
+        Register user id
+
+        Args:
+            d (dict): Data of "READY" event
+        """
         self.user_id = d["user"]["id"]
 
     # Sending/Getting
     async def send_request(self, data, ws):
+        """send_request
+        Send json request to Gateway
+
+        Args:
+            data (dict): Json data
+            ws (Any): Aiohttp websocket
+
+        Returns:
+            dict: Your json data
+        """
         await ws.send_json(data)
 
         if self._debug:
@@ -540,6 +528,15 @@ class Flow:
         return data
 
     async def get_responce(self, ws):
+        """get_responce
+        Get json output from Gateway
+
+        Args:
+            ws (Any): Aiohttp websocket
+
+        Returns:
+            dict: Json output
+        """
         try:
             j = await ws.receive_json()
         except TypeError:
@@ -558,42 +555,24 @@ class Flow:
 
     # Runners
     async def run(self, ons, status, debug, act):
+        """run
+        Run Flow (Gateway)
+
+        Args:
+            ons (dict): Dict with _type_: _func_ model for awaiting this events
+            status (str): Status of bot
+            debug (bool): Debug id enabled?
+            act (dict): Activity of bot
+        """
         self._debug = debug
         self.status = status
         self.activity = act
+        self.ons = ons
 
         # Registering events
-        if ons["ready"] is not None:
-            self.on_ready = ons["ready"]
-        if ons["messagec"] is not None:
-            self.on_messagec = ons["messagec"]
-        if ons["messageu"] is not None:
-            self.on_messageu = ons["messageu"]
-        if ons["messaged"] is not None:
-            self.on_messaged = ons["messaged"]
-        if ons["dmessagec"] is not None:
-            self.on_dmessagec = ons["dmessagec"]
-        if ons["dmessageu"] is not None:
-            self.on_dmessageu = ons["dmessageu"]
-        if ons["dmessaged"] is not None:
-            self.on_dmessaged = ons["dmessaged"]
-        if ons["reaction"] is not None:
-            self.on_reaction = ons["reaction"]
-        if ons["reactionr"] is not None:
-            self.on_reactionr = ons["reactionr"]
-        if ons["typing"] is not None:
-            self.on_typing_start = ons["typing"]
-        if ons["dm_typing"] is not None:
-            self.on_dm_typing_start = ons["dm_typing"]
         if ons["channel"][0] is not None:
             self.on_channel = ons["channel"][0]
             self.on_channel__id = ons["channel"][1]
-
-        self.on_interaction = ons["interaction"]
-        self.on_components = ons["components"]
-        self.on_modal_sumbit = ons["modalsumbit"]
-        self.on_register = ons["register"]
-        self.register2 = ons["register2"]
 
         # Other
         self.isrunning = True
@@ -605,15 +584,14 @@ class Flow:
 
     async def _runner(self):
         async with ClientSession() as s:
-            async with s.ws_connect(f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
+            async with s.ws_connect(
+                f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
                 self.ws = ws
 
                 j = await self.get_responce(ws)
 
                 interval = j["d"]["heartbeat_interval"]
 
-                from datetime import datetime
-                from time import mktime
 
                 await self.send_request({"op": 2, "d": {
                     "token": self.token,
@@ -631,13 +609,19 @@ class Flow:
                     }
                 }}, ws)
 
-                del mktime, datetime
-
                 self.isrunning = True
 
-                await asyncio.wait(fs=[self.heartbeat(ws, interval / 1000), self._events_checker(ws)])
+                await asyncio.wait(
+                    fs=[self.heartbeat(ws, interval / 1000), self._events_checker(ws)])
 
     async def heartbeat(self, ws, interval):
+        """heartbeat
+        Function with sending heartbeating to Gateway
+
+        Args:
+            ws (Any): Aiohttp websocket
+            interval (int): Heartbeat interval
+        """
         while True:
             await self.send_request({"op": 1, "d": None, "t": None}, ws)
 
@@ -648,148 +632,158 @@ class Flow:
             event_json = await self.get_responce(ws)
             event = _FlowEvent(event_json)
 
-            if event.type == "READY":
-                await self.register(event.data)
-                await self.register2()
-                await self.on_register()
+            try:
+                if event.type == "READY":
+                    await self.register(event.data)
+                    await self.ons["register2"]()
+                    await self.ons["register"]()
 
-                await self.on_ready()
+                    await self.ons["ready"]()
 
-            elif event.type == "MESSAGE_CREATE":
-                _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
+                elif event.type == "MESSAGE_CREATE":
+                    _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
-                if not event.data["author"]["id"] == self.user_id:
-                    async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
+                    if not event.data["author"]["id"] == self.user_id:
+                        async with ClientSession(headers={'Authorization': f'Bot {self.token}',
+                                                          'content-type': 'application/json'}) as s:
+                            async with s.get(_u) as g:
+                                j = await g.json()
+
+                                if j["type"] == 0:
+                                    _m = DisMessage(event.data, self.token)
+
+                                    if int(event.data["channel_id"]) == int(self.on_channel__id):
+                                        await self.on_channel(_m)
+
+                                    await self.ons["messagec"](_m)
+                                elif j["type"] == 1:
+                                    _m = DmMessage(event.data, self.token)
+
+                                    await self.ons["dmessagec"](_m)
+
+                elif event.type == "MESSAGE_UPDATE":
+                    _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
+
+                    if not event.data["author"]["id"] == self.user_id:
+                        async with ClientSession(headers={'Authorization': f'Bot {self.token}',
+                                                          'content-type': 'application/json'}) as s:
+                            async with s.get(_u) as g:
+                                j = await g.json()
+
+                                if j["type"] == 0:
+                                    _m = DisMessage(event.data, self.token)
+
+                                    await self.ons["messageu"](_m)
+                                elif j["type"] == 1:
+                                    _m = DmMessage(event.data, self.token)
+
+                                    await self.ons["dmessageu"](_m)
+
+                elif event.type == "MESSAGE_DELETE":
+                    _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
+
+                    async with ClientSession(headers={'Authorization': f'Bot {self.token}',
+                                                      'content-type': 'application/json'}) as s:
                         async with s.get(_u) as g:
                             j = await g.json()
 
                             if j["type"] == 0:
+                                _e = MessageDeleteEvent(event.data, self.token)
 
-                                _m = DisMessage(event.data, self.token)
-
-                                if int(event.data["channel_id"]) == int(self.on_channel__id):
-                                    await self.on_channel(_m)
-
-                                await self.on_messagec(_m)
+                                await self.ons["messaged"](_e)
                             elif j["type"] == 1:
-                                _m = DmMessage(event.data, self.token)
+                                _e = DmMessageDeleteEvent(event.data, self.token)
 
-                                await self.on_dmessagec(_m)
+                                await self.ons["dmessaged"](_e)
 
-            elif event.type == "MESSAGE_UPDATE":
-                _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
+                elif event.type == "INTERACTION_CREATE":
+                    if event.data["type"] == 2:  # Application Commands
+                        await self.ons["interaction"](
+                            event.data["token"], event.data["id"], event.data["data"]["name"],
+                            self.token, event.data["type"], event.data, event.data["data"]["type"])
+                    if event.data["type"] == 3 or event.data["type"] == 4:  # Components
+                        await self.ons["components"](event.data)
 
-                if not event.data["author"]["id"] == self.user_id:
-                    async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
-                        async with s.get(_u) as g:
-                            j = await g.json()
+                    if event.data["type"] == 5:  # Modal Sumbit
+                        await self.ons["modalsumbit"](event.data)
 
-                            if j["type"] == 0:
-                                _m = DisMessage(event.data, self.token)
+                elif event.type == "MESSAGE_REACTION_ADD":
+                    _u = DisUser(event.data["member"]["user"], self.token)
+                    _m_id = int(event.data["message_id"])
+                    _c_id = int(event.data["channel_id"])
+                    _g_id = int(event.data["guild_id"])
 
-                                await self.on_messageu(_m)
-                            elif j["type"] == 1:
-                                _m = DmMessage(event.data, self.token)
+                    _e_json = event.data["emoji"]
 
-                                await self.on_dmessageu(_m)
-
-            elif event.type == "MESSAGE_DELETE":
-                _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
-
-                async with ClientSession(headers={'Authorization': f'Bot {self.token}', 'content-type': 'application/json'}) as s:
-                    async with s.get(_u) as g:
-                        j = await g.json()
-
-                        if j["type"] == 0:
-                            _e = MessageDeleteEvent(event.data, self.token)
-
-                            await self.on_messaged(_e)
-                        elif j["type"] == 1:
-                            _e = DmMessageDeleteEvent(event.data, self.token)
-
-                            await self.on_dmessaged(_e)
-
-            elif event.type == "INTERACTION_CREATE":
-                if event.data["type"] == 2:  # Application Commands
-                    await self.on_interaction(event.data["token"], event.data["id"], event.data["data"]["name"],
-                                              self.token, event.data["type"], event.data, event.data["data"]["type"])
-                if event.data["type"] == 3 or event.data["type"] == 4:  # Components
-                    await self.on_components(event.data)
-
-                if event.data["type"] == 5:  # Modal Sumbit
-                    await self.on_modal_sumbit(event.data)
-
-            elif event.type == "MESSAGE_REACTION_ADD":
-                from disspy.reaction import DisEmoji, DisReaction
-                _u = DisUser(event.data["member"]["user"], self.token)
-                _m_id = int(event.data["message_id"])
-                _c_id = int(event.data["channel_id"])
-                _g_id = int(event.data["guild_id"])
-
-                _e_json = event.data["emoji"]
-
-                if _e_json["id"] is None:
-                    _e = DisEmoji(unicode=_e_json["name"])
-                else:
-                    _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
-
-                _r = DisReaction(_u, _m_id, _c_id, _g_id, _e, self.token)
-
-                await self.on_reaction(_r)
-
-            elif event.type == "MESSAGE_REACTION_REMOVE":
-                from disspy.reaction import DisEmoji, DisRemovedReaction
-                _m_id = int(event.data["message_id"])
-                _c_id = int(event.data["channel_id"])
-                _g_id = int(event.data["guild_id"])
-
-                _e_json = event.data["emoji"]
-
-                if _e_json["id"] is None:
-                    _e = DisEmoji(unicode=_e_json["name"])
-                else:
-                    _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
-
-                _r = DisRemovedReaction(_m_id, _c_id, _g_id, _e, self.token)
-
-                await self.on_reactionr(_r)
-
-            elif event.type == "TYPING_START":
-                try:
-                    if event.data["guild_id"]:
-                        _u: DisUser = DisUser(event.data["member"]["user"], self.token)
-                        _c: DisChannel = DisChannel(event.data["channel_id"], self.token)
-
-                        await self.on_typing_start(_u, _c)
+                    if _e_json["id"] is None:
+                        _e = DisEmoji(unicode=_e_json["name"])
                     else:
+                        _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+
+                    _r = DisReaction(_u, _m_id, _c_id, _g_id, _e, self.token)
+
+                    await self.ons["reaction"](_r)
+
+                elif event.type == "MESSAGE_REACTION_REMOVE":
+                    _m_id = int(event.data["message_id"])
+                    _c_id = int(event.data["channel_id"])
+                    _g_id = int(event.data["guild_id"])
+
+                    _e_json = event.data["emoji"]
+
+                    if _e_json["id"] is None:
+                        _e = DisEmoji(unicode=_e_json["name"])
+                    else:
+                        _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+
+                    _r = DisRemovedReaction(_m_id, _c_id, _g_id, _e, self.token)
+
+                    await self.ons["reactionr"](_r)
+
+                elif event.type == "TYPING_START":
+                    try:
+                        if event.data["guild_id"]:
+                            _u: DisUser = DisUser(event.data["member"]["user"], self.token)
+                            _c: DisChannel = DisChannel(event.data["channel_id"], self.token)
+
+                            await self.ons["typing"](_u, _c)
+                        else:
+                            _u_id = event.data["user_id"]
+                            _u_json = Rest(self.token).get("user", _u_id)
+
+                            _u: DisUser = DisUser(_u_json, self.token)
+                            _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
+
+                            await self.ons["dm_typing"](_u, _c)
+                    except KeyError:
                         _u_id = event.data["user_id"]
                         _u_json = Rest(self.token).get("user", _u_id)
 
                         _u: DisUser = DisUser(_u_json, self.token)
                         _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
 
-                        await self.on_dm_typing_start(_u, _c)
-                except KeyError:
-                    _u_id = event.data["user_id"]
-                    _u_json = Rest(self.token).get("user", _u_id)
-
-                    _u: DisUser = DisUser(_u_json, self.token)
-                    _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
-
-                    await self.on_dm_typing_start(_u, _c)
+                        await self.ons["dm_typing"](_u, _c)
+            except TypeError:
+                pass
 
             await asyncio.sleep(0.5)
 
     async def disconnecter(self):
+        """disconnecter
+        Disconnect from Gateway
+        """
         await self.ws.close()
 
 
 @final
 class DisApi(_RequestsUserClass):
+    """DisApi
+    Class for init Rest and Flow event and edit they
+    """
     def __init__(self, token: str, intents, application_id):
         """
         Init Class
-        -----
+
         :param token: Token of bot (from Discord Developer Portal)
         :param intents: Intents of bot
         :param application_id: Application id of bot (from Discord Developer Portal)
@@ -810,7 +804,7 @@ class DisApi(_RequestsUserClass):
 
         self.app_commands = []
         self.raw_app_commands = []
-        
+
         self.user = None
 
         self.app_commands.append({})  # Slash Commands
@@ -818,13 +812,24 @@ class DisApi(_RequestsUserClass):
         self.app_commands.append({})  # Message Commands
 
     def fetch(self, channel_id, message_id) -> DisMessage:
+        """fetch
+        Fetch message by its id and channel id
+
+        Args:
+            channel_id (int): Channel id
+            message_id (int): Message id
+
+        Returns:
+            DisMessage: Fetched message
+        """
         _url = f"{_mainurl()}channels/{channel_id}/messages/{message_id}"
 
         _d = self._r.fetch(channel_id, message_id)
 
         return DisMessage(_d, self.token)
 
-    async def run(self, status, ons: Dict[Text, Callable], debug: bool, act: Dict[str, Any]) -> NoReturn:
+    async def run(self, status, ons: Dict[Text, Callable], debug: bool,
+                  act: Dict[str, Any]) -> NoReturn:
         """
         Run the flow of DisApi or run the bot.
         Running bot in Discord, changing status and registering
@@ -867,25 +872,16 @@ class DisApi(_RequestsUserClass):
 
         await self.f.run(ons, status, debug, act)
 
-    async def disconnecter(self):
-        await self.f.disconnecter()
-
-    async def _on_messagec(self, message):
-        pass
-
-    async def _on_ready(self):
-        pass
-
     async def _register2(self):
         # pass
         self.user: DisUser = self.get_user(self.f.user_id)
 
-    async def _on_interaction(self, token, interaction_id, command_name, bot_token: str, interaction_type, data: JsonOutput, type_of_command: int = None):
+    async def _on_interaction(self, token, interaction_id, command_name, bot_token: str,
+                              interaction_type, data: JsonOutput, type_of_command=None) -> NoReturn:
         if type_of_command is None:
-            return  # Not components!
+            return
         else:
             if interaction_type == 2:
-                from disspy.application_commands import Context
                 _ctx = Context(token, interaction_id, bot_token)
 
                 try:
@@ -922,8 +918,6 @@ class DisApi(_RequestsUserClass):
                     elif type_of_command == 1:  # Slash Commands
                         _args = []
 
-                        from disspy.application_commands import _Argument, OptionArgs
-
                         try:
                             for o in data["data"]["options"]:
                                 _args.append(_Argument(o["name"],
@@ -932,25 +926,24 @@ class DisApi(_RequestsUserClass):
                         except KeyError:
                             _args = []
 
-                        await self.app_commands[type_of_command - 1][command_name](_ctx, OptionArgs(_args))
+                        func = self.app_commands[type_of_command - 1][command_name]
+
+                        await func(_ctx, OptionArgs(_args))
                     else:
                         pass
                 except KeyError:
-                    print("What! Application command is invalid")
+                    pass
 
     async def _on_components(self, d):
         if d["data"]["component_type"] == 2:
-            from disspy.application_commands import Context
             _ctx = Context(d["token"], d["id"], self.token)
             await self.comsevs[d["data"]["custom_id"]](_ctx)
         if d["data"]["component_type"] == 3:
-            from disspy.application_commands import Context
             _ctx = Context(d["token"], d["id"], self.token)
             _vs = d["data"]["values"]
             await self.comsevs[d["data"]["custom_id"]](_ctx, _vs)
 
     async def _on_modal_sumbit(self, d):
-        from disspy.application_commands import Context
         _ctx = Context(d["token"], d["id"], self.token)
         coms = d["data"]["components"][0]["components"]
         _v = ""
@@ -1027,7 +1020,14 @@ class DisApi(_RequestsUserClass):
 
         return self._r.get("guild", guild_id)
 
-    def create_command(self, payload, func: Awaitable):
+    def create_command(self, payload: dict, func: Awaitable):
+        """create_command
+        Create application command
+
+        Args:
+            payload (dict): Json data of command
+            func (Awaitable): Function for awaiting command
+        """
         _url = f"https://discord.com/api/v10/applications/{self.application_id}/commands"
 
         def app_func_register(number):
