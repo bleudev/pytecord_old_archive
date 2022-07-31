@@ -39,6 +39,7 @@ class _EmbedGenerator:
             "author": obj.author,
             "image": obj.image,
             "thumbnail": obj.thumbnail,
+            "url": obj.url
         }
 
 

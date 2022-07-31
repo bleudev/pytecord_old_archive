@@ -124,11 +124,12 @@ class _EMBED:
 
 
 class DisEmbed(_EMBED):
-    def __init__(self, title: str, description: str = None, color=0xffffff, footer: str = None):
+    def __init__(self, title: str, description: str = None, color=0xffffff, footer: str = None, url: str = None):
         self.title: str = title
         self.description: str = description
         self.color: int = color
         self.footer: str = footer
+        self.url: str = url
         self.author = None
         self.image = None
         self.thumbnail = None
@@ -186,7 +187,8 @@ class DisEmbed(_EMBED):
             "footer": self.footer,
             "color": self.color,
             "fields": fields_jsons,
-            "author": self.author
+            "author": self.author,
+            "url": self.url,
         }
 
         return embed_json

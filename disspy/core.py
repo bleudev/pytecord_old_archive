@@ -334,7 +334,7 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        return 3276541
+        return 3276799
 
 
 T = TypeVar("T", str, int)
