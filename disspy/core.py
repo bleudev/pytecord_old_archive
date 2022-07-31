@@ -490,23 +490,23 @@ class Flow:
         self.ons = None
 
     # Event methods
-    async def on_channel(self, m: DisMessage):
+    async def on_channel(self, message: DisMessage):
         """on_channel
         "MESSAGE CREATE" event, but only in one channel
 
         Args:
-            m (DisMessage): Message that was created
+            message (DisMessage): Message that was created
         """
-        return m.content
+        return message.content
 
-    async def register(self, d):
+    async def register(self, data):
         """register
         Register user id
 
         Args:
-            d (dict): Data of "READY" event
+            data (dict): Data of "READY" event
         """
-        self.user_id = d["user"]["id"]
+        self.user_id = data["user"]["id"]
 
     # Sending/Getting
     async def send_request(self, data, ws):
@@ -583,8 +583,8 @@ class Flow:
         await self._runner()
 
     async def _runner(self):
-        async with ClientSession() as s:
-            async with s.ws_connect(
+        async with ClientSession() as session:
+            async with session.ws_connect(
                 f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
                 self.ws = ws
 
@@ -644,10 +644,11 @@ class Flow:
                     _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
                     if not event.data["author"]["id"] == self.user_id:
-                        async with ClientSession(headers={'Authorization': f'Bot {self.token}',
-                                                          'content-type': 'application/json'}) as s:
-                            async with s.get(_u) as g:
-                                j = await g.json()
+                        async with ClientSession(
+                            headers={'Authorization': f'Bot {self.token}',
+                                     'content-type': 'application/json'}) as session:
+                            async with session.get(_u) as data:
+                                j = await data.json()
 
                                 if j["type"] == 0:
                                     _m = DisMessage(event.data, self.token)
@@ -665,10 +666,11 @@ class Flow:
                     _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
                     if not event.data["author"]["id"] == self.user_id:
-                        async with ClientSession(headers={'Authorization': f'Bot {self.token}',
-                                                          'content-type': 'application/json'}) as s:
-                            async with s.get(_u) as g:
-                                j = await g.json()
+                        async with ClientSession(
+                            headers={'Authorization': f'Bot {self.token}',
+                                     'content-type': 'application/json'}) as session:
+                            async with session.get(_u) as data:
+                                j = await data.json()
 
                                 if j["type"] == 0:
                                     _m = DisMessage(event.data, self.token)
@@ -682,10 +684,11 @@ class Flow:
                 elif event.type == "MESSAGE_DELETE":
                     _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
-                    async with ClientSession(headers={'Authorization': f'Bot {self.token}',
-                                                      'content-type': 'application/json'}) as s:
-                        async with s.get(_u) as g:
-                            j = await g.json()
+                    async with ClientSession(
+                        headers={'Authorization': f'Bot {self.token}',
+                                 'content-type': 'application/json'}) as session:
+                        async with session.get(_u) as data:
+                            j = await data.json()
 
                             if j["type"] == 0:
                                 _e = MessageDeleteEvent(event.data, self.token)
@@ -799,7 +802,7 @@ class DisApi(_RequestsUserClass):
         self.token = token
         self.application_id = application_id
 
-        self.f = Flow(10, self.token, intents)
+        self.flow = Flow(10, self.token, intents)
         self._r = Rest(self.token)
 
         self.app_commands = []
@@ -850,10 +853,10 @@ class DisApi(_RequestsUserClass):
 
         _raws = get(_url, headers=self._headers).json()
 
-        for r in _raws:
+        for raw in _raws:
             for j in self.app_commands_jsons:
-                if r["name"] == j["name"] and r["type"] == j["type"]:
-                    _res = r
+                if raw["name"] == j["name"] and raw["type"] == j["type"]:
+                    _res = raw
 
                     try:
                         _res["description"] = j["description"]
@@ -865,16 +868,16 @@ class DisApi(_RequestsUserClass):
                     except KeyError:
                         pass
 
-                    patch(f"{_url}/{r['id']}", json=j, headers=self._headers)
+                    patch(f"{_url}/{raw['id']}", json=j, headers=self._headers)
                 else:
-                    delete(f"{_url}/{r['id']}", headers=self._headers)
+                    delete(f"{_url}/{raw['id']}", headers=self._headers)
                     post(url=_url, json=j, headers=self._headers)
 
-        await self.f.run(ons, status, debug, act)
+        await self.flow.run(ons, status, debug, act)
 
     async def _register2(self):
         # pass
-        self.user: DisUser = self.get_user(self.f.user_id)
+        self.user: DisUser = self.get_user(self.flow.user_id)
 
     async def _on_interaction(self, token, interaction_id, command_name, bot_token: str,
                               interaction_type, data: JsonOutput, type_of_command=None) -> NoReturn:
@@ -886,10 +889,10 @@ class DisApi(_RequestsUserClass):
 
                 try:
                     if type_of_command == 3:  # Message Commands
-                        rs: dict = data["data"]["resolved"]["messages"]
+                        resolved: dict = data["data"]["resolved"]["messages"]
 
-                        _m_id = list(rs.keys())[0]
-                        _m_d: dict = rs[_m_id]
+                        _m_id = list(resolved.keys())[0]
+                        _m_d: dict = resolved[_m_id]
 
                         try:
                             _m_d["id"] = _m_id
@@ -901,10 +904,10 @@ class DisApi(_RequestsUserClass):
                         await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
 
                     elif type_of_command == 2:  # User Commands
-                        rs: dict = data["data"]["resolved"]["users"]
+                        resolved: dict = data["data"]["resolved"]["users"]
 
-                        _u_id = list(rs.keys())[0]
-                        _u_d: dict = rs[_u_id]
+                        _u_id = list(resolved.keys())[0]
+                        _u_d: dict = resolved[_u_id]
 
                         try:
                             _u_d["id"] = _u_id
@@ -919,10 +922,10 @@ class DisApi(_RequestsUserClass):
                         _args = []
 
                         try:
-                            for o in data["data"]["options"]:
-                                _args.append(_Argument(o["name"],
-                                                       o["type"],
-                                                       o["value"]))
+                            for option in data["data"]["options"]:
+                                _args.append(_Argument(option["name"],
+                                                       option["type"],
+                                                       option["value"]))
                         except KeyError:
                             _args = []
 
@@ -934,25 +937,26 @@ class DisApi(_RequestsUserClass):
                 except KeyError:
                     pass
 
-    async def _on_components(self, d):
-        if d["data"]["component_type"] == 2:
-            _ctx = Context(d["token"], d["id"], self.token)
-            await self.comsevs[d["data"]["custom_id"]](_ctx)
-        if d["data"]["component_type"] == 3:
-            _ctx = Context(d["token"], d["id"], self.token)
-            _vs = d["data"]["values"]
-            await self.comsevs[d["data"]["custom_id"]](_ctx, _vs)
+    async def _on_components(self, data):
+        if data["data"]["component_type"] == 2:
+            _ctx = Context(data["token"], data["id"], self.token)
+            await self.comsevs[data["data"]["custom_id"]](_ctx)
 
-    async def _on_modal_sumbit(self, d):
-        _ctx = Context(d["token"], d["id"], self.token)
-        coms = d["data"]["components"][0]["components"]
+        if data["data"]["component_type"] == 3:
+            _ctx = Context(data["token"], data["id"], self.token)
+            _vs = data["data"]["values"]
+            await self.comsevs[data["data"]["custom_id"]](_ctx, _vs)
+
+    async def _on_modal_sumbit(self, data):
+        _ctx = Context(data["token"], data["id"], self.token)
+        coms = data["data"]["components"][0]["components"]
         _v = ""
 
         for i in coms:
-            if i["custom_id"] == d["data"]["custom_id"]:
+            if i["custom_id"] == data["data"]["custom_id"]:
                 _v = i["value"]
 
-        await self.comsevs[d["data"]["custom_id"]](_ctx, _v)
+        await self.comsevs[data["data"]["custom_id"]](_ctx, _v)
 
     def get_user(self, user_id: UserId) -> DisUser:
         """
@@ -1071,4 +1075,4 @@ class DisApi(_RequestsUserClass):
         Args:
             data (dict): Json data for sending request
         """
-        await self.f.send_request(data, self.f.ws)
+        await self.flow.send_request(data, self.flow.ws)
