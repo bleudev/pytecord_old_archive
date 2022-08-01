@@ -23,7 +23,6 @@ SOFTWARE.
 """
 
 from setuptools import setup
-import disspy
 
 with open("README.md", "r", encoding="utf-8") as mdf:
     long_description = mdf.read()
@@ -31,9 +30,12 @@ with open("README.md", "r", encoding="utf-8") as mdf:
 requires = ['aiohttp>=3.6.0,<4', 'requests', 'typing', 'asyncio', 'colorama']
 
 
+__version__ = "0.5.3"
+
+
 setup(
     name="disspy",
-    version=disspy.__version__,
+    version=__version__,
     author="itttgg",
     author_email="aitiiigg1@gmail.com",
     description="Dispy - package for creating bots",
