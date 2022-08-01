@@ -351,6 +351,19 @@ class DisBot:
                        "moved invalid event type!"
                 self.logger.log(_err)
                 raise errors.BotEventTypeError("Invalid type of event!")
+        
+        def on_ready(self) -> Wrapper:
+            """on_ready
+            Method for changing on_ready() event
+
+            Returns:
+                Wrapper: function named wrapper
+            """
+            
+            def wrapper(func):
+                self._ons["ready"] = func
+            
+            return wrapper
 
         def on_message(self, event_type: str) -> Wrapper:
             """
