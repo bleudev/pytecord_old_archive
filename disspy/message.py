@@ -34,7 +34,8 @@ from typing import (
     Union,
     final,
     ClassVar,
-    Any
+    Any,
+    List
 )
 from json import dumps
 from aiohttp import ClientSession
@@ -136,7 +137,7 @@ class DisMessage:
     def is_default(self) -> bool:
         return self._type == _MessageType.DEFAULT
 
-    async def reply(self, content: Optional[Any] = None, embeds: Optional[list[DisEmbed]] = None):
+    async def reply(self, content: Optional[Any] = None, embeds: Optional[List[DisEmbed]] = None):
         _d = {
             "content": None,
             "embeds": {},
@@ -200,7 +201,7 @@ class DmMessage:
     def is_default(self) -> bool:
         return self._type == _MessageType.DEFAULT
 
-    async def reply(self, content: Optional[Any] = None, embeds: Optional[list[DisEmbed]] = None):
+    async def reply(self, content: Optional[Any] = None, embeds: Optional[List[DisEmbed]] = None):
         _d = {
             "content": None,
             "embeds": {},

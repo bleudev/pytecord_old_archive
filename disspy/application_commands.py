@@ -29,7 +29,8 @@ from typing import (
     NoReturn,
     ClassVar,
     Callable,
-    final
+    final,
+    List
 )
 from json import dumps
 import aiohttp
@@ -127,7 +128,7 @@ class Option:
     """
 
     def __init__(self, name: str, description: str, option_type: int,
-                 choices: Optional[list[dict]] = None,
+                 choices: Optional[List[dict]] = None,
                  required: Optional[bool] = False) -> NoReturn:
         """
         Init class
@@ -141,7 +142,7 @@ class Option:
         self.name: str = name
         self.description: str = description
         self.option_type: int = option_type
-        self.choices: Union[list[dict], None] = choices
+        self.choices: Union[List[dict], None] = choices
         self.required: bool = required
 
 
@@ -170,7 +171,7 @@ class SlashCommand(ApplicationCommand):
     """
 
     def __init__(self, name: str, description: str, cmd: Callable,
-                 options: Optional[list[Option]] = None) -> NoReturn:
+                 options: Optional[List[Option]] = None) -> NoReturn:
         super().__init__(name, cmd, 1)
 
         self.description = description
@@ -181,9 +182,9 @@ class SlashCommand(ApplicationCommand):
             for o in options:
                 _options_jsons.append(_OptionGenerator(o))
 
-            self.options: Union[list[Option], None] = _options_jsons
+            self.options: Union[List[Option], None] = _options_jsons
         else:
-            self.options: Union[list[Option], None] = None
+            self.options: Union[List[Option], None] = None
 
 
 @final
@@ -313,7 +314,7 @@ class OptionArgs:
         await ctx.send(args.getString("Hi"))
     """
 
-    def __init__(self, values: Optional[list[_Argument]] = None) -> NoReturn:
+    def __init__(self, values: Optional[List[_Argument]] = None) -> NoReturn:
         """
         Init object
         -----
@@ -321,7 +322,7 @@ class OptionArgs:
         """
         if values is None:
             values = []
-        self._v: list[_Argument] = values
+        self._v: List[_Argument] = values
 
     def isempty(self) -> bool:
         """

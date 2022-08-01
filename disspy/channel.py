@@ -29,7 +29,8 @@ from disspy.ui import ActionRow
 
 from typing import (
     Optional,
-    Union
+    Union,
+    List
 )
 
 __all__: tuple = (
@@ -125,12 +126,12 @@ class DisChannel:
         """
         return self.id == other.id
 
-    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None, action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
+    async def send(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None, action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
         """
         Sending messages to discord channel
 
         :param content: str = None -> Content of message which will be sended (default is None)
-        :param embeds: list[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
+        :param embeds: List[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
         :param action_row: ActionRow = None -> Action Row with components (default is None)
         :return DisMessage: Message which was sended
         """
@@ -201,12 +202,12 @@ class DisDmChannel:
         self.id = _data["id"]
         self._t = token
 
-    async def send(self, content: Optional[str] = None, embeds: Optional[list[DisEmbed]] = None, action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
+    async def send(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None, action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
         """
         Sending messages to discord channel
 
         :param content: str = None -> Content of message which will be sended (default is None)
-        :param embeds: list[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
+        :param embeds: List[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
         :param action_row: ActionRow = None -> Action Row with components (default is None)
         :return DisMessage: Message which was sended
         """

@@ -37,7 +37,7 @@ async def select_menu(ctx: disspy.Context, args: disspy.OptionArgs):
     options.append(disspy.SelectMenuOption(label="User", description="Just person", value="user", default=True, emoji='😎'))
 
     @ar.add(disspy.SelectMenu(custom_id="selectrole", options=options, placeholder="Owner", min_values=1, max_values=2))
-    async def test(menu_ctx: disspy.Context, values: list[str]):
+    async def test(menu_ctx: disspy.Context, values: list):
         await menu_ctx.send(content=str(values))
 
     await ctx.send(content="Choice role", action_row=ar)

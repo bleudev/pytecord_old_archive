@@ -27,7 +27,8 @@ from typing import (
     Dict,
     Optional,
     Text,
-    Union
+    Union,
+    List
 )
 
 from disspy.reaction import DisEmoji
@@ -155,7 +156,7 @@ class SelectMenu(Component):
     """
     Class for creating select menus in Action Row
     """
-    def __init__(self, custom_id: str, options: list[SelectMenuOption], placeholder: str,
+    def __init__(self, custom_id: str, options: List[SelectMenuOption], placeholder: str,
                  min_values: int, max_values: int) -> NoReturn:
         oj = []
 

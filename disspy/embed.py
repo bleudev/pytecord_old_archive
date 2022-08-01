@@ -25,7 +25,10 @@ SOFTWARE.
 # Imports
 from random import random
 from math import floor
-from typing import NoReturn
+from typing import (
+    NoReturn,
+    List
+)
 
 __all__: tuple = (
     "DisColor",
@@ -110,7 +113,7 @@ class DisEmbed:
         self.image: dict = None
         self.thumbnail: dict = None
 
-        self.fields: list[DisField] = []
+        self.fields: List[DisField] = []
 
     def add_field(self, title: str, value: str) -> NoReturn:
         self.fields.append(DisField(title, value))

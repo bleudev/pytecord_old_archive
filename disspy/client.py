@@ -28,7 +28,8 @@ from typing import (
     Union,
     Callable,
     NoReturn,
-    final
+    final,
+    List
 )
 
 # Package imports
@@ -358,13 +359,13 @@ class DisBot:
             :param t: Type of on_message() event
             :return Wrapper:
             """
-            _ts: list[str] = [
+            _ts: List[str] = [
                 "create",  # Message create
                 "update",  # Message update
                 "delete"  # Message delete
             ]
 
-            _mse: list[str] = [
+            _mse: List[str] = [
                 "messagec",  # Message create
                 "messageu",  # Message update
                 "messaged"  # Message delete
@@ -388,13 +389,13 @@ class DisBot:
             :param t: Type of on_dm_message() event
             :return Wrapper:
             """
-            _ts: list[str] = [
+            _ts: List[str] = [
                 "create",  # Message create
                 "update",  # Message update
                 "delete"  # Message delete
             ]
 
-            _mse: list[str] = [
+            _mse: List[str] = [
                 "dmessagec",  # Message create
                 "dmessageu",  # Message update
                 "dmessaged"  # Message delete
@@ -424,7 +425,7 @@ class DisBot:
             return wrapper
 
         def slash_command(self, name: str, description: str,
-                          options: Optional[list[appc.Option]]
+                          options: Optional[List[appc.Option]]
                           = None) -> Union[Wrapper, None]:
             """
             Create slash command
@@ -621,7 +622,7 @@ class DisBot:
                     del _var
 
         async def send(self, channel_id: int, content: Optional[str] = None,
-                       embeds: Optional[list[DisEmbed]] = None):
+                       embeds: Optional[List[DisEmbed]] = None):
             """
             Send message to channel
             -----
@@ -689,7 +690,7 @@ class DisBot:
                 "op": 3,
                 "d": {
                     "since": mktime(datetime.now().timetuple()) * 1000,
-                    "afk": self.api.f.isafk,
+                    "afk": self.api.flow.isafk,
                     "status": self.status,
                     "activities": [act]
                 }
