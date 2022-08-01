@@ -30,7 +30,7 @@ with open("README.md", "r", encoding="utf-8") as mdf:
 requires = ['aiohttp>=3.6.0,<4', 'requests', 'typing', 'asyncio', 'colorama']
 
 
-__version__ = "0.5.3"
+__version__ = "0.5.3.1"
 
 
 setup(
@@ -39,7 +39,7 @@ setup(
     author="itttgg",
     author_email="aitiiigg1@gmail.com",
     description="Dispy - package for creating bots",
-    download_url=f"https://github.com/itttgg/dispy/tree/{disspy.__version__}",
+    download_url=f"https://github.com/itttgg/dispy/tree/{__version__}",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/itttgg/dispy",
