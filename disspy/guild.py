@@ -85,11 +85,21 @@ class _SendingRestHandler:
                 return j
 
     async def put(self, endpoint, _payload=None):
+        """put
+        PUT method
+
+        Args:
+            endpoint (str): Url endpoint
+            _payload (dict, optional): Json data. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
         if _payload:
             async with ClientSession(headers=self.hdrs) as s:
                 async with s.post(self._gen_url(endpoint), data=_payload) as d:
                     j = await d.json()
-                    
+
                     return j
         else:
             async with ClientSession(headers=self.hdrs) as s:
@@ -112,17 +122,20 @@ class _SendingRestHandler:
 
 
 class DisGuildTemplate:
+    """
+    Guild template in Discord
+    """
     def __init__(self, data: Json, token: str) -> None:
         self._t: str = str(token)
-        
+
         self.code: str = data["code"]
         self.name = data["name"]
         self.description: Union[str, None] = data["description"]
         self.usage_count: int = int(data["usage_count"])
         self.creator: disspy.user.DisUser = disspy.user.DisUser(data["creator"], self._t)
-        
+
         self.guild_id: int = int(data["source_guild_id"])
-        
+
     async def modify(self, name: Optional[Text], description: Optional[Text] = None):
         """modify()
 
@@ -130,22 +143,23 @@ class DisGuildTemplate:
             name (Optional[Text]): New name of template (Optional)
             description (Optional[Text], optional): New description of template (Optional)
         """
-        
+
         if not name and not description:
             return
-        
+
         _payload = {
             "name": name,
             "description": description
         }
-        
+
         if not description:
             del _payload["description"]
-        
+
         if not name:
             del _payload["name"]
 
-        await _SendingRestHandler(self._t).patch(f"/guilds/{self.guild_id}/templates/{self.code}", _payload)
+        await _SendingRestHandler(self._t).patch(f"/guilds/{self.guild_id}/templates/{self.code}",
+                                                 _payload)
 
         if name:
             self.name = name
@@ -163,11 +177,10 @@ class DisGuildTemplate:
         _payload = {
             "name": name
         }
-        
+
         j = await _SendingRestHandler(self._t).post(f"/guilds/templates/{self.code}", _payload)
-        
+
         return DisGuild(j, self._t)
-        
 
 
 class DisGuild:
@@ -192,7 +205,7 @@ class DisGuild:
         """
         self.id = data["id"]
         self._t = token
-        
+
     async def create_template(self, name: Text, description: Text):
         """create_template()
 
@@ -204,7 +217,7 @@ class DisGuild:
             "name": name,
             "description": description
         }
-                
+
         j = await _SendingRestHandler(self._t).post(f"/guilds/{self.id}/templates", _payload)
-        
+
         return DisGuildTemplate(j, self._t)
