@@ -184,6 +184,13 @@ class _DebugLoggingWebsocket:
         return _result
 
 
+class _DebugLoggingAwaiting:
+    def __new__(cls, gateway_event_name, event_name):
+        _result = f'{colorama.Fore.RED}Awaiting event "{gateway_event_name}": {colorama.Fore.YELLOW}{event_name}(){colorama.Fore.RESET}'
+        
+        return _result
+
+
 class _RequestsUserClass:
     """
     Class for Getting and Posting data in Discord
@@ -635,10 +642,24 @@ class Flow:
             try:
                 if event.type == "READY":
                     await self.register(event.data)
+                    
+                    if self._debug:
+                        print(_DebugLoggingAwaiting(event.type, "register"))
+                     
                     await self.ons["register2"]()
+                    
+                    if self._debug:
+                        print(_DebugLoggingAwaiting(event.type, "on_register2"))
+                    
                     await self.ons["register"]()
+                    
+                    if self._debug:
+                        print(_DebugLoggingAwaiting(event.type, "on_register"))
 
                     await self.ons["ready"]()
+                    
+                    if self._debug:
+                        print(_DebugLoggingAwaiting(event.type, "on_ready"))
 
                 elif event.type == "MESSAGE_CREATE":
                     _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
@@ -656,11 +677,21 @@ class Flow:
                                     if int(event.data["channel_id"]) == int(self.on_channel__id):
                                         await self.on_channel(_m)
 
+                                        if self._debug:
+                                            print(_DebugLoggingAwaiting(event.type, "on_channel"))
+                                    
+
                                     await self.ons["messagec"](_m)
+                                    
+                                    if self._debug:
+                                        print(_DebugLoggingAwaiting(event.type, "on_messagec"))
                                 elif j["type"] == 1:
                                     _m = DmMessage(event.data, self.token)
 
                                     await self.ons["dmessagec"](_m)
+                                    
+                                    if self._debug:
+                                        print(_DebugLoggingAwaiting(event.type, "on_dmessagec"))
 
                 elif event.type == "MESSAGE_UPDATE":
                     _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
@@ -676,10 +707,16 @@ class Flow:
                                     _m = DisMessage(event.data, self.token)
 
                                     await self.ons["messageu"](_m)
+                                    
+                                    if self._debug:
+                                        print(_DebugLoggingAwaiting(event.type, "on_messageu"))
                                 elif j["type"] == 1:
                                     _m = DmMessage(event.data, self.token)
 
                                     await self.ons["dmessageu"](_m)
+                                    
+                                    if self._debug:
+                                        print(_DebugLoggingAwaiting(event.type, "on_dmessageu"))
 
                 elif event.type == "MESSAGE_DELETE":
                     _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
@@ -694,21 +731,36 @@ class Flow:
                                 _e = MessageDeleteEvent(event.data, self.token)
 
                                 await self.ons["messaged"](_e)
+                                
+                                if self._debug:
+                                    print(_DebugLoggingAwaiting(event.type, "on_messaged"))
                             elif j["type"] == 1:
                                 _e = DmMessageDeleteEvent(event.data, self.token)
 
                                 await self.ons["dmessaged"](_e)
+                                
+                                if self._debug:
+                                    print(_DebugLoggingAwaiting(event.type, "on_dmessaged"))
 
                 elif event.type == "INTERACTION_CREATE":
                     if event.data["type"] == 2:  # Application Commands
                         await self.ons["interaction"](
                             event.data["token"], event.data["id"], event.data["data"]["name"],
                             self.token, event.data["type"], event.data, event.data["data"]["type"])
+                        
+                        if self._debug:
+                            print(_DebugLoggingAwaiting(event.type, "on_interaction"))
                     if event.data["type"] == 3 or event.data["type"] == 4:  # Components
                         await self.ons["components"](event.data)
+                        
+                        if self._debug:
+                            print(_DebugLoggingAwaiting(event.type, "on_components"))
 
                     if event.data["type"] == 5:  # Modal Sumbit
                         await self.ons["modalsumbit"](event.data)
+                        
+                        if self._debug:
+                            print(_DebugLoggingAwaiting(event.type, "on_modalsumbit"))
 
                 elif event.type == "MESSAGE_REACTION_ADD":
                     _u = DisUser(event.data["member"]["user"], self.token)
@@ -726,6 +778,9 @@ class Flow:
                     _r = DisReaction(_u, _m_id, _c_id, _g_id, _e, self.token)
 
                     await self.ons["reaction"](_r)
+                    
+                    if self._debug:
+                            print(_DebugLoggingAwaiting(event.type, "on_reaction"))
 
                 elif event.type == "MESSAGE_REACTION_REMOVE":
                     _m_id = int(event.data["message_id"])
@@ -742,6 +797,9 @@ class Flow:
                     _r = DisRemovedReaction(_m_id, _c_id, _g_id, _e, self.token)
 
                     await self.ons["reactionr"](_r)
+                    
+                    if self._debug:
+                            print(_DebugLoggingAwaiting(event.type, "on_reactionr"))
 
                 elif event.type == "TYPING_START":
                     try:
@@ -750,6 +808,9 @@ class Flow:
                             _c: DisChannel = DisChannel(event.data["channel_id"], self.token)
 
                             await self.ons["typing"](_u, _c)
+                            
+                            if self._debug:
+                                print(_DebugLoggingAwaiting(event.type, "on_typing"))
                         else:
                             _u_id = event.data["user_id"]
                             _u_json = Rest(self.token).get("user", _u_id)
@@ -758,6 +819,9 @@ class Flow:
                             _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
 
                             await self.ons["dm_typing"](_u, _c)
+                            
+                            if self._debug:
+                                print(_DebugLoggingAwaiting(event.type, "on_dm_typing"))
                     except KeyError:
                         _u_id = event.data["user_id"]
                         _u_json = Rest(self.token).get("user", _u_id)
@@ -766,6 +830,9 @@ class Flow:
                         _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
 
                         await self.ons["dm_typing"](_u, _c)
+                        
+                        if self._debug:
+                            print(_DebugLoggingAwaiting(event.type, "on_dm_typing"))
             except TypeError:
                 pass
 
