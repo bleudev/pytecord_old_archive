@@ -61,26 +61,35 @@ class _SendingRestHandler:
             _payload (dict, optional): Json data. Defaults to None.
 
         Returns:
-            _type_: _description_
+            dict: Json output
         """
-        if _payload:
-            async with ClientSession(headers=self.hdrs) as s:
-                async with s.post(self._gen_url(endpoint), data=json.dumps(_payload)) as d:
-                    j = await d.json()
+        async with ClientSession(headers=self.hdrs) as session:
+            if _payload:
+                async with session.post(self._gen_url(endpoint), data=json.dumps(_payload)) as data:
+                    j = await data.json()
 
                     return j
 
-        else:
-            async with ClientSession(headers=self.hdrs) as s:
-                async with s.post(self._gen_url(endpoint)) as d:
-                    j = await d.json()
+            else:
+                async with session.post(self._gen_url(endpoint)) as data:
+                    j = await data.json()
 
                     return j
 
     async def patch(self, endpoint, _payload):
-        async with ClientSession(headers=self.hdrs) as s:
-            async with s.patch(self._gen_url(endpoint), data=json.dumps(_payload)) as d:
-                j = await d.json()
+        """patch
+        PATCH method
+
+        Args:
+            endpoint (str): Url endpoint
+            _payload (dict): Json data
+
+        Returns:
+            dict: Json output
+        """
+        async with ClientSession(headers=self.hdrs) as session:
+            async with session.patch(self._gen_url(endpoint), data=json.dumps(_payload)) as data:
+                j = await data.json()
 
                 return j
 
@@ -93,29 +102,46 @@ class _SendingRestHandler:
             _payload (dict, optional): Json data. Defaults to None.
 
         Returns:
-            _type_: _description_
+            dict: Json output
         """
-        if _payload:
-            async with ClientSession(headers=self.hdrs) as s:
-                async with s.post(self._gen_url(endpoint), data=_payload) as d:
-                    j = await d.json()
+        async with ClientSession(headers=self.hdrs) as session:
+            if _payload:
+                async with session.put(self._gen_url(endpoint), data=_payload) as data:
+                    j = await data.json()
 
                     return j
-        else:
-            async with ClientSession(headers=self.hdrs) as s:
-                async with s.put(self._gen_url(endpoint)) as d:
-                    j = await d.json()
+            else:
+                async with session.put(self._gen_url(endpoint)) as data:
+                    j = await data.json()
 
                     return j
 
     async def delete(self, endpoint):
-        async with ClientSession(headers=self.hdrs) as s:
-            async with s.delete(self._gen_url(endpoint)) as d:
-                j = await d.json()
+        """delete
+        DELETE method
+
+        Args:
+            endpoint (str): Url endpoint
+
+        Returns:
+            dict: Json output
+        """
+        async with ClientSession(headers=self.hdrs) as session:
+            async with session.delete(self._gen_url(endpoint)) as data:
+                j = await data.json()
 
                 return j
 
     def get(self, endpoint):
+        """get
+        GET method
+
+        Args:
+            endpoint (str): Url endpoint
+
+        Returns:
+            dict: Json output
+        """
         data = get(self._gen_url(endpoint), headers=self.hdrs).json()
 
         return data
@@ -123,7 +149,7 @@ class _SendingRestHandler:
 
 class DisGuildTemplate:
     """
-    Guild template in Discord
+    Guild Template for copying channels, roles and other information to other guild
     """
     def __init__(self, data: Json, token: str) -> None:
         self._t: str = str(token)
@@ -168,19 +194,35 @@ class DisGuildTemplate:
             self.description = description
 
     async def delete(self):
+        """delete
+        Delete template
+        """
         await _SendingRestHandler(self._t).delete(f"/guilds/{self.guild_id}/templates/{self.code}")
 
     async def sync(self):
+        """sync
+        Sync template
+        """
         await _SendingRestHandler(self._t).put(f"/guilds/{self.guild_id}/templates/{self.code}")
-    
-    async def create_guild(self, name: Text):
+
+    async def create_guild(self, name: Text) -> int:
+        """create_guild
+        Create guild from template
+
+        Args:
+            name (Text): Name of guild
+
+        Returns:
+            int: Id of created guild from template
+        """
         _payload = {
             "name": name
         }
 
         j = await _SendingRestHandler(self._t).post(f"/guilds/templates/{self.code}", _payload)
 
-        return DisGuild(j, self._t)
+        return int(j['id'])
+
 
 
 class DisGuild:
