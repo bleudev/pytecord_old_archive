@@ -1,4 +1,4 @@
-<p><img src="logo.png" width="250" alt="logo"/></p>
+<p style="text-align: center"><img src="imgs/logo.png" width="430" alt="logo"/></p>
 
 # Dispy
 ![version](https://img.shields.io/badge/pypi-0.5.3-blueviolet?style=flat)
@@ -37,14 +37,14 @@ if __name__ == '__main__':  # If file is started as a main file
 # Mini Tutorial
 <p>What's token? For starting using this package, you must create bot in
 <a href="https://discord.com/developers/applications">Discord Developer Portal</a></p>
-<p><img src="tutorial/1.png"/>Just click on the "New application" button</p>
-<p><img src="tutorial/2.png"/></p><p>Come up with a name and click "Create" button</p>
-<p><img src="tutorial/3.png"/></p><p>Put application id in your mind and click to the "Bot" button</p>
-<p><img src="tutorial/4.png"/></p><p>Click the "Add bot" button</p>
-<p><img src="tutorial/5.png"/></p><p>Click "Yes, do it!"</p>
-<p><img src="tutorial/6.png"/></p><p>Click "Reset Token"</p>
-<p><img src="tutorial/7.png"/></p><p>Copy token to clipboard</p>
-<p><img src="tutorial/8.png"/></p>
+<p><img src="imgs/1.png"/>Just click on the "New application" button</p>
+<p><img src="imgs/2.png"/></p><p>Come up with a name and click "Create" button</p>
+<p><img src="imgs/3.png"/></p><p>Put application id in your mind and click to the "Bot" button</p>
+<p><img src="imgs/4.png"/></p><p>Click the "Add bot" button</p>
+<p><img src="imgs/5.png"/></p><p>Click "Yes, do it!"</p>
+<p><img src="imgs/6.png"/></p><p>Click "Reset Token"</p>
+<p><img src="imgs/7.png"/></p><p>Copy token to clipboard</p>
+<p><img src="imgs/8.png"/></p>
 
 Now need open cmd and type "pip install --upgrade disspy" command and click the "Enter" button.
 After this, open your IDE or file editor, create new python file and type this code with your data:
