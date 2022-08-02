@@ -5,7 +5,7 @@
 - Type Pull's description, name, name of commits, comments only on English!
 - Write commits about your topic (Update or fix docs or words is allowed)
 - Please type commit name according to the topic and grammatically correct
-- Write without PyLint errors
+- Please write without PyLint errors
 
 Thank you ^_^
 
