@@ -1,13 +1,7 @@
 # Dispy
-<style>
-    .align {
-        text-align: center
-    }
-</style>
+<p align=center><img src="imgs/logo.png" width="430" alt="logo" style="text-align: center"/></p>
 
-<p class="align"><img src="imgs/logo.png" width="430" alt="logo" style="text-align: center"/></p>
-
-<p class="align">
+<p align=center>
     <img src="https://img.shields.io/badge/pypi-0.5.3-blueviolet?style=flat" alt="version"/>
     <img src="https://img.shields.io/badge/lang-python-blueviolet?style=flat" alt="project language"/>
     <img src="https://img.shields.io/badge/python_version-3.8 and higher-blueviolet?style=flat" alt="python version"/>
