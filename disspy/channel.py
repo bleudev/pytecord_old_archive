@@ -47,14 +47,15 @@ __all__: tuple = (
 class _SendingRestHandler:
     @staticmethod
     async def execute(id, payload, token):
-        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+        async with ClientSession(headers={'Authorization': f'Bot {token}',
+                                          'content-type': 'application/json'}) as session:
             _u = f"https://discord.com/api/v9/channels/{id}/messages"
 
-            async with s.post(_u, data=dumps(payload)) as p:
+            async with session.post(_u, data=dumps(payload)) as p:
                 j = await p.json()
 
                 return j
-    
+
     @staticmethod
     async def put_without_payload(url, token):
         async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
@@ -64,7 +65,7 @@ class _SendingRestHandler:
     async def delete(url, token):
         async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as session:
             await session.delete(url=url)
-    
+
     @staticmethod
     async def post_without_payload(url, token):
         async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as session:
@@ -132,16 +133,19 @@ class DisChannel:
         __eq__ have using in "==" operator
 
         :param other: Other object (DisChannel)
-        :return: bool -> if id of this object equals with id of other object :returns: True, else False:
+        :return: bool -> if id of this object equals with id of other object
+                         :returns: True, else False:
         """
         return self.id == other.id
 
-    async def send(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None, action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
+    async def send(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None,
+                   action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
         """
         Sending messages to discord channel
 
         :param content: str = None -> Content of message which will be sended (default is None)
-        :param embeds: List[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
+        :param embeds: List[DisEmbed] = None -> Embeds for message (DisEmbed - embed)
+                                                (default is None)
         :param action_row: ActionRow = None -> Action Row with components (default is None)
         :return DisMessage: Message which was sended
         """
@@ -192,22 +196,22 @@ class DisChannel:
 
     async def pin(self, message_id: int):
         _u = f"https://discord.com/api/v10/channels/{self.id}/pins/{message_id}"
-        
+
         await _SendingRestHandler.put_without_payload(_u, self._t)
-    
+
     async def unpin(self, message_id: int):
         _u = f"https://discord.com/api/v10/channels/{self.id}/pins/{message_id}"
-        
+
         await _SendingRestHandler.delete(_u, self._t)
 
     async def delete(self):
         _u = f"https://discord.com/api/v10/channels/{self.id}"
 
         await _SendingRestHandler.delete(_u, self._t)
-    
+
     async def typing(self):
         _u = f"https://discord.com/api/v10/channels/{self.id}/typing"
-        
+
         await _SendingRestHandler.post_without_payload(_u, self._t)
 
 
@@ -227,12 +231,14 @@ class DisDmChannel:
         self.id = _data["id"]
         self._t = token
 
-    async def send(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None, action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
+    async def send(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None,
+                   action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
         """
         Sending messages to discord channel
 
         :param content: str = None -> Content of message which will be sended (default is None)
-        :param embeds: List[DisEmbed] = None -> Embeds for message (DisEmbed - embed) (default is None)
+        :param embeds: List[DisEmbed] = None -> Embeds for message (DisEmbed - embed)
+                                                (default is None)
         :param action_row: ActionRow = None -> Action Row with components (default is None)
         :return DisMessage: Message which was sended
         """
