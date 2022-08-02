@@ -47,8 +47,6 @@ __all__: tuple = (
 class _SendingRestHandler:
     @staticmethod
     async def execute(id, payload, token):
-
-
         async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             _u = f"https://discord.com/api/v9/channels/{id}/messages"
 
@@ -56,9 +54,14 @@ class _SendingRestHandler:
                 j = await p.json()
 
                 return j
+    
+    @staticmethod
+    async def put_without_payload(url, token):
+        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+            await s.put(url)
 
     @staticmethod
-    async def delete_channel(url, token):
+    async def delete(url, token):
         async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as session:
             await session.delete(url=url)
     
@@ -187,10 +190,20 @@ class DisChannel:
 
         return DisMessage(d, self._t)
 
+    async def pin(self, message_id: int):
+        _u = f"https://discord.com/api/v10/channels/{self.id}/pins/{message_id}"
+        
+        await _SendingRestHandler.put_without_payload(_u, self._t)
+    
+    async def unpin(self, message_id: int):
+        _u = f"https://discord.com/api/v10/channels/{self.id}/pins/{message_id}"
+        
+        await _SendingRestHandler.delete(_u, self._t)
+
     async def delete(self):
         _u = f"https://discord.com/api/v10/channels/{self.id}"
 
-        await _SendingRestHandler.delete_channel(_u, self._t)
+        await _SendingRestHandler.delete(_u, self._t)
     
     async def typing(self):
         _u = f"https://discord.com/api/v10/channels/{self.id}/typing"
