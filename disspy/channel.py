@@ -21,17 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from disspy.embed import DisEmbed
-from disspy.message import DisMessage
-from disspy.guild import DisGuild
-from disspy.jsongenerators import _EmbedGenerator
-from disspy.ui import ActionRow
 
 from typing import (
     Optional,
     Union,
     List
 )
+
+from json import dumps
+from aiohttp import ClientSession
+
+
+from disspy.embed import DisEmbed
+from disspy.message import DisMessage
+from disspy.guild import DisGuild
+from disspy.jsongenerators import _EmbedGenerator
+from disspy.ui import ActionRow
 
 __all__: tuple = (
     "DisChannel",
@@ -42,10 +47,9 @@ __all__: tuple = (
 class _SendingRestHandler:
     @staticmethod
     async def execute(id, payload, token):
-        from aiohttp import ClientSession as CS
-        from json import dumps
 
-        async with CS(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
+
+        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
             _u = f"https://discord.com/api/v9/channels/{id}/messages"
 
             async with s.post(_u, data=dumps(payload)) as p:
@@ -55,10 +59,13 @@ class _SendingRestHandler:
 
     @staticmethod
     async def delete_channel(url, token):
-        from aiohttp import ClientSession
-
-        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
-            await s.delete(url=url)
+        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as session:
+            await session.delete(url=url)
+    
+    @staticmethod
+    async def post_without_payload(url, token):
+        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as session:
+            await session.post(url=url)
 
 
 class _GettingChannelData:
@@ -184,6 +191,11 @@ class DisChannel:
         _u = f"https://discord.com/api/v10/channels/{self.id}"
 
         await _SendingRestHandler.delete_channel(_u, self._t)
+    
+    async def typing(self):
+        _u = f"https://discord.com/api/v10/channels/{self.id}/typing"
+        
+        await _SendingRestHandler.post_without_payload(_u, self._t)
 
 
 class DisDmChannel:
