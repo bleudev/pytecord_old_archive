@@ -3,12 +3,19 @@
 
 <p align=center>
     <a href="https://pypi.org/project/disspy">
-        <img src="https://img.shields.io/pypi/v/disspy" alt="version"/>
+        <img src="https://img.shields.io/pypi/v/disspy?color=blueviolet" alt="version"/>
     </a>
-    <img src="https://img.shields.io/badge/lang-python-blueviolet?style=flat" alt="project language"/>
-    <img src="https://img.shields.io/badge/python_version-3.8 and higher-blueviolet?style=flat" alt="python version"/>
-    <img src="https://img.shields.io/badge/linting_tool-pylint-blueviolet?style=flat" alt="linting tool"/>
-    <img src="https://img.shields.io/badge/pylink_mark_(3.8)-8.33/10-blueviolet?style=flat" alt="pylint mark"/>
+    <a href="https://pypi.org/project/disspy">
+        <img src="https://img.shields.io/badge/lang-python-blueviolet?style=flat" alt="project language"/>
+    </a>
+    <a href="https://pypi.org/project/disspy">
+        <img src="https://img.shields.io/badge/python_version-3.8_|_3.9_|_3.10-blueviolet?style=flat" alt="python version"/>
+    </a>
+    <a href="https://github.com/PyCQA/pylint">
+        <img src="https://img.shields.io/badge/linting-pylint-blueviolet?style=flat" alt="linting"/></a>
+    <a href="https://github.com/itttgg/dispy/actions/workflows/pylint.yml">
+         <img src="https://img.shields.io/badge/pylink_mark_(3.8)-8.33/10-blueviolet?style=flat" alt="pylint mark"/>
+    </a>
     <a href='https://dispy-api-docs.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/dispy-api-docs/badge/?version=latest' alt='documentation Status' />
     </a>
