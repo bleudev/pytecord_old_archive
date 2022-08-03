@@ -37,37 +37,6 @@ if __name__ == '__main__':  # If file is started as a main file
     from asyncio import run  # Import asyncio.run
     
     run(test())  # Run async function
-    
-```
-# Mini Tutorial
-<p>What's token? For starting using this package, you must create bot in
-<a href="https://discord.com/developers/applications">Discord Developer Portal</a></p>
-<p><img src="imgs/1.png"/>Just click on the "New application" button</p>
-<p><img src="imgs/2.png"/></p><p>Come up with a name and click "Create" button</p>
-<p><img src="imgs/3.png"/></p><p>Put application id in your mind and click to the "Bot" button</p>
-<p><img src="imgs/4.png"/></p><p>Click the "Add bot" button</p>
-<p><img src="imgs/5.png"/></p><p>Click "Yes, do it!"</p>
-<p><img src="imgs/6.png"/></p><p>Click "Reset Token"</p>
-<p><img src="imgs/7.png"/></p><p>Copy token to clipboard</p>
-<p><img src="imgs/8.png"/></p>
-
-Now need open cmd and type "pip install --upgrade disspy" command and click the "Enter" button.
-After this, open your IDE or file editor, create new python file and type this code with your data:
-```python
-import disspy
-
-token = "TOKEN_FROM_SITE"
-application_id = 0000000  # Application id from your mind
-
-bot = disspy.DisBot(token=token, application_id=application_id)  # You created bot!
-```
-*This is creating bot in this library*
-
-Now you can add events to bot (for example, on_ready(), on_messagec() and other) and in end of file you must type this text:
-```python
-bot.run()
-```
-This command run bot. After this command you can see that bot is online. Tutorial is over!
 
 # Download package
 ## Download stable version
