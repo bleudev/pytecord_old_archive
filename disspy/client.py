@@ -42,7 +42,7 @@ import requests.exceptions
 
 # Disspy imports
 from disspy import errors
-from disspy._typing import (
+from disspy.typ import (
     TypeOf,
     Event
 )

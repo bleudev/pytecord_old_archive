@@ -27,9 +27,10 @@ from typing import (
     Union,
     List
 )
-
 from json import dumps
 from aiohttp import ClientSession
+from requests import get
+from disspy.typ import Url
 
 
 from disspy.embed import DisEmbed
@@ -46,47 +47,78 @@ __all__: tuple = (
 
 class _SendingRestHandler:
     @staticmethod
-    async def execute(id, payload, token):
+    async def execute(channel_id: int, payload: dict, token: str) -> dict:
+        """execute
+        Send messages in channels
+
+        Args:
+            channel_id (int): Channel id
+            payload (dict): Dict json
+            token (str): Bot token
+
+        Returns:
+            dict: Json output
+        """
         async with ClientSession(headers={'Authorization': f'Bot {token}',
                                           'content-type': 'application/json'}) as session:
-            _u = f"https://discord.com/api/v9/channels/{id}/messages"
+            _u = f"https://discord.com/api/v9/channels/{channel_id}/messages"
 
-            async with session.post(_u, data=dumps(payload)) as p:
-                j = await p.json()
+            async with session.post(_u, data=dumps(payload)) as data:
+                j = await data.json()
 
                 return j
 
     @staticmethod
-    async def put_without_payload(url, token):
-        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
-            await s.put(url)
+    async def put_without_payload(url: Url, token):
+        """put_without_payload
+        PUT method wtthout payload
+
+        Args:
+            url (Url): url for operation
+            token (str): Bot token
+        """
+        async with ClientSession(headers={'Authorization': f'Bot {token}',
+                                          'content-type': 'application/json'}) as session:
+            await session.put(url)
 
     @staticmethod
-    async def delete(url, token):
-        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as session:
+    async def delete(url: Url, token: str):
+        """delete
+        DELETE method
+
+        Args:
+            url (Url): url for operation
+            token (str): Bot token
+        """
+        async with ClientSession(headers={'Authorization': f'Bot {token}',
+                                          'content-type': 'application/json'}) as session:
             await session.delete(url=url)
 
     @staticmethod
-    async def post_without_payload(url, token):
-        async with ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as session:
+    async def post_without_payload(url: Url, token: str):
+        """post_without_payload
+        POST method wtthout payload
+
+        Args:
+            url (Url): url for operation
+            token (str): Bot token
+        """
+        async with ClientSession(headers={'Authorization': f'Bot {token}',
+                                          'content-type': 'application/json'}) as session:
             await session.post(url=url)
 
 
 class _GettingChannelData:
     @staticmethod
-    def execute(id, token):
-        from requests import get
-
-        _u = f"https://discord.com/api/v9/channels/{id}"
+    def execute(channel_id, token):
+        _u = f"https://discord.com/api/v10/channels/{channel_id}"
         _h = {'Authorization': f'Bot {token}'}
 
         return get(_u, headers=_h).json()
 
     @staticmethod
-    def fetch(id, token, message_id):
-        from requests import get
-
-        _u = f"https://discord.com/api/v9/channels/{id}/messages/{message_id}"
+    def fetch(channel_id, token, message_id):
+        _u = f"https://discord.com/api/v10/channels/{channel_id}/messages/{message_id}"
         _h = {'Authorization': f'Bot {token}'}
 
         return get(_u, headers=_h).json()
@@ -97,7 +129,7 @@ class _GettingGuildData:
     def execute(id, token):
         from requests import get
 
-        _u = f"https://discord.com/api/v9/guilds/{id}"
+        _u = f"https://discord.com/api/v10/guilds/{id}"
         _h = {'Authorization': f'Bot {token}'}
 
         return get(_u, headers=_h).json()

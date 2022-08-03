@@ -23,6 +23,9 @@ SOFTWARE.
 """
 
 
+from typing import NewType
+
+
 class TypeOf:
     """
     Class for typing in objects receiving in methods
@@ -56,3 +59,6 @@ class Event:
     """
     def __new__(cls, *args) -> list:
         return list(args)[1]
+
+
+Url = NewType("Url", str)
