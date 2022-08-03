@@ -67,6 +67,7 @@ pip install --upgrade .
 <p><a href="https://github.com/itttgg/dispy">https://github.com/itttgg/dispy</a> - GitHub repo</p>
 <p><a href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</a> - Project site on PyPi</p>
 <p><a href="https://dispy-api-docs.readthedocs.io/en/latest">https://dispy-api-docs.readthedocs.io/en/latest</a> - Site with docs for package</p>
+
 # Using
 ### Creating and running bot
 
