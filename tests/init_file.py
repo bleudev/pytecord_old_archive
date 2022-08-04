@@ -1,7 +1,5 @@
 import unittest
 
-print("For test")
-
 def import_disspy():
     import disspy
 
