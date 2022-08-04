@@ -22,7 +22,7 @@ jobs:
         python -m pip install --upgrade pip
     - name: Tests
       run: |
-        cd ..
-        cd ..
-        cd tests
+        cd \..
+        cd \..
+        cd \tests
         python init_file.py
