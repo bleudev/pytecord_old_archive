@@ -136,6 +136,9 @@ class DisBotEventType:
     ON_MESSAGEC: str = "messagec"
     ON_MESSAGEU: str = "messageu"
     ON_MESSAGED: str = "messaged"
+    ON_DMESSAGEC: str = "dmessagec"
+    ON_DMESSAGEU: str = "dmessageu"
+    ON_DMESSAGED: str = "dmessaged"
     ON_READY: str = "ready"
     ON_CLOSE: str = "close"
     ON_REACTION: str = "reaction"
@@ -150,7 +153,8 @@ class DisBotEventType:
         :return list: All varibles in this class
         """
         return [self.ON_READY, self.ON_MESSAGEC, self.ON_MESSAGEU,
-                self.ON_MESSAGED, self.ON_CLOSE, self.ON_REACTION,
+                self.ON_MESSAGED, self.ON_DMESSAGEC, self.ON_DMESSAGEU,
+                self.ON_DMESSAGED, self.ON_CLOSE, self.ON_REACTION,
                 self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
 
     def __str__(self) -> str:
