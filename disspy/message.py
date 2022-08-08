@@ -37,6 +37,8 @@ from typing import (
     Any,
     List
 )
+
+from enum import IntEnum, unique
 from json import dumps
 from aiohttp import ClientSession
 
@@ -45,7 +47,9 @@ from disspy.jsongenerators import _EmbedGenerator
 from disspy.reaction import DisEmoji, DisOwnReaction
 
 
-class _MessageType:
+@final
+@unique
+class _MessageType(IntEnum):
     DEFAULT: ClassVar[int] = 0
     RECIPIENT_ADD: ClassVar[int] = 1
     RECIPIENT_REMOVE: ClassVar[int] = 2

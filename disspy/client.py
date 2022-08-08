@@ -33,6 +33,7 @@ from typing import (
 )
 
 # Package imports
+from enum import Enum, unique
 from asyncio import run
 from datetime import datetime
 from time import mktime
@@ -91,7 +92,8 @@ _all_basic_events = [
 
 
 @final
-class DisBotStatus:
+@unique
+class DisBotStatus(Enum):
     """
     Class for adding discord status for bot
 
@@ -121,7 +123,8 @@ class DisBotStatus:
 
 
 @final
-class DisBotEventType:
+@unique
+class DisBotEventType(Enum):
     """
     This class created for simplification adding events to DisBot.
     This is class, not an object
@@ -156,14 +159,6 @@ class DisBotEventType:
                 self.ON_MESSAGED, self.ON_DMESSAGEC, self.ON_DMESSAGEU,
                 self.ON_DMESSAGED, self.ON_CLOSE, self.ON_REACTION,
                 self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
-
-    def __str__(self) -> str:
-        """
-        It is using in str() method
-        -----
-        :return str: Default value of event (on_ready event)
-        """
-        return self.ON_READY
 
 
 @final
@@ -354,7 +349,7 @@ class DisBot:
                     "moved invalid event type!"
             self.logger.log(_err)
             raise errors.BotEventTypeError("Invalid type of event!")
-    
+
     def on_ready(self) -> Wrapper:
         """on_ready
         Method for changing on_ready() event
@@ -362,10 +357,10 @@ class DisBot:
         Returns:
             Wrapper: function named wrapper
         """
-        
+
         def wrapper(func):
             self._ons["ready"] = func
-        
+
         return wrapper
 
     def on_message(self, event_type: str) -> Wrapper:
