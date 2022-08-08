@@ -38,7 +38,7 @@ from typing import (
     List
 )
 
-from enum import IntEnum, unique
+from enum import Enum, unique, auto
 from json import dumps
 from aiohttp import ClientSession
 
@@ -47,32 +47,40 @@ from disspy.jsongenerators import _EmbedGenerator
 from disspy.reaction import DisEmoji, DisOwnReaction
 
 
+class _AutoValue(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        if count > 12:
+            return count + 1
+        else:
+            return count
+
 @final
 @unique
-class _MessageType(IntEnum):
-    DEFAULT: ClassVar[int] = 0
-    RECIPIENT_ADD: ClassVar[int] = 1
-    RECIPIENT_REMOVE: ClassVar[int] = 2
-    CALL: ClassVar[int] = 3
-    CHANNEL_NAME_CHANGE: ClassVar[int] = 4
-    CHANNEL_ICON_CHANGE: ClassVar[int] = 5
-    CHANNEL_PINNED_MESSAGE: ClassVar[int] = 6
-    GUILD_MEMBER_JOIN: ClassVar[int] = 7
-    USER_PREMIUM_GUILD_SUBSCRIPTION: ClassVar[int] = 8
-    USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1: ClassVar[int] = 9
-    USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2: ClassVar[int] = 10
-    USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3: ClassVar[int] = 11
-    CHANNEL_FOLLOW_ADD: ClassVar[int] = 12
-    GUILD_DISCOVERY_DISQUALIFIED: ClassVar[int] = 14
-    GUILD_DISCOVERY_REQUALIFIED: ClassVar[int] = 15
-    GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING: ClassVar[int] = 16
-    GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING: ClassVar[int] = 17
-    THREAD_CREATED: ClassVar[int] = 18
-    REPLY: ClassVar[int] = 19
-    CHAT_INPUT_COMMAND: ClassVar[int] = 20
-    THREAD_STARTER_MESSAGE: ClassVar[int] = 21
-    GUILD_INVITE_REMINDER: ClassVar[int] = 22
-    CONTEXT_MENU_COMMAND: ClassVar[int] = 23
+class _MessageType(_AutoValue):
+    DEFAULT: ClassVar[int] = auto()
+    RECIPIENT_ADD: ClassVar[int] = auto()
+    RECIPIENT_REMOVE: ClassVar[int] = auto()
+    CALL: ClassVar[int] = auto()
+    CHANNEL_NAME_CHANGE: ClassVar[int] = auto()
+    CHANNEL_ICON_CHANGE: ClassVar[int] = auto()
+    CHANNEL_PINNED_MESSAGE: ClassVar[int] = auto()
+    GUILD_MEMBER_JOIN: ClassVar[int] = auto()
+    USER_PREMIUM_GUILD_SUBSCRIPTION: ClassVar[int] = auto()
+    GUILD_BOOST_TIER_1: ClassVar[int] = auto()
+    GUILD_BOOST_TIER_2: ClassVar[int] = auto()
+    GUILD_BOOST_TIER_3: ClassVar[int] = auto()
+    CHANNEL_FOLLOW_ADD: ClassVar[int] = auto()
+    GUILD_DISCOVERY_DISQUALIFIED: ClassVar[int] = auto()
+    GUILD_DISCOVERY_REQUALIFIED: ClassVar[int] = auto()
+    GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING: ClassVar[int] = auto()
+    GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING: ClassVar[int] = auto()
+    THREAD_CREATED: ClassVar[int] = auto()
+    REPLY: ClassVar[int] = auto()
+    CHAT_INPUT_COMMAND: ClassVar[int] = auto()
+    THREAD_STARTER_MESSAGE: ClassVar[int] = auto()
+    GUILD_INVITE_REMINDER: ClassVar[int] = auto()
+    CONTEXT_MENU_COMMAND: ClassVar[int] = auto()
+    AUTO_MODERATION_ACTION: ClassVar[int] = auto()
 
 
 @final
