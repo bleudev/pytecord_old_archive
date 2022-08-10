@@ -1,5 +1,5 @@
 @echo off
-pip install --upgrade --user pip
+python.exe -m pip install --upgrade pip
 pip install setuptools twine
 python setup.py sdist
 
