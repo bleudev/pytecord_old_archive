@@ -121,6 +121,9 @@ class DisBotStatus(Enum):
         """
         return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
 
+    def __str__(self) -> str:
+        return self.ONLINE
+
 
 @final
 @unique
@@ -159,6 +162,9 @@ class DisBotEventType(Enum):
                 self.ON_MESSAGED, self.ON_DMESSAGEC, self.ON_DMESSAGEU,
                 self.ON_DMESSAGED, self.ON_CLOSE, self.ON_REACTION,
                 self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
+    
+    def __str__(self) -> str:
+        return self.ON_READY
 
 
 @final

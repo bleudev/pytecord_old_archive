@@ -41,14 +41,7 @@ class TypeOf:
         :param kwargs: No
         :return type:
         """
-        _type: type = list(args)[0]
-        _obj: _type = _type()
-        _all: list = _obj.__all__()
-
-        if str(_all[0]).isdigit():
-            return int
-        else:
-            return str
+        return int if str(list(args)[0]).isdigit() else str
 
 
 class Event:
