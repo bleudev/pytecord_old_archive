@@ -25,8 +25,10 @@ SOFTWARE.
 from typing import (
     Optional,
     Union,
-    List
+    List,
+    NoReturn
 )
+
 from json import dumps
 from aiohttp import ClientSession
 from requests import get
@@ -127,13 +129,55 @@ class _GettingChannelData:
 class _GettingGuildData:
     @staticmethod
     def execute(id, token):
-        from requests import get
-
         _u = f"https://discord.com/api/v10/guilds/{id}"
         _h = {'Authorization': f'Bot {token}'}
 
         return get(_u, headers=_h).json()
 
+
+class _ShowonlyContext:
+    def __init__(self, message: DisMessage, token: str, channel_id: int) -> NoReturn:
+        self._t = token
+        self._channel_id = int(channel_id)
+
+        self._content = message.content
+
+        self._embeds = message.embeds
+
+    async def _send(self, payload) -> DisMessage:
+        d = await _SendingRestHandler.execute(self._channel_id, payload, self._t)
+
+        return DisMessage(d, self._t)
+
+    async def content(self) -> DisMessage:
+        """content
+        Send only content
+
+        Returns:
+            DisMessage: Showed message
+        """
+        _payload = {
+            "content": self._content
+        }
+
+        _m = await self._send(_payload)
+
+        return _m
+
+    async def embeds(self) -> DisMessage:
+        """embeds
+        Send only embeds
+
+        Returns:
+            DisMessage: Showed message
+        """
+        _payload = {
+            "embeds": self._embeds
+        }
+
+        _m = await self._send(_payload)
+
+        return _m
 
 class DisChannel:
     """
@@ -215,6 +259,40 @@ class DisChannel:
         else:
             return None
 
+    async def show(self, message: DisMessage):
+        """show
+        Send all info about message in channel
+
+        Args:
+            message (DisMessage): Message for showing
+
+        Returns:
+            DisMessage: Showed message
+        """
+        json_data = {}
+
+        if message.content:
+            json_data.setdefault("content", message.content)
+
+        if message.embeds:
+            json_data.setdefault("embeds", message.embeds)
+
+        d = await _SendingRestHandler.execute(self.id, json_data, self._t)
+
+        return DisMessage(d, self._t)
+
+    def showonly(self, message: DisMessage) -> _ShowonlyContext:
+        """showonly
+        show() method, but send only embeds or content
+
+        Args:
+            message (DisMessage): Message for showing
+
+        Returns:
+            _ShowonlyContext: Context for showing
+        """
+        return _ShowonlyContext(message, self._t, self.id)
+
     def fetch(self, id: int) -> DisMessage:
         """
         Fetch message
@@ -227,21 +305,39 @@ class DisChannel:
         return DisMessage(d, self._t)
 
     async def pin(self, message_id: int):
+        """pin
+        Pin message by id
+
+        Args:
+            message_id (int): Message id
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}/pins/{message_id}"
 
         await _SendingRestHandler.put_without_payload(_u, self._t)
 
     async def unpin(self, message_id: int):
+        """unpin
+        Unpin message by id
+
+        Args:
+            message_id (int): Message id
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}/pins/{message_id}"
 
         await _SendingRestHandler.delete(_u, self._t)
 
     async def delete(self):
+        """delete
+        Delete channel
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}"
 
         await _SendingRestHandler.delete(_u, self._t)
 
     async def typing(self):
+        """typing
+        Show typing indicator in channel
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}/typing"
 
         await _SendingRestHandler.post_without_payload(_u, self._t)

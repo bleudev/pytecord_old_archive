@@ -137,6 +137,26 @@ class DisMessage:
         self.channel = DisChannel(_data["channel_id"], _token)
 
         self.content: str = str(_data["content"])
+        
+        if _data["embeds"]:
+            _j = _data["embeds"]
+            
+            self.embeds = []
+            
+            for i in _j:
+                _e = None
+                
+                if i["footer"]["text"]:
+                    _e = DisEmbed(i["title"], i["description"], i["color"], i["footer"]["text"])
+                else:
+                    _e = DisEmbed(i["title"], i["description"], i["color"])
+                
+                if i["fields"]:
+                    for i2 in i["fields"]:
+                        try:
+                            _e.add_field(i2["name"], i2["value"], i2["inline"])
+                        except KeyError:
+                            _e.add_field(i2["name"], i2["value"])
 
         self.id: int = int(_data["id"])
         self._type: int = int(_data["type"])
