@@ -30,7 +30,7 @@ with open("README.md", "r", encoding="utf-8") as mdf:
 requires = ['aiohttp>=3.6.0,<4', 'requests', 'typing', 'asyncio', 'colorama']
 
 
-__version__ = "0.5.3.2"
+__version__ = "0.5.3.3"
 
 
 setup(
