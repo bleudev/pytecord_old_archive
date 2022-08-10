@@ -40,6 +40,8 @@ from typing import (
     Generic,
     final
 )
+
+from enum import Enum, auto
 from datetime import datetime
 from time import mktime
 from aiohttp import ClientSession
@@ -271,6 +273,30 @@ class _FlowEvent:
             }
 
 
+class _AutoFlags(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return 1 << count
+
+class _Intents(_AutoFlags):
+    GUILDS = auto()
+    GUILD_MEMBERS = auto()
+    GUILD_BANS = auto()
+    GUILD_EMOJIS_AND_STICKERS = auto()
+    GUILD_INTEGRATIONS = auto()
+    GUILD_WEBHOOKS = auto()
+    GUILD_INVITES = auto()
+    GUILD_VOICE_STATES = auto()
+    GUILD_PRESENCES = auto()
+    GUILD_MESSAGES = auto()
+    GUILD_MESSAGE_REACTIONS = auto()
+    GUILD_MESSAGE_TYPING = auto()
+    DIRECT_MESSAGES = auto()
+    DIRECT_MESSAGE_REACTIONS = auto()
+    DIRECT_MESSAGE_TYPING  = auto()
+    MESSAGE_CONTENT = auto()
+    GUILD_SCHEDULED_EVENTS = auto()
+
+
 class DisFlags:
     """
     The class for using intents in bots
@@ -294,7 +320,7 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        return 0
+        return _Intents.GUILD_INTEGRATIONS
 
     @staticmethod
     def messages() -> int:
@@ -308,7 +334,11 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        return 55808
+
+        _typings = _Intents.GUILD_MESSAGE_TYPING + _Intents.DIRECT_MESSAGE_TYPING
+        _messages = _Intents.GUILD_MESSAGES + _Intents.DIRECT_MESSAGES
+
+        return _Intents.GUILD_INTEGRATIONS + _typings + _messages + _Intents.MESSAGE_CONTENT
 
     @staticmethod
     def reactions() -> int:
@@ -319,7 +349,9 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        return 9216
+        _reactions = _Intents.GUILD_MESSAGE_REACTIONS + _Intents.DIRECT_MESSAGE_REACTIONS
+
+        return _Intents.GUILD_INTEGRATIONS + _reactions
 
     @staticmethod
     def all() -> int:
@@ -345,7 +377,12 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        return 3276799
+        result = 0
+
+        for i in _Intents:
+            result += i.value
+
+        return result
 
 
 T = TypeVar("T", str, int)
