@@ -25,8 +25,10 @@ SOFTWARE.
 from typing import (
     Optional,
     Union,
-    List
+    List,
+    NoReturn
 )
+
 from json import dumps
 from aiohttp import ClientSession
 from requests import get
@@ -135,6 +137,38 @@ class _GettingGuildData:
         return get(_u, headers=_h).json()
 
 
+class _ShowonlyContext:
+    def __init__(self, message: DisMessage, token: str, channel_id: int) -> NoReturn:
+        self._t = token
+        self._channel_id = int(channel_id)
+        
+        self._content = message.content
+        
+        self._embeds = message.embeds
+    
+    async def _send(self, payload):
+        d = await _SendingRestHandler.execute(self._channel_id, payload, self._t)
+        
+        return DisMessage(d, self._t)
+    
+    async def content(self):
+        _payload = {
+            "content": self._content
+        }
+        
+        _m = await self._send(_payload)
+        
+        return _m
+
+    async def embeds(self):
+        _payload = {
+            "embeds": self._embeds
+        }
+        
+        _m = await self._send(_payload)
+        
+        return _m
+
 class DisChannel:
     """
     The class for sending messages to discord channels and fetching messages in channels
@@ -227,6 +261,9 @@ class DisChannel:
         d = await _SendingRestHandler.execute(self.id, json_data, self._t)
 
         return DisMessage(d, self._t)
+    
+    def showonly(self, message: DisMessage):
+        return _ShowonlyContext(message, self._t, self.id)
         
     def fetch(self, id: int) -> DisMessage:
         """
