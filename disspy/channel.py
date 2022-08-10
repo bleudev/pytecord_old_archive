@@ -221,6 +221,9 @@ class DisChannel:
         if message.content:
             json_data.setdefault("content", message.content)
         
+        if message.embeds:
+            json_data.setdefault("embeds", message.embeds)
+        
         d = await _SendingRestHandler.execute(self.id, json_data, self._t)
 
         return DisMessage(d, self._t)
