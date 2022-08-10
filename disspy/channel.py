@@ -214,7 +214,17 @@ class DisChannel:
             return DisMessage(d, self._t)
         else:
             return None
+    
+    async def show(self, message: DisMessage):
+        json_data = {}
+        
+        if message.content:
+            json_data.setdefault("content", message.content)
+        
+        d = await _SendingRestHandler.execute(self.id, json_data, self._t)
 
+        return DisMessage(d, self._t)
+        
     def fetch(self, id: int) -> DisMessage:
         """
         Fetch message
