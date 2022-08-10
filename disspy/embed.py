@@ -108,15 +108,17 @@ class DisEmbed:
         self.title: str = title
         self.description: str = description
         self.color: str = color
-        self.footer: str = footer
+        self.footer: str = {
+            "text": footer
+        }
         self.author: dict = None
         self.image: dict = None
         self.thumbnail: dict = None
 
         self.fields: List[DisField] = []
 
-    def add_field(self, title: str, value: str) -> NoReturn:
-        self.fields.append(DisField(title, value))
+    def add_field(self, name: str, value: str, inline: bool = True) -> NoReturn:
+        self.fields.append(DisField(name, value, inline))
 
     def add_field_from_obj(self, field: DisField) -> NoReturn:
         self.fields.append(field)
