@@ -31,6 +31,8 @@ from typing import (
     List
 )
 
+from enum import Enum
+
 from disspy.reaction import DisEmoji
 from disspy import errors
 
@@ -55,31 +57,31 @@ class Component:
                  min_length=None, max_length=None, placeholder=None, required=None) -> NoReturn:
         if ctype == 1:
             raise errors.MessageComponentIsBlocked("Action Rows don't can to use by users")
-        else:
-            self.type = ctype
-            self.custom_id = custom_id
 
-            if ctype == 2:
-                if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
-                    raise RuntimeError("Error with creating components!")
-                else:
-                    self.label = label
-                    self.style = style
-                    self.url = url
+        self.type = ctype
+        self.custom_id = custom_id
 
-            elif ctype == 3:
-                self.options = options
-                self.min_values = min_values
-                self.max_values = max_values
-                self.placeholder = placeholder
+        if ctype == 2:
+            if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
+                raise RuntimeError("Error with creating components!")
 
-            elif ctype == 4:
-                self.style = style
-                self.label = label
-                self.min_length = min_length
-                self.max_length = max_length
-                self.placeholder = placeholder
-                self.required = required
+            self.label = label
+            self.style = style
+            self.url = url
+
+        elif ctype == 3:
+            self.options = options
+            self.min_values = min_values
+            self.max_values = max_values
+            self.placeholder = placeholder
+
+        elif ctype == 4:
+            self.style = style
+            self.label = label
+            self.min_length = min_length
+            self.max_length = max_length
+            self.placeholder = placeholder
+            self.required = required
 
 
 class Button(Component):
@@ -90,13 +92,13 @@ class Button(Component):
                  custom_id: Optional[Text] = None, ) -> NoReturn:
         if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
             raise RuntimeError("Error with creating buttons!")
-        else:
-            if style is None:  # Default
-                style = 1  # Blue
-            super().__init__(2, custom_id, label, style, url)
+
+        if style is None:  # Default
+            style = 1  # Blue
+        super().__init__(2, custom_id, label, style, url)
 
 
-class ButtonStyle:
+class ButtonStyle(Enum):
     """
     Button styles from official discord docs
     """
@@ -197,7 +199,7 @@ class _ComponentGenerator:
                 "style": component.style,
                 "url": component.url
             }
-        elif component.type == 3:  # Select Menu
+        if component.type == 3:  # Select Menu
             return {
                 "type": component.type,
                 "custom_id": component.custom_id,
@@ -206,7 +208,7 @@ class _ComponentGenerator:
                 "placeholder": component.placeholder,
                 "options": component.options
             }
-        elif component.type == 4:  # Text Input
+        if component.type == 4:  # Text Input
             return {
                 "type": component.type,
                 "custom_id": component.custom_id,
