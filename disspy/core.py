@@ -338,8 +338,9 @@ class DisFlags:
 
         _typings = _Intents.GUILD_MESSAGE_TYPING.value + _Intents.DIRECT_MESSAGE_TYPING.value
         _messages = _Intents.GUILD_MESSAGES.value + _Intents.DIRECT_MESSAGES.value
+        _content = _Intents.MESSAGE_CONTENT.value
 
-        return _Intents.GUILD_INTEGRATIONS.value + _typings + _messages + _Intents.MESSAGE_CONTENT.value
+        return _Intents.GUILD_INTEGRATIONS.value + _typings + _messages + _content
 
     @staticmethod
     def reactions() -> int:
@@ -350,7 +351,8 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        _reactions = _Intents.GUILD_MESSAGE_REACTIONS.value + _Intents.DIRECT_MESSAGE_REACTIONS.value
+        _dm_reactions = _Intents.DIRECT_MESSAGE_REACTIONS.value
+        _reactions = _Intents.GUILD_MESSAGE_REACTIONS.value + _dm_reactions
 
         return _Intents.GUILD_INTEGRATIONS.value + _reactions
 
@@ -467,6 +469,8 @@ class Rest:
 
             return get(url=_url,
                        headers=self._headers).json()
+
+        return None
 
     def fetch(self, channel_id, message_id) -> JsonOutput:
         """fetch()

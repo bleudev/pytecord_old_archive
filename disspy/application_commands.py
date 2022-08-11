@@ -347,7 +347,7 @@ class OptionArgs:
                 return _a.value
         return None
 
-    def getString(self, name: str) -> Union[str, None]:
+    def get_string(self, name: str) -> Union[str, None]:
         """
         Get string value from name
 
@@ -359,7 +359,7 @@ class OptionArgs:
                 return str(_a.value)
         return None
 
-    def getInteger(self, name: str) -> Union[int, None]:
+    def get_integer(self, name: str) -> Union[int, None]:
         """
         Get integer value from na1me
 
@@ -371,7 +371,7 @@ class OptionArgs:
                 return int(_a.value)
         return None
 
-    def getNumber(self, name: str) -> Union[int, None]:
+    def get_number(self, name: str) -> Union[int, None]:
         """
         Get number value from name
 
@@ -383,7 +383,7 @@ class OptionArgs:
                 return int(_a.value)
         return None
 
-    def getBoolean(self, name: str) -> Union[bool, None]:
+    def get_boolean(self, name: str) -> Union[bool, None]:
         """
         Get boolean value from name
 

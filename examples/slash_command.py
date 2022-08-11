@@ -10,7 +10,7 @@ bot = disspy.DisBot(token="TOKEN", application_id=0)  # Create bot
                                           option_type=disspy.OptionType.STRING,
                                           required=True)])
 async def foo(ctx: disspy.Context, args: disspy.OptionArgs):
-    print(args.getString("foo"))
+    print(args.get_string("foo"))
 
     await ctx.send(args.get("foo"))
 
