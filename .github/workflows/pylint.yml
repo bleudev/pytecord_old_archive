@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint
+        pip install pylint aiohttp>=3.6.0,<4 requests asyncio colorama
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files 'disspy/*.py')

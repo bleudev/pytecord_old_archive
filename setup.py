@@ -27,7 +27,7 @@ from setuptools import setup
 with open("README.md", "r", encoding="utf-8") as mdf:
     long_description = mdf.read()
 
-requires = ['aiohttp>=3.6.0,<4', 'requests', 'typing', 'asyncio', 'colorama']
+requires = ['aiohttp>=3.6.0,<4', 'requests', 'asyncio', 'colorama']
 
 
 __version__ = "0.5.3.3"

@@ -1,5 +1,4 @@
 aiohttp>=3.6.0,<4
 requests
-typing
 asyncio
 colorama
