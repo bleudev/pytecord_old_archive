@@ -1,10 +1,7 @@
-import unittest
+"""
+Test import
+"""
 
-def import_disspy():
-    import disspy
+import disspy
 
-class TestInit(unittest.TestCase):
-    def test(self):
-        self.assertRaises(Exception, import_disspy)
-
-unittest.main()
+print("Success: %s" % "import disspy")
