@@ -27,8 +27,8 @@ class _EmbedGenerator:
     def __new__(cls, obj):
         fields_jsons = []
 
-        for f in obj.fields:
-            fields_jsons.append(_FieldGenerator(f))
+        for field in obj.fields:
+            fields_jsons.append(_FieldGenerator(field))
 
         return {
             "title": obj.title,
@@ -54,7 +54,7 @@ class _FieldGenerator:
 
 class _OptionGenerator:
     def __new__(cls, obj):
-        if obj.option_type == 3 or obj.option_type == 4 or obj.option_type == 10 and obj.choices:
+        if obj.option_type in [3, 4, 10] and obj.choices:
             return {
                 "name": obj.name,
                 "description": obj.description,
@@ -62,10 +62,10 @@ class _OptionGenerator:
                 "choices": obj.choices,
                 "required": obj.required
             }
-        else:
-            return {
-                "name": obj.name,
-                "description": obj.description,
-                "type": obj.option_type,
-                "required": obj.required
-            }
+
+        return {
+            "name": obj.name,
+            "description": obj.description,
+            "type": obj.option_type,
+            "required": obj.required
+        }

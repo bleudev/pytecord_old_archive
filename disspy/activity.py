@@ -83,11 +83,11 @@ class Activity:
                 "type": self.activity_type,
                 "url": self.url
             }
-        else:
-            return {
-                "name": self.name,
-                "type": self.activity_type
-            }
+
+        return {
+            "name": self.name,
+            "type": self.activity_type
+        }
 
 
 class ActivityType:

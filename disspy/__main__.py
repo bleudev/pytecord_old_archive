@@ -39,7 +39,7 @@ _helpcommand = f"""
                 {colorama.Fore.YELLOW}-no-color, -NC ->{colorama.Fore.RESET} Print info without colorama
                 """
 
-_helpcommand_no_color = """
+_HELPCOMMAND_NO_COLOR = """
             Commands:
                 -help, -H -> Command with information about other commands
                 -version, -V -> Version of package
@@ -85,7 +85,7 @@ try:
                             """)
             # -no-color
             elif _param in ['-no-color', '-NC']:
-                print(_helpcommand_no_color)
+                print(_HELPCOMMAND_NO_COLOR)
             else:
                 print(_helpcommand)
         except IndexError:

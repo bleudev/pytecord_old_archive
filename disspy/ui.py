@@ -199,6 +199,7 @@ class _ComponentGenerator:
                 "style": component.style,
                 "url": component.url
             }
+
         if component.type == 3:  # Select Menu
             return {
                 "type": component.type,
@@ -208,6 +209,7 @@ class _ComponentGenerator:
                 "placeholder": component.placeholder,
                 "options": component.options
             }
+
         if component.type == 4:  # Text Input
             return {
                 "type": component.type,
@@ -219,8 +221,8 @@ class _ComponentGenerator:
                 "placeholder": component.placeholder,
                 "required": component.required
             }
-        else:
-            return {}
+
+        return {}
 
 
 class ActionRow:

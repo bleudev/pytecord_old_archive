@@ -52,8 +52,8 @@ class _AutoValue(Enum):
     def _generate_next_value_(name, start, count, last_values):
         if count > 12:
             return count + 1
-        else:
-            return count
+
+        return count
 
 @final
 @unique
