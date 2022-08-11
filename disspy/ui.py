@@ -219,6 +219,8 @@ class _ComponentGenerator:
                 "placeholder": component.placeholder,
                 "required": component.required
             }
+        else:
+            return {}
 
 
 class ActionRow:
