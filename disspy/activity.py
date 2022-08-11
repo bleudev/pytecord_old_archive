@@ -43,6 +43,11 @@ import disspy.errors as errors
 Url = NewType("Url", str)
 
 
+def _raise_url_error():
+    _m = "Only https://youtube.com/ or https://twitch.tv/ links supported in Discord API"
+    raise errors.ActivityUrlError(_m)
+
+
 class Activity:
     """
     Activity class for changing activities in Discord
@@ -51,19 +56,19 @@ class Activity:
         self.name: str = name
         self.activity_type: int = activity_type
         self.url = None
-        
+
         if self.activity_type == 4:  # Custom activity
             raise RuntimeError("Custom activity don't supported!")
-        
+
         if url:
             if self.activity_type == 1:  # Streaming
                 if url.startswith('https://twitch.tv/') or url.startswith('https://youtube.com/'):
                     self.url = url
                 else:
-                    raise errors.ActivityUrlError("Only https://youtube.com/ or https://twitch.tv/ links supported")
+                    _raise_url_error()
             else:
                 raise errors.JsonError("Url is supported only for streaming status")
-            
+
 
     def json(self) -> Dict[str, Any]:
         """
