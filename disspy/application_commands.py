@@ -330,15 +330,15 @@ class OptionArgs:
     def isempty(self) -> bool:
         """
         Returns True or False when is empty is True or False
-        -----
+
         :return bool: Is empty?
         """
         return len(self._v) == 0
 
-    def get(self, name: str) -> Any:
+    def get(self, name: str) -> Union[Any, None]:
         """
         Get value from name
-        -----
+
         :param name: Name of option
         :return Any: Option value
         """
@@ -346,10 +346,10 @@ class OptionArgs:
             if _a.name == name:
                 return _a.value
 
-    def getString(self, name: str) -> str:
+    def getString(self, name: str) -> Union[str, None]:
         """
         Get string value from name
-        -----
+
         :param name: Name of option
         :return str: Option value (always string)
         """
@@ -357,10 +357,10 @@ class OptionArgs:
             if _a.name == name and _a.type == OptionType.STRING:
                 return str(_a.value)
 
-    def getInteger(self, name: str) -> int:
+    def getInteger(self, name: str) -> Union[int, None]:
         """
         Get integer value from na1me
-        -----
+
         :param name: Name of option
         :return int: Option value (always integer)
         """
@@ -368,10 +368,10 @@ class OptionArgs:
             if _a.name == name and _a.type == OptionType.INTEGER:
                 return int(_a.value)
 
-    def getNumber(self, name: str) -> int:
+    def getNumber(self, name: str) -> Union[int, None]:
         """
         Get number value from name
-        -----
+
         :param name: Name of option
         :return int: Option value (always integer)
         """
@@ -379,10 +379,10 @@ class OptionArgs:
             if _a.name == name and _a.type == OptionType.NUMBER:
                 return int(_a.value)
 
-    def getBoolean(self, name: str) -> bool:
+    def getBoolean(self, name: str) -> Union[bool, None]:
         """
         Get boolean value from name
-        -----
+
         :param name: Name of option
         :return bool: Option value (always boolean)
         """
