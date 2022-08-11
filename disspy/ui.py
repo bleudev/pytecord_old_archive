@@ -158,12 +158,12 @@ class SelectMenu(Component):
     """
     def __init__(self, custom_id: str, options: List[SelectMenuOption], placeholder: str,
                  min_values: int, max_values: int) -> NoReturn:
-        oj = []
+        options_json = []
 
         for i in options:
-            oj.append(i.json())
+            options_json.append(i.json())
 
-        super().__init__(3, custom_id=custom_id, options=oj, min_values=min_values,
+        super().__init__(3, custom_id=custom_id, options=options_json, min_values=min_values,
                          max_values=max_values, placeholder=placeholder)
 
 
@@ -189,34 +189,34 @@ class TextInputStyle:
 
 
 class _ComponentGenerator:
-    def __new__(cls, c: Component) -> Dict:
-        if c.type == 2:  # Buttons
+    def __new__(cls, component: Component) -> Dict:
+        if component.type == 2:  # Buttons
             return {
-                "type": c.type,
-                "custom_id": c.custom_id,
-                "label": c.label,
-                "style": c.style,
-                "url": c.url
+                "type": component.type,
+                "custom_id": component.custom_id,
+                "label": component.label,
+                "style": component.style,
+                "url": component.url
             }
-        elif c.type == 3:  # Select Menu
+        elif component.type == 3:  # Select Menu
             return {
-                "type": c.type,
-                "custom_id": c.custom_id,
-                "min_values": c.min_values,
-                "max_values": c.max_values,
-                "placeholder": c.placeholder,
-                "options": c.options
+                "type": component.type,
+                "custom_id": component.custom_id,
+                "min_values": component.min_values,
+                "max_values": component.max_values,
+                "placeholder": component.placeholder,
+                "options": component.options
             }
-        elif c.type == 4:  # Text Input
+        elif component.type == 4:  # Text Input
             return {
-                "type": c.type,
-                "custom_id": c.custom_id,
-                "style": c.style,
-                "label": c.label,
-                "min_length": c.min_length,
-                "max_length": c.max_length,
-                "placeholder": c.placeholder,
-                "required": c.required
+                "type": component.type,
+                "custom_id": component.custom_id,
+                "style": component.style,
+                "label": component.label,
+                "min_length": component.min_length,
+                "max_length": component.max_length,
+                "placeholder": component.placeholder,
+                "required": component.required
             }
 
 
@@ -231,15 +231,15 @@ class ActionRow:
         }]
         self._b = bot
 
-    def add(self, c: Component):
+    def add(self, component: Component):
         """add()
 
         Args:
-            c (Component): Component
+            component (Component): Component
         """
         def wrapper(func):
-            self.json[0]["components"].append(_ComponentGenerator(c))
+            self.json[0]["components"].append(_ComponentGenerator(component))
             self._b = self._b
-            self._b.api.comsevs[c.custom_id] = func
+            self._b.api.comsevs[component.custom_id] = func
 
         return wrapper
