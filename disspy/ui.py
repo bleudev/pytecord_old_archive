@@ -56,27 +56,26 @@ class Component:
         if ctype == 1:
             raise errors.MessageComponentIsBlocked("Action Rows don't can to use by users")
         else:
+            self.type = ctype
+            self.custom_id = custom_id
+
             if ctype == 2:
                 if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
                     raise RuntimeError("Error with creating components!")
                 else:
-                    self.type = ctype
-                    self.custom_id = custom_id
                     self.label = label
                     self.style = style
                     self.url = url
+
             elif ctype == 3:
-                self.type = ctype
-                self.custom_id = custom_id
                 self.options = options
                 self.min_values = min_values
                 self.max_values = max_values
                 self.placeholder = placeholder
+
             elif ctype == 4:
-                self.type = ctype
                 self.style = style
                 self.label = label
-                self.custom_id = custom_id
                 self.min_length = min_length
                 self.max_length = max_length
                 self.placeholder = placeholder
