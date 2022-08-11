@@ -122,7 +122,7 @@ class DisBotStatus(Enum):
         return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
 
     def __str__(self) -> str:
-        return self.ONLINE
+        return "online"
 
 
 @final
@@ -162,22 +162,15 @@ class DisBotEventType(Enum):
                 self.ON_MESSAGED, self.ON_DMESSAGEC, self.ON_DMESSAGEU,
                 self.ON_DMESSAGED, self.ON_CLOSE, self.ON_REACTION,
                 self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
-    
+
     def __str__(self) -> str:
-        return self.ON_READY
+        return "ready"
 
 
 @final
 class DisBot:
     """
     Class for accessing and sending information in Discord API
-    -----
-    :var token: Token for accessing and sending info
-                (Token from Discord Developer Portal)
-    :var application_id: Application id of bot
-                         (from Discord Developer Portal)
-    :var flags: Flags (Intents) for bot
-    :var user: Bot User object
     """
 
     __classname__ = "DisBot"

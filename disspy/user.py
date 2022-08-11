@@ -28,6 +28,9 @@ __all__: tuple = (
 
 
 class DisUser:
+    """
+    User object
+    """
     def __init__(self, data, token):
         self.id: int = int(data["id"])
         self._t = token

@@ -118,15 +118,44 @@ class DisEmbed:
         self.fields: List[DisField] = []
 
     def add_field(self, name: str, value: str, inline: bool = True) -> NoReturn:
+        """add_field
+        Add field to embed
+
+        Args:
+            name (str): Name of field
+            value (str): Value of field
+            inline (bool, optional): Field in line?. Defaults to True.
+
+        Returns:
+            NoReturn
+        """
         self.fields.append(DisField(name, value, inline))
 
     def add_field_from_obj(self, field: DisField) -> NoReturn:
+        """add_field_from_obj
+        Add field to embed from object
+
+        Args:
+            field (DisField): Field
+
+        Returns:
+            NoReturn
+        """
         self.fields.append(field)
 
     def set_author(self, name: str, url: str = None, icon_url: str = None,
                    proxy_icon_url: str = None) -> NoReturn:
-        """
+        """set_author
         Set author for embed
+
+        Args:
+            name (str): Name of author
+            url (str, optional): Url of author. Defaults to None.
+            icon_url (str, optional): Icon url of author. Defaults to None.
+            proxy_icon_url (str, optional): Proxy icon url of author. Defaults to None.
+
+        Returns:
+            NoReturn
         """
         self.author = {
             "name": name,
@@ -135,9 +164,19 @@ class DisEmbed:
             "proxy_icon_url": proxy_icon_url
         }
 
-    def set_thumbnail(self, url: str, proxy_url: str = None, height: int = None, width: int = None):
-        """
+    def set_thumbnail(self, url: str, proxy_url: str = None,
+                      height: int = None, width: int = None) -> NoReturn:
+        """set_thumbnail
         Set thumbnail for embed
+
+        Args:
+            url (str): Url of thumbnail
+            proxy_url (str, optional): Proxy url of thumbnail. Defaults to None.
+            height (int, optional): Height of thumbnail. Defaults to None.
+            width (int, optional): Width of thumbnail. Defaults to None.
+
+        Returns:
+            NoReturn
         """
         self.thumbnail = {
             "url": url,
@@ -146,9 +185,19 @@ class DisEmbed:
             "width": width
         }
 
-    def set_image(self, url: str, proxy_url: str = None, height: int = None, width: int = None):
-        """
+    def set_image(self, url: str, proxy_url: str = None,
+                  height: int = None, width: int = None) -> NoReturn:
+        """set_image
         Set image for embed
+
+        Args:
+            url (str): Url of image_
+            proxy_url (str, optional): Proxy url of image. Defaults to None.
+            height (int, optional): Height of image Defaults to None.
+            width (int, optional): Width of image. Defaults to None.
+
+        Returns:
+            NoReturn
         """
         self.image = {
             "url": url,
@@ -157,11 +206,17 @@ class DisEmbed:
             "width": width
         }
 
-    def tojson(self):
+    def tojson(self) -> dict:
+        """tojson
+        Return json data of embed
+
+        Returns:
+            dict: Json data
+        """
         fields_jsons = []
 
-        for f in self.fields:
-            fields_jsons.append(f.tojson())
+        for field in self.fields:
+            fields_jsons.append(field.tojson())
 
         embed_json = {
             "title": self.title,
