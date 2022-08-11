@@ -38,7 +38,9 @@ from typing import (
     ClassVar
 )
 
-import disspy.errors as errors
+from enum import Enum
+
+from disspy import errors
 
 Url = NewType("Url", str)
 
@@ -69,6 +71,14 @@ class Activity:
             else:
                 raise errors.JsonError("Url is supported only for streaming status")
 
+    def set_url(self, new_url: Url):
+        """set_url
+        Set stream url of activity
+
+        Args:
+            new_url (Url): New url of stream
+        """
+        self.url = new_url
 
     def json(self) -> Dict[str, Any]:
         """
@@ -90,7 +100,7 @@ class Activity:
         }
 
 
-class ActivityType:
+class ActivityType(Enum):
     """
     Activity types for Activity class
 

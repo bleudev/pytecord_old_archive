@@ -287,8 +287,8 @@ class DisChannel:
             data = await _SendingRestHandler.execute(self.id, _payload, self._t)
 
             return DisMessage(data, self._t)
-        else:
-            return None
+
+        return None
 
     async def show(self, message: DisMessage):
         """show
@@ -432,8 +432,8 @@ class DisDmChannel:
             data = await _SendingRestHandler.execute(self.id, _payload, self._t)
 
             return DisMessage(data, self._t)
-        else:
-            return None
+
+        return None
 
     def fetch(self, message_id: int) -> DisMessage:
         """

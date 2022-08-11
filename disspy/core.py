@@ -531,7 +531,7 @@ class Flow:
 
         self._headers = {}
 
-        self.ws = None
+        self.websocket = None
         self.ons = None
 
     # Event methods
@@ -554,7 +554,7 @@ class Flow:
         self.user_id = data["user"]["id"]
 
     # Sending/Getting
-    async def send_request(self, data, ws):
+    async def send_request(self, data, websocket):
         """send_request
         Send json request to Gateway
 
@@ -565,14 +565,14 @@ class Flow:
         Returns:
             dict: Your json data
         """
-        await ws.send_json(data)
+        await websocket.send_json(data)
 
         if self._debug:
             print(_DebugLoggingWebsocket(data, send=True, isevent=False, op=data["op"]))
 
         return data
 
-    async def get_responce(self, ws):
+    async def get_responce(self, websocket):
         """get_responce
         Get json output from Gateway
 
@@ -583,7 +583,7 @@ class Flow:
             dict: Json output
         """
         try:
-            j = await ws.receive_json()
+            j = await websocket.receive_json()
         except TypeError:
             return
 
@@ -623,17 +623,15 @@ class Flow:
         self.isrunning = True
         self.isafk = False
 
-        self.ws = None
-
         await self._runner()
 
     async def _runner(self):
         async with ClientSession() as session:
             async with session.ws_connect(
-                f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as ws:
-                self.ws = ws
+                f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as websocket:
+                self.websocket = websocket
 
-                j = await self.get_responce(ws)
+                j = await self.get_responce(websocket)
 
                 interval = j["d"]["heartbeat_interval"]
 
@@ -652,29 +650,30 @@ class Flow:
                         "status": self.status,
                         "activities": [self.activity]
                     }
-                }}, ws)
+                }}, websocket)
 
                 self.isrunning = True
 
                 await asyncio.wait(
-                    fs=[self.heartbeat(ws, interval / 1000), self._events_checker(ws)])
+                    fs=[self.heartbeat(websocket, interval / 1000),
+                        self._events_checker(websocket)])  # Run Gateway client
 
-    async def heartbeat(self, ws, interval):
+    async def heartbeat(self, websocket, interval):
         """heartbeat
         Function with sending heartbeating to Gateway
 
         Args:
-            ws (Any): Aiohttp websocket
+            websocket (Any): Aiohttp websocket
             interval (int): Heartbeat interval
         """
         while True:
-            await self.send_request({"op": 1, "d": None, "t": None}, ws)
+            await self.send_request({"op": 1, "d": None, "t": None}, websocket)
 
             await asyncio.sleep(interval)
 
-    async def _events_checker(self, ws):
+    async def _events_checker(self, websocket):
         while True:
-            event_json = await self.get_responce(ws)
+            event_json = await self.get_responce(websocket)
             event = _FlowEvent(event_json)
 
             try:
@@ -880,7 +879,7 @@ class Flow:
         """disconnecter
         Disconnect from Gateway
         """
-        await self.ws.close()
+        await self.websocket.close()
 
 
 @final
@@ -1177,4 +1176,4 @@ class DisApi(_RequestsUserClass):
         Args:
             data (dict): Json data for sending request
         """
-        await self.flow.send_request(data, self.flow.ws)
+        await self.flow.send_request(data, self.flow.websocket)
