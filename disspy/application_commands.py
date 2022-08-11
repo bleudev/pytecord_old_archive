@@ -82,16 +82,15 @@ class _SendingRestHandler:
         Returns:
             _type_: _description_
         """
-        async with aiohttp.ClientSession(headers={'Authorization': f'Bot {token}', 'content-type': 'application/json'}) as s:
-            await s.post(url, data=dumps(payload))
+        async with aiohttp.ClientSession(headers={'Authorization': f'Bot {token}',
+                                                  'content-type': 'application/json'}) as session:
             try:
-                async with s.post(url, data=dumps(payload)) as d:
-                    j = await d.json()
+                async with session.post(url, data=dumps(payload)) as data:
+                    j = await data.json()
 
                     return j
             except aiohttp.ContentTypeError:
-                await s.post(url, data=dumps(payload))
-                return None
+                await session.post(url, data=dumps(payload))
 
 
 @final
@@ -179,8 +178,8 @@ class SlashCommand(ApplicationCommand):
         if options:
             _options_jsons = []
 
-            for o in options:
-                _options_jsons.append(_OptionGenerator(o))
+            for option in options:
+                _options_jsons.append(_OptionGenerator(option))
 
             self.options: Union[List[Option], None] = _options_jsons
         else:
@@ -267,8 +266,10 @@ class Context:
                     }
                 }
 
-        _url = "https://discord.com/api/v10/interactions/{0}/{1}/callback".format(
-            self._interaction_id, self._interaction_token)
+        _id = self._interaction_id
+        _token = self._interaction_token
+
+        _url = f"https://discord.com/api/v10/interactions/{_id}/{_token}/callback"
 
         await _SendingRestHandler.execute(_url, _payload, self._t)
 
@@ -289,8 +290,10 @@ class Context:
             }
         }
 
-        _url = "https://discord.com/api/v10/interactions/{0}/{1}/callback".format(
-            self._interaction_id, self._interaction_token)
+        _id = self._interaction_id
+        _token = self._interaction_token
+
+        _url = f"https://discord.com/api/v10/interactions/{_id}/{_token}/callback"
 
         await _SendingRestHandler.execute(_url, _payload, self._t)
 
@@ -339,9 +342,9 @@ class OptionArgs:
         :param name: Name of option
         :return Any: Option value
         """
-        for a in self._v:
-            if a.name == name:
-                return a.value
+        for _a in self._v:
+            if _a.name == name:
+                return _a.value
 
     def getString(self, name: str) -> str:
         """
@@ -350,9 +353,9 @@ class OptionArgs:
         :param name: Name of option
         :return str: Option value (always string)
         """
-        for a in self._v:
-            if a.name == name and a.type == OptionType.STRING:
-                return str(a.value)
+        for _a in self._v:
+            if _a.name == name and _a.type == OptionType.STRING:
+                return str(_a.value)
 
     def getInteger(self, name: str) -> int:
         """
@@ -361,9 +364,9 @@ class OptionArgs:
         :param name: Name of option
         :return int: Option value (always integer)
         """
-        for a in self._v:
-            if a.name == name and a.type == OptionType.INTEGER:
-                return int(a.value)
+        for _a in self._v:
+            if _a.name == name and _a.type == OptionType.INTEGER:
+                return int(_a.value)
 
     def getNumber(self, name: str) -> int:
         """
@@ -372,9 +375,9 @@ class OptionArgs:
         :param name: Name of option
         :return int: Option value (always integer)
         """
-        for a in self._v:
-            if a.name == name and a.type == OptionType.NUMBER:
-                return int(a.value)
+        for _a in self._v:
+            if _a.name == name and _a.type == OptionType.NUMBER:
+                return int(_a.value)
 
     def getBoolean(self, name: str) -> bool:
         """
@@ -383,6 +386,6 @@ class OptionArgs:
         :param name: Name of option
         :return bool: Option value (always boolean)
         """
-        for a in self._v:
-            if a.name == name and a.type == OptionType.BOOLEAN:
-                return bool(a.value)
+        for _a in self._v:
+            if _a.name == name and _a.type == OptionType.BOOLEAN:
+                return bool(_a.value)
