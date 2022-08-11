@@ -345,6 +345,7 @@ class OptionArgs:
         for _a in self._v:
             if _a.name == name:
                 return _a.value
+        return None
 
     def getString(self, name: str) -> Union[str, None]:
         """
@@ -356,6 +357,7 @@ class OptionArgs:
         for _a in self._v:
             if _a.name == name and _a.type == OptionType.STRING:
                 return str(_a.value)
+        return None
 
     def getInteger(self, name: str) -> Union[int, None]:
         """
@@ -367,6 +369,7 @@ class OptionArgs:
         for _a in self._v:
             if _a.name == name and _a.type == OptionType.INTEGER:
                 return int(_a.value)
+        return None
 
     def getNumber(self, name: str) -> Union[int, None]:
         """
@@ -378,6 +381,7 @@ class OptionArgs:
         for _a in self._v:
             if _a.name == name and _a.type == OptionType.NUMBER:
                 return int(_a.value)
+        return None
 
     def getBoolean(self, name: str) -> Union[bool, None]:
         """
@@ -389,3 +393,4 @@ class OptionArgs:
         for _a in self._v:
             if _a.name == name and _a.type == OptionType.BOOLEAN:
                 return bool(_a.value)
+        return None
