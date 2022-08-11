@@ -63,7 +63,8 @@ class DisOwnReaction:
     """
     def __init__(self, emoji: str, message_id, channel_id, token):
         self.emoji = emoji
-        self._u = f"https://discord.com/api/v10/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
+        _mainurl = "https://discord.com/api/v10/"
+        self._u = f"{_mainurl}channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
         self._t = token
 
     async def delete(self):

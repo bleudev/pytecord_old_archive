@@ -415,14 +415,14 @@ class Snowflake(Generic[T]):
     def __int__(self) -> int:
         if not self.isid:
             raise ClassTypeError("Class Value is str, but this method needs for int!")
-        else:
-            return int(self.value)
+
+        return int(self.value)
 
     def __str__(self) -> str:
         if not self.istoken:
             raise ClassTypeError("Class Value is int, but this method needs for str!")
-        else:
-            return str(self.value)
+
+        return str(self.value)
 
 
 ChannelId = NewType("ChannelId", int)
@@ -442,7 +442,7 @@ class Rest:
 
         self.__slots__ = [self._headers]
 
-    def get(self, goal: str, goal_id: Union[int, Snowflake]) -> JsonOutput:
+    def get(self, goal: str, goal_id: Union[int, Snowflake]) -> Union[JsonOutput, None]:
         """
         :param goal: guild/channel/user
         :param id: id of guild/channel/user
@@ -455,13 +455,13 @@ class Rest:
             return get(url=_url,
                        headers=self._headers).json()
 
-        elif goal.casefold() == 'channel':
+        if goal.casefold() == 'channel':
             _url = f'{_mainurl()}channels/{str(goal_id)}'
 
             return get(url=_url,
                        headers=self._headers).json()
 
-        elif goal.casefold() == "user":
+        if goal.casefold() == "user":
             _url = f'{_mainurl()}users/{str(goal_id)}'
 
             return get(url=_url,
@@ -986,61 +986,58 @@ class DisApi(_RequestsUserClass):
 
     async def _on_interaction(self, token, interaction_id, command_name, bot_token: str,
                               interaction_type, data: JsonOutput, type_of_command=None) -> NoReturn:
-        if type_of_command is None:
-            return
-        else:
-            if interaction_type == 2:
-                _ctx = Context(token, interaction_id, bot_token)
+        if interaction_type == 2:
+            _ctx = Context(token, interaction_id, bot_token)
 
-                try:
-                    if type_of_command == 3:  # Message Commands
-                        resolved: dict = data["data"]["resolved"]["messages"]
+            try:
+                if type_of_command == 3:  # Message Commands
+                    resolved: dict = data["data"]["resolved"]["messages"]
 
-                        _m_id = list(resolved.keys())[0]
-                        _m_d: dict = resolved[_m_id]
+                    _m_id = list(resolved.keys())[0]
+                    _m_d: dict = resolved[_m_id]
 
-                        try:
-                            _m_d["id"] = _m_id
-                        except KeyError:
-                            _m_d.setdefault("id", _m_id)
+                    try:
+                        _m_d["id"] = _m_id
+                    except KeyError:
+                        _m_d.setdefault("id", _m_id)
 
-                        _m = DisMessage(_m_d, self.token)
+                    _m = DisMessage(_m_d, self.token)
 
-                        await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
+                    await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
 
-                    elif type_of_command == 2:  # User Commands
-                        resolved: dict = data["data"]["resolved"]["users"]
+                elif type_of_command == 2:  # User Commands
+                    resolved: dict = data["data"]["resolved"]["users"]
 
-                        _u_id = list(resolved.keys())[0]
-                        _u_d: dict = resolved[_u_id]
+                    _u_id = list(resolved.keys())[0]
+                    _u_d: dict = resolved[_u_id]
 
-                        try:
-                            _u_d["id"] = _u_id
-                        except KeyError:
-                            _u_d.setdefault("id", _u_id)
+                    try:
+                        _u_d["id"] = _u_id
+                    except KeyError:
+                        _u_d.setdefault("id", _u_id)
 
-                        _u = DisUser(_u_d, self.token)
+                    _u = DisUser(_u_d, self.token)
 
-                        await self.app_commands[type_of_command - 1][command_name](_ctx, _u)
+                    await self.app_commands[type_of_command - 1][command_name](_ctx, _u)
 
-                    elif type_of_command == 1:  # Slash Commands
+                elif type_of_command == 1:  # Slash Commands
+                    _args = []
+
+                    try:
+                        for option in data["data"]["options"]:
+                            _args.append(_Argument(option["name"],
+                                                    option["type"],
+                                                    option["value"]))
+                    except KeyError:
                         _args = []
 
-                        try:
-                            for option in data["data"]["options"]:
-                                _args.append(_Argument(option["name"],
-                                                       option["type"],
-                                                       option["value"]))
-                        except KeyError:
-                            _args = []
+                    func = self.app_commands[type_of_command - 1][command_name]
 
-                        func = self.app_commands[type_of_command - 1][command_name]
-
-                        await func(_ctx, OptionArgs(_args))
-                    else:
-                        pass
-                except KeyError:
+                    await func(_ctx, OptionArgs(_args))
+                else:
                     pass
+            except KeyError:
+                pass
 
     async def _on_components(self, data):
         if data["data"]["component_type"] == 2:
