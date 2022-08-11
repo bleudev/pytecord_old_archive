@@ -113,6 +113,16 @@ class _SendingRestHandler:
 class _GettingChannelData:
     @staticmethod
     def execute(channel_id, token):
+        """execute
+        Get channel data by id
+
+        Args:
+            channel_id (int): Channel id
+            token (str): Bot token
+
+        Returns:
+            dict: Json output
+        """
         _u = f"https://discord.com/api/v10/channels/{channel_id}"
         _h = {'Authorization': f'Bot {token}'}
 
@@ -120,6 +130,17 @@ class _GettingChannelData:
 
     @staticmethod
     def fetch(channel_id, token, message_id):
+        """fetch
+        Fetch message by channel id and message id
+
+        Args:
+            channel_id (int): Channel id
+            token (str): Bot token
+            message_id (int): Message id
+
+        Returns:
+            dict: Json output
+        """
         _u = f"https://discord.com/api/v10/channels/{channel_id}/messages/{message_id}"
         _h = {'Authorization': f'Bot {token}'}
 
@@ -128,8 +149,18 @@ class _GettingChannelData:
 
 class _GettingGuildData:
     @staticmethod
-    def execute(id, token):
-        _u = f"https://discord.com/api/v10/guilds/{id}"
+    def execute(guild_id, token):
+        """execute
+        Get guild data
+
+        Args:
+            id (int)): Guild id
+            token (str): Bot token
+
+        Returns:
+            dict: Json output
+        """
+        _u = f"https://discord.com/api/v10/guilds/{guild_id}"
         _h = {'Authorization': f'Bot {token}'}
 
         return get(_u, headers=_h).json()
@@ -145,9 +176,9 @@ class _ShowonlyContext:
         self._embeds = message.embeds
 
     async def _send(self, payload) -> DisMessage:
-        d = await _SendingRestHandler.execute(self._channel_id, payload, self._t)
+        data = await _SendingRestHandler.execute(self._channel_id, payload, self._t)
 
-        return DisMessage(d, self._t)
+        return DisMessage(data, self._t)
 
     async def content(self) -> DisMessage:
         """content
@@ -183,7 +214,7 @@ class DisChannel:
     """
     The class for sending messages to discord channels and fetching messages in channels
     """
-    def __init__(self, id: int, _token):
+    def __init__(self, channel_id: int, _token):
         """
         Creating an object DisChannel
 
@@ -191,7 +222,7 @@ class DisChannel:
         :param rest: Rest -> Rest client with token for channel
         """
         self._t = _token
-        self.id = id
+        self.id = channel_id
 
         _data = _GettingChannelData.execute(self.id, self._t)
 
@@ -253,9 +284,9 @@ class DisChannel:
                 del _payload["components"]
 
         if _payload:
-            d = await _SendingRestHandler.execute(self.id, _payload, self._t)
+            data = await _SendingRestHandler.execute(self.id, _payload, self._t)
 
-            return DisMessage(d, self._t)
+            return DisMessage(data, self._t)
         else:
             return None
 
@@ -277,9 +308,9 @@ class DisChannel:
         if message.embeds:
             json_data.setdefault("embeds", message.embeds)
 
-        d = await _SendingRestHandler.execute(self.id, json_data, self._t)
+        data = await _SendingRestHandler.execute(self.id, json_data, self._t)
 
-        return DisMessage(d, self._t)
+        return DisMessage(data, self._t)
 
     def showonly(self, message: DisMessage) -> _ShowonlyContext:
         """showonly
@@ -293,16 +324,16 @@ class DisChannel:
         """
         return _ShowonlyContext(message, self._t, self.id)
 
-    def fetch(self, id: int) -> DisMessage:
+    def fetch(self, message_id: int) -> DisMessage:
         """
         Fetch message
         -----
         :param id: Id of message
         :return DisMessage:
         """
-        d = _GettingChannelData.fetch(self.id, self._t, id)
+        data = _GettingChannelData.fetch(self.id, self._t, message_id)
 
-        return DisMessage(d, self._t)
+        return DisMessage(data, self._t)
 
     async def pin(self, message_id: int):
         """pin
@@ -398,19 +429,19 @@ class DisDmChannel:
                 del _payload["components"]
 
         if _payload:
-            d = await _SendingRestHandler.execute(self.id, _payload, self._t)
+            data = await _SendingRestHandler.execute(self.id, _payload, self._t)
 
-            return DisMessage(d, self._t)
+            return DisMessage(data, self._t)
         else:
             return None
 
-    def fetch(self, id: int) -> DisMessage:
+    def fetch(self, message_id: int) -> DisMessage:
         """
         Fetch message
         -----
         :param id: Id of message
         :return DisMessage:
         """
-        d = _GettingChannelData.fetch(self.id, self._t, id)
+        data = _GettingChannelData.fetch(self.id, self._t, message_id)
 
-        return DisMessage(d, self._t)
+        return DisMessage(data, self._t)
