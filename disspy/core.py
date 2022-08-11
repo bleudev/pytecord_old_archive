@@ -50,15 +50,16 @@ import colorama
 
 
 # disspy imports
-from disspy.channel import DisChannel, DisDmChannel
-from disspy.errors import ClassTypeError
-from disspy.guild import DisGuild
-from disspy.message import (
+from disspy.channel import (
+    DisChannel,
+    DisDmChannel,
     DisMessage,
     DmMessage,
     MessageDeleteEvent,
     DmMessageDeleteEvent
 )
+from disspy.errors import ClassTypeError
+from disspy.guild import DisGuild
 from disspy.reaction import DisEmoji, DisReaction, DisRemovedReaction
 from disspy.user import DisUser
 from disspy.application_commands import Context, _Argument, OptionArgs
@@ -335,10 +336,10 @@ class DisFlags:
         :return int: integer value of intents
         """
 
-        _typings = _Intents.GUILD_MESSAGE_TYPING + _Intents.DIRECT_MESSAGE_TYPING
-        _messages = _Intents.GUILD_MESSAGES + _Intents.DIRECT_MESSAGES
+        _typings = _Intents.GUILD_MESSAGE_TYPING.value + _Intents.DIRECT_MESSAGE_TYPING.value
+        _messages = _Intents.GUILD_MESSAGES.value + _Intents.DIRECT_MESSAGES.value
 
-        return _Intents.GUILD_INTEGRATIONS + _typings + _messages + _Intents.MESSAGE_CONTENT
+        return _Intents.GUILD_INTEGRATIONS.value + _typings + _messages + _Intents.MESSAGE_CONTENT.value
 
     @staticmethod
     def reactions() -> int:
@@ -349,9 +350,9 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        _reactions = _Intents.GUILD_MESSAGE_REACTIONS + _Intents.DIRECT_MESSAGE_REACTIONS
+        _reactions = _Intents.GUILD_MESSAGE_REACTIONS.value + _Intents.DIRECT_MESSAGE_REACTIONS.value
 
-        return _Intents.GUILD_INTEGRATIONS + _reactions
+        return _Intents.GUILD_INTEGRATIONS.value + _reactions
 
     @staticmethod
     def all() -> int:
