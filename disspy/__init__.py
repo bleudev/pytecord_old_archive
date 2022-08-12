@@ -25,6 +25,7 @@ SOFTWARE.
 # Imports
 # Files
 import disspy.activity
+import disspy.abstract
 import disspy.application_commands
 import disspy.channel
 import disspy.client
@@ -38,6 +39,10 @@ import disspy.reaction
 import disspy.ui
 
 # Classes
+from disspy.abstract import (
+    Channel,
+    Message
+)
 from disspy.activity import (
     Activity,
     ActivityType
@@ -133,6 +138,7 @@ __packagename__ = "dispy"
 # __all__
 __alls__: list = [
     disspy.activity.__all__,
+    disspy.abstract.__all__,
     disspy.application_commands.__all__,
     disspy.channel.__all__,
     disspy.client.__all__,

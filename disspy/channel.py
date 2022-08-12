@@ -28,21 +28,16 @@ from typing import (
     List,
     NoReturn,
     final,
-    Any,
-    ClassVar
+    Any
 )
 
-from enum import (
-    Enum,
-    auto,
-    unique
-)
 from json import dumps
 from aiohttp import ClientSession
 from requests import get
 from disspy.typ import Url
 
 
+from disspy.abstract import Message, Channel
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.jsongenerators import _EmbedGenerator
@@ -206,51 +201,14 @@ class _GettingGuildData:
         return get(_u, headers=_h).json()
 
 
-
-
-
-class _AutoValue(Enum):
-    def _generate_next_value_(name, start, count, last_values):
-        if count > 12:
-            return count + 1
-
-        return count
-
 @final
-@unique
-class _MessageType(_AutoValue):
-    DEFAULT: ClassVar[int] = auto()
-    RECIPIENT_ADD: ClassVar[int] = auto()
-    RECIPIENT_REMOVE: ClassVar[int] = auto()
-    CALL: ClassVar[int] = auto()
-    CHANNEL_NAME_CHANGE: ClassVar[int] = auto()
-    CHANNEL_ICON_CHANGE: ClassVar[int] = auto()
-    CHANNEL_PINNED_MESSAGE: ClassVar[int] = auto()
-    GUILD_MEMBER_JOIN: ClassVar[int] = auto()
-    USER_PREMIUM_GUILD_SUBSCRIPTION: ClassVar[int] = auto()
-    GUILD_BOOST_TIER_1: ClassVar[int] = auto()
-    GUILD_BOOST_TIER_2: ClassVar[int] = auto()
-    GUILD_BOOST_TIER_3: ClassVar[int] = auto()
-    CHANNEL_FOLLOW_ADD: ClassVar[int] = auto()
-    GUILD_DISCOVERY_DISQUALIFIED: ClassVar[int] = auto()
-    GUILD_DISCOVERY_REQUALIFIED: ClassVar[int] = auto()
-    GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING: ClassVar[int] = auto()
-    GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING: ClassVar[int] = auto()
-    THREAD_CREATED: ClassVar[int] = auto()
-    REPLY: ClassVar[int] = auto()
-    CHAT_INPUT_COMMAND: ClassVar[int] = auto()
-    THREAD_STARTER_MESSAGE: ClassVar[int] = auto()
-    GUILD_INVITE_REMINDER: ClassVar[int] = auto()
-    CONTEXT_MENU_COMMAND: ClassVar[int] = auto()
-    AUTO_MODERATION_ACTION: ClassVar[int] = auto()
-
-
-@final
-class DisMessage:
+class DisMessage(Message):
     """
     Message in channel
     """
     def __init__(self, _data, _token):
+        super().__init__(_data["type"])
+
         self.json = _data
 
         self.channel = DisChannel(_data["channel_id"], _token)
@@ -278,34 +236,15 @@ class DisMessage:
                             _e.add_field(field["name"], field["value"])
 
         self.id: int = int(_data["id"])
-        self._type: int = int(_data["type"])
 
         self._t = _token
 
-    def is_reply(self) -> bool:
-        """is_reply
-        Message type is reply?
-
-        Returns:
-            bool: Message is reply?
-        """
-        return self._type == _MessageType.REPLY
-
-    def is_default(self) -> bool:
-        """is_default
-        Message type is default?
-
-        Returns:
-            bool: Message is default?
-        """
-        return self._type == _MessageType.DEFAULT
-
-    async def reply(self, content: Optional[Any] = None, embeds: Optional[List[DisEmbed]] = None):
+    async def reply(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None):
         """reply
         Reply to message
 
         Args:
-            content (Optional[Any], optional): Message content (text). Defaults to None.
+            content (Optional[str], optional): Message content (text). Defaults to None.
             embeds (Optional[List[DisEmbed]], optional): Message embeds (DisEmbed objects).
                                                          Defaults to None.
         """
@@ -412,7 +351,7 @@ class _ShowonlyContext:
 
 
 @final
-class DisChannel:
+class DisChannel(Channel):
     """
     The class for sending messages to discord channels and fetching messages in channels
     """
@@ -423,6 +362,8 @@ class DisChannel:
         :param id: dict -> id of the channel
         :param rest: Rest -> Rest client with token for channel
         """
+        super().__init__()
+
         self._t = _token
         self.id = channel_id
 
@@ -577,11 +518,13 @@ class DisChannel:
 
 
 @final
-class DmMessage:
+class DmMessage(Message):
     """
     Message in DM channel
     """
     def __init__(self, data, token):
+        super().__init__(data["type"])
+
         self.json = data
         self._t = token
 
@@ -589,26 +532,6 @@ class DmMessage:
 
         self.content = data["content"]
         self.channel = DisDmChannel(data["channel_id"], self._t)
-
-        self._type: int = int(data["type"])
-
-    def is_reply(self) -> bool:
-        """is_reply
-        Message type is reply?
-
-        Returns:
-            bool: Message is reply?
-        """
-        return self._type == _MessageType.REPLY
-
-    def is_default(self) -> bool:
-        """is_default
-        Message type is default?
-
-        Returns:
-            bool: Message is default?
-        """
-        return self._type == _MessageType.DEFAULT
 
     async def reply(self, content: Optional[Any] = None, embeds: Optional[List[DisEmbed]] = None):
         """reply
@@ -667,7 +590,8 @@ class DmMessage:
         return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
 
 
-class DisDmChannel:
+@final
+class DisDmChannel(Channel):
     """
     The class for sending messages to discord DMchannels and fetching messages in DMchannels
     """
@@ -678,6 +602,8 @@ class DisDmChannel:
         :param id: Id of channel
         :param api: DisApi object with token
         """
+        super().__init__()
+
         _data = _GettingChannelData.execute(dm_id, token)
 
         self.id = _data["id"]

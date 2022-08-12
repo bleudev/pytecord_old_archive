@@ -339,7 +339,7 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        return _Intents.GUILD_INTEGRATIONS
+        return int(_Intents.GUILD_INTEGRATIONS.value)
 
     @staticmethod
     def messages() -> int:
@@ -358,7 +358,7 @@ class DisFlags:
         _messages = _Intents.GUILD_MESSAGES.value + _Intents.DIRECT_MESSAGES.value
         _content = _Intents.MESSAGE_CONTENT.value
 
-        return _Intents.GUILD_INTEGRATIONS.value + _typings + _messages + _content
+        return int(_Intents.GUILD_INTEGRATIONS.value + _typings + _messages + _content)
 
     @staticmethod
     def reactions() -> int:
@@ -372,7 +372,7 @@ class DisFlags:
         _dm_reactions = _Intents.DIRECT_MESSAGE_REACTIONS.value
         _reactions = _Intents.GUILD_MESSAGE_REACTIONS.value + _dm_reactions
 
-        return _Intents.GUILD_INTEGRATIONS.value + _reactions
+        return int(_Intents.GUILD_INTEGRATIONS.value + _reactions)
 
     @staticmethod
     def all() -> int:
@@ -403,7 +403,7 @@ class DisFlags:
         for i in _Intents:
             result += i.value
 
-        return result
+        return int(result)
 
 
 T = TypeVar("T", str, int)
