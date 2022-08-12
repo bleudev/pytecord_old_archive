@@ -150,7 +150,14 @@ class _DebugLoggingWebsocket:
         except KeyError:
             _op = 0
 
-        _result = ""
+        _datetime = datetime.now()
+
+        _second = _datetime.second if _datetime.second > 9 else f"{_datetime.second}0"
+
+        _date = f"{_datetime.day}/{_datetime.month}/{_datetime.year}"
+        _time = f"{_datetime.hour}:{_datetime.minute}:{_second}.{str(_datetime.microsecond)[:2]}"
+
+        _result = f"{colorama.Fore.CYAN}[{_date}: {_time}]{colorama.Fore.RESET} "
 
         _op_str = FlowOpcodes.rotated_dict()[_op]
         _op_str = _op_str.capitalize()
@@ -171,25 +178,36 @@ class _DebugLoggingWebsocket:
             if _op == 11:
                 _op_str = "Heartbeat ACK"
 
-            _result = f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.RED}{_2part}"
+            _result += f"{colorama.Fore.GREEN}Sending Request{colorama.Fore.RED}"
         else:
             if _isevent:
                 if _op == 11:
                     _op_str = "Heartbeat ACK"
 
-                _result = f"{colorama.Fore.YELLOW}Getting Event{colorama.Fore.RED}{_2part}"
+                _result += f"{colorama.Fore.YELLOW}Getting Event{colorama.Fore.RED}"
             else:
                 if _op == 11:
                     _op_str = "Heartbeat ACK"
 
-                _result = f"{colorama.Fore.YELLOW}Getting Responce{colorama.Fore.RED}{_2part}"
+                _result += f"{colorama.Fore.YELLOW}Getting Responce{colorama.Fore.RED}"
+
+        _result += _2part
 
         return _result
 
 
 class _DebugLoggingAwaiting:
     def __new__(cls, gateway_event_name, event_name):
-        _result = f'{colorama.Fore.RED}Awaiting event "{gateway_event_name}": '
+        _datetime = datetime.now()
+
+        _second = _datetime.second if _datetime.second > 9 else f"{_datetime.second}0"
+
+        _date = f"{_datetime.day}/{_datetime.month}/{_datetime.year}"
+        _time = f"{_datetime.hour}:{_datetime.minute}:{_second}.{str(_datetime.microsecond)[:2]}"
+
+        _result = f"{colorama.Fore.CYAN}[{_date}: {_time}]{colorama.Fore.RESET} "
+        
+        _result += f'{colorama.Fore.RED}Awaiting event "{gateway_event_name}": '
         _result += f'{colorama.Fore.YELLOW}{event_name}(){colorama.Fore.RESET}'
 
         return _result
