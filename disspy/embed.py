@@ -89,6 +89,30 @@ class DisColor:
         """
         return floor(random() * 16777214) + 1
 
+    @staticmethod
+    def from_hex(hex_color: str):
+        """from_hex
+        Return color from hex
+
+        Args:
+            hex_color (str): Color in HEX form (example, #FFFFFF)
+
+        Raises:
+            RuntimeError: Invalid hex
+
+        Returns:
+            int: color
+        """
+        if hex_color.startswith('#'):
+            hex_color = hex_color.replace('#', '')
+
+            if hex_color.isdigit():
+                return int(hex_color, 16)
+
+            raise RuntimeError(f"Invalid hex! #{hex_color} is not hex")
+
+        raise RuntimeError("Invlid hex! (It needs start from #)")
+
 
 class DisField:
     """DisField
@@ -98,6 +122,33 @@ class DisField:
         self.name = name
         self.value = value
         self.inline = inline
+
+    def set_name(self, new_name: str):
+        """set_name
+        Set new name to field
+
+        Args:
+            new_name (str): New name
+        """
+        self.name = new_name
+
+    def set_value(self, new_value: str):
+        """set_value
+        Set new value to field
+
+        Args:
+            new_value (str): New value
+        """
+        self.value = new_value
+
+    def set_inline(self, new_inline: bool):
+        """set_inline
+        Set new inline value to field
+
+        Args:
+            new_inline (bool): new inline value
+        """
+        self.inline = new_inline
 
 
 class _SpriteComponents:
