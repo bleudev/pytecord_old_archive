@@ -100,6 +100,30 @@ class DisField:
         self.inline = inline
 
 
+class _SpriteComponents:
+    def __init__(self) -> None:
+        self.image: dict = None
+        self.thumbnail: dict = None
+
+    def set_image(self, image: dict):
+        """set_image
+        Set image to sprite components
+
+        Args:
+            image (dict): Image json data
+        """
+        self.image = image
+
+    def set_thumbnail(self, thumbnail: dict):
+        """set_thumbnail
+        Set thumbnail to sprite components
+
+        Args:
+            thumbnail (dict): Thumbnail json data
+        """
+        self.thumbnail = thumbnail
+
+
 class DisEmbed:
     """DisEmbed
     Embeds for messages
@@ -112,8 +136,8 @@ class DisEmbed:
             "text": footer
         }
         self.author: dict = None
-        self.image: dict = None
-        self.thumbnail: dict = None
+
+        self.sprite_components = _SpriteComponents()
 
         self.fields: List[DisField] = []
 
@@ -178,12 +202,12 @@ class DisEmbed:
         Returns:
             NoReturn
         """
-        self.thumbnail = {
+        self.sprite_components.set_thumbnail({
             "url": url,
             "proxy_url": proxy_url,
             "height": height,
             "width": width
-        }
+        })
 
     def set_image(self, url: str, proxy_url: str = None,
                   height: int = None, width: int = None) -> NoReturn:
@@ -199,12 +223,12 @@ class DisEmbed:
         Returns:
             NoReturn
         """
-        self.image = {
+        self.sprite_components.set_image({
             "url": url,
             "proxy_url": proxy_url,
             "height": height,
             "width": width
-        }
+        })
 
     def tojson(self) -> dict:
         """tojson
@@ -224,7 +248,9 @@ class DisEmbed:
             "footer": self.footer,
             "color": self.color,
             "fields": fields_jsons,
-            "author": self.author
+            "author": self.author,
+            "thumbnail": self.sprite_components.thumbnail,
+            "image": self.sprite_components.image
         }
 
         return embed_json
