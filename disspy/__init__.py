@@ -33,7 +33,6 @@ import disspy.core
 import disspy.embed
 import disspy.errors
 import disspy.guild
-import disspy.logger
 import disspy.user
 import disspy.reaction
 import disspy.ui
@@ -84,7 +83,6 @@ from disspy.embed import (
 )
 
 from disspy.guild import DisGuild
-from disspy.logger import Logger
 from disspy.user import DisUser
 from disspy.reaction import (
     DisEmoji,
@@ -146,7 +144,6 @@ __alls__: list = [
     disspy.embed.__all__,
     disspy.errors.__all__,
     disspy.guild.__all__,
-    disspy.logger.__all__,
     disspy.user.__all__,
     disspy.reaction.__all__,
     disspy.ui.__all__

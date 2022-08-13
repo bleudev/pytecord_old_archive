@@ -62,7 +62,6 @@ from disspy.core import (
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.jsongenerators import _OptionGenerator
-from disspy.logger import Logger
 from disspy.user import DisUser
 
 __all__: tuple = (
@@ -258,7 +257,6 @@ class DisBot:
 
         self.isready = False
 
-        self.logger = Logger()
         self.__classname__ = "DisBot"
 
         self.__slots__ = [self.api, self._on_ready, self._on_messagec,
@@ -290,7 +288,7 @@ class DisBot:
             _message = f"Error! In method {__methodname__} was moved" \
                         "invalid argument! Argument type is DisBotEventType," \
                         "but in method have to type is str!"
-            self.logger.log(_message)
+            raise errors.InvalidArgument(_message)
 
         def wrapper(func):
             if event_type in _all_basic_events:
@@ -315,9 +313,6 @@ class DisBot:
                     else:
                         self._ons[event_type] = func
             else:
-                _err = f"Error! In method {__methodname__} was" \
-                        "moved invalid event type!"
-                self.logger.log(_err)
                 raise errors.BotEventTypeError("Invalid type of event!")
 
         return wrapper
@@ -336,7 +331,7 @@ class DisBot:
             _message = f"Error! In method {__methodname__} was moved" \
                         "invalid argument! Argument type is DisBotEventType," \
                         "but in method have to type is str!"
-            self.logger.log(_message)
+            raise errors.InvalidArgument(_message)
 
         if event_type in _all_basic_events:
             if event_type == "close":
@@ -344,9 +339,6 @@ class DisBot:
             else:
                 self._ons[event_type] = func
         else:
-            _err = f"Error! In method {__methodname__} was" \
-                    "moved invalid event type!"
-            self.logger.log(_err)
             raise errors.BotEventTypeError("Invalid type of event!")
 
     def on_ready(self) -> Wrapper:
@@ -582,13 +574,7 @@ class DisBot:
         :param status: Status for bot user
         :return: None
         """
-        __methodname__ = f"{self.__classname__}.run()"
-
         if isinstance(status, DisBotStatus):
-            _message = f"Error! In method {__methodname__} was moved " \
-                        "invalid argument! Argument type is DisBotStatus, " \
-                        "but in method have to type is str!"
-            self.logger.log(_message)
             raise errors.InvalidArgument("Invalid argument type!")
 
         self.isready = True
