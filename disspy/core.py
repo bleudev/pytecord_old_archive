@@ -206,7 +206,7 @@ class _DebugLoggingAwaiting:
         _time = f"{_datetime.hour}:{_datetime.minute}:{_second}.{str(_datetime.microsecond)[:2]}"
 
         _result = f"{colorama.Fore.CYAN}[{_date}: {_time}]{colorama.Fore.RESET} "
-        
+
         _result += f'{colorama.Fore.RED}Awaiting event "{gateway_event_name}": '
         _result += f'{colorama.Fore.YELLOW}{event_name}(){colorama.Fore.RESET}'
 
@@ -565,7 +565,7 @@ class Flow:
         Args:
             message (DisMessage): Message that was created
         """
-        return message.content
+        return message.content  # For PyLint
 
     async def register(self, data):
         """register
