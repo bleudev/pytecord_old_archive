@@ -1,6 +1,6 @@
 import disspy
 
-bot = disspy.DisBot(token="TOKEN", application_id=0)  # Create bot
+bot = disspy.DisBot(token="TOKEN")  # Create bot
 
 
 # "On ready" event

@@ -1,11 +1,11 @@
 import disspy
 
-bot = disspy.DisBot(token="TOKEN", application_id=0)  # Create bot
+bot = disspy.DisBot(token="TOKEN")  # Create bot
 
 
 # Buttons
 @bot.slash_command(name="button", description="Testing buttons")
-async def button(ctx: disspy.Context, args: disspy.OptionArgs):
+async def button(ctx: disspy.Context):
     ar = disspy.ActionRow(bot)
 
     @ar.add(disspy.Button(label="Test", custom_id="test"))
@@ -17,7 +17,7 @@ async def button(ctx: disspy.Context, args: disspy.OptionArgs):
 
 # Modal with TextInput
 @bot.slash_command(name="text_input", description="Show modal with text input")
-async def text_input(ctx: disspy.Context, args: disspy.OptionArgs):
+async def text_input(ctx: disspy.Context):
     ar = disspy.ActionRow(bot)
 
     @ar.add(disspy.TextInput(label="name", min_length=1, max_length=100, placeholder="Max", required=True))
@@ -29,7 +29,7 @@ async def text_input(ctx: disspy.Context, args: disspy.OptionArgs):
 
 # Select menu
 @bot.slash_command(name="select_menu", description="Show message with select menu")
-async def select_menu(ctx: disspy.Context, args: disspy.OptionArgs):
+async def select_menu(ctx: disspy.Context):
     ar = disspy.ActionRow(bot)
     options = []
 
