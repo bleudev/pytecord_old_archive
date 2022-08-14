@@ -410,8 +410,7 @@ class DisBot:
         return wrapper
 
     def slash_command(self, name: str, description: str,
-                        options: Optional[List[appc.Option]]
-                        = None) -> Union[Wrapper, None]:
+                      options: Optional[List[appc.Option]] = None) -> Wrapper:
         """
         Create slash command
         -----
@@ -464,7 +463,7 @@ class DisBot:
 
         return None
 
-    def user_command(self, name) -> Union[Wrapper, None]:
+    def user_command(self, name: str) -> Wrapper:
         """
         Create user command
         -----
@@ -497,7 +496,7 @@ class DisBot:
 
         return None
 
-    def message_command(self, name) -> Union[Wrapper, None]:
+    def message_command(self, name: str) -> Wrapper:
         """
         Create message command
         -----
