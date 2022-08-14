@@ -213,6 +213,7 @@ add_slash_command()
 Create command from `Slash command <application_commands.html#slash-commands>`_ object.
 
 Example::
+
     async def func(ctx: Context):
         await ctx.send("Test!")
 
