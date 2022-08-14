@@ -1034,7 +1034,7 @@ class DisApi(_RequestsUserClass):
     async def _on_interaction(self, token, interaction_id, command_name, bot_token: str,
                               interaction_type, data: JsonOutput, type_of_command=None) -> NoReturn:
         interaction_info = (token, interaction_id)
-        
+
         if interaction_type == 2:
             try:
                 if type_of_command == 3:  # Message Commands
