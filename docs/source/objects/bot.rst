@@ -169,6 +169,9 @@ Returns:
 @slash_command()
 ================
 
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
+
 ::
 
     @slash_command(name: str, description: str, options: Optional[List[Option]])
@@ -176,8 +179,6 @@ Returns:
 
 Create `Slash command. <application_commands.html#slash-commands>`_
 
-.. warning::
-    For application commands your bot needs have ``application.commands`` scope
 
 Example::
 
@@ -205,6 +206,9 @@ More info in `this page <application_commands.html#slash-commands>`_
 
 add_slash_command()
 ===================
+
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
 
 ::
 
