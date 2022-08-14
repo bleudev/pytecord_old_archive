@@ -16,8 +16,8 @@
     <a href="https://github.com/itttgg/dispy/actions/workflows/pylint.yml">
          <img src="https://img.shields.io/badge/pylink_mark_(3.8)-9.03/10-blueviolet?style=flat" alt="pylint mark"/>
     </a>
-    <a href='https://dispy-api-docs.readthedocs.io/en/latest/?badge=latest'>
-        <img src='https://readthedocs.org/projects/dispy-api-docs/badge/?version=latest' alt='documentation Status' />
+    <a href='https://disspy.readthedocs.io/en/latest/?badge=latest'>
+        <img src='https://readthedocs.org/projects/disspy/badge/?version=latest' alt='documentation Status' />
     </a>
 </p>
 
@@ -73,7 +73,7 @@ pip install --upgrade .
 # Links
 <p><a href="https://github.com/itttgg/dispy">https://github.com/itttgg/dispy</a> - GitHub repo</p>
 <p><a href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</a> - Project site on PyPi</p>
-<p><a href="https://dispy-api-docs.readthedocs.io/en/latest">https://dispy-api-docs.readthedocs.io/en/latest</a> - Site with docs for package</p>
+<p><a href="https://disspy.readthedocs.io">https://disspy.readthedocs.io</a> - Site with docs for package</p>
 
 # Using
 ### Creating and running bot
