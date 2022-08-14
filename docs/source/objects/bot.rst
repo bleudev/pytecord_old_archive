@@ -179,13 +179,11 @@ Create `Slash command. <application_commands.html#slash-commands>`_
 Example::
 
     @bot.slash_command(name="test", description="Example")
-    async def test(ctx: disspy.Context, args: disspy.OptionArgs):
+    async def test(ctx: disspy.Context):
         await ctx.send("Test!")
 
 Args for event:
     ``ctx`` -> `Context <application_commands.html#context>`_ object. Command context
-    
-    ``args`` -> `OptionArgs <application_commands.html#option-args>`_ object. Object with option values
 
 Returns:
     ``Union[Wrapper, None]`` -> Wrapper if application_id != 0 else None and error
