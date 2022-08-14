@@ -998,7 +998,7 @@ class DisApi(_RequestsUserClass):
         print(application_commands_from_server)
         print(application_commands_from_code)
         
-        if not application_commands_from_code and not application_commands_from_code:
+        if not application_commands_from_server and not application_commands_from_code:
             pass
         
         elif not application_commands_from_server and application_commands_from_code:
@@ -1010,22 +1010,21 @@ class DisApi(_RequestsUserClass):
         
         elif not application_commands_from_code and application_commands_from_server:
             for server in application_commands_from_server:
-                del_event = delete(f"{_url}/{server['id']}", headers=self._headers).json()
-                
+                del_event = delete(f"{_url}/{server['id']}", headers=self._headers)
+
                 if self._debug:
-                        print(f"{colorama.Fore.CYAN}DELETE | {del_event}")
+                    print(f"{colorama.Fore.CYAN}DELETE | {server}")
         elif application_commands_from_code and application_commands_from_server:
             for server in application_commands_from_server:
-                for code in application_commands_from_code:
-                    if not server["name"] == code["name"] and not server["type"] == code["type"]:
-                        del_event = delete(f"{_url}/{server['id']}", headers=self._headers).json()
-                        post_event = post(_url, json=code, headers=self._headers).json()
-                        
-                        if self._debug:
-                            print(f"{colorama.Fore.CYAN}DELETE | {del_event}")
-                            print(f"{colorama.Fore.BLUE}POST | {post_event}")
+                delete(f"{_url}/{server['id']}", headers=self._headers)
+            
+            for code in application_commands_from_code:
+                post(_url, json=code, headers=self._headers)
 
         if self._debug:
+            server_app_commands = get(_url, headers=self._headers).json()
+            
+            print(f"Current commands on server: {server_app_commands}")
             print(f"{colorama.Fore.GREEN}Regsiter is completed!")
 
     async def _on_interaction(self, token, interaction_id, command_name, bot_token: str,

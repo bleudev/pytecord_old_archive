@@ -431,8 +431,8 @@ class DisBot:
             _payload = {
                 "name": name,
                 "description": description,
-                "type": 1,
-                "options": appc.ApplicationCommandType.TEXT_INPUT
+                "type": appc.ApplicationCommandType.TEXT_INPUT,
+                "options": _options_jsons
             }
         else:
             _payload = {
