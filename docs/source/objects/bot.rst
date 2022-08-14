@@ -229,6 +229,34 @@ Params:
 Returns:
     ``None``
 
+@user_command()
+===============
+
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
+
+::
+
+    def user_command(name: str) -> Wrapper
+
+Create `User command. <application_commands.html#user-commands>`_
+
+Example::
+
+    @bot.user_command("info")
+    async def info(ctx: Context, user: DisUser):
+        await ctx.send(f"Fullname: {user.fullname}")
+
+Params:
+    ``name: str`` -> Name of user command
+
+Args for event:
+    ``ctx`` -> `Context <application_commands.html#context>`_ object. Command context
+    ``user`` -> Resolved user
+
+Returns:
+    ``Wrapper``
+
 DisBotStatus
 ************
 
