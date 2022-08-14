@@ -30,7 +30,8 @@ from typing import (
     ClassVar,
     Callable,
     final,
-    List
+    List,
+    Tuple
 )
 from json import dumps
 import aiohttp
@@ -207,98 +208,6 @@ class MessageCommand(ApplicationCommand):
 
 
 @final
-class Context:
-    """
-    Class for receiving interaction content and sending messages to users
-
-    There are some methods for responding to interaction (Slash Command)
-    """
-
-    def __init__(self, interaction_token: str,
-                 interaction_id: int, bot_token) -> NoReturn:
-        self._interaction_token: str = str(interaction_token)
-        self._interaction_id: int = int(interaction_id)
-
-        self._t = bot_token
-
-    async def send(self, content: str, action_row: Optional[ActionRow] = None,
-                   ephemeral: bool = False) -> NoReturn:
-        """
-
-        :param content: (str) Message content
-        :param ephemeral: (bool) Sets message invisible for other member (not author)
-        :return None:
-        """
-        _payload = {}
-
-        if ephemeral:
-            if action_row:
-                _payload = {
-                    "type": 4,
-                    "data": {
-                        "content": content,
-                        "flags": _MessageFlags.EPHEMERAL,
-                        "components": action_row.json
-                    }
-                }
-            else:
-                _payload = {
-                    "type": 4,
-                    "data": {
-                        "content": content,
-                        "flags": _MessageFlags.EPHEMERAL
-                    }
-                }
-        else:
-            if action_row:
-                _payload = {
-                    "type": 4,
-                    "data": {
-                        "content": content,
-                        "components": action_row.json
-                    }
-                }
-            else:
-                _payload = {
-                    "type": 4,
-                    "data": {
-                        "content": content
-                    }
-                }
-
-        _id = self._interaction_id
-        _token = self._interaction_token
-
-        _url = f"https://discord.com/api/v10/interactions/{_id}/{_token}/callback"
-
-        await _SendingRestHandler.execute(_url, _payload, self._t)
-
-    async def send_modal(self, title: str, custom_id: str, action_row: ActionRow):
-        """send_modal()
-
-        Args:
-            title (str): Title of modal
-            custom_id (str): Custom id of modal
-            action_row (ActionRow): Action row with components for modal
-        """
-        _payload = {
-            "type": 9,
-            "data": {
-                "title": title,
-                "custom_id": custom_id,
-                "components": action_row.json
-            }
-        }
-
-        _id = self._interaction_id
-        _token = self._interaction_token
-
-        _url = f"https://discord.com/api/v10/interactions/{_id}/{_token}/callback"
-
-        await _SendingRestHandler.execute(_url, _payload, self._t)
-
-
-@final
 class _Argument:
     def __init__(self, name: str, option_type: int, value: Any) -> NoReturn:
         self.name: str = name
@@ -394,3 +303,95 @@ class OptionArgs:
             if _a.name == name and _a.type == OptionType.BOOLEAN:
                 return bool(_a.value)
         return None
+
+
+@final
+class Context:
+    """
+    Class for receiving interaction content and sending messages to users
+
+    There are some methods for responding to interaction (Slash Command)
+    """
+
+    def __init__(self, interaction_info:Tuple[str, int], bot_token, args: OptionArgs = None) -> NoReturn:
+        self._interaction_token: str = str(list(interaction_info)[0])
+        self._interaction_id: int = int(list(interaction_info)[1])
+
+        self._t = bot_token
+        self.args = args
+
+    async def send(self, content: str, action_row: Optional[ActionRow] = None,
+                   ephemeral: bool = False) -> NoReturn:
+        """
+
+        :param content: (str) Message content
+        :param ephemeral: (bool) Sets message invisible for other member (not author)
+        :return None:
+        """
+        _payload = {}
+
+        if ephemeral:
+            if action_row:
+                _payload = {
+                    "type": 4,
+                    "data": {
+                        "content": content,
+                        "flags": _MessageFlags.EPHEMERAL,
+                        "components": action_row.json
+                    }
+                }
+            else:
+                _payload = {
+                    "type": 4,
+                    "data": {
+                        "content": content,
+                        "flags": _MessageFlags.EPHEMERAL
+                    }
+                }
+        else:
+            if action_row:
+                _payload = {
+                    "type": 4,
+                    "data": {
+                        "content": content,
+                        "components": action_row.json
+                    }
+                }
+            else:
+                _payload = {
+                    "type": 4,
+                    "data": {
+                        "content": content
+                    }
+                }
+
+        _id = self._interaction_id
+        _token = self._interaction_token
+
+        _url = f"https://discord.com/api/v10/interactions/{_id}/{_token}/callback"
+
+        await _SendingRestHandler.execute(_url, _payload, self._t)
+
+    async def send_modal(self, title: str, custom_id: str, action_row: ActionRow):
+        """send_modal()
+
+        Args:
+            title (str): Title of modal
+            custom_id (str): Custom id of modal
+            action_row (ActionRow): Action row with components for modal
+        """
+        _payload = {
+            "type": 9,
+            "data": {
+                "title": title,
+                "custom_id": custom_id,
+                "components": action_row.json
+            }
+        }
+
+        _id = self._interaction_id
+        _token = self._interaction_token
+
+        _url = f"https://discord.com/api/v10/interactions/{_id}/{_token}/callback"
+
+        await _SendingRestHandler.execute(_url, _payload, self._t)

@@ -1026,15 +1026,16 @@ class DisApi(_RequestsUserClass):
         if self._debug:
             server_app_commands = get(_url, headers=self._headers).json()
 
-            print(f"{colorama.Fore.YELLOW}Current commands on server: {colorama.Fore.RESET}", end="")
+            print(f"{colorama.Fore.YELLOW}Current commands on server: {colorama.Fore.RESET}",
+                  end="")
             print(server_app_commands)
             print(f"{colorama.Fore.GREEN}Regsiter is completed!")
 
     async def _on_interaction(self, token, interaction_id, command_name, bot_token: str,
                               interaction_type, data: JsonOutput, type_of_command=None) -> NoReturn:
+        interaction_info = (token, interaction_id)
+        
         if interaction_type == 2:
-            _ctx = Context(token, interaction_id, bot_token)
-
             try:
                 if type_of_command == 3:  # Message Commands
                     resolved: dict = data["data"]["resolved"]["messages"]
@@ -1049,6 +1050,7 @@ class DisApi(_RequestsUserClass):
 
                     _m = DisMessage(_m_d, self.token)
 
+                    _ctx = Context(interaction_info, bot_token)
                     await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
 
                 elif type_of_command == 2:  # User Commands
@@ -1064,6 +1066,7 @@ class DisApi(_RequestsUserClass):
 
                     _u = DisUser(_u_d, self.token)
 
+                    _ctx = Context(interaction_info, bot_token)
                     await self.app_commands[type_of_command - 1][command_name](_ctx, _u)
 
                 elif type_of_command == 1:  # Slash Commands
@@ -1079,7 +1082,9 @@ class DisApi(_RequestsUserClass):
 
                     func = self.app_commands[type_of_command - 1][command_name]
 
-                    await func(_ctx, OptionArgs(_args))
+                    _ctx = Context(interaction_info, bot_token, OptionArgs(_args))
+
+                    await func(_ctx)
                 else:
                     pass
             except KeyError:
