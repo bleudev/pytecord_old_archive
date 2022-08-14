@@ -171,16 +171,29 @@ Returns:
 
 ::
 
-    @slash_command(self, name: str, description: str, options: Optional[List[appc.Option]])
+    @slash_command(name: str, description: str, options: Optional[List[Option]])
                    -> Union[Wrapper, None]
 
 Create `Slash command. <application_commands.html#slash-commands>`_
+
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
 
 Example::
 
     @bot.slash_command(name="test", description="Example")
     async def test(ctx: disspy.Context):
         await ctx.send("Test!")
+
+Params:
+    ``name: str`` -> Name of command
+
+    ``description: str`` -> Description of command
+
+    ``options: Optional[List[Option]]`` -> List with command options
+
+    .. note::
+        Default is ``None``
 
 Args for event:
     ``ctx`` -> `Context <application_commands.html#context>`_ object. Command context
@@ -189,6 +202,27 @@ Returns:
     ``Union[Wrapper, None]`` -> Wrapper if application_id != 0 else None and error
 
 More info in `this page <application_commands.html#slash-commands>`_
+
+add_slash_command()
+===================
+
+::
+
+    def add_slash_command(command: SlashCommand) -> NoReturn
+
+Create command from `Slash command <application_commands.html#slash-commands>`_ object.
+
+Example::
+    async def func(ctx: Context):
+        await ctx.send("Test!")
+
+    bot.add_slash_command(SlashCommand(name="test", description="Dispy is good!", cmd=func))
+
+Params:
+    ``command`` -> `Slash command <application_commands.html#slash-commands>`_ object. Command that needs for register
+
+Returns:
+    ``None``
 
 DisBotStatus
 ************
