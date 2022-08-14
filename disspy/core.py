@@ -985,46 +985,49 @@ class DisApi(_RequestsUserClass):
         self.user: DisUser = self.get_user(self.flow.user_id)
 
         if self._debug:
-            print(f"{colorama.Fore.YELLOW}Registering application commands...")
+            print(f"{colorama.Fore.YELLOW}Registering application commands...{colorama.Fore.RESET}")
 
         app_id = data["application"]["id"]
 
         _url = f"{_mainurl()}applications/{app_id}/commands"
-        print(_url)
 
         application_commands_from_server = get(_url, headers=self._headers).json()
         application_commands_from_code = self.app_commands_jsons
-        
-        print(application_commands_from_server)
-        print(application_commands_from_code)
-        
+
         if not application_commands_from_server and not application_commands_from_code:
             pass
-        
+
         elif not application_commands_from_server and application_commands_from_code:
             for code in application_commands_from_code:
                 post_event = post(_url, json=code, headers=self._headers).json()
-                
-                if self._debug:
-                    print(f"{colorama.Fore.BLUE}POST | {post_event}")
-        
-        elif not application_commands_from_code and application_commands_from_server:
-            for server in application_commands_from_server:
-                del_event = delete(f"{_url}/{server['id']}", headers=self._headers)
 
                 if self._debug:
-                    print(f"{colorama.Fore.CYAN}DELETE | {server}")
+                    print(f"{colorama.Fore.BLUE}POST |{colorama.Fore.RESET} {post_event}")
+
+        elif not application_commands_from_code and application_commands_from_server:
+            for server in application_commands_from_server:
+                delete(f"{_url}/{server['id']}", headers=self._headers)
+
+                if self._debug:
+                    print(f"{colorama.Fore.CYAN}DELETE |{colorama.Fore.RESET} {server}")
         elif application_commands_from_code and application_commands_from_server:
             for server in application_commands_from_server:
                 delete(f"{_url}/{server['id']}", headers=self._headers)
-            
+
+                if self._debug:
+                    print(f"{colorama.Fore.CYAN}DELETE |{colorama.Fore.RESET} {server}")
+
             for code in application_commands_from_code:
-                post(_url, json=code, headers=self._headers)
+                post_event = post(_url, json=code, headers=self._headers).json()
+
+                if self._debug:
+                    print(f"{colorama.Fore.BLUE}POST |{colorama.Fore.RESET} {post_event}")
 
         if self._debug:
             server_app_commands = get(_url, headers=self._headers).json()
-            
-            print(f"Current commands on server: {server_app_commands}")
+
+            print(f"{colorama.Fore.YELLOW}Current commands on server: {colorama.Fore.RESET}", end="")
+            print(server_app_commands)
             print(f"{colorama.Fore.GREEN}Regsiter is completed!")
 
     async def _on_interaction(self, token, interaction_id, command_name, bot_token: str,
