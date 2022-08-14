@@ -174,10 +174,8 @@ class DisBot:
 
     __classname__ = "DisBot"
 
-    def __init__(self, token: Snowflake[str], application_id: Optional[Snowflake[int]] = None,
-                status: Optional[TypeOf(DisBotStatus)] = None,
-                flags: Optional[TypeOf(DisFlags)] = None,
-                debug: Optional[bool] = False,
+    def __init__(self, token: Snowflake[str], status: Optional[TypeOf(DisBotStatus)] = None,
+                flags: Optional[TypeOf(DisFlags)] = None, debug: Optional[bool] = False,
                 activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
         """
         Create bot
@@ -238,22 +236,7 @@ class DisBot:
 
         self.user = None
 
-        if application_id is None or application_id == 0:
-            application_id = 0
-        else:
-            _u = f"https://discord.com/api/v10/applications/{application_id}/commands"
-            test2_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
-
-            try:
-                if test2_j["message"] == "Unknown Application" and test2_j["code"] == 10002:
-                    raise errors.BotApplicationIdInvalid("Invalid Application id!")
-            except KeyError:
-                pass
-            except TypeError:
-                pass
-
-        self.api = DisApi(self.token, self.intflags, application_id)
-        self.application_id: int = int(application_id)
+        self.api = DisApi(self.token, self.intflags)
 
         self.isready = False
 
@@ -437,34 +420,31 @@ class DisBot:
         :param options: Command's options
         :return Wrapper:
         """
-        if self.application_id != 0 or self.application_id:
-            _payload = {}
+        _payload = {}
 
-            if options:
-                _options_jsons = []
+        if options:
+            _options_jsons = []
 
-                for option in options:
-                    _options_jsons.append(_OptionGenerator(option))
+            for option in options:
+                _options_jsons.append(_OptionGenerator(option))
 
-                _payload = {
-                    "name": name,
-                    "description": description,
-                    "type": 1,
-                    "options": appc.ApplicationCommandType.TEXT_INPUT
-                }
-            else:
-                _payload = {
-                    "name": name,
-                    "description": description,
-                    "type": appc.ApplicationCommandType.TEXT_INPUT
-                }
+            _payload = {
+                "name": name,
+                "description": description,
+                "type": 1,
+                "options": appc.ApplicationCommandType.TEXT_INPUT
+            }
+        else:
+            _payload = {
+                "name": name,
+                "description": description,
+                "type": appc.ApplicationCommandType.TEXT_INPUT
+            }
 
-            def wrapper(func):
-                self.api.create_command(_payload, func)
+        def wrapper(func):
+            self.api.create_command(_payload, func)
 
-            return wrapper
-
-        raise errors.ApplicationIdIsNone("Application commands is blocked")
+        return wrapper
 
     def add_slash_command(self, command: appc.SlashCommand) -> NoReturn:
         """
@@ -473,19 +453,16 @@ class DisBot:
         :param command: Slash Command
         :return None:
         """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": command.name,
-                "description": command.description,
-                "type": appc.ApplicationCommandType.TEXT_INPUT,
-                "options": command.options
-            }
+        _payload = {
+            "name": command.name,
+            "description": command.description,
+            "type": appc.ApplicationCommandType.TEXT_INPUT,
+            "options": command.options
+        }
 
-            self.api.create_command(_payload, command.cmd)
+        self.api.create_command(_payload, command.cmd)
 
-            return None
-
-        raise errors.ApplicationIdIsNone("Application commands is blocked")
+        return None
 
     def user_command(self, name) -> Union[Wrapper, None]:
         """
@@ -494,18 +471,15 @@ class DisBot:
         :param name: Command's name
         :return Wrapper:
         """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": name,
-                "type": appc.ApplicationCommandType.USER
-            }
+        _payload = {
+            "name": name,
+            "type": appc.ApplicationCommandType.USER
+        }
 
-            def wrapper(func):
-                self.api.create_command(_payload, func)
+        def wrapper(func):
+            self.api.create_command(_payload, func)
 
-            return wrapper
-
-        raise errors.ApplicationIdIsNone("Application commands is blocked")
+        return wrapper
 
     def add_user_command(self, command: appc.UserCommand) -> NoReturn:
         """
@@ -514,17 +488,14 @@ class DisBot:
         :param command: User Command
         :return None:
         """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": command.name,
-                "type": appc.ApplicationCommandType.USER,
-            }
+        _payload = {
+            "name": command.name,
+            "type": appc.ApplicationCommandType.USER,
+        }
 
-            self.api.create_command(_payload, command.cmd)
+        self.api.create_command(_payload, command.cmd)
 
-            return None
-
-        raise errors.ApplicationIdIsNone("Application commands is blocked")
+        return None
 
     def message_command(self, name) -> Union[Wrapper, None]:
         """
@@ -533,18 +504,15 @@ class DisBot:
         :param name: Command's name
         :return Wrapper:
         """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": name,
-                "type": appc.ApplicationCommandType.MESSAGE
-            }
+        _payload = {
+            "name": name,
+            "type": appc.ApplicationCommandType.MESSAGE
+        }
 
-            def wrapper(func):
-                self.api.create_command(_payload, func)
+        def wrapper(func):
+            self.api.create_command(_payload, func)
 
-            return wrapper
-
-        raise errors.ApplicationIdIsNone("Application commands is blocked")
+        return wrapper
 
     def add_message_command(self,
                             command: appc.MessageCommand) -> NoReturn:
@@ -554,17 +522,14 @@ class DisBot:
         :param command: Message Command
         :return None:
         """
-        if self.application_id != 0 or self.application_id:
-            _payload = {
-                "name": command.name,
-                "type": appc.ApplicationCommandType.MESSAGE,
-            }
+        _payload = {
+            "name": command.name,
+            "type": appc.ApplicationCommandType.MESSAGE,
+        }
 
-            self.api.create_command(_payload, command.cmd)
+        self.api.create_command(_payload, command.cmd)
 
-            return None
-
-        raise errors.ApplicationIdIsNone("Application commands is blocked")
+        return None
 
     def run(self, status: Optional[Union[DisBotStatus, str]] = None,
             activity: Optional[Union[Activity, dict]] = None) -> NoReturn:

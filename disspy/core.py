@@ -28,7 +28,7 @@ import asyncio
 from typing import (
     TypeVar,
     Union,
-    Awaitable,
+    Coroutine,
     Callable,
     NewType,
     ClassVar,
@@ -45,7 +45,7 @@ from enum import Enum, auto
 from datetime import datetime
 from time import mktime
 from aiohttp import ClientSession
-from requests import delete, post, get, patch
+from requests import delete, post, get
 import colorama
 
 
@@ -706,7 +706,7 @@ class Flow:
                     if self._debug:
                         print(_DebugLoggingAwaiting(event.type, "register"))
 
-                    await self.ons["register2"]()
+                    await self.ons["register2"](event.data)
 
                     if self._debug:
                         print(_DebugLoggingAwaiting(event.type, "on_register2"))
@@ -910,7 +910,7 @@ class DisApi(_RequestsUserClass):
     """DisApi
     Class for init Rest and Flow event and edit they
     """
-    def __init__(self, token: str, intents, application_id):
+    def __init__(self, token: str, intents):
         """
         Init Class
 
@@ -927,7 +927,6 @@ class DisApi(_RequestsUserClass):
         self._on_ready = None
         self._on_messagec = None
         self.token = token
-        self.application_id = application_id
 
         self.flow = Flow(10, self.token, intents)
         self._r = Rest(self.token)
@@ -936,6 +935,7 @@ class DisApi(_RequestsUserClass):
         self.raw_app_commands = []
 
         self.user = None
+        self._debug = False
 
         self.app_commands.append({})  # Slash Commands
         self.app_commands.append({})  # User Commands
@@ -976,35 +976,57 @@ class DisApi(_RequestsUserClass):
         ons["components"] = self._on_components
         ons["modalsumbit"] = self._on_modal_sumbit
 
-        _url = f"{_mainurl()}applications/{self.application_id}/commands"
-
-        _raws = get(_url, headers=self._headers).json()
-
-        for raw in _raws:
-            for j in self.app_commands_jsons:
-                if raw["name"] == j["name"] and raw["type"] == j["type"]:
-                    _res = raw
-
-                    try:
-                        _res["description"] = j["description"]
-                    except KeyError:
-                        pass
-
-                    try:
-                        _res["options"] = j["options"]
-                    except KeyError:
-                        pass
-
-                    patch(f"{_url}/{raw['id']}", json=j, headers=self._headers)
-                else:
-                    delete(f"{_url}/{raw['id']}", headers=self._headers)
-                    post(url=_url, json=j, headers=self._headers)
+        self._debug = debug
 
         await self.flow.run(ons, status, debug, act)
 
-    async def _register2(self):
+    async def _register2(self, data: dict):
         # pass
         self.user: DisUser = self.get_user(self.flow.user_id)
+
+        if self._debug:
+            print(f"{colorama.Fore.YELLOW}Registering application commands...")
+
+        app_id = data["application"]["id"]
+
+        _url = f"{_mainurl()}applications/{app_id}/commands"
+        print(_url)
+
+        application_commands_from_server = get(_url, headers=self._headers).json()
+        application_commands_from_code = self.app_commands_jsons
+        
+        print(application_commands_from_server)
+        print(application_commands_from_code)
+        
+        if not application_commands_from_code and not application_commands_from_code:
+            pass
+        
+        elif not application_commands_from_server and application_commands_from_code:
+            for code in application_commands_from_code:
+                post_event = post(_url, json=code, headers=self._headers).json()
+                
+                if self._debug:
+                    print(f"{colorama.Fore.BLUE}POST | {post_event}")
+        
+        elif not application_commands_from_code and application_commands_from_server:
+            for server in application_commands_from_server:
+                del_event = delete(f"{_url}/{server['id']}", headers=self._headers).json()
+                
+                if self._debug:
+                        print(f"{colorama.Fore.CYAN}DELETE | {del_event}")
+        elif application_commands_from_code and application_commands_from_server:
+            for server in application_commands_from_server:
+                for code in application_commands_from_code:
+                    if not server["name"] == code["name"] and not server["type"] == code["type"]:
+                        del_event = delete(f"{_url}/{server['id']}", headers=self._headers).json()
+                        post_event = post(_url, json=code, headers=self._headers).json()
+                        
+                        if self._debug:
+                            print(f"{colorama.Fore.CYAN}DELETE | {del_event}")
+                            print(f"{colorama.Fore.BLUE}POST | {post_event}")
+
+        if self._debug:
+            print(f"{colorama.Fore.GREEN}Regsiter is completed!")
 
     async def _on_interaction(self, token, interaction_id, command_name, bot_token: str,
                               interaction_type, data: JsonOutput, type_of_command=None) -> NoReturn:
@@ -1148,7 +1170,7 @@ class DisApi(_RequestsUserClass):
 
         return self._r.get("guild", guild_id)
 
-    def create_command(self, payload: dict, func: Awaitable):
+    def create_command(self, payload: dict, func: Callable[..., Coroutine[Any, Any, Any]]):
         """create_command
         Create application command
 
@@ -1156,8 +1178,6 @@ class DisApi(_RequestsUserClass):
             payload (dict): Json data of command
             func (Awaitable): Function for awaiting command
         """
-        _url = f"https://discord.com/api/v10/applications/{self.application_id}/commands"
-
         def app_func_register(number):
             self.app_commands[number][payload["name"]] = func
 
