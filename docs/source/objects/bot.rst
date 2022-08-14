@@ -1,0 +1,341 @@
+Bot
+###
+
+Contents:
+    * `DisBot`_
+    * `DisBotStatus`_
+    * `DisBotEventType`_
+
+DisBot
+******
+
+::
+
+    class DisBot(token: Snowflake[str], application_id: Optional[Snowflake[int]],
+                 status: Optional[TypeOf(DisBotStatus)], flags: Optional[TypeOf(DisFlags)],
+                 debug: Optional[bool] = False, activity: Optional[Union[Activity, dict]])
+
+``token`` -> Token of bot from Discord Developer Portal
+
+``application_id`` -> Application id of bot from Discord Developer Portal
+
+.. note::
+    Default is ``None``
+
+.. warning::
+    If ``application_id == None`` you can't create application commands
+
+``status`` -> Key of `DisBotStatus`_ object. Bot status in Discord (for example, "online")
+
+.. note::
+    Default is ``DisBotStatus.ONLINE``
+
+``flags`` -> Key of DisFlags. Special privellegions for bot (for example, DisFlags.messages() for on_message() events, or DisFlags.reactions() for on_reaction() events)
+
+.. note::
+    Default is ``DisFlags.default()``
+
+``debug`` -> Enable debug in console
+
+.. note::
+    Default is ``False``
+
+``activity`` -> Bot activity in Discord (For example, ``playing in Disspy``)
+
+.. note::
+    Default is ``None``
+
+@on()
+=====
+
+::
+
+    @on(event_type: Event(DisBotEventType, str)) -> Wrapper
+
+Registering events with event type and function
+
+Example::
+
+    @bot.on("ready")
+    async def on_ready():
+        print("I'm ready!")
+
+Params:
+    ``event_type: str`` -> Key of `DisBotEventType`_ 
+
+Returns:
+    ``Wrapper``
+
+add_event()
+===========
+
+::
+
+    def add_event(event_type: Event(DisBotEventType, str), func: Callable) -> NoReturn
+
+Registering events with event type and function
+
+Example::
+
+    async def on_ready():
+        print("I'm ready!")
+    
+    bot.add_event("ready", on_ready)
+
+Params:
+    ``event_type: str`` -> Key of `DisBotEventType`_
+
+    ``func: Callable`` -> `Callable <https://docs.python.org/3/library/typing.html#callable>`_ argument. function for event
+
+Returns:
+    ``None``
+
+@on_ready()
+===========
+
+::
+
+    @on_ready() -> Wrapper
+
+Register on_ready() event
+
+Example::
+
+    @bot.on_ready()
+    async def on_ready():
+        print(f"Logged by {bot.user.fullname}")
+
+Params:
+    ``None``
+
+Returns:
+    ``Wrapper``
+
+@on_message()
+=============
+
+::
+
+    @on_message(event_type: str) -> Wrapper
+
+Register on_message() events
+
+Example::
+
+    @bot.on_message("create")
+    async def on_messagec(message: disspy.DisMessage):
+        await message.channel.send(f"Channel id: {message.channel.id}")
+
+Params:
+    ``event_type: str`` -> Key of ["create", "update", "delete"] list
+
+Returns:
+    ``Wrapper``
+
+@on_dm_message()
+================
+
+::
+
+    @on_dm_message(event_type: str) -> Wrapper
+
+Register on_dmessage() events
+
+Example::
+
+    @bot.on_dm_message("update")
+        async def on_dmessageu(message: disspy.DmMessage):
+            await message.channel.send("Dota 2 - 👎🏼")
+
+Params:
+    ``event_type: str`` -> Key of ["create", "update", "delete"] list
+
+Returns:
+    ``Wrapper``
+
+@on_channel()
+=============
+
+::
+
+    @on_channel(channel_id: ChannelId) -> Wrapper
+
+Register on_channel() event (on_messagec() event, but in one channel)
+
+Example::
+
+    @bot.on_channel(955869165162479648)
+    async def on_channel(message: disspy.DisMessage):
+        await message.reply("Hi")
+
+Params:
+    ``channel_id: int`` -> Channel id for event
+
+Returns:
+    ``Wrapper``
+
+@slash_command()
+================
+
+::
+
+    @slash_command(self, name: str, description: str, options: Optional[List[appc.Option]])
+                   -> Union[Wrapper, None]
+
+Create `Slash command. <application_commands.html#slash-commands>`_
+
+Example::
+
+    @bot.slash_command(name="test", description="Example")
+    async def test(ctx: disspy.Context, args: disspy.OptionArgs):
+        await ctx.send("Test!")
+
+Args for event:
+    ``ctx`` -> `Context <application_commands.html#context>`_ object. Command context
+    
+    ``args`` -> `OptionArgs <application_commands.html#option-args>`_ object. Object with option values
+
+Returns:
+    ``Union[Wrapper, None]`` -> Wrapper if application_id != 0 else None and error
+
+More info in `this page <application_commands.html#slash-commands>`_
+
+DisBotStatus
+************
+
+.. image:: images/bot_statuses.png
+
+::
+
+    class DisBotStatus
+
+Class with constants representes Discord bot statues
+
+Variables:
+    * ``ONLINE`` -> Online status (1st status on image)
+    * ``DND`` -> Do not disturb status (3rd status on image)
+    * ``INVISIBLE`` -> Invisible status (5th status on image)
+    * ``IDLE`` -> Idle status (2nd status on image)
+
+DisBotEventType
+***************
+
+Usage example::
+
+    @bot.on(disspy.DisBotEventType.ON_MESSAGEC)
+    async def on_messagec(message: disspy.DisMessage):
+        await message.reply("This is example of usage DisBotEventType!")
+
+Variables:
+    * ``ON_MESSAGEC`` -> On message create
+    * ``ON_MESSAGEU`` -> On message update
+    * ``ON_MESSAGED`` -> On message delete
+    * ``ON_DMESSAGEC`` -> On message create in DM channel
+    * ``ON_DMESSAGEU`` -> On message update in DM channel
+    * ``ON_DMESSAGED`` -> On message delete in DM channel
+    * ``ON_READY`` -> On ready
+    * ``ON_CLOSE`` -> On close
+    * ``ON_REACTION`` -> On reaction add
+    * ``ON_REACTIONR`` -> On reaction remove
+    * ``ON_TYPING`` -> On typing start
+    * ``ON_DM_TYPING`` -> On typing start in DM channel
+
+ON_MESSAGEC
+===========
+
+Represention of Gateway "MESSAGE_CREATE" event
+
+Args for event:
+    message -> `DisMessage <message.html#dismessage>`_ object. Message that was created
+
+ON_MESSAGEU
+===========
+
+Represention of Gateway "MESSAGE_UPDATE" event
+
+Args for event:
+    message -> `DisMessage <message.html#dismessage>`_ object. Message that was updated
+
+ON_MESSAGED
+===========
+
+Represention of Gateway "MESSAGE_DELETE" event
+
+Args for event:
+    event -> `MessageDeleteEvent <message.html#messagedeleteevent>`_ object. Message deleting event
+
+ON_DMESSAGEC
+============
+
+Represention of Gateway "MESSAGE_CREATE" event only in DM channel
+
+Args for event:
+    message -> `DmMessage <message.html#dmmessage>`_ object. Message that was created
+
+ON_DMESSAGEU
+============
+
+Represention of Gateway "MESSAGE_UPDATE" event only in DM channel
+
+Args for event:
+    message -> `DmMessage <message.html#dmmessage>`_ object. Message that was updated
+
+ON_DMESSAGED
+============
+
+Represention of Gateway "MESSAGE_DELETE" event only in DM channel
+
+Args for event:
+    event -> `DmMessageDeleteEvent <message.html#dmmessagedeleteevent>`_ object. Message deleting event
+
+ON_READY
+========
+
+Represention of Gateway "READY" event
+
+Args for event:
+    ``None``
+
+ON_CLOSE
+========
+
+Will be called when calling ``DisBot.__del__`` function
+
+Args for event:
+    ``None``
+
+ON_REACTION
+===========
+
+Represention of Gateway "REACTION_ADD" event
+
+Args for event:
+    reaction: DisReaction object. Reaction that was added
+
+ON_REACTIONR
+============
+
+Represention of Gateway "REACTION_REMOVE" event
+
+Args for event:
+    reaction: DisRemovedReaction object. Reaction that was removed
+
+ON_TYPING
+=========
+
+Represention of Gateway "TYPING_START" event
+
+Args for event:
+    ``user``: DisUser object. User who started typing
+
+    ``channel``: DisChannel object. Channel where typing was started
+
+ON_DM_TYPING
+============
+
+Represention of Gateway "TYPING_START" event only in DM channel
+
+Args for event:
+    ``user``: DisUser object. User who started typing
+
+    ``channel``: DisDmChannel object. Channel where typing was started
