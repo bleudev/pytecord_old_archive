@@ -41,7 +41,7 @@ Come on with name and click "Create"
 
 .. image:: images/3.png
 
-Put application id in your brain and click "Bot" section
+Click "Bot" section
 
 .. image:: images/4.png
 
@@ -71,7 +71,6 @@ Now let's coding!!!
     import disspy
 
     token = "YOUR_COPIED_TOKEN"
-    application_id = 0000000  # Your application_id
 
     bot = disspy.DisBot(token=token, application_id=application_id)  # You created bot!
 
@@ -88,4 +87,4 @@ In end of file you MUST type this code::
     bot.run()
 
 This is very important because this method run bot in Discord! Well...
-You are ready for other docs.
+You are ready for coding with disspy.

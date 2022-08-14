@@ -13,7 +13,7 @@ If you want help my project you can `contribute.` For this you need fork repo. G
 with information about forks. Ok, after creating your fork, you need create commits about your contribution.
 Next you need create pull request. All! Our team will review your pull and merge it.
 
-You can do it with dispy and with dispy-api-docs, but you MUST follow rules that was described bellow.
+You can do it, but you MUST follow rules that was described bellow.
 
 Contributing rules
 ******************

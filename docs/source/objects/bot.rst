@@ -11,19 +11,11 @@ DisBot
 
 ::
 
-    class DisBot(token: Snowflake[str], application_id: Optional[Snowflake[int]],
-                 status: Optional[TypeOf(DisBotStatus)], flags: Optional[TypeOf(DisFlags)],
-                 debug: Optional[bool] = False, activity: Optional[Union[Activity, dict]])
+    class DisBot(token: Snowflake[str], status: Optional[TypeOf(DisBotStatus)],
+                 flags: Optional[TypeOf(DisFlags)], debug: Optional[bool] = False,
+                 activity: Optional[Union[Activity, dict]])
 
 ``token`` -> Token of bot from Discord Developer Portal
-
-``application_id`` -> Application id of bot from Discord Developer Portal
-
-.. note::
-    Default is ``None``
-
-.. warning::
-    If ``application_id == None`` you can't create application commands
 
 ``status`` -> Key of `DisBotStatus`_ object. Bot status in Discord (for example, "online")
 

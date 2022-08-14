@@ -1,5 +1,5 @@
 # Dispy
-<p align=center><img src="imgs/logo.png" width="430" alt="logo" style="text-align: center"/></p>
+<p align=center><img src="logo.png" width="430" alt="logo" style="text-align: center"/></p>
 
 <p align=center>
     <a href="https://pypi.org/project/disspy">
@@ -35,7 +35,7 @@ For example, you can send messages use this code:
 ```python
 import disspy  # Import package
 
-bot = disspy.DisBot(token="YOUR_TOKEN", application_id=00000)  # Create a bot
+bot = disspy.DisBot(token="YOUR_TOKEN")  # Create a bot
 
 async def test():  # Send messages needs to execute in the async function
     channel_id = 000000  # Yours channel id
