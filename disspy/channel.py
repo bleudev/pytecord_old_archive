@@ -523,7 +523,7 @@ class DmMessage(Message):
     Message in DM channel
     """
     def __init__(self, data, token):
-        super().__init__(data["type"])
+        super().__init__(data["type"], True)
 
         self.json = data
         self._t = token

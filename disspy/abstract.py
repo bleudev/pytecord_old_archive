@@ -103,10 +103,11 @@ class Message(ABC):
 
     (Abstract class)
     """
-    def __init__(self, message_type) -> None:
+    def __init__(self, message_type: int, is_dm: bool = False) -> None:
         super().__init__()
 
         self._type = message_type
+        self._is_dm = is_dm
 
     @abstractmethod
     async def reply(self, content: Optional[str] = None, embeds: Optional[List[Any]] = None):
@@ -136,3 +137,21 @@ class Message(ABC):
             bool: Message is default?
         """
         return self._type == _MessageType.DEFAULT.value
+
+    def is_normal(self) -> bool:
+        """is_normal
+        Message is normal?
+
+        Returns:
+            bool: Is normal?
+        """
+        return not self._is_dm
+
+    def is_direct(self) -> bool:
+        """is_direct
+        Message is direct?
+
+        Returns:
+            bool: Is direct?
+        """
+        return self._is_dm

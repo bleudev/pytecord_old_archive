@@ -1048,7 +1048,16 @@ class DisApi(_RequestsUserClass):
                     except KeyError:
                         _m_d.setdefault("id", _m_id)
 
-                    _m = DisMessage(_m_d, self.token)
+                    _c_id = _m_d["channel_id"]
+
+                    _c_d = get(f"{_mainurl()}channels/{str(_c_id)}")
+
+                    _m = None
+
+                    if _c_d["type"] == 1:
+                        _m = DisMessage(_m_d, self.token)
+                    else:
+                        _m = DmMessage(_m_d, self.token)
 
                     _ctx = Context(interaction_info, bot_token)
                     await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
