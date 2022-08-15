@@ -6,10 +6,10 @@
         <img src="https://img.shields.io/pypi/v/disspy?color=blueviolet" alt="version"/>
     </a>
     <a href="https://pypi.org/project/disspy">
-        <img src="https://img.shields.io/badge/lang-python-blueviolet?style=flat" alt="project language"/>
+        <img src="https://img.shields.io/badge/language-python-blueviolet?style=flat" alt="project language"/>
     </a>
     <a href="https://pypi.org/project/disspy">
-        <img src="https://img.shields.io/badge/python_version-3.8_|_3.9_|_3.10-blueviolet?style=flat" alt="python version"/>
+        <img src="https://img.shields.io/badge/python_versions-3.8_|_3.9_|_3.10-blueviolet?style=flat" alt="python version"/>
     </a>
     <a href="https://github.com/PyCQA/pylint">
         <img src="https://img.shields.io/badge/linting-pylint-blueviolet?style=flat" alt="linting"/></a>
