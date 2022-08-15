@@ -252,6 +252,7 @@ Params:
 
 Args for event:
     ``ctx`` -> `Context <application_commands.html#context>`_ object. Command context
+
     ``user`` -> Resolved user
 
 Returns:
@@ -281,6 +282,35 @@ Params:
 
 Returns:
     ``None``
+
+@message_command()
+==================
+
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
+
+::
+
+    def message_command(self, name: str) -> Wrapper:
+
+Create `Message command. <application_commands.html#message-commands>`_
+
+Example::
+
+    @bot.user_command("info")
+    async def info(ctx: Context, message: disspy.DmMessage):
+        await ctx.send(f"Message content: {message.content}")
+
+Params:
+    ``name: str`` -> Name of message command
+
+Args for event:
+    ``ctx`` -> `Context <application_commands.html#context>`_ object. Command context
+
+    ``message`` -> Message
+
+Returns:
+    ``Wrapper``
 
 DisBotStatus
 ************
