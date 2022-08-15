@@ -257,6 +257,31 @@ Args for event:
 Returns:
     ``Wrapper``
 
+add_user_command()
+==================
+
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
+
+::
+
+     def add_user_command(command: UserCommand) -> NoReturn
+
+Create command from `User command <application_commands.html#user-commands>`_ object.
+
+Example::
+
+    async def func(ctx: Context, user: DisUser):
+        await ctx.send(user.id)
+
+    bot.add_user_command(UserCommand(name="test", cmd=func))
+
+Params:
+    ``command`` -> `User command <application_commands.html#user-commands>`_ object. Application command object
+
+Returns:
+    ``None``
+
 DisBotStatus
 ************
 
