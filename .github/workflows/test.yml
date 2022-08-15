@@ -21,4 +21,4 @@ jobs:
         python -m pip install -r ./requirements.txt
     - name: Test package
       run: |
-        python ./tests/import_test.py
+        python ./import_test.py
