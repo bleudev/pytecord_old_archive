@@ -140,16 +140,16 @@ class Message(ABC):
 
     def is_normal(self) -> bool:
         """is_normal
-        Message is normal?
+        Message channel is normal?
 
         Returns:
             bool: Is normal?
         """
-        return not self._is_dm
+        return self._is_dm is False
 
     def is_direct(self) -> bool:
         """is_direct
-        Message is direct?
+        Message channel is direct?
 
         Returns:
             bool: Is direct?
