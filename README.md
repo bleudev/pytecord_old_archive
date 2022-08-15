@@ -17,7 +17,7 @@
          <img src="https://img.shields.io/badge/pylink_mark_(3.8)-9.03/10-blueviolet?style=flat" alt="pylint mark"/>
     </a>
     <a href='https://disspy.readthedocs.io/en/latest/?badge=latest'>
-        <img src='https://readthedocs.org/projects/disspy/badge/?version=latest' alt='documentation Status' />
+        <img src='https://readthedocs.org/projects/disspy/badge/?version=latest' alt='documentation Status'/>
     </a>
 </p>
 
