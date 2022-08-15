@@ -19,3 +19,7 @@ Type here
 ```python
 # Type here your not ideal code
 ```
+**Checklist**
+- [ ] 1 step
+- [ ] 2 step
+- [ ] 3 step
