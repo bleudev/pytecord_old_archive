@@ -34,6 +34,7 @@ from typing import (
     Tuple
 )
 from json import dumps
+from abc import ABC, abstractmethod
 import aiohttp
 
 from disspy.jsongenerators import _OptionGenerator
@@ -104,21 +105,28 @@ class ApplicationCommandType:
     MESSAGE: ClassVar[int] = 3  # Message Command
 
 
-class ApplicationCommand:
+class ApplicationCommand(ABC):
     """
+    (abstract)
     Application Command object.
 
     This use as parent for slash commands, message commands, user commands
-
-    :var name: Name of application command
-    :var cmd: Method to use in on_interaction
-    :var command_type: Type of application command
     """
 
     def __init__(self, name: str, cmd: Callable, command_type: int) -> NoReturn:
         self.name: str = name
         self.cmd: Callable = cmd
         self.command_type: int = command_type
+
+    @abstractmethod
+    def json(self) -> dict:
+        """json
+        Return json data of command
+
+        Returns:
+            dict: Json data
+        """
+        return
 
 
 @final
@@ -172,7 +180,7 @@ class SlashCommand(ApplicationCommand):
 
     def __init__(self, name: str, description: str, cmd: Callable,
                  options: Optional[List[Option]] = None) -> NoReturn:
-        super().__init__(name, cmd, 1)
+        super().__init__(name, cmd, ApplicationCommandType.TEXT_INPUT)
 
         self.description = description
 
@@ -186,6 +194,20 @@ class SlashCommand(ApplicationCommand):
         else:
             self.options: Union[List[Option], None] = None
 
+    def json(self) -> dict:
+        """json
+        Return json data of command
+
+        Returns:
+            dict: Json data
+        """
+        return {
+            "name": self.name,
+            "description": self.description,
+            "type": ApplicationCommandType.TEXT_INPUT,
+            "options": self.options
+        }
+
 
 @final
 class UserCommand(ApplicationCommand):
@@ -194,7 +216,19 @@ class UserCommand(ApplicationCommand):
     """
 
     def __init__(self, name: str, cmd: Callable) -> NoReturn:
-        super().__init__(name, cmd, 2)
+        super().__init__(name, cmd, ApplicationCommandType.USER)
+
+    def json(self) -> dict:
+        """json
+        Return json data of command
+
+        Returns:
+            dict: Json data
+        """
+        return {
+            "name": self.name,
+            "type": ApplicationCommandType.USER
+        }
 
 
 @final
@@ -204,7 +238,19 @@ class MessageCommand(ApplicationCommand):
     """
 
     def __init__(self, name: str, cmd: Callable) -> NoReturn:
-        super().__init__(name, cmd, 3)
+        super().__init__(name, cmd, ApplicationCommandType.MESSAGE)
+
+    def json(self) -> dict:
+        """json
+        Return json data of command
+
+        Returns:
+            dict: Json data
+        """
+        return {
+            "name": self.name,
+            "type": ApplicationCommandType.MESSAGE
+        }
 
 
 @final
@@ -313,7 +359,8 @@ class Context:
     There are some methods for responding to interaction (Slash Command)
     """
 
-    def __init__(self, interaction_info:Tuple[str, int], bot_token, args: OptionArgs = None) -> NoReturn:
+    def __init__(self, interaction_info:Tuple[str, int], bot_token,
+                 args: OptionArgs = None) -> NoReturn:
         self._interaction_token: str = str(list(interaction_info)[0])
         self._interaction_id: int = int(list(interaction_info)[1])
 

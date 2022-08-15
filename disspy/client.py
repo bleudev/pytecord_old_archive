@@ -452,14 +452,7 @@ class DisBot:
         :param command: Slash Command
         :return None:
         """
-        _payload = {
-            "name": command.name,
-            "description": command.description,
-            "type": appc.ApplicationCommandType.TEXT_INPUT,
-            "options": command.options
-        }
-
-        self.api.create_command(_payload, command.cmd)
+        self.api.create_command(command.json(), command.cmd)
 
         return None
 
@@ -487,12 +480,7 @@ class DisBot:
         :param command: User Command
         :return None:
         """
-        _payload = {
-            "name": command.name,
-            "type": appc.ApplicationCommandType.USER,
-        }
-
-        self.api.create_command(_payload, command.cmd)
+        self.api.create_command(command.json(), command.cmd)
 
         return None
 
@@ -521,12 +509,18 @@ class DisBot:
         :param command: Message Command
         :return None:
         """
-        _payload = {
-            "name": command.name,
-            "type": appc.ApplicationCommandType.MESSAGE,
-        }
+        self.api.create_command(command.json(), command.cmd)
 
-        self.api.create_command(_payload, command.cmd)
+        return None
+
+    def add_application_command(self, command: appc.ApplicationCommand) -> NoReturn:
+        """
+        Create application command
+        -----
+        :param command: Application Command
+        :return None:
+        """
+        self.api.create_command(command.json(), command.cmd)
 
         return None
 
