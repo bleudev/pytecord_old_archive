@@ -18,11 +18,11 @@ Also, to contribute you MUST follow rules that are written bellow.
 Contributing rules
 ******************
 
-* Do not edit any files edit without need  (I'll close your pull or tell you not to edit it)
+* Do not edit any files edit without need  (I'll close your pull request or tell you not to edit it)
 
 * Add checklist for your pull request (To understand if this pull is ready to be merged or not)
 
-* Type Pull's description, name, name of commits, comments only on English!
+* Type pull request's description, name, name of commits, comments only on English!
 
 * Write commits about your topic (Update or fix docs or words is allowed)
 
