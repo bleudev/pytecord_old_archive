@@ -1,25 +1,29 @@
----
 name: Feature request
 about: Suggest an idea for this project
-title: ''
-labels: Feature request
+labels: ["Feature request"]
 assignees: ''
-
----
-
-**Description of your idea**
-
-Type here
-
-**Ideal solution**
-```python
-# Type here your ideal code
-```
-**Not ideal solution**
-```python
-# Type here your not ideal code
-```
-**Checklist**
-- [ ] 1 step
-- [ ] 2 step
-- [ ] 3 step
+body:
+    - type: input
+        attributes:
+        label: Description
+        description: >
+            A short description of your idea
+        validations:
+        required: true
+    - type: dropdown
+        attributes:
+        multiple: false
+        label: What is the feature request for?
+        options:
+            - disspy
+            - The documentation
+        validations:
+        required: true
+    - type: textarea
+        attributes:
+        label: The Problem
+        description: >
+            Your problem.
+            Please try give some examples.
+        validations:
+        required: true
