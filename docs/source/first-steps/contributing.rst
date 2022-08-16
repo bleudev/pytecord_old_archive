@@ -8,19 +8,19 @@ Contents:
 How to help project?
 ********************
 
-If you want help my project you can `contribute.` For this you need fork repo. GitHub have
-`one page <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks>`_
-with information about forks. Ok, after creating your fork, you need create commits about your contribution.
-Next you need create pull request. All! Our team will review your pull and merge it.
+If you want to help develop this project, you can `contribute.` For this you need to fork repo. GitHub have
+`page <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks>`_
+with information about forks. After creating your fork, you need to create commits about your contribution.
+Next you should create pull request. Great! Our team will review your pull and merge it.
 
-You can do it, but you MUST follow rules that was described bellow.
+Also, to contribute you MUST follow rules that are written bellow.
 
 Contributing rules
 ******************
 
-* Don't edit without need any files (I'll close your pull or say you don't edit it)
+* Do not edit any files edit without need  (I'll close your pull or tell you not to edit it)
 
-* Add checklist for your pull (For understanding that pull is ready for merge or not)
+* Add checklist for your pull request (To understand if this pull is ready to be merged or not)
 
 * Type Pull's description, name, name of commits, comments only on English!
 
