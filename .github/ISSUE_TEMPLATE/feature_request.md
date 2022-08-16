@@ -3,7 +3,12 @@ about: Suggest an idea for this project
 labels: ["Feature request"]
 assignees: ''
 body:
+  - type: markdown
+      attributes:
+        value: |
+          Thanks for taking the time to fill out this feature request!
   - type: input
+    id: description
     attributes:
     label: Description
     description: >
@@ -11,6 +16,7 @@ body:
     validations:
     required: true
   - type: dropdown
+    is: for-what
     attributes:
     multiple: false
     label: What is the feature request for?
@@ -20,6 +26,7 @@ body:
     validations:
     required: true
   - type: textarea
+    id: the-problem
     attributes:
     label: The Problem
     description: >
