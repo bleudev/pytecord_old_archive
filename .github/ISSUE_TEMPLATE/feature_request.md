@@ -23,5 +23,3 @@ Type here
 - [ ] 1 step
 - [ ] 2 step
 - [ ] 3 step
-Footer
-© 2022 GitHub, Inc.
