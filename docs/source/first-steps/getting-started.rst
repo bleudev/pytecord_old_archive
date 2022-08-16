@@ -9,7 +9,7 @@ Contents:
 Install package
 ***************
 
-How install disspy? Just type this lines in your command console
+How to install disspy? Just type those lines in your command console
 
 Windows::
 
@@ -23,12 +23,12 @@ MacOs::
 
     python3 -m pip install -U disspy
 
-Now you can go next
+Now you can follow to the next step
 
 Create bot in Discord
 *********************
 
-For starting creating bots, you need create bot on
+To start creating bots, you need to create bot on
 `official Discord Developer Portal <https://discord.com/developers/applications>`_
 
 .. image:: images/1.png
@@ -64,9 +64,9 @@ Copy token
 Coding with disspy
 ******************
 
-Now let's coding!!!
+Now, let's write some code!
 
-*This is creating bot code*::
+*Start creating your bot with the following code*::
 
     import disspy
 
@@ -74,17 +74,17 @@ Now let's coding!!!
 
     bot = disspy.DisBot(token=token, application_id=application_id)  # You created bot!
 
-You can add any event using ``on() method``::
+Then, you can add any event using ``on() method``::
 
     @bot.on("ready")
     async def on_ready():
         print("Hi!")
 
-This code print "Hi!" when bot becomes ready in Discord Gateway
+This code prints "Hi!" when bot becomes ready in Discord Gateway
 
-In end of file you MUST type this code::
+In end of the file you MUST type this line::
 
     bot.run()
 
-This is very important because this method run bot in Discord! Well...
-You are ready for coding with disspy.
+This is very important because this method runs bot in Discord! 
+Well... You are ready for coding with disspy.
