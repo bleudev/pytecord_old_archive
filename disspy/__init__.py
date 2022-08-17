@@ -36,6 +36,7 @@ import disspy.guild
 import disspy.user
 import disspy.reaction
 import disspy.ui
+import disspy.thread
 
 # Classes
 from disspy.abstract import (
@@ -81,7 +82,6 @@ from disspy.embed import (
     DisField,
     DisColor
 )
-
 from disspy.guild import DisGuild
 from disspy.user import DisUser
 from disspy.reaction import (
@@ -98,6 +98,12 @@ from disspy.ui import (
     TextInput,
     SelectMenu,
     SelectMenuOption
+)
+
+from disspy.thread import (
+    DisNewsThread,
+    DisThread,
+    DisPrivateThread
 )
 
 
@@ -146,7 +152,8 @@ __alls__: list = [
     disspy.guild.__all__,
     disspy.user.__all__,
     disspy.reaction.__all__,
-    disspy.ui.__all__
+    disspy.ui.__all__,
+    disspy.thread.__all__
 ]
 
 __all__: tuple = _all_generator(__alls__)

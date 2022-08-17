@@ -74,8 +74,9 @@ __all__: tuple = (
     "DisFlags",
     "Snowflake",
     "ChannelId",
+    "ThreadId",
     "UserId",
-    "GuildlId",
+    "GuildId",
     # Private clients
     "Rest",
     "Flow",
@@ -447,8 +448,9 @@ class Snowflake(Generic[T]):
 
 
 ChannelId = NewType("ChannelId", int)
+ThreadId = NewType("ThreadId", int)
 UserId = NewType("UserId", int)
-GuildlId = NewType("GuildId", int)
+GuildId = NewType("GuildId", int)
 
 
 @final
@@ -895,6 +897,8 @@ class Flow:
                             print(_DebugLoggingAwaiting(event.type, "on_dm_typing"))
             except TypeError:
                 pass
+            except KeyError:
+                pass
 
             await asyncio.sleep(0.5)
 
@@ -1163,7 +1167,7 @@ class DisApi(_RequestsUserClass):
 
         return self._r.get("channel", channel_id)
 
-    def get_guild(self, guild_id: GuildlId) -> DisGuild:
+    def get_guild(self, guild_id: GuildId) -> DisGuild:
         """
         Get guild by id
 
@@ -1174,7 +1178,7 @@ class DisApi(_RequestsUserClass):
 
         return DisGuild(guild_id, self)
 
-    def get_guild_json(self, guild_id: GuildlId) -> JsonOutput:
+    def get_guild_json(self, guild_id: GuildId) -> JsonOutput:
         """
         Get guild by id (Json Output)
 
