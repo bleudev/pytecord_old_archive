@@ -56,12 +56,12 @@ class DisNewsThread:
 
         async with ClientSession(headers=_hdrs) as session:
             await session.post(_u, data=dumps(_payload))
-    
+
     async def delete(self):
         _u = f"https://discord.com/api/v10/channels/{self.id}"
         _hdrs = {'Authorization': f'Bot {self._t}',
                  'content-type': 'application/json'}
-        
+
         async with ClientSession(headers=_hdrs) as session:
             await session.delete(_u)
 
@@ -78,7 +78,7 @@ class DisThread:
         self.name: str = data["name"]
 
         self._t = token
-    
+
     async def send(self, content: str):
         _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
         _hdrs = {'Authorization': f'Bot {self._t}',
@@ -95,7 +95,7 @@ class DisThread:
         _u = f"https://discord.com/api/v10/channels/{self.id}"
         _hdrs = {'Authorization': f'Bot {self._t}',
                  'content-type': 'application/json'}
-        
+
         async with ClientSession(headers=_hdrs) as session:
             await session.delete(_u)
 
@@ -129,6 +129,6 @@ class DisPrivateThread:
         _u = f"https://discord.com/api/v10/channels/{self.id}"
         _hdrs = {'Authorization': f'Bot {self._t}',
                  'content-type': 'application/json'}
-        
+
         async with ClientSession(headers=_hdrs) as session:
             await session.delete(_u)

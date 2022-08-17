@@ -615,8 +615,20 @@ class DisBot:
             return DisDmChannel(channel_id, self.token)
 
         return DisChannel(channel_id, self.token)
-    
+
     def get_thread(self, thread_id: ThreadId):
+        """get_thread
+        Get thread by id
+
+        Args:
+            thread_id (ThreadId): Thread id
+
+        Raises:
+            RuntimeError: Argument is not thread id
+
+        Returns:
+            Union[DisNewsThread, DisThread, DisPrivateThread]: Getted thread object
+        """
         _u = f"https://discord.com/api/v10/channels/{thread_id}"
         _hdrs = {'Authorization': f'Bot {self.token}',
                  'content-type': 'application/json'}
@@ -625,13 +637,13 @@ class DisBot:
 
         if j["type"] == 10:  # News thread
             return DisNewsThread(j, self.token)
-        
+
         if j["type"] == 11:  # Public thread
             return DisThread(j, self.token)
 
         if j["type"] == 12:  # Private thread
             return DisPrivateThread(j, self.token)
-        
+
         raise RuntimeError("This channel is not thread! Use get_channel() method")
 
     def get_guild(self, guild_id: GuildId) -> DisGuild:
