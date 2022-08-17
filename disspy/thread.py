@@ -33,6 +33,9 @@ from aiohttp import ClientSession
 
 
 class DisNewsThread:
+    """
+    Channel with GUILD_NEWS_THREAD type
+    """
     def __init__(self, data, token) -> None:
         self.id: int = int(data["id"])
         self.guild_id: int = int(data["guild_id"])
@@ -46,6 +49,12 @@ class DisNewsThread:
         self._t = token
 
     async def send(self, content: str):
+        """send
+        Send message in thread
+
+        Args:
+            content (str): Message content
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
         _hdrs = {'Authorization': f'Bot {self._t}',
                  'content-type': 'application/json'}
@@ -58,6 +67,9 @@ class DisNewsThread:
             await session.post(_u, data=dumps(_payload))
 
     async def delete(self):
+        """delete
+        Delete thread
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}"
         _hdrs = {'Authorization': f'Bot {self._t}',
                  'content-type': 'application/json'}
@@ -67,6 +79,9 @@ class DisNewsThread:
 
 
 class DisThread:
+    """
+    Channel with GUILD_PUBLIC_THREAD type
+    """
     def __init__(self, data, token) -> None:
         self.id: int = int(data["id"])
         self.guild_id: int = int(data["guild_id"])
@@ -80,6 +95,12 @@ class DisThread:
         self._t = token
 
     async def send(self, content: str):
+        """send
+        Send message in thread
+
+        Args:
+            content (str): Message content
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
         _hdrs = {'Authorization': f'Bot {self._t}',
                  'content-type': 'application/json'}
@@ -92,6 +113,9 @@ class DisThread:
             await session.post(_u, data=dumps(_payload))
 
     async def delete(self):
+        """delete
+        Delete thread
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}"
         _hdrs = {'Authorization': f'Bot {self._t}',
                  'content-type': 'application/json'}
@@ -101,6 +125,9 @@ class DisThread:
 
 
 class DisPrivateThread:
+    """
+    Channel with GUILD_PRIVATE_THREAD type
+    """
     def __init__(self, data, token) -> None:
         self.id: int = int(data["id"])
         self.guild_id: int = int(data["guild_id"])
@@ -114,6 +141,12 @@ class DisPrivateThread:
         self._t = token
 
     async def send(self, content: str):
+        """send
+        Send message in thread
+
+        Args:
+            content (str): Message content
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
         _hdrs = {'Authorization': f'Bot {self._t}',
                  'content-type': 'application/json'}
@@ -126,6 +159,9 @@ class DisPrivateThread:
             await session.post(_u, data=dumps(_payload))
 
     async def delete(self):
+        """delete
+        Delete thread
+        """
         _u = f"https://discord.com/api/v10/channels/{self.id}"
         _hdrs = {'Authorization': f'Bot {self._t}',
                  'content-type': 'application/json'}
