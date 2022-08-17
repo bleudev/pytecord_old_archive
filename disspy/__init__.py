@@ -82,7 +82,6 @@ from disspy.embed import (
     DisField,
     DisColor
 )
-
 from disspy.guild import DisGuild
 from disspy.user import DisUser
 from disspy.reaction import (
@@ -102,6 +101,7 @@ from disspy.ui import (
 )
 
 from disspy.thread import (
+    DisNewsThread,
     DisThread,
     DisPrivateThread
 )

@@ -23,16 +23,21 @@ SOFTWARE.
 """
 
 __all__: tuple = (
+    "DisNewsThread",
     "DisThread",
     "DisPrivateThread"
 )
 
-
-class DisThread:
-    def __init__(self) -> None:
+class DisNewsThread:
+    def __init__(self, data, token) -> None:
         pass
 
 
+class DisThread:
+    def __init__(self, data, token) -> None:
+        print(data)
+
+
 class DisPrivateThread:
-    def __init__(self) -> None:
+    def __init__(self, data, token) -> None:
         pass

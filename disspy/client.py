@@ -57,12 +57,20 @@ from disspy.core import (
     DisApi,
     DisFlags,
     Snowflake,
-    ChannelId
+    ChannelId,
+    ThreadId,
+    GuildId,
+    UserId
 )
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.jsongenerators import _OptionGenerator
 from disspy.user import DisUser
+from disspy.thread import (
+    DisNewsThread,
+    DisThread,
+    DisPrivateThread
+)
 
 __all__: tuple = (
     "DisBotStatus",
@@ -598,7 +606,7 @@ class DisBot:
         :param channel_id: Channel Id
         :return Union[DisChannel, DisDmChannel]:
         """
-        _u = f"https://discord.com/v10/channels/{channel_id}"
+        _u = f"https://discord.com/api/v10/channels/{channel_id}"
         _hdrs = {'Authorization': f'Bot {self.token}'}
 
         j = get(_u, headers=_hdrs).json()
@@ -607,8 +615,26 @@ class DisBot:
             return DisDmChannel(channel_id, self.token)
 
         return DisChannel(channel_id, self.token)
+    
+    def get_thread(self, thread_id: ThreadId):
+        _u = f"https://discord.com/api/v10/channels/{thread_id}"
+        _hdrs = {'Authorization': f'Bot {self.token}',
+                 'content-type': 'application/json'}
 
-    def get_guild(self, guild_id: int) -> DisGuild:
+        j = get(_u, headers=_hdrs).json()
+
+        if j["type"] == 10:  # News thread
+            return DisNewsThread(j, self.token)
+        
+        if j["type"] == 11:  # Public thread
+            return DisThread(j, self.token)
+
+        if j["type"] == 12:  # Private thread
+            return DisPrivateThread(j, self.token)
+        
+        raise RuntimeError("This channel is not thread! Use get_channel() method")
+
+    def get_guild(self, guild_id: GuildId) -> DisGuild:
         """
         Get guild from id
         -----
@@ -617,7 +643,7 @@ class DisBot:
         """
         return self.api.get_guild(guild_id)
 
-    def get_user(self, user_id: int) -> DisUser:
+    def get_user(self, user_id: UserId) -> DisUser:
         """
         Get user from id
         -----
