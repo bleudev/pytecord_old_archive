@@ -897,6 +897,8 @@ class Flow:
                             print(_DebugLoggingAwaiting(event.type, "on_dm_typing"))
             except TypeError:
                 pass
+            except KeyError:
+                pass
 
             await asyncio.sleep(0.5)
 
