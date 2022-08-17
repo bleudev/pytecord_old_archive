@@ -36,6 +36,7 @@ import disspy.guild
 import disspy.user
 import disspy.reaction
 import disspy.ui
+import disspy.thread
 
 # Classes
 from disspy.abstract import (
@@ -100,6 +101,11 @@ from disspy.ui import (
     SelectMenuOption
 )
 
+from disspy.thread import (
+    DisThread,
+    DisPrivateThread
+)
+
 
 # Methods for other variables
 def _all_generator(alls: list) -> tuple:
@@ -146,7 +152,8 @@ __alls__: list = [
     disspy.guild.__all__,
     disspy.user.__all__,
     disspy.reaction.__all__,
-    disspy.ui.__all__
+    disspy.ui.__all__,
+    disspy.thread.__all__
 ]
 
 __all__: tuple = _all_generator(__alls__)
