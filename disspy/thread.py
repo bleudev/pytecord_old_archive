@@ -28,6 +28,10 @@ __all__: tuple = (
     "DisPrivateThread"
 )
 
+from aiohttp import ClientSession
+from json import dumps
+
+
 class DisNewsThread:
     def __init__(self, data, token) -> None:
         self.id: int = int(data["id"])
@@ -40,6 +44,18 @@ class DisNewsThread:
         self.name: str = data["name"]
 
         self._t = token
+
+    async def send(self, content: str):
+        _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
+        _hdrs = {'Authorization': f'Bot {self._t}',
+                 'content-type': 'application/json'}
+
+        _payload = {
+            "content": content
+        }
+
+        async with ClientSession(headers=_hdrs) as session:
+            await session.post(_u, data=dumps(_payload))
 
 
 class DisThread:
@@ -54,6 +70,18 @@ class DisThread:
         self.name: str = data["name"]
 
         self._t = token
+    
+    async def send(self, content: str):
+        _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
+        _hdrs = {'Authorization': f'Bot {self._t}',
+                 'content-type': 'application/json'}
+
+        _payload = {
+            "content": content
+        }
+
+        async with ClientSession(headers=_hdrs) as session:
+            await session.post(_u, data=dumps(_payload))
 
 
 class DisPrivateThread:
@@ -68,3 +96,15 @@ class DisPrivateThread:
         self.name: str = data["name"]
 
         self._t = token
+
+    async def send(self, content: str):
+        _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
+        _hdrs = {'Authorization': f'Bot {self._t}',
+                 'content-type': 'application/json'}
+
+        _payload = {
+            "content": content
+        }
+
+        async with ClientSession(headers=_hdrs) as session:
+            await session.post(_u, data=dumps(_payload))
