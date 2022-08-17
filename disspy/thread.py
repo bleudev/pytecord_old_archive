@@ -30,14 +30,41 @@ __all__: tuple = (
 
 class DisNewsThread:
     def __init__(self, data, token) -> None:
-        pass
+        self.id: int = int(data["id"])
+        self.guild_id: int = int(data["guild_id"])
+        self.parent_id: int = int(data["parent_id"])
+        self.owner_id: int = int(data["owner_id"])
+
+        self.archived: bool = data["thread_metadata"]["archived"]
+
+        self.name: str = data["name"]
+
+        self._t = token
 
 
 class DisThread:
     def __init__(self, data, token) -> None:
-        print(data)
+        self.id: int = int(data["id"])
+        self.guild_id: int = int(data["guild_id"])
+        self.parent_id: int = int(data["parent_id"])
+        self.owner_id: int = int(data["owner_id"])
+
+        self.archived: bool = data["thread_metadata"]["archived"]
+
+        self.name: str = data["name"]
+
+        self._t = token
 
 
 class DisPrivateThread:
     def __init__(self, data, token) -> None:
-        pass
+        self.id: int = int(data["id"])
+        self.guild_id: int = int(data["guild_id"])
+        self.parent_id: int = int(data["parent_id"])
+        self.owner_id: int = int(data["owner_id"])
+
+        self.archived: bool = data["thread_metadata"]["archived"]
+
+        self.name: str = data["name"]
+
+        self._t = token
