@@ -99,6 +99,11 @@ _all_basic_events = [
 
 
 @final
+class _BotLogger:
+    pass
+
+
+@final
 @unique
 class DisBotStatus(Enum):
     """
