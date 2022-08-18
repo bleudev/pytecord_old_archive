@@ -100,7 +100,11 @@ _all_basic_events = [
 
 @final
 class _BotLogger:
-    pass
+    def __init__(self) -> None:
+        self.logs = []
+    
+    def log(self, msg: str):
+        self.logs.append(msg)
 
 
 @final
