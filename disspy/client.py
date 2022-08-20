@@ -38,6 +38,7 @@ from enum import Enum, unique
 from asyncio import run
 from datetime import datetime
 from time import mktime
+import os
 from requests import get
 import requests.exceptions
 
@@ -287,7 +288,7 @@ class DisBot:
         """
         self.user: DisUser = self.api.user
 
-    def _on_close(self):
+    async def _on_close(self):
         pass
 
     def on(self, event_type: Event(DisBotEventType, str)) -> Wrapper:
@@ -587,14 +588,18 @@ class DisBot:
         if activity:
             self._act = activity
 
-        self._runner()
+        self._logger.log("Running bot")
 
-    def _runner(self) -> NoReturn:
+        run(self._runner())
+
+    async def _runner(self) -> NoReturn:
         try:
-            run(self.api.run(self.status, self._ons,
-                                debug=self._debug, act=self._act))
+            await self.api.run(self.status, self._ons,
+                               debug=self._debug, act=self._act)
         except KeyboardInterrupt:
             self._write_logs()
+            await self._on_close()
+            await self._dissconnenter()
         except requests.exceptions.ConnectionError:
             raise errors.InternetError("Please turn on your internet!", "-1000")
 
@@ -723,28 +728,22 @@ class DisBot:
         })
 
     def _write_logs(self):
-        import os
-        
         _datetime = datetime.now()
 
         tformat = "%d %d %d %d %d %d"
 
         filename = tformat % (_datetime.year, _datetime.month, _datetime.day,
                               _datetime.hour, _datetime.minute, _datetime.second)
-        
+
         filename += ".txt"
-        
+
         current_directory = os.getcwd()
         final_directory = os.path.join(current_directory, r'__logs__')
         if not os.path.exists(final_directory):
             os.makedirs(final_directory)
-        
+
         path = Path("__logs__") / filename
-        
+
         with open(path, "x", encoding="utf-8") as file:
             for i in self._logger.logs:
                 file.write(i + "\n")
-
-    def __del__(self):
-        # self._write_logs()
-        self._on_close()
