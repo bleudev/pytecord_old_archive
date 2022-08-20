@@ -1,6 +1,6 @@
 ---
 name: Mistake
-about: Found mistake? Want to fix it? Create pull request with this template
+about: Found mistake?
 title: ''
 labels: mistake
 assignees: ''
