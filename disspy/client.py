@@ -34,7 +34,6 @@ from typing import (
 
 # Package imports
 from pathlib import Path
-from enum import Enum, unique
 from asyncio import run
 from datetime import datetime
 from time import mktime
@@ -123,8 +122,7 @@ class _BotLogger:
 
 
 @final
-@unique
-class DisBotStatus(Enum):
+class DisBotStatus:
     """
     Class for adding discord status for bot
 
@@ -157,8 +155,7 @@ class DisBotStatus(Enum):
 
 
 @final
-@unique
-class DisBotEventType(Enum):
+class DisBotEventType:
     """
     This class created for simplification adding events to DisBot.
     This is class, not an object
