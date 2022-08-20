@@ -1,12 +1,3 @@
----
-name: Mistake
-about: Found mistake?
-title: ''
-labels: mistake
-assignees: ''
-
----
-
 **Description of problem**
 
 Type here mini description
