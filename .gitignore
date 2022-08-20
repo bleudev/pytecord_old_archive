@@ -6,7 +6,7 @@
 /.venv
 /__pycache__
 disspy/__pycache__
-/node_modules
+examples/__pycache__
 
 # Package builds
 /disspy.egg-info
@@ -16,3 +16,6 @@ disspy/__pycache__
 
 # Tests
 test.py
+
+# Package logs
+__logs__

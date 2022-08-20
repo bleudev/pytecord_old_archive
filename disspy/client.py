@@ -33,10 +33,12 @@ from typing import (
 )
 
 # Package imports
+from pathlib import Path
 from enum import Enum, unique
 from asyncio import run
 from datetime import datetime
 from time import mktime
+import os
 from requests import get
 import requests.exceptions
 
@@ -96,6 +98,28 @@ _all_basic_events = [
     "typing",  # Typing start
     "dm_typing"  # Typig start in dm channel
 ]
+
+
+@final
+class _BotLogger:
+    def __init__(self) -> None:
+        self.logs = []
+
+    def log(self, msg: str):
+        """log
+        Log to Logger
+
+        Args:
+            msg (str): Message
+        """
+        _datetime = datetime.now()
+
+        tformat = "%d/%d/%d %d:%d:%d"
+
+        _time = tformat % (_datetime.year, _datetime.month, _datetime.day,
+                           _datetime.hour, _datetime.minute, _datetime.second)
+
+        self.logs.append(f"[{_time}] {msg}")
 
 
 @final
@@ -219,6 +243,7 @@ class DisBot:
 
         self.status = status
         self._debug = debug
+        self._logger = _BotLogger()
         self._ons = {
             "ready": None,
             "messagec": None,
@@ -253,6 +278,8 @@ class DisBot:
         self.__slots__ = [self.api, self._on_ready, self._on_messagec,
                             self.token, self.user, self.isready, self.status]
 
+        self._logger.log("Bot created succesful!")
+
     async def _on_register(self):
         """
         Register user var
@@ -261,7 +288,7 @@ class DisBot:
         """
         self.user: DisUser = self.api.user
 
-    def _on_close(self):
+    async def _on_close(self):
         pass
 
     def on(self, event_type: Event(DisBotEventType, str)) -> Wrapper:
@@ -285,25 +312,32 @@ class DisBot:
             if event_type in _all_basic_events:
                 if event_type == "close":
                     self._on_close = func
+                    self._logger.log("Register on_close() event")
                 else:
                     if event_type in ["messagec", "messageu", "messaged", "typing", "dm_typing",
                                 "dmessagec", "dmessageu", "dmessaged"]:
                         if self.intflags >= DisFlags.messages():
                             self._ons[event_type] = func
+                            self._logger.log(f"Register on_{event_type}() event")
                         else:
+                            self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
                                 "messagec(), typing(), dm_typing() and other events" +
                                 "don't avaivable right now because flags < DisFlags.messages()")
                     elif event_type in ["reaction", "reactionr"]:
                         if self.intflags >= DisFlags.reactions():
                             self._ons[event_type] = func
+                            self._logger.log(f"Register on_{event_type}() event")
                         else:
+                            self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
                                 "reaction() and reactionr() events don't" +
                                 " avaivable right now because flags < DisFlags.reactions()")
                     else:
                         self._ons[event_type] = func
+                        self._logger.log(f"Register on_{event_type}() event")
             else:
+                self._logger.log("Error: BotEventTypeError")
                 raise errors.BotEventTypeError("Invalid type of event!")
 
         return wrapper
@@ -341,6 +375,7 @@ class DisBot:
         """
 
         def wrapper(func):
+            self._logger.log("Register on_ready() event")
             self._ons["ready"] = func
 
         return wrapper
@@ -367,10 +402,13 @@ class DisBot:
         def wrapper(func):
             if event_type in _ts:
                 if event_type == _ts[0]:  # Message create
+                    self._logger.log("Register on_messagec() event")
                     self._ons[_mse[0]] = func
                 elif event_type == _ts[1]:  # Message update
+                    self._logger.log("Register on_messageu() event")
                     self._ons[_mse[1]] = func
                 elif event_type == _ts[2]:  # Message delete
+                    self._logger.log("Register on_messaged() event")
                     self._ons[_mse[2]] = func
 
         return wrapper
@@ -397,10 +435,13 @@ class DisBot:
         def wrapper(func):
             if event_type in _ts:
                 if event_type == _ts[0]:  # Message create
+                    self._logger.log("Register on_messagec() event")
                     self._ons[_mse[0]] = func
                 elif event_type == _ts[1]:  # Message update
+                    self._logger.log("Register on_messageu() event")
                     self._ons[_mse[1]] = func
                 elif event_type == _ts[2]:  # Message delete
+                    self._logger.log("Register on_messaged() event")
                     self._ons[_mse[2]] = func
 
         return wrapper
@@ -413,6 +454,7 @@ class DisBot:
         :return Wrapper:
         """
         def wrapper(func):
+            self._logger.log("Register on_channel() event")
             self._ons["channel"] = [func, channel_id]
 
         return wrapper
@@ -449,6 +491,7 @@ class DisBot:
             }
 
         def wrapper(func):
+            self._logger.log("Register slash command")
             self.api.create_command(_payload, func)
 
         return wrapper
@@ -460,6 +503,7 @@ class DisBot:
         :param command: Slash Command
         :return None:
         """
+        self._logger.log("Register slash command")
         self.api.create_command(command.json(), command.cmd)
 
         return None
@@ -477,6 +521,7 @@ class DisBot:
         }
 
         def wrapper(func):
+            self._logger.log("Register user command")
             self.api.create_command(_payload, func)
 
         return wrapper
@@ -488,6 +533,7 @@ class DisBot:
         :param command: User Command
         :return None:
         """
+        self._logger.log("Register user command")
         self.api.create_command(command.json(), command.cmd)
 
         return None
@@ -505,6 +551,7 @@ class DisBot:
         }
 
         def wrapper(func):
+            self._logger.log("Register message command")
             self.api.create_command(_payload, func)
 
         return wrapper
@@ -517,6 +564,7 @@ class DisBot:
         :param command: Message Command
         :return None:
         """
+        self._logger.log("Register message command")
         self.api.create_command(command.json(), command.cmd)
 
         return None
@@ -528,6 +576,7 @@ class DisBot:
         :param command: Application Command
         :return None:
         """
+        self._logger.log("Register application command")
         self.api.create_command(command.json(), command.cmd)
 
         return None
@@ -553,14 +602,18 @@ class DisBot:
         if activity:
             self._act = activity
 
-        self._runner()
+        self._logger.log("Running bot")
 
-    def _runner(self) -> NoReturn:
+        run(self._runner())
+
+    async def _runner(self) -> NoReturn:
         try:
-            run(self.api.run(self.status, self._ons,
-                                debug=self._debug, act=self._act))
+            await self.api.run(self.status, self._ons,
+                               debug=self._debug, act=self._act)
         except KeyboardInterrupt:
-            pass
+            self._write_logs()
+            await self._on_close()
+            await self._dissconnenter()
         except requests.exceptions.ConnectionError:
             raise errors.InternetError("Please turn on your internet!", "-1000")
 
@@ -578,6 +631,7 @@ class DisBot:
 
     async def _dissconnenter(self) -> NoReturn:
         if self.isready:
+            self._logger.log("Disconnect bot")
             await self.api.disconnecter()
 
             for _var in self.__slots__:
@@ -688,5 +742,23 @@ class DisBot:
             }
         })
 
-    def __del__(self):
-        self._on_close()
+    def _write_logs(self):
+        _datetime = datetime.now()
+
+        tformat = "%d %d %d %d %d %d"
+
+        filename = tformat % (_datetime.year, _datetime.month, _datetime.day,
+                              _datetime.hour, _datetime.minute, _datetime.second)
+
+        filename += ".txt"
+
+        current_directory = os.getcwd()
+        final_directory = os.path.join(current_directory, r'__logs__')
+        if not os.path.exists(final_directory):
+            os.makedirs(final_directory)
+
+        path = Path("__logs__") / filename
+
+        with open(path, "x", encoding="utf-8") as file:
+            for i in self._logger.logs:
+                file.write(i + "\n")
