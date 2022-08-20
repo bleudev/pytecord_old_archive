@@ -228,6 +228,7 @@ class DisBot:
 
         self.status = status
         self._debug = debug
+        self._logger = _BotLogger()
         self._ons = {
             "ready": None,
             "messagec": None,
