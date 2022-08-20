@@ -402,10 +402,13 @@ class DisBot:
         def wrapper(func):
             if event_type in _ts:
                 if event_type == _ts[0]:  # Message create
+                    self._logger.log("Register on_messagec() event")
                     self._ons[_mse[0]] = func
                 elif event_type == _ts[1]:  # Message update
+                    self._logger.log("Register on_messageu() event")
                     self._ons[_mse[1]] = func
                 elif event_type == _ts[2]:  # Message delete
+                    self._logger.log("Register on_messaged() event")
                     self._ons[_mse[2]] = func
 
         return wrapper
@@ -432,10 +435,13 @@ class DisBot:
         def wrapper(func):
             if event_type in _ts:
                 if event_type == _ts[0]:  # Message create
+                    self._logger.log("Register on_messagec() event")
                     self._ons[_mse[0]] = func
                 elif event_type == _ts[1]:  # Message update
+                    self._logger.log("Register on_messageu() event")
                     self._ons[_mse[1]] = func
                 elif event_type == _ts[2]:  # Message delete
+                    self._logger.log("Register on_messaged() event")
                     self._ons[_mse[2]] = func
 
         return wrapper
@@ -448,6 +454,7 @@ class DisBot:
         :return Wrapper:
         """
         def wrapper(func):
+            self._logger.log("Register on_channel() event")
             self._ons["channel"] = [func, channel_id]
 
         return wrapper
@@ -484,6 +491,7 @@ class DisBot:
             }
 
         def wrapper(func):
+            self._logger.log("Register slash command")
             self.api.create_command(_payload, func)
 
         return wrapper
@@ -495,6 +503,7 @@ class DisBot:
         :param command: Slash Command
         :return None:
         """
+        self._logger.log("Register slash command")
         self.api.create_command(command.json(), command.cmd)
 
         return None
@@ -512,6 +521,7 @@ class DisBot:
         }
 
         def wrapper(func):
+            self._logger.log("Register user command")
             self.api.create_command(_payload, func)
 
         return wrapper
@@ -523,6 +533,7 @@ class DisBot:
         :param command: User Command
         :return None:
         """
+        self._logger.log("Register user command")
         self.api.create_command(command.json(), command.cmd)
 
         return None
@@ -540,6 +551,7 @@ class DisBot:
         }
 
         def wrapper(func):
+            self._logger.log("Register message command")
             self.api.create_command(_payload, func)
 
         return wrapper
@@ -552,6 +564,7 @@ class DisBot:
         :param command: Message Command
         :return None:
         """
+        self._logger.log("Register message command")
         self.api.create_command(command.json(), command.cmd)
 
         return None
@@ -563,6 +576,7 @@ class DisBot:
         :param command: Application Command
         :return None:
         """
+        self._logger.log("Register application command")
         self.api.create_command(command.json(), command.cmd)
 
         return None
@@ -617,6 +631,7 @@ class DisBot:
 
     async def _dissconnenter(self) -> NoReturn:
         if self.isready:
+            self._logger.log("Disconnect bot")
             await self.api.disconnecter()
 
             for _var in self.__slots__:
