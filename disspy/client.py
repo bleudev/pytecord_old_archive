@@ -33,6 +33,7 @@ from typing import (
 )
 
 # Package imports
+from pathlib import Path
 from enum import Enum, unique
 from asyncio import run
 from datetime import datetime
@@ -102,9 +103,22 @@ _all_basic_events = [
 class _BotLogger:
     def __init__(self) -> None:
         self.logs = []
-    
+
     def log(self, msg: str):
-        self.logs.append(msg)
+        """log
+        Log to Logger
+
+        Args:
+            msg (str): Message
+        """
+        _datetime = datetime.now()
+
+        tformat = "%d/%d/%d %d:%d:%d"
+
+        _time = tformat % (_datetime.year, _datetime.month, _datetime.day,
+                           _datetime.hour, _datetime.minute, _datetime.second)
+
+        self.logs.append(f"[{_time}] {msg}")
 
 
 @final
@@ -263,6 +277,8 @@ class DisBot:
         self.__slots__ = [self.api, self._on_ready, self._on_messagec,
                             self.token, self.user, self.isready, self.status]
 
+        self._logger.log("Bot created succesful!")
+
     async def _on_register(self):
         """
         Register user var
@@ -295,25 +311,32 @@ class DisBot:
             if event_type in _all_basic_events:
                 if event_type == "close":
                     self._on_close = func
+                    self._logger.log("Register on_close() event")
                 else:
                     if event_type in ["messagec", "messageu", "messaged", "typing", "dm_typing",
                                 "dmessagec", "dmessageu", "dmessaged"]:
                         if self.intflags >= DisFlags.messages():
                             self._ons[event_type] = func
+                            self._logger.log(f"Register on_{event_type}() event")
                         else:
+                            self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
                                 "messagec(), typing(), dm_typing() and other events" +
                                 "don't avaivable right now because flags < DisFlags.messages()")
                     elif event_type in ["reaction", "reactionr"]:
                         if self.intflags >= DisFlags.reactions():
                             self._ons[event_type] = func
+                            self._logger.log(f"Register on_{event_type}() event")
                         else:
+                            self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
                                 "reaction() and reactionr() events don't" +
                                 " avaivable right now because flags < DisFlags.reactions()")
                     else:
                         self._ons[event_type] = func
+                        self._logger.log(f"Register on_{event_type}() event")
             else:
+                self._logger.log("Error: BotEventTypeError")
                 raise errors.BotEventTypeError("Invalid type of event!")
 
         return wrapper
@@ -351,6 +374,7 @@ class DisBot:
         """
 
         def wrapper(func):
+            self._logger.log("Register on_ready() event")
             self._ons["ready"] = func
 
         return wrapper
@@ -570,7 +594,7 @@ class DisBot:
             run(self.api.run(self.status, self._ons,
                                 debug=self._debug, act=self._act))
         except KeyboardInterrupt:
-            pass
+            self._write_logs()
         except requests.exceptions.ConnectionError:
             raise errors.InternetError("Please turn on your internet!", "-1000")
 
@@ -698,5 +722,29 @@ class DisBot:
             }
         })
 
+    def _write_logs(self):
+        import os
+        
+        _datetime = datetime.now()
+
+        tformat = "%d %d %d %d %d %d"
+
+        filename = tformat % (_datetime.year, _datetime.month, _datetime.day,
+                              _datetime.hour, _datetime.minute, _datetime.second)
+        
+        filename += ".txt"
+        
+        current_directory = os.getcwd()
+        final_directory = os.path.join(current_directory, r'__logs__')
+        if not os.path.exists(final_directory):
+            os.makedirs(final_directory)
+        
+        path = Path("__logs__") / filename
+        
+        with open(path, "x", encoding="utf-8") as file:
+            for i in self._logger.logs:
+                file.write(i + "\n")
+
     def __del__(self):
+        # self._write_logs()
         self._on_close()
