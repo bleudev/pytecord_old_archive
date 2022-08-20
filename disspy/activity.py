@@ -38,8 +38,6 @@ from typing import (
     ClassVar
 )
 
-from enum import Enum
-
 from disspy import errors
 
 Url = NewType("Url", str)
@@ -100,7 +98,7 @@ class Activity:
         }
 
 
-class ActivityType(Enum):
+class ActivityType:
     """
     Activity types for Activity class
 
