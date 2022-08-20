@@ -14,7 +14,7 @@
     <a href="https://github.com/PyCQA/pylint">
         <img src="https://img.shields.io/badge/linting-pylint-blueviolet?style=flat" alt="linting"/></a>
     <a href="https://github.com/itttgg/dispy/actions/workflows/pylint.yml">
-         <img src="https://img.shields.io/badge/pylink_mark_(3.8)-9.03/10-blueviolet?style=flat" alt="pylint mark"/>
+         <img src="https://img.shields.io/badge/pylink_mark-9.48/10-blueviolet?style=flat" alt="pylint mark"/>
     </a>
     <a href='https://disspy.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/disspy/badge/?version=latest' alt='documentation Status'/>
