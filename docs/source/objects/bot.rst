@@ -315,6 +315,13 @@ Returns:
 add_message_command()
 =====================
 
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
+
+::
+
+    def add_message_command(command: MessageCommand) -> NoReturn:
+
 Create command from `Message command <application_commands.html#message-commands>`_ object.
 
 Example::
@@ -329,6 +336,8 @@ Params:
 
 Returns:
     ``None``
+
+
 
 DisBotStatus
 ************
