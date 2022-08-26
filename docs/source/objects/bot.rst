@@ -362,6 +362,27 @@ Params:
 Returns:
     ``None``
 
+run()
+=====
+
+::
+
+    def run(status: Optional[DisBotStatus | str], activity: Optional[Activity | dict]) -> NoReturn
+
+Run the bot in Discord Gateway
+
+Example::
+
+    bot.run(DisBotStatus.DND)
+
+Params:
+    ``status`` -> Key of `DisBotStatus`_
+
+    ``activity`` -> Activity object. Discord activity in profile
+
+Returns:
+    ``None``
+
 DisBotStatus
 ************
 
