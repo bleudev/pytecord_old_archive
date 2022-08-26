@@ -298,7 +298,7 @@ Create `Message command. <application_commands.html#message-commands>`_
 Example::
 
     @bot.user_command("info")
-    async def info(ctx: Context, message: disspy.DmMessage):
+    async def info(ctx: Context, message: disspy.DisMessage):
         await ctx.send(f"Message content: {message.content}")
 
 Params:
@@ -326,8 +326,8 @@ Create command from `Message command <application_commands.html#message-commands
 
 Example::
 
-    async def func(ctx: Context, user: DisUser):
-        await ctx.send(user.id)
+    async def func(ctx: Context, message: DisMessage):
+        await ctx.send(f"Message content: {message.content}")
 
     bot.add_message_command(MessageCommand(name="test", cmd=func))
 
