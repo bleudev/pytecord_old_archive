@@ -312,6 +312,24 @@ Args for event:
 Returns:
     ``Wrapper``
 
+add_message_command()
+=====================
+
+Create command from `Message command <application_commands.html#message-commands>`_ object.
+
+Example::
+
+    async def func(ctx: Context, user: DisUser):
+        await ctx.send(user.id)
+
+    bot.add_message_command(MessageCommand(name="test", cmd=func))
+
+Params:
+    ``command`` -> `Message command <application_commands.html#message-commands>`_ object. Application command object
+
+Returns:
+    ``None``
+
 DisBotStatus
 ************
 
