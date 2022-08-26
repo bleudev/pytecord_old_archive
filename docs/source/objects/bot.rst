@@ -291,7 +291,7 @@ Returns:
 
 ::
 
-    def message_command(self, name: str) -> Wrapper:
+    def message_command(self, name: str) -> Wrapper
 
 Create `Message command. <application_commands.html#message-commands>`_
 
@@ -320,7 +320,7 @@ add_message_command()
 
 ::
 
-    def add_message_command(command: MessageCommand) -> NoReturn:
+    def add_message_command(command: MessageCommand) -> NoReturn
 
 Create command from `Message command <application_commands.html#message-commands>`_ object.
 
@@ -345,7 +345,7 @@ add_application_command()
 
 ::
 
-    def add_application_command(command: ApplicationCommand) -> NoReturn:
+    def add_application_command(command: ApplicationCommand) -> NoReturn
 
 Create command from Application command object.
 
