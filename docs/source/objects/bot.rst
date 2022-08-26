@@ -337,7 +337,30 @@ Params:
 Returns:
     ``None``
 
+add_application_command()
+=========================
 
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
+
+::
+
+    def add_application_command(command: ApplicationCommand) -> NoReturn:
+
+Create command from Application command object.
+
+Example::
+
+    async def func(ctx: Context):
+        await ctx.send("Hi?")
+
+    bot.add_application_command(ApplicationCommand(type=ApplicationCommandType.TEXT_INPUT, name="test", cmd=func))
+
+Params:
+    ``command`` -> Application command object
+
+Returns:
+    ``None``
 
 DisBotStatus
 ************
