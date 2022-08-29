@@ -400,13 +400,38 @@ Returns:
     ``None``
 
 close()
-============
+=======
 
 ::
 
     async def close() -> NoReturn
 
 Alternative of `disconnect()`_ method
+
+send()
+======
+
+::
+
+    async def send(channel_id: int, content: Optional[str],
+                   embeds: Optional[List[DisEmbed]])
+
+Send message to channel by id
+
+Example::
+
+    await bot.send(1001044473331060818, "I'm a bot created with disspy :)")
+
+Params:
+    ``channel_id`` -> Channel id where needs to send message
+
+    ``content`` -> Message content
+
+    ``embeds`` -> Message embeds
+
+Returns:
+    ``None``
+
 
 DisBotStatus
 ************
