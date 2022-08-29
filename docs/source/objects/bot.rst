@@ -432,6 +432,28 @@ Params:
 Returns:
     ``None``
 
+get_channel()
+=============
+
+::
+
+    def get_channel(channel_id: ChannelId) -> DisChannel | DisDmChannel
+
+Get channel by id
+
+Example::
+
+    ch = bot.get_channel(1001044473331060818)
+    await ch.send("Hi?")
+
+Params:
+    ``channel_id`` -> Channel id. ``int`` type
+
+Returns:
+    ``DisChannel``
+
+    ``DisDmChannel``
+
 
 DisBotStatus
 ************
