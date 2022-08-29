@@ -383,6 +383,31 @@ Params:
 Returns:
     ``None``
 
+disconnect()
+============
+
+::
+
+    async def disconnect() -> NoReturn
+
+Disconnect from Discord Gateway
+
+Example::
+
+    await bot.disconnect()
+
+Returns:
+    ``None``
+
+close()
+============
+
+::
+
+    async def close() -> NoReturn
+
+Alternative of `disconnect()`_ method
+
 DisBotStatus
 ************
 
