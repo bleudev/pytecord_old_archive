@@ -3,7 +3,7 @@
 
 <p align=center>
     <a href="https://pypi.org/project/disspy">
-        <img src="https://img.shields.io/pypi/v/disspy?color=blueviolet" alt="version"/>
+        <img src="https://img.shields.io/badge/pypi-0.6-blueviolet?style=flat" alt="version"/>
     </a>
     <a href="https://pypi.org/project/disspy">
         <img src="https://img.shields.io/badge/language-python-blueviolet?style=flat" alt="project language"/>
