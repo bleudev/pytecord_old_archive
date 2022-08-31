@@ -130,7 +130,7 @@ __version__ = "0.6.2.1"
 __github__ = "https://github.com/itttgg/dispy"
 
 # Link to stable version of package
-__latest_version__ = "https://github.com/itttgg/dispy/releases/latest"
+__latest_version__ = f"https://github.com/itttgg/dispy/releases/tag/{__version__}"
 
 # Description of package
 __description__ = "Dispy - package for creating bots in discord."
