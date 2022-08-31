@@ -499,6 +499,26 @@ Params:
 Returns:
     ``DisGuild``
 
+
+change_activity()
+=================
+
+::
+
+    async def change_activity(activity: Activity | dict) -> None
+
+Change activity in bot profile
+
+Example::
+
+    await bot.change_activity(Activity("I'm working", ActivityType.WATCHING))
+
+Params:
+    ``activity`` -> Activity object. Bot activity
+
+Returns:
+    ``None``
+
 DisBotStatus
 ************
 
