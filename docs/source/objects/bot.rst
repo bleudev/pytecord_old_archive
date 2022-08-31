@@ -455,6 +455,50 @@ Returns:
     ``DisDmChannel``
 
 
+get_thread()
+============
+
+::
+
+    def get_thread(thread_id: ThreadId) -> DisNewsThread | DisThread | DisPrivateThread
+
+Get thread by id
+
+Example::
+
+    th = bot.get_thread(1001044473331060818)
+    await th.send("Hi?")
+
+Params:
+    ``thread_id`` -> Thread id. ``int`` type
+
+Returns:
+    ``DisNewsThread``
+
+    ``DisThread``
+
+    ``DisPrivateThread``
+
+
+get_guild()
+===========
+
+::
+
+    def get_guild(guild_id: GuildId) -> DisGuild
+
+Get guild by id
+
+Example::
+
+    gl = bot.get_guild(955868993175035934)
+
+Params:
+    ``guild_id`` -> Guild id. ``int`` type
+
+Returns:
+    ``DisGuild``
+
 DisBotStatus
 ************
 
