@@ -291,14 +291,14 @@ Returns:
 
 ::
 
-    def message_command(self, name: str) -> Wrapper:
+    def message_command(self, name: str) -> Wrapper
 
 Create `Message command. <application_commands.html#message-commands>`_
 
 Example::
 
     @bot.user_command("info")
-    async def info(ctx: Context, message: disspy.DmMessage):
+    async def info(ctx: Context, message: disspy.DisMessage):
         await ctx.send(f"Message content: {message.content}")
 
 Params:
@@ -311,6 +311,213 @@ Args for event:
 
 Returns:
     ``Wrapper``
+
+add_message_command()
+=====================
+
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
+
+::
+
+    def add_message_command(command: MessageCommand) -> NoReturn
+
+Create command from `Message command <application_commands.html#message-commands>`_ object.
+
+Example::
+
+    async def func(ctx: Context, message: DisMessage):
+        await ctx.send(f"Message content: {message.content}")
+
+    bot.add_message_command(MessageCommand(name="test", cmd=func))
+
+Params:
+    ``command`` -> `Message command <application_commands.html#message-commands>`_ object. Application command object
+
+Returns:
+    ``None``
+
+add_application_command()
+=========================
+
+.. warning::
+    For application commands your bot needs have ``application.commands`` scope
+
+::
+
+    def add_application_command(command: ApplicationCommand) -> NoReturn
+
+Create command from Application command object.
+
+Example::
+
+    async def func(ctx: Context):
+        await ctx.send("Hi?")
+
+    bot.add_application_command(ApplicationCommand(type=ApplicationCommandType.TEXT_INPUT, name="test", cmd=func))
+
+Params:
+    ``command`` -> Application command object
+
+Returns:
+    ``None``
+
+run()
+=====
+
+::
+
+    def run(status: Optional[DisBotStatus | str], activity: Optional[Activity | dict]) -> NoReturn
+
+Run the bot in Discord Gateway
+
+Example::
+
+    bot.run(DisBotStatus.DND)
+
+Params:
+    ``status`` -> Key of `DisBotStatus`_
+
+    ``activity`` -> Activity object. Discord activity in profile
+
+Returns:
+    ``None``
+
+disconnect()
+============
+
+::
+
+    async def disconnect() -> NoReturn
+
+Disconnect from Discord Gateway
+
+Example::
+
+    await bot.disconnect()
+
+Returns:
+    ``None``
+
+close()
+=======
+
+::
+
+    async def close() -> NoReturn
+
+Alternative of `disconnect()`_ method
+
+send()
+======
+
+::
+
+    async def send(channel_id: int, content: Optional[str],
+                   embeds: Optional[List[DisEmbed]])
+
+Send message to channel by id
+
+Example::
+
+    await bot.send(1001044473331060818, "I'm a bot created with disspy :)")
+
+Params:
+    ``channel_id`` -> Channel id where needs to send message
+
+    ``content`` -> Message content
+
+    ``embeds`` -> Message embeds
+
+Returns:
+    ``None``
+
+get_channel()
+=============
+
+::
+
+    def get_channel(channel_id: ChannelId) -> DisChannel | DisDmChannel
+
+Get channel by id
+
+Example::
+
+    ch = bot.get_channel(1001044473331060818)
+    await ch.send("Hi?")
+
+Params:
+    ``channel_id`` -> Channel id. ``int`` type
+
+Returns:
+    ``DisChannel``
+
+    ``DisDmChannel``
+
+
+get_thread()
+============
+
+::
+
+    def get_thread(thread_id: ThreadId) -> DisNewsThread | DisThread | DisPrivateThread
+
+Get thread by id
+
+Example::
+
+    th = bot.get_thread(1001044473331060818)
+    await th.send("Hi?")
+
+Params:
+    ``thread_id`` -> Thread id. ``int`` type
+
+Returns:
+    ``DisNewsThread``
+
+    ``DisThread``
+
+    ``DisPrivateThread``
+
+
+get_guild()
+===========
+
+::
+
+    def get_guild(guild_id: GuildId) -> DisGuild
+
+Get guild by id
+
+Example::
+
+    gl = bot.get_guild(955868993175035934)
+
+Params:
+    ``guild_id`` -> Guild id. ``int`` type
+
+Returns:
+    ``DisGuild``
+
+
+change_activity()
+=================
+
+::
+
+    async def change_activity(activity: Activity | dict) -> None
+
+Change activity in bot profile
+
+Example::
+
+    await bot.change_activity(Activity("I'm working", ActivityType.WATCHING))
+
+Params:
+    ``activity`` -> Activity object. Bot activity
+
+Returns:
+    ``None``
 
 DisBotStatus
 ************
