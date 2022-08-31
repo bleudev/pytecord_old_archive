@@ -25,10 +25,11 @@ SOFTWARE.
 from setuptools import setup
 from disspy import __version__
 
-with open("README.md", "r", encoding="utf-8") as mdf:
+with open('README.md', 'r', encoding='utf-8') as mdf:
     long_description = mdf.read()
 
-requires = ['aiohttp>=3.6.0,<4', 'requests', 'asyncio', 'colorama']
+with open('requirements.txt', 'r', encoding='utf-8') as rqf:
+    requires = rqf.read().split()
 
 
 setup(
