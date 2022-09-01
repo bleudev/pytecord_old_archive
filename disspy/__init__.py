@@ -41,7 +41,8 @@ import disspy.thread
 # Classes
 from disspy.abstract import (
     Channel,
-    Message
+    Message,
+    Thread
 )
 from disspy.activity import (
     Activity,

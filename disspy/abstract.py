@@ -35,6 +35,7 @@ from enum import Enum, auto, unique
 
 __all__: tuple = (
     "Channel",
+    "Thread",
     "Message"
 )
 
@@ -95,6 +96,16 @@ class Channel(ABC):
         Returns:
             Any
         """
+        return
+
+
+class Thread(ABC):
+    """Thread
+    Any thread in discord
+
+    (Abstract class)
+    """
+    def __init__(self) -> None:
         return
 
 class Message(ABC):

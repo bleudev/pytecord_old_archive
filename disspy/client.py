@@ -72,6 +72,10 @@ from disspy.thread import (
     DisThread,
     DisPrivateThread
 )
+from disspy.abstract import (
+    Channel,
+    Thread
+)
 
 __all__: tuple = (
     "DisBotStatus",
@@ -600,6 +604,9 @@ class DisBot:
 
         run(self._runner())
 
+    def _internet_error(self):
+        raise errors.InternetError("Please turn on your internet!", "-1000")
+
     async def _runner(self) -> NoReturn:
         try:
             await self.api.run(self.status, self._ons,
@@ -609,7 +616,7 @@ class DisBot:
             await self._on_close()
             await self._dissconnenter()
         except requests.exceptions.ConnectionError:
-            raise errors.InternetError("Please turn on your internet!", "-1000")
+            self._internet_error()
 
     async def disconnect(self) -> NoReturn:
         """
@@ -651,17 +658,14 @@ class DisBot:
         :param channel_id: Channel Id
         :return Union[DisChannel, DisDmChannel]:
         """
-        _u = f"https://discord.com/api/v10/channels/{channel_id}"
-        _hdrs = {'Authorization': f'Bot {self.token}'}
+        channel = self.api.get_channel_or_thread(channel_id)
 
-        j = get(_u, headers=_hdrs).json()
+        if isinstance(channel, Channel):
+            return channel
 
-        if j["type"] == 1:  # Dm Channels
-            return DisDmChannel(channel_id, self.token)
+        raise RuntimeError("This channel is not channel! Use get_thread() method")
 
-        return DisChannel(channel_id, self.token)
-
-    def get_thread(self, thread_id: ThreadId):
+    def get_thread(self, thread_id: ThreadId) -> Union[DisNewsThread, DisThread, DisPrivateThread]:
         """get_thread
         Get thread by id
 
@@ -674,20 +678,10 @@ class DisBot:
         Returns:
             Union[DisNewsThread, DisThread, DisPrivateThread]: Getted thread object
         """
-        _u = f"https://discord.com/api/v10/channels/{thread_id}"
-        _hdrs = {'Authorization': f'Bot {self.token}',
-                 'content-type': 'application/json'}
+        thread = self.api.get_channel_or_thread(thread_id)
 
-        j = get(_u, headers=_hdrs).json()
-
-        if j["type"] == 10:  # News thread
-            return DisNewsThread(j, self.token)
-
-        if j["type"] == 11:  # Public thread
-            return DisThread(j, self.token)
-
-        if j["type"] == 12:  # Private thread
-            return DisPrivateThread(j, self.token)
+        if isinstance(thread, Thread):
+            return thread
 
         raise RuntimeError("This channel is not thread! Use get_channel() method")
 

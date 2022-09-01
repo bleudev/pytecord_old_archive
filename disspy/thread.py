@@ -30,9 +30,10 @@ __all__: tuple = (
 
 from json import dumps
 from aiohttp import ClientSession
+from abstract import Thread
 
 
-class DisNewsThread:
+class DisNewsThread(Thread):
     """
     Channel with GUILD_NEWS_THREAD type
     """
@@ -78,7 +79,7 @@ class DisNewsThread:
             await session.delete(_u)
 
 
-class DisThread:
+class DisThread(Thread):
     """
     Channel with GUILD_PUBLIC_THREAD type
     """
@@ -124,7 +125,7 @@ class DisThread:
             await session.delete(_u)
 
 
-class DisPrivateThread:
+class DisPrivateThread(Thread):
     """
     Channel with GUILD_PRIVATE_THREAD type
     """

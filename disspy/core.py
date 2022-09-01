@@ -58,6 +58,11 @@ from disspy.channel import (
     MessageDeleteEvent,
     DmMessageDeleteEvent
 )
+from disspy.thread import (
+    DisNewsThread,
+    DisThread,
+    DisPrivateThread
+)
 from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
 from disspy.reaction import DisEmoji, DisReaction, DisRemovedReaction
@@ -1145,16 +1150,31 @@ class DisApi(_RequestsUserClass):
 
         return self._r.get("user", user_id)
 
-    def get_channel(self, channel_id: ChannelId) -> DisChannel:
+    def get_channel_or_thread(self, object_id: int) -> Union[DisChannel, DisDmChannel,
+                                                             DisNewsThread, DisThread,
+                                                             DisPrivateThread]:
         """
         Get channel by id
         -----
         :param channel_id: id of channel
         :return DisChannel:
         """
-        channel_id = int(channel_id)  # If Snowflake this will be int
+        j = self._r.get("channel", object_id)
+        _type = j["type"]
 
-        return DisChannel(channel_id, self)
+        _threads_objs = {
+            10: DisNewsThread,
+            11: DisThread,
+            12: DisPrivateThread
+        }
+
+        if _type == 1:  # Dm Channels
+            return DisDmChannel(object_id, self.token)
+
+        if _type in [10, 11, 12]:  # Threads
+            return _threads_objs[_type](j, self.token)
+
+        return DisChannel(object_id, self.token)
 
     def get_channel_json(self, channel_id: ChannelId) -> JsonOutput:
         """
@@ -1176,7 +1196,7 @@ class DisApi(_RequestsUserClass):
         """
         guild_id = int(guild_id)  # If Snowflake this will be int
 
-        return DisGuild(guild_id, self)
+        return DisGuild(guild_id, self.token)
 
     def get_guild_json(self, guild_id: GuildId) -> JsonOutput:
         """
