@@ -272,9 +272,6 @@ class DisBot:
 
         self.__classname__ = "DisBot"
 
-        self.__slots__ = [self.api, self._on_ready, self._on_messagec,
-                            self.token, self.user, self.isready, self.status]
-
         self._logger.log("Bot created succesful!")
 
     async def _on_register(self):
@@ -630,9 +627,6 @@ class DisBot:
         if self.isready:
             self._logger.log("Disconnect bot")
             await self.api.disconnecter()
-
-            for _var in self.__slots__:
-                del _var
 
     async def send(self, channel_id: int, content: Optional[str] = None,
                     embeds: Optional[List[DisEmbed]] = None):
