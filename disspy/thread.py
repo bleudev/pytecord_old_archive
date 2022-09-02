@@ -30,7 +30,9 @@ __all__: tuple = (
 
 from json import dumps
 from aiohttp import ClientSession
-from abstract import Thread
+
+
+from disspy.abstract import Thread
 
 
 class DisNewsThread(Thread):
