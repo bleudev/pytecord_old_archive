@@ -29,7 +29,8 @@ from typing import (
     Callable,
     NoReturn,
     final,
-    List
+    List,
+    Literal
 )
 
 # Package imports
@@ -207,7 +208,7 @@ class DisBot:
 
     __classname__ = "DisBot"
 
-    def __init__(self, token: Snowflake[str], status: Optional[TypeOf(DisBotStatus)] = None,
+    def __init__(self, token: Snowflake[str], status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
                 flags: Optional[TypeOf(DisFlags)] = None, debug: Optional[bool] = False,
                 activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
         """
@@ -579,7 +580,7 @@ class DisBot:
 
         return None
 
-    def run(self, status: Optional[Union[DisBotStatus, str]] = None,
+    def run(self, status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
             activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
         """
         Running bot
