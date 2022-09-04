@@ -605,7 +605,9 @@ class DisBot:
         run(self._runner())
 
     def _internet_error(self):
-        raise errors.InternetError("Please turn on your internet!", "-1000")
+        _m = "Please turn on your internet!"
+        _code = "-1000"
+        raise errors.InternetError(_m, _code)
 
     async def _runner(self) -> NoReturn:
         try:
