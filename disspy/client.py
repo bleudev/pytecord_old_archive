@@ -604,7 +604,7 @@ class DisBot:
 
         run(self._runner())
 
-    def _internet_error(self):
+    def _raise_internet_error(self):
         _m = "Please turn on your internet!"
         _code = "-1000"
         raise errors.InternetError(_m, _code)
