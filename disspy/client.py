@@ -104,6 +104,18 @@ _all_basic_events = [
 ]
 
 
+#####################
+# For code readable #
+#####################
+
+async def blank():
+    pass
+
+
+def ignore():
+    pass
+
+
 @final
 class _BotLogger:
     def __init__(self) -> None:
@@ -208,9 +220,12 @@ class DisBot:
 
     __classname__ = "DisBot"
 
+    def _raise_unathorized_error(self) -> None:
+        raise errors.Unauthorized()
+
     def __init__(self, token: Snowflake[str], status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
                 flags: Optional[TypeOf(DisFlags)] = None, debug: Optional[bool] = False,
-                activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
+                activity: Optional[Union[Activity, dict]] = None) -> None:
         """
         Create bot
         -----
@@ -224,9 +239,10 @@ class DisBot:
 
         try:
             if test_j["message"] == "401: Unauthorized" and test_j["code"] == 0:
-                raise errors.Unauthorized()
+                self._raise_unathorized_error()
+
         except KeyError:
-            pass
+            ignore()
 
         self.token: str = str(token)
 
@@ -235,11 +251,10 @@ class DisBot:
         else:
             self.intflags = flags
 
-        if activity is None:
-            activity = {}
-
         if isinstance(activity, Activity):
             activity = activity.json()
+        elif activity is None:
+            activity = {}
 
         self._act = activity
 
@@ -247,23 +262,23 @@ class DisBot:
         self._debug = debug
         self._logger = _BotLogger()
         self._ons = {
-            "ready": None,
-            "messagec": None,
-            "messageu": None,
-            "messaged": None,
-            "dmessagec": None,
-            "dmessageu": None,
-            "dmessaged": None,
             "register": self._on_register,
-            "register2": None,
-            "interaction": None,
-            "components": None,
-            "modalsumbit": None,
-            "reaction": None,
-            "reactionr": None,
-            "typing": None,
-            "dm_typing": None,
-            "channel": [None, 0]
+            "ready": blank,
+            "messagec": blank,
+            "messageu": blank,
+            "messaged": blank,
+            "dmessagec": blank,
+            "dmessageu": blank,
+            "dmessaged": blank,
+            "register2": blank,
+            "interaction": blank,
+            "components": blank,
+            "modalsumbit": blank,
+            "reaction": blank,
+            "reactionr": blank,
+            "typing": blank,
+            "dm_typing": blank,
+            "channel": [blank, 0]
         }
 
         self._on_messagec = None
