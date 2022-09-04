@@ -27,13 +27,15 @@ from typing import (
     List,
     Any,
     ClassVar,
-    final
+    final,
+    Protocol
 )
 
 from abc import ABC, abstractmethod
 from enum import Enum, auto, unique
 
 __all__: tuple = (
+    "Messageable",
     "Channel",
     "Thread",
     "Message"
@@ -76,7 +78,13 @@ class _MessageType(_AutoValue):
     AUTO_MODERATION_ACTION: ClassVar[int] = auto()
 
 
-class Channel(ABC):
+class Messageable(Protocol):
+    async def send(self, content: Optional[str] = None, embeds: Optional[List[Any]] = None,
+                   action_row: Optional[Any] = None):
+        pass
+
+
+class Channel(ABC, Messageable):
     """Channel
     Any channel in discord
 
@@ -99,7 +107,7 @@ class Channel(ABC):
         return
 
 
-class Thread(ABC):
+class Thread(ABC, Messageable):
     """Thread
     Any thread in discord
 
@@ -149,7 +157,7 @@ class Message(ABC):
         """
         return self._type == _MessageType.DEFAULT.value
 
-    def is_normal(self) -> bool:
+    def is_guild(self) -> bool:
         """is_normal
         Message channel is normal?
 

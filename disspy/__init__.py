@@ -40,6 +40,7 @@ import disspy.thread
 
 # Classes
 from disspy.abstract import (
+    Messageable,
     Channel,
     Message,
     Thread
