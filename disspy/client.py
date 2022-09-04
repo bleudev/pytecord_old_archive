@@ -618,7 +618,7 @@ class DisBot:
             await self._on_close()
             await self._dissconnenter()
         except requests.exceptions.ConnectionError:
-            self._internet_error()
+            self. _raise_internet_error()
 
     async def disconnect(self) -> NoReturn:
         """
