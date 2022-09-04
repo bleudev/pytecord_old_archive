@@ -34,7 +34,7 @@ from typing import (
 from json import dumps
 from aiohttp import ClientSession
 from requests import get
-from disspy.typ import Url
+from disspy.typ import Url, SupportsStr
 
 
 from disspy.abstract import Message, Channel
@@ -239,7 +239,7 @@ class DisMessage(Message):
 
         self._t = _token
 
-    async def reply(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None):
+    async def reply(self, content: Optional[SupportsStr] = None, embeds: Optional[List[DisEmbed]] = None):
         """reply
         Reply to message
 
@@ -388,7 +388,7 @@ class DisChannel(Channel):
         """
         return self.id == other.id
 
-    async def send(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None,
+    async def send(self, content: Optional[SupportsStr] = None, embeds: Optional[List[DisEmbed]] = None,
                    action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
         """
         Sending messages to discord channel
@@ -533,7 +533,7 @@ class DmMessage(Message):
         self.content = data["content"]
         self.channel = DisDmChannel(data["channel_id"], self._t)
 
-    async def reply(self, content: Optional[Any] = None, embeds: Optional[List[DisEmbed]] = None):
+    async def reply(self, content: Optional[SupportsStr] = None, embeds: Optional[List[DisEmbed]] = None):
         """reply
         Reply to message
 
@@ -609,7 +609,7 @@ class DisDmChannel(Channel):
         self.id = _data["id"]
         self._t = token
 
-    async def send(self, content: Optional[str] = None, embeds: Optional[List[DisEmbed]] = None,
+    async def send(self, content: Optional[SupportsStr] = None, embeds: Optional[List[DisEmbed]] = None,
                    action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
         """
         Sending messages to discord channel

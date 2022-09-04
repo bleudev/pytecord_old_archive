@@ -22,8 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
-from typing import NewType
+from abc import abstractmethod
+from typing import (
+    NewType,
+    Protocol
+)
 
 
 class TypeOf:
@@ -53,5 +56,13 @@ class Event:
     def __new__(cls, *args) -> list:
         return list(args)[1]
 
+
+class SupportsStr(Protocol):
+    """SupportsStr
+    Protocol with __str__() method
+    """
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
 
 Url = NewType("Url", str)
