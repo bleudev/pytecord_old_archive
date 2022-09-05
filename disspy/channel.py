@@ -28,7 +28,8 @@ from typing import (
     List,
     NoReturn,
     final,
-    Any
+    Any,
+    TypedDict
 )
 
 from json import dumps
@@ -55,9 +56,15 @@ __all__: tuple = (
 )
 
 
+class MessagePayload(TypedDict):
+    content: str
+    embeds: Optional[list]
+    components: Optional[list]
+
+
 class _SendingRestHandler:
     @staticmethod
-    async def execute(channel_id: int, payload: dict, token: str) -> dict:
+    async def execute(channel_id: int, payload: MessagePayload, token: str) -> dict:
         """execute
         Send messages in channels
 
@@ -79,7 +86,7 @@ class _SendingRestHandler:
                 return j
 
     @staticmethod
-    async def put_without_payload(url: Url, token):
+    async def put_without_payload(url: Url, token: str):
         """put_without_payload
         PUT method wtthout payload
 
@@ -118,7 +125,7 @@ class _SendingRestHandler:
             await session.post(url=url)
 
     @staticmethod
-    async def create_reaction(endpoint, token):
+    async def create_reaction(endpoint: str, token: str):
         """create_reaction()
 
         Args:
@@ -132,7 +139,7 @@ class _SendingRestHandler:
             await session.put(_u)
 
     @staticmethod
-    async def delete_message(url, token):
+    async def delete_message(url: Url, token: str):
         """delete_message
         Delete message
 
@@ -147,7 +154,7 @@ class _SendingRestHandler:
 
 class _GettingChannelData:
     @staticmethod
-    def execute(channel_id, token):
+    def execute(channel_id: int, token: str):
         """execute
         Get channel data by id
 
@@ -164,7 +171,7 @@ class _GettingChannelData:
         return get(_u, headers=_h).json()
 
     @staticmethod
-    def fetch(channel_id, token, message_id):
+    def fetch(channel_id: int, token: str, message_id: int):
         """fetch
         Fetch message by channel id and message id
 
@@ -184,7 +191,7 @@ class _GettingChannelData:
 
 class _GettingGuildData:
     @staticmethod
-    def execute(guild_id, token):
+    def execute(guild_id: int, token: str):
         """execute
         Get guild data
 
