@@ -55,7 +55,7 @@ from disspy.channel import (
     DisChannel,
     DisDmChannel
 )
-from disspy.core import (
+from disspy.http import (
     DisApi,
     DisFlags,
     Snowflake,

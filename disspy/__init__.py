@@ -29,7 +29,7 @@ import disspy.abstract
 import disspy.application_commands
 import disspy.channel
 import disspy.client
-import disspy.core
+import disspy.http
 import disspy.embed
 import disspy.errors
 import disspy.guild
@@ -73,7 +73,7 @@ from disspy.client import (
     DisBotStatus,
     DisBotEventType
 )
-from disspy.core import (
+from disspy.http import (
     DisApi,
     DisFlags,
     JsonOutput,
@@ -107,6 +107,8 @@ from disspy.thread import (
     DisThread,
     DisPrivateThread
 )
+from disspy.state import ConnectionState
+from disspy.webhook import DispyWebhook
 
 
 # Methods for other variables
@@ -148,7 +150,7 @@ __alls__: list = [
     disspy.application_commands.__all__,
     disspy.channel.__all__,
     disspy.client.__all__,
-    disspy.core.__all__,
+    disspy.http.__all__,
     disspy.embed.__all__,
     disspy.errors.__all__,
     disspy.guild.__all__,
