@@ -85,48 +85,6 @@ def _mainurl() -> str:
     return "https://discord.com/api/v10/"
 
 
-class _RequestsUserClass:
-    """
-    Class for Getting and Posting data in Discord
-    """
-    @staticmethod
-    async def _aiopost(url, data, headers) -> JsonOutput:
-        """
-        Aiohttp post
-        -----
-        :param url: Url for post
-        :param data: Json data for post
-        :param headers: Headers for post
-        :return JsonOutput:
-        """
-        async with ClientSession(headers=headers) as _s:
-            async with _s.post(url=url, data=data) as _p:
-                return _p.json()
-
-    @staticmethod
-    def _post(url: str, data: dict, headers: dict) -> JsonOutput:
-        """
-        Request post
-        -----
-        :param url: Url for post
-        :param data: Json data for post
-        :param headers: Headers for post
-        :return JsonOutput:
-        """
-        return post(url=url, json=data, headers=headers).json()
-
-    @staticmethod
-    def _get(url: str, headers: dict) -> JsonOutput:
-        """
-        Request get
-        -----
-        :param url: Url for get
-        :param headers: Headers for get
-        :return JsonOutput:
-        """
-        return get(url=url, headers=headers).json()
-
-
 class _AutoFlags(Enum):
     def _generate_next_value_(name, start, count, last_values):
         return 1 << count
@@ -362,7 +320,7 @@ class Rest:
 
 
 @final
-class DisApi(_RequestsUserClass):
+class DisApi:
     """DisApi
     Class for init Rest and Flow event and edit they
     """
