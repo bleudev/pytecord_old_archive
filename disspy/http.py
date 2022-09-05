@@ -25,7 +25,6 @@ SOFTWARE.
 # Imports
 # Packages
 from typing import (
-    TypeVar,
     Union,
     Coroutine,
     Callable,
@@ -35,7 +34,6 @@ from typing import (
     NoReturn,
     Text,
     Any,
-    Generic,
     final
 )
 
@@ -57,7 +55,6 @@ from disspy.thread import (
     DisThread,
     DisPrivateThread
 )
-from disspy.errors import ClassTypeError
 from disspy.guild import DisGuild
 from disspy.user import DisUser
 from disspy.application_commands import Context, _Argument, OptionArgs
