@@ -256,7 +256,7 @@ class Rest:
 
         return get(_url, self._headers).json()
 
-    async def send_message(self, channel_id, json_post):
+    async def send_message(self, channel_id, json_post, session):
         """send_message
         Send messages in channels
 
@@ -269,16 +269,15 @@ class Rest:
         """
         _url = f"{_mainurl()}channels/{channel_id}/messages"
 
-        async with ClientSession(headers=self._headers) as session:
-            async with session.post(_url, data=json_post) as post_process:
-                j = await post_process.json()
-                return j
+        async with session.post(_url, data=json_post) as post_process:
+            j = await post_process.json()
+            return j
 
 
 @final
 class DisApi:
     """DisApi
-    Class for init Rest and Flow event and edit they
+    Class for init Rest and DispyWebhook event and edit they
     """
     def __init__(self, token: str, intents):
         """
@@ -298,7 +297,7 @@ class DisApi:
         self._on_messagec = None
         self.token = token
 
-        self.flow = DispyWebhook(10, self.token, intents)
+        self.hook = DispyWebhook(10, self.token, intents)
         self._r = Rest(self.token)
 
         self.app_commands = []
@@ -331,7 +330,7 @@ class DisApi:
     async def run(self, status, ons: Dict[Text, Callable], debug: bool,
                   act: Dict[str, Any]) -> NoReturn:
         """
-        Run the flow of DisApi or run the bot.
+        Run the hook of DisApi or run the bot.
         Running bot in Discord, changing status and registering
         and running events in discord Gateway
         -----
@@ -347,12 +346,18 @@ class DisApi:
         ons["modalsumbit"] = self._on_modal_sumbit
 
         self._debug = debug
+        
+        self.session = ClientSession(headers=self._headers)
 
-        await self.flow.run(ons, status, debug, act)
+        try:
+            await self.hook.run(ons, status, debug, act, self.session)
+        except KeyboardInterrupt:
+            await self.session.close()
+            raise
 
     async def _register2(self, data: dict):
         # pass
-        self.user: DisUser = self.get_user(self.flow.user_id)
+        self.user: DisUser = self.get_user(self.hook.user_id)
 
         if self._debug:
             print(f"{colorama.Fore.YELLOW}Registering application commands...{colorama.Fore.RESET}")
@@ -615,9 +620,9 @@ class DisApi:
     async def fsend_request(self, data: dict):
         """fsend_request()
 
-        Send to Flow websocket a json request
+        Send to DispyWebhook a json request
 
         Args:
             data (dict): Json data for sending request
         """
-        await self.flow.send_request(data, self.flow.websocket)
+        await self.hook.send_request(data, self.hook.websocket)

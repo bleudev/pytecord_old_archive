@@ -213,7 +213,7 @@ class DisMessage(Message):
     """
     Message in channel
     """
-    def __init__(self, _data, _token):
+    def __init__(self, _data, _token, session):
         super().__init__(_data["type"])
 
         self.json = _data
@@ -245,6 +245,7 @@ class DisMessage(Message):
         self.id: int = int(_data["id"])
 
         self._t = _token
+        self.session = session
 
     async def reply(self, content: Optional[SupportsStr] = None, embeds: Optional[List[DisEmbed]] = None):
         """reply
@@ -300,7 +301,7 @@ class DisMessage(Message):
         await _SendingRestHandler.create_reaction(
             f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
 
-        return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
+        return DisOwnReaction(emoji, self.id, self.channel.id, self._t, self.session)
 
     async def delete(self):
         """delete
@@ -529,11 +530,12 @@ class DmMessage(Message):
     """
     Message in DM channel
     """
-    def __init__(self, data, token):
+    def __init__(self, data, token, session):
         super().__init__(data["type"], True)
 
         self.json = data
         self._t = token
+        self.session = session
 
         self.id = data["id"]
 
@@ -594,7 +596,7 @@ class DmMessage(Message):
         await _SendingRestHandler.create_reaction(
             f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self._t)
 
-        return DisOwnReaction(emoji, self.id, self.channel.id, self._t)
+        return DisOwnReaction(emoji, self.id, self.channel.id, self._t, self.session)
 
 
 @final

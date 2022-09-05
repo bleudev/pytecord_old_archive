@@ -639,6 +639,7 @@ class DisBot:
         except KeyboardInterrupt:
             self._write_logs()
             await self._on_close()
+            await self.api.session.close()
             await self._dissconnenter()
         except requests.exceptions.ConnectionError:
             self. _raise_internet_error()
@@ -748,7 +749,7 @@ class DisBot:
             "op": 3,
             "d": {
                 "since": mktime(datetime.now().timetuple()) * 1000,
-                "afk": self.api.flow.isafk,
+                "afk": self.api.hook.isafk,
                 "status": self.status,
                 "activities": [act]
             }

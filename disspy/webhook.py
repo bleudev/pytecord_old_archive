@@ -36,7 +36,6 @@ from asyncio import (
 from datetime import datetime
 from time import mktime
 import colorama
-from aiohttp import ClientSession
 from requests import get
 
 
@@ -247,6 +246,7 @@ class DispyWebhook:
         self._headers = {}
 
         self.websocket = None
+        self.session = None
         self.ons = None
 
     # Event methods
@@ -314,7 +314,7 @@ class DispyWebhook:
         return j
 
     # Runners
-    async def run(self, ons, status, debug, act):
+    async def run(self, ons, status, debug, act, session):
         """run
         Run Flow (Gateway)
 
@@ -338,40 +338,41 @@ class DispyWebhook:
         self.isrunning = True
         self.isafk = False
 
+        self.session = session
+
         await self._runner()
 
     async def _runner(self):
-        async with ClientSession() as session:
-            async with session.ws_connect(
-                f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as websocket:
-                self.websocket = websocket
+        async with self.session.ws_connect(
+            f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as websocket:
+            self.websocket = websocket
 
-                j = await self.get_responce(websocket)
+            j = await self.get_responce(websocket)
 
-                interval = j["d"]["heartbeat_interval"]
+            interval = j["d"]["heartbeat_interval"]
 
 
-                await self.send_request({"op": 2, "d": {
-                    "token": self.token,
-                    "intents": self.intents,
-                    "properties": {
-                        "$os": "linux",
-                        "$browser": "disspy",
-                        "$device": "disspy"
-                    },
-                    "presence": {
-                        "since": mktime(datetime.now().timetuple()) * 1000,
-                        "afk": self.isafk,
-                        "status": self.status,
-                        "activities": [self.activity]
-                    }
-                }}, websocket)
+            await self.send_request({"op": 2, "d": {
+                "token": self.token,
+                "intents": self.intents,
+                "properties": {
+                    "$os": "linux",
+                    "$browser": "disspy",
+                    "$device": "disspy"
+                },
+                "presence": {
+                    "since": mktime(datetime.now().timetuple()) * 1000,
+                    "afk": self.isafk,
+                    "status": self.status,
+                    "activities": [self.activity]
+                }
+            }}, websocket)
 
-                self.isrunning = True
+            self.isrunning = True
 
-                await wait(
-                    fs=[self.heartbeat(websocket, interval / 1000),
-                        self._events_checker(websocket)])  # Run Gateway client
+            await wait(
+                fs=[self.heartbeat(websocket, interval / 1000),
+                    self._events_checker(websocket)])  # Run Gateway client
 
     async def heartbeat(self, websocket, interval):
         """heartbeat
@@ -417,82 +418,73 @@ class DispyWebhook:
                     _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
                     if not event.data["author"]["id"] == self.user_id:
-                        async with ClientSession(
-                            headers={'Authorization': f'Bot {self.token}',
-                                     'content-type': 'application/json'}) as session:
-                            async with session.get(_u) as data:
-                                j = await data.json()
+                        async with self.session.get(_u) as data:
+                            j = await data.json()
 
-                                if j["type"] == 0:
-                                    _m = DisMessage(event.data, self.token)
+                            if j["type"] == 0:
+                                _m = DisMessage(event.data, self.token, self.session)
 
-                                    if int(event.data["channel_id"]) == int(self.on_channel__id):
-                                        await self.on_channel(_m)
-
-                                        if self._debug:
-                                            print(_DebugLoggingAwaiting(event.type, "on_channel"))
-
-
-                                    await self.ons["messagec"](_m)
+                                if int(event.data["channel_id"]) == int(self.on_channel__id):
+                                    await self.on_channel(_m)
 
                                     if self._debug:
-                                        print(_DebugLoggingAwaiting(event.type, "on_messagec"))
-                                elif j["type"] == 1:
-                                    _m = DmMessage(event.data, self.token)
+                                        print(_DebugLoggingAwaiting(event.type, "on_channel"))
 
-                                    await self.ons["dmessagec"](_m)
 
-                                    if self._debug:
-                                        print(_DebugLoggingAwaiting(event.type, "on_dmessagec"))
+                                await self.ons["messagec"](_m)
+
+                                if self._debug:
+                                    print(_DebugLoggingAwaiting(event.type, "on_messagec"))
+                            elif j["type"] == 1:
+                                _m = DmMessage(event.data, self.token, self.session)
+
+                                await self.ons["dmessagec"](_m)
+
+                                if self._debug:
+                                    print(_DebugLoggingAwaiting(event.type, "on_dmessagec"))
 
                 elif event.type == "MESSAGE_UPDATE":
                     _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
                     if not event.data["author"]["id"] == self.user_id:
-                        async with ClientSession(
-                            headers={'Authorization': f'Bot {self.token}',
-                                     'content-type': 'application/json'}) as session:
-                            async with session.get(_u) as data:
-                                j = await data.json()
+                        async with self.session.get(_u) as data:
+                            j = await data.json()
 
-                                if j["type"] == 0:
-                                    _m = DisMessage(event.data, self.token)
+                            if j["type"] == 0:
+                                _m = DisMessage(event.data, self.token, self.session)
 
-                                    await self.ons["messageu"](_m)
+                                await self.ons["messageu"](_m)
 
-                                    if self._debug:
-                                        print(_DebugLoggingAwaiting(event.type, "on_messageu"))
-                                elif j["type"] == 1:
-                                    _m = DmMessage(event.data, self.token)
+                                if self._debug:
+                                    print(_DebugLoggingAwaiting(event.type, "on_messageu"))
+                            elif j["type"] == 1:
+                                _m = DmMessage(event.data, self.token, self.session)
 
-                                    await self.ons["dmessageu"](_m)
+                                await self.ons["dmessageu"](_m)
 
-                                    if self._debug:
-                                        print(_DebugLoggingAwaiting(event.type, "on_dmessageu"))
+                                if self._debug:
+                                    print(_DebugLoggingAwaiting(event.type, "on_dmessageu"))
 
                 elif event.type == "MESSAGE_DELETE":
                     _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
 
-                    async with ClientSession(
-                        headers={'Authorization': f'Bot {self.token}',
-                                 'content-type': 'application/json'}) as session:
-                        async with session.get(_u) as data:
-                            j = await data.json()
+                    async with self.session.get(_u) as data:
+                        j = await data.json()
 
-                            if j["type"] == 0:
-                                _e = MessageDeleteEvent(event.data, self.token)
+                        if j["type"] == 0:
+                            _e = MessageDeleteEvent(event.data, self.token)
 
-                                await self.ons["messaged"](_e)
+                            await self.ons["messaged"](_e)
 
-                                if self._debug:
-                                    print(_DebugLoggingAwaiting(event.type, "on_messaged"))
-                            elif j["type"] == 1:
-                                _e = DmMessageDeleteEvent(event.data, self.token)
+                            if self._debug:
+                                print(_DebugLoggingAwaiting(event.type, "on_messaged"))
+                        elif j["type"] == 1:
+                            _e = DmMessageDeleteEvent(event.data, self.token)
 
-                                await self.ons["dmessaged"](_e)
+                            await self.ons["dmessaged"](_e)
 
-                                if self._debug:
-                                    print(_DebugLoggingAwaiting(event.type, "on_dmessaged"))
+                            if self._debug:
+                                print(_DebugLoggingAwaiting(event.type, "on_dmessaged"))
 
                 elif event.type == "INTERACTION_CREATE":
                     if event.data["type"] == 2:  # Application Commands

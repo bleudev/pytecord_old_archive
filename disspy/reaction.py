@@ -61,20 +61,20 @@ class DisOwnReaction:
     """
     Bot's own reaction
     """
-    def __init__(self, emoji: str, message_id, channel_id, token):
+    def __init__(self, emoji: str, message_id, channel_id, token, session):
         self.emoji = emoji
         _mainurl = "https://discord.com/api/v10/"
         self._u = f"{_mainurl}channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
         self._t = token
+
+        self._session = session
 
     async def delete(self):
         """delete()
 
         Delete own reaction
         """
-        async with ClientSession(headers={'Authorization': f'Bot {self._t}',
-                                          'content-type': 'application/json'}) as session:
-            await session.delete(self._u)
+        await self._session.delete(self._u)
 
 
 class DisReaction:
