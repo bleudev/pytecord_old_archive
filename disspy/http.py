@@ -70,7 +70,6 @@ __all__: tuple = (
     # Classes for simpler creating other classes
     "JsonOutput",
     "DisFlags",
-    "Snowflake",
     "ChannelId",
     "ThreadId",
     "UserId",
@@ -78,7 +77,7 @@ __all__: tuple = (
     # Private clients
     "Rest",
     # Main client
-    "DisApi"
+    "DisApi",
 )
 
 def _mainurl() -> str:
@@ -199,46 +198,6 @@ class DisFlags:
         return int(result)
 
 
-T = TypeVar("T", str, int)
-
-
-@final
-class Snowflake(Generic[T]):
-    """
-    Class info
-
-    Snowflake is using for simpled work with tokens and ids.
-
-    :var self.isid:
-    """
-
-    def __init__(self, value: T) -> NoReturn:
-        if isinstance(value, int):
-            self.isid = True
-            self.istoken = False
-            self.value: int = value
-        elif value.isdigit():
-            self.isid = True
-            self.istoken = False
-            self.value = int(value)
-        else:
-            self.isid = False
-            self.istoken = True
-            self.value = value
-
-    def __int__(self) -> int:
-        if not self.isid:
-            raise ClassTypeError("Class Value is str, but this method needs for int!")
-
-        return int(self.value)
-
-    def __str__(self) -> str:
-        if not self.istoken:
-            raise ClassTypeError("Class Value is int, but this method needs for str!")
-
-        return str(self.value)
-
-
 ChannelId = NewType("ChannelId", int)
 ThreadId = NewType("ThreadId", int)
 UserId = NewType("UserId", int)
@@ -257,7 +216,7 @@ class Rest:
 
         self.__slots__ = [self._headers]
 
-    def get(self, goal: str, goal_id: Union[int, Snowflake]) -> Union[JsonOutput, None]:
+    def get(self, goal: str, goal_id: int) -> Union[JsonOutput, None]:
         """
         :param goal: guild/channel/user
         :param id: id of guild/channel/user
@@ -551,7 +510,7 @@ class DisApi:
         :param user_id: id of user
         :return JsonOutput:
         """
-        user_id = int(user_id)  # If Snowflake this will be int
+        user_id = int(user_id)
 
         return self._r.get("user", user_id)
 
@@ -588,7 +547,7 @@ class DisApi:
         :param channel_id: id of channel
         :return JsonOutput:
         """
-        channel_id = int(channel_id)  # If Snowflake this will be int
+        channel_id = int(channel_id)
 
         return self._r.get("channel", channel_id)
 
@@ -599,7 +558,7 @@ class DisApi:
         :param guild_id: id of guild
         :return DisGuild:
         """
-        guild_id = int(guild_id)  # If Snowflake this will be int
+        guild_id = int(guild_id)
 
         return DisGuild(guild_id, self.token)
 
@@ -611,7 +570,7 @@ class DisApi:
         :return JsonOutput:
         """
 
-        guild_id = int(guild_id)  # If Snowflake this will be int
+        guild_id = int(guild_id)
 
         return self._r.get("guild", guild_id)
 

@@ -58,7 +58,6 @@ from disspy.channel import (
 from disspy.http import (
     DisApi,
     DisFlags,
-    Snowflake,
     ChannelId,
     ThreadId,
     GuildId,
@@ -224,7 +223,7 @@ class DisBot:
     def _raise_unathorized_error(self) -> None:
         raise errors.Unauthorized()
 
-    def __init__(self, token: Snowflake[str], status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
+    def __init__(self, token: str, status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
                 flags: Optional[TypeOf(DisFlags)] = None, debug: Optional[bool] = False,
                 activity: Optional[Union[Activity, dict]] = None) -> None:
         """
@@ -689,7 +688,7 @@ class DisBot:
         if isinstance(channel, Channel):
             return channel
 
-       _m = "This channel is not channel! Use get_thread() method"
+        _m = "This channel is not channel! Use get_thread() method"
         raise RuntimeError(_m)
 
     def get_thread(self, thread_id: ThreadId) -> Union[DisNewsThread, DisThread, DisPrivateThread]:
@@ -710,7 +709,7 @@ class DisBot:
         if isinstance(thread, Thread):
             return thread
 
-       _m = "This channel is not thread! Use get_channel() method"
+        _m = "This channel is not thread! Use get_channel() method"
         raise RuntimeError(_m)
 
     def get_guild(self, guild_id: GuildId) -> DisGuild:

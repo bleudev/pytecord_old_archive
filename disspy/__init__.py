@@ -76,8 +76,7 @@ from disspy.client import (
 from disspy.http import (
     DisApi,
     DisFlags,
-    JsonOutput,
-    Snowflake
+    JsonOutput
 )
 from disspy.embed import (
     DisEmbed,

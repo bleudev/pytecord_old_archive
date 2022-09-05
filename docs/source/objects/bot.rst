@@ -11,7 +11,7 @@ DisBot
 
 ::
 
-    class DisBot(token: Snowflake[str], status: Optional[TypeOf(DisBotStatus)],
+    class DisBot(token: str, status: Optional[TypeOf(DisBotStatus)],
                  flags: Optional[TypeOf(DisFlags)], debug: Optional[bool] = False,
                  activity: Optional[Union[Activity, dict]])
 
