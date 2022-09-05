@@ -689,7 +689,8 @@ class DisBot:
         if isinstance(channel, Channel):
             return channel
 
-        raise RuntimeError("This channel is not channel! Use get_thread() method")
+       _m = "This channel is not channel! Use get_thread() method"
+        raise RuntimeError(_m)
 
     def get_thread(self, thread_id: ThreadId) -> Union[DisNewsThread, DisThread, DisPrivateThread]:
         """get_thread
