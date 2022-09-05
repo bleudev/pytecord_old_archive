@@ -709,7 +709,8 @@ class DisBot:
         if isinstance(thread, Thread):
             return thread
 
-        raise RuntimeError("This channel is not thread! Use get_channel() method")
+       _m = "This channel is not thread! Use get_channel() method"
+        raise RuntimeError(_m)
 
     def get_guild(self, guild_id: GuildId) -> DisGuild:
         """
