@@ -22,17 +22,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from requests import get
+from typing import (
+    TypedDict,
+    Optional
+)
 
-from disspy.application import Application
+class ApplicationPayload(TypedDict):
+    id: int
+    name: str
+    description: str
+    bot_public: bool
+    tags: Optional[list]
+    custom_install_url: Optional[str]
 
-class ConnectionState:
-    def __init__(self, token: str) -> None:
-        self._t = token
-        self._data = None
-    
-    def get(self, ready_event: dict) -> None:
-        self._data = ready_event
-    
-    def application(self) -> Application:
-        return Application(self._data["application"])
+
+class Application:
+    def __init__(self, payload: ApplicationPayload) -> None:
+        self.id = payload['id']
+        
+        MISSING = "MISSING"
+
+        try:
+            self.name = payload['name']
+        except KeyError:
+            self.name = MISSING
+
+        try:
+            self.description = payload['description']
+        except KeyError:
+            self.description = MISSING
+
+        try:
+            self.tags = payload['tags']
+        except KeyError:
+            self.tags = MISSING
+
+        try:
+            self.bot_public = payload['bot_public']
+        except KeyError:
+            self.bot_public = True
+
+        try:
+            self.custom_install_url = payload['custom_install_url']
+        except KeyError:
+            self.custom_install_url = MISSING

@@ -403,7 +403,7 @@ class DispyWebhook:
                     if self._debug:
                         print(_DebugLoggingAwaiting(event.type, "on_register2"))
 
-                    await self.ons["register"]()
+                    await self.ons["register"](event.data)
 
                     if self._debug:
                         print(_DebugLoggingAwaiting(event.type, "on_register"))

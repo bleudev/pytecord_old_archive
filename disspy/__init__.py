@@ -109,6 +109,7 @@ from disspy.thread import (
 )
 from disspy.state import ConnectionState
 from disspy.webhook import DispyWebhook
+from disspy.application import Application
 
 
 # Methods for other variables

@@ -77,6 +77,7 @@ from disspy.abstract import (
     Channel,
     Thread
 )
+from disspy.state import ConnectionState
 
 __all__: tuple = (
     "DisBotStatus",
@@ -261,6 +262,7 @@ class DisBot:
         self.status = status
         self._debug = debug
         self._logger = _BotLogger()
+        self._state = ConnectionState(token)
         self._ons = {
             "register": self._on_register,
             "ready": blank,
@@ -294,13 +296,19 @@ class DisBot:
 
         self._logger.log("Bot created succesful!")
 
-    async def _on_register(self):
+    @property
+    def application(self):
+        return self._state.application()
+
+    async def _on_register(self, data):
         """
         Register user var
         -----
         :return None:
         """
         self.user: DisUser = self.api.user
+
+        self._state.get(data)
 
     async def _on_close(self):
         pass
