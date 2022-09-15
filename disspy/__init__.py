@@ -28,7 +28,7 @@ import disspy.activity
 import disspy.abstract
 import disspy.application_commands
 import disspy.channel
-import disspy.client
+import disspy.bot
 import disspy.http
 import disspy.embed
 import disspy.errors
@@ -68,7 +68,7 @@ from disspy.channel import (
     MessageDeleteEvent,
     DmMessageDeleteEvent
 )
-from disspy.client import (
+from disspy.bot import (
     DisBot,
     DisBotStatus,
     DisBotEventType
@@ -149,7 +149,7 @@ __alls__: list = [
     disspy.abstract.__all__,
     disspy.application_commands.__all__,
     disspy.channel.__all__,
-    disspy.client.__all__,
+    disspy.bot.__all__,
     disspy.http.__all__,
     disspy.embed.__all__,
     disspy.errors.__all__,
