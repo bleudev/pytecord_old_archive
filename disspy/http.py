@@ -352,8 +352,10 @@ class DisApi:
         try:
             await self.hook.run(ons, status, debug, act, self.session)
         except KeyboardInterrupt:
-            await self.session.close()
             raise
+        finally:
+            async with self.session:
+                pass
 
     async def _register2(self, data: dict):
         # pass
