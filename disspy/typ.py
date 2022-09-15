@@ -65,4 +65,8 @@ class SupportsStr(Protocol):
     def __str__(self) -> str:
         pass
 
-Url = NewType("Url", str)
+# New types
+Url     = NewType("Url",         str)
+
+# Custom types
+MISSING = None
