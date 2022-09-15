@@ -47,7 +47,8 @@ import requests.exceptions
 from disspy import errors
 from disspy.typ import (
     TypeOf,
-    Event
+    Event,
+    MISSING
 )
 from disspy.activity import Activity
 import disspy.application_commands as appc
@@ -401,7 +402,7 @@ class DisBot:
 
         return wrapper
 
-    def on_message(self, event_type: str) -> Wrapper:
+    def on_message(self, event_type: Literal['create', 'update', 'delete']) -> Wrapper:
         """
         Method for changing on_message() events
         -----
@@ -434,7 +435,7 @@ class DisBot:
 
         return wrapper
 
-    def on_dm_message(self, event_type: str) -> Wrapper:
+    def on_dm_message(self, event_type: Literal['create', 'update', 'delete']) -> Wrapper:
         """
         Method for changing on_dm_message() events
         -----
@@ -480,7 +481,7 @@ class DisBot:
 
         return wrapper
 
-    def slash_command(self, name: str, description: str,
+    def slash_command(self, name: str, description: Optional[str] = MISSING,
                       options: Optional[List[appc.Option]] = None) -> Wrapper:
         """
         Create slash command
@@ -491,6 +492,9 @@ class DisBot:
         :return Wrapper:
         """
         _payload = {}
+        
+        if description == MISSING:
+            description = "No description"
 
         if options:
             _options_jsons = []
