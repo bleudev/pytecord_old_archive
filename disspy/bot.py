@@ -541,45 +541,9 @@ class DisBot:
             elif param_type == DisUser:
                 payload["type"] = appc.ApplicationCommandType.USER
                 message_to_log = "Register user command"
-            
+
             self._logger.log(message_to_log)
             self.api.create_command(payload, func)
-        return wrapper
-
-    def user_command(self, name: str) -> Wrapper:
-        """
-        Create user command
-        -----
-        :param name: Command's name
-        :return Wrapper:
-        """
-        _payload = {
-            "name": name,
-            "type": appc.ApplicationCommandType.USER
-        }
-
-        def wrapper(func):
-            self._logger.log("Register user command")
-            self.api.create_command(_payload, func)
-
-        return wrapper
-
-    def message_command(self, name: str) -> Wrapper:
-        """
-        Create message command
-        -----
-        :param name: Command's name
-        :return Wrapper:
-        """
-        _payload = {
-            "name": name,
-            "type": appc.ApplicationCommandType.MESSAGE
-        }
-
-        def wrapper(func):
-            self._logger.log("Register message command")
-            self.api.create_command(_payload, func)
-
         return wrapper
 
     def run(self, status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
