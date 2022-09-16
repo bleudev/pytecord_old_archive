@@ -63,7 +63,7 @@ add_event()
 
 ::
 
-    def add_event(event_type: Event(DisBotEventType, str), func: Callable) -> NoReturn
+    def add_event(event_type: Event(DisBotEventType, str), func: Callable) -> None
 
 Registering events with event type and function
 
@@ -262,7 +262,7 @@ run()
 
 ::
 
-    def run(status: Optional[DisBotStatus | str], activity: Optional[Activity | dict]) -> NoReturn
+    def run(status: Optional[DisBotStatus | str], activity: Optional[Activity | dict]) -> None
 
 Run the bot in Discord Gateway
 
@@ -283,7 +283,7 @@ disconnect()
 
 ::
 
-    async def disconnect() -> NoReturn
+    async def disconnect() -> None
 
 Disconnect from Discord Gateway
 
@@ -299,7 +299,7 @@ close()
 
 ::
 
-    async def close() -> NoReturn
+    async def close() -> None
 
 Alternative of `disconnect()`_ method
 

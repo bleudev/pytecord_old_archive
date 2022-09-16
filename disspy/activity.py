@@ -30,7 +30,6 @@ __all__: tuple = (
 
 
 from typing import (
-    NoReturn,
     Dict,
     Any,
     Optional,
@@ -52,7 +51,7 @@ class Activity:
     """
     Activity class for changing activities in Discord
     """
-    def __init__(self, name: str, activity_type: int, url: Optional[Url] = None) -> NoReturn:
+    def __init__(self, name: str, activity_type: int, url: Optional[Url] = None) -> None:
         self.name: str = name
         self.activity_type: int = activity_type
         self.url = None

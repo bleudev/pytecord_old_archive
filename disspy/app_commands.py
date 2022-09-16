@@ -26,9 +26,7 @@ from typing import (
     Union,
     Optional,
     Any,
-    NoReturn,
     ClassVar,
-    Callable,
     final,
     List,
     Tuple,
@@ -36,10 +34,8 @@ from typing import (
     Dict
 )
 from json import dumps
-from abc import ABC, abstractmethod
 import aiohttp
 
-from disspy.jsongenerators import _OptionGenerator
 from disspy.ui import ActionRow
 
 __all__: tuple = (
@@ -256,7 +252,7 @@ class ChannelOption(Option):
 
 @final
 class _Argument:
-    def __init__(self, name: str, option_type: int, value: Any) -> NoReturn:
+    def __init__(self, name: str, option_type: int, value: Any) -> None:
         self.name: str = name
         self.type: int = option_type
         self.value: Any = value
@@ -273,7 +269,7 @@ class OptionArgs:
         await ctx.send(args.getString("Hi"))
     """
 
-    def __init__(self, values: Optional[List[_Argument]] = None) -> NoReturn:
+    def __init__(self, values: Optional[List[_Argument]] = None) -> None:
         """
         Init object
         -----
@@ -365,7 +361,7 @@ class Context:
     """
 
     def __init__(self, interaction_info:Tuple[str, int], bot_token,
-                 args: OptionArgs = None) -> NoReturn:
+                 args: OptionArgs = None) -> None:
         self._interaction_token: str = str(list(interaction_info)[0])
         self._interaction_id: int = int(list(interaction_info)[1])
 
@@ -373,7 +369,7 @@ class Context:
         self.args = args
 
     async def send(self, content: str, action_row: Optional[ActionRow] = None,
-                   ephemeral: bool = False) -> NoReturn:
+                   ephemeral: bool = False) -> None:
         """
 
         :param content: (str) Message content

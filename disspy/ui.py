@@ -23,7 +23,6 @@ SOFTWARE.
 """
 
 from typing import (
-    NoReturn,
     Dict,
     Optional,
     Text,
@@ -54,7 +53,7 @@ class Component:
     """
     def __init__(self, ctype, custom_id=None, label=None, style=None, url=None,
                  options=None, min_values=None, max_values=None,
-                 min_length=None, max_length=None, placeholder=None, required=None) -> NoReturn:
+                 min_length=None, max_length=None, placeholder=None, required=None) -> None:
         if ctype == 1:
             raise errors.MessageComponentIsBlocked("Action Rows don't can to use by users")
 
@@ -89,7 +88,7 @@ class Button(Component):
     Class for creating buttons in Action Row
     """
     def __init__(self, label: Text, style: Optional[int] = None, url: Optional[str] = None,
-                 custom_id: Optional[Text] = None, ) -> NoReturn:
+                 custom_id: Optional[Text] = None, ) -> None:
         if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
             raise RuntimeError("Error with creating buttons!")
 
@@ -114,7 +113,7 @@ class SelectMenuOption:
     Class for creating options in select menus
     """
     def __init__(self, label: str, value: str, description: str, emoji: Union[DisEmoji, str],
-                 default: bool = False) -> NoReturn:
+                 default: bool = False) -> None:
         self.label = label
         self.value = value
         self.description = description
@@ -158,7 +157,7 @@ class SelectMenu(Component):
     Class for creating select menus in Action Row
     """
     def __init__(self, custom_id: str, options: List[SelectMenuOption], placeholder: str,
-                 min_values: int, max_values: int) -> NoReturn:
+                 min_values: int, max_values: int) -> None:
         options_json = []
 
         for i in options:
@@ -173,7 +172,7 @@ class TextInput(Component):
     Class for creating text inputs in Action Row
     """
     def __init__(self, label, min_length, max_length, placeholder,
-                 required=False, style=None) -> NoReturn:
+                 required=False, style=None) -> None:
         if style is None:  # Default
             style = 1  # Short
         super().__init__(4, custom_id=label, style=style, label=label,
@@ -229,7 +228,7 @@ class ActionRow:
     """
     Class for creating action rows in messages
     """
-    def __init__(self, bot) -> NoReturn:
+    def __init__(self, bot) -> None:
         self.json = [{
             "type": 1,
             "components": []

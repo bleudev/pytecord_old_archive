@@ -26,7 +26,6 @@ from typing import (
     Optional,
     Union,
     List,
-    NoReturn,
     final,
     Any,
     TypedDict
@@ -314,7 +313,7 @@ class DisMessage(Message):
 
 @final
 class _ShowonlyContext:
-    def __init__(self, message: DisMessage, token: str, channel_id: int) -> NoReturn:
+    def __init__(self, message: DisMessage, token: str, channel_id: int) -> None:
         self._t = token
         self._channel_id = int(channel_id)
 

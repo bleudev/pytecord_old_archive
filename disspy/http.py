@@ -31,7 +31,6 @@ from typing import (
     NewType,
     Dict,
     List,
-    NoReturn,
     Text,
     Any,
     final,
@@ -48,8 +47,7 @@ import colorama
 from disspy.channel import (
     DisChannel,
     DisDmChannel,
-    DisMessage,
-    DmMessage
+    DisMessage
 )
 from disspy.thread import (
     DisNewsThread,
@@ -300,6 +298,7 @@ class DisApi:
 
         self.hook = DispyWebhook(10, self.token, intents)
         self._r = Rest(self.token)
+        self.session = None
 
         self.app_commands = []
         self.raw_app_commands = []
@@ -329,7 +328,7 @@ class DisApi:
         return DisMessage(_d, self.token, self.session)
 
     async def run(self, status, ons: Dict[Text, Callable], debug: bool,
-                  act: Dict[str, Any]) -> NoReturn:
+                  act: Dict[str, Any]) -> None:
         """
         Run the hook of DisApi or run the bot.
         Running bot in Discord, changing status and registering
@@ -409,17 +408,17 @@ class DisApi:
             print(server_app_commands)
             print(f"{colorama.Fore.GREEN}Regsiter is completed!")
 
-    async def _on_interaction(self, data) -> NoReturn:
+    async def _on_interaction(self, data) -> None:
         interaction_info = (data["token"], int(data["id"]))
         ctx = Context(interaction_info, self.token)
         command = data["data"]
         callback = self.app_commands[command["type"] - 1][command["name"]]
-        
+
         async def no_options():
             ctx.args = OptionArgs()
 
             await callback(ctx)
-        
+
         async def options():
             values = []
 
@@ -432,7 +431,7 @@ class DisApi:
                     append_arg(None)
 
             ctx.args = OptionArgs(values)
-            
+
             await callback(ctx)
 
         if command["type"] == 1:  # Slash command

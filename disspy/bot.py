@@ -27,7 +27,6 @@ from typing import (
     Optional,
     Union,
     Callable,
-    NoReturn,
     final,
     List,
     Literal
@@ -369,7 +368,7 @@ class DisBot:
 
         return wrapper
 
-    def add_event(self, event_type: Event(DisBotEventType, str), func: Callable) -> NoReturn:
+    def add_event(self, event_type: Event(DisBotEventType, str), func: Callable) -> None:
         """
         Add event to bot with function and event type
         -----
@@ -547,7 +546,7 @@ class DisBot:
         return wrapper
 
     def run(self, status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
-            activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
+            activity: Optional[Union[Activity, dict]] = None) -> None:
         """
         Running bot
         -----
@@ -576,7 +575,7 @@ class DisBot:
         _code = "-1000"
         raise errors.InternetError(_m, _code)
 
-    async def _runner(self) -> NoReturn:
+    async def _runner(self) -> None:
         try:
             await self.api.run(self.status, self._ons,
                                debug=self._debug, act=self._act)
@@ -588,19 +587,19 @@ class DisBot:
         except requests.exceptions.ConnectionError:
             self. _raise_internet_error()
 
-    async def disconnect(self) -> NoReturn:
+    async def disconnect(self) -> None:
         """
         Disconnect from Gateway
         """
         await self._dissconnenter()
 
-    async def close(self) -> NoReturn:
+    async def close(self) -> None:
         """
         Disconnect from Gateway
         """
         await self._dissconnenter()
 
-    async def _dissconnenter(self) -> NoReturn:
+    async def _dissconnenter(self) -> None:
         if self.isready:
             self._logger.log("Disconnect bot")
             await self.api.disconnecter()
