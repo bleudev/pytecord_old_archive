@@ -57,7 +57,7 @@ from disspy.thread import (
 )
 from disspy.guild import DisGuild
 from disspy.user import DisUser
-from disspy.application_commands import Context, _Argument, OptionArgs
+from disspy.app_commands import Context, _Argument, OptionArgs
 from disspy.webhook import DispyWebhook
 
 JsonOutput = NewType("JsonOutput", Dict[str, Any])

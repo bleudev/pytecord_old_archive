@@ -26,7 +26,7 @@ SOFTWARE.
 # Files
 import disspy.activity
 import disspy.abstract
-import disspy.application_commands
+import disspy.app_commands
 import disspy.channel
 import disspy.bot
 import disspy.http
@@ -49,7 +49,7 @@ from disspy.activity import (
     Activity,
     ActivityType
 )
-from disspy.application_commands import (
+from disspy.app_commands import (
     ApplicationCommandType,
     ApplicationCommand,
     SlashCommand,
@@ -147,7 +147,7 @@ __packagename__ = "dispy"
 __alls__: list = [
     disspy.activity.__all__,
     disspy.abstract.__all__,
-    disspy.application_commands.__all__,
+    disspy.app_commands.__all__,
     disspy.channel.__all__,
     disspy.bot.__all__,
     disspy.http.__all__,

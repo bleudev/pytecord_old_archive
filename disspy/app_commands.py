@@ -53,6 +53,12 @@ __all__: tuple = (
 )
 
 
+def describe(description: str):
+    def wrapper(func):
+        return (description, func)
+    return wrapper
+
+
 @final
 class _MessageFlags:
     """

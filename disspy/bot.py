@@ -51,7 +51,7 @@ from disspy.typ import (
     MISSING
 )
 from disspy.activity import Activity
-import disspy.application_commands as appc
+import disspy.app_commands as appc
 from disspy.channel import (
     DisChannel,
     DisDmChannel
@@ -478,6 +478,32 @@ class DisBot:
         def wrapper(func):
             self._logger.log("Register on_channel() event")
             self._ons["channel"] = [func, channel_id]
+
+        return wrapper
+    
+    def command(self, name: Optional[str] = MISSING) -> Wrapper:
+        def wrapper(func, name=name):
+            if name is MISSING:
+                try:
+                    name = func.__name__
+                except AttributeError:
+                    name = func[1].__name__
+
+            payload = {
+                    "name": name,
+                    "type": appc.ApplicationCommandType.TEXT_INPUT,
+                    "description": None
+                }
+
+            try:
+                payload["description"] = func[0]
+                callback = func[1]
+            except TypeError:
+                payload["description"] = "No description"
+                callback = func
+
+            self._logger.log("Register slash command")
+            self.api.create_command(payload, callback)
 
         return wrapper
 
