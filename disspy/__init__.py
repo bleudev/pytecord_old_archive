@@ -58,7 +58,13 @@ from disspy.app_commands import (
     Context,
     Option,
     OptionType,
-    OptionArgs
+    OptionArgs,
+    StrOption,
+    IntOption,
+    NumOption,
+    BoolOption,
+    UserOption,
+    ChannelOption
 )
 from disspy.channel import (
     DisChannel,

@@ -179,7 +179,6 @@ class ApplicationCommand(ABC):
         return
 
 
-@final
 class Option:
     """
     Class for using options in application commands (TEXT_INPUT)
@@ -241,6 +240,42 @@ class OptionType:
     MENTIONABLE: Literal[9] = 9
     NUMBER: Literal[10] = 10
     ATTACHMENT: Literal[11] = 11
+
+
+@final
+class StrOption(Option):
+    def __init__(self) -> None:
+        super().__init__(OptionType.STRING)
+
+
+@final
+class IntOption(Option):
+    def __init__(self) -> None:
+        super().__init__(OptionType.INTEGER)
+
+
+@final
+class NumOption(Option):
+    def __init__(self) -> None:
+        super().__init__(OptionType.NUMBER)
+
+
+class BoolOption(Option):
+    def __init__(self) -> None:
+        super().__init__(OptionType.BOOLEAN)
+
+
+@final
+class UserOption(Option):
+    def __init__(self) -> None:
+        super().__init__(OptionType.USER)
+
+
+@final
+class ChannelOption(Option):
+    def __init__(self) -> None:
+        super().__init__(OptionType.CHANNEL)
+
 
 @final
 class SlashCommand(ApplicationCommand):
