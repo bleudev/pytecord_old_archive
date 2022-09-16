@@ -166,32 +166,27 @@ Params:
 Returns:
     ``Wrapper``
 
-@slash_command()
-================
+@command()
+==========
 
 .. warning::
     For application commands your bot needs have ``application.commands`` scope
 
 ::
 
-    @slash_command(name: str, description: str, options: Optional[List[Option]])
-                   -> Union[Wrapper, None]
+    @command(*name: str) -> Union[Wrapper, None]
 
 Create `Slash command. <application_commands.html#slash-commands>`_
 
 
 Example::
 
-    @bot.slash_command(name="test", description="Example")
+    @bot.command()
     async def test(ctx: disspy.Context):
         await ctx.send("Test!")
 
 Params:
-    ``name: str`` -> Name of command
-
-    ``description: str`` -> Description of command
-
-    ``options: Optional[List[Option]]`` -> List with command options
+    ``*name: str`` -> Name of command
 
     .. note::
         Default is ``None``
@@ -203,31 +198,6 @@ Returns:
     ``Union[Wrapper, None]`` -> Wrapper if application_id != 0 else None and error
 
 More info in `this page <application_commands.html#slash-commands>`_
-
-add_slash_command()
-===================
-
-.. warning::
-    For application commands your bot needs have ``application.commands`` scope
-
-::
-
-    def add_slash_command(command: SlashCommand) -> NoReturn
-
-Create command from `Slash command <application_commands.html#slash-commands>`_ object.
-
-Example::
-
-    async def func(ctx: Context):
-        await ctx.send("Test!")
-
-    bot.add_slash_command(SlashCommand(name="test", description="Dispy is good!", cmd=func))
-
-Params:
-    ``command`` -> `Slash command <application_commands.html#slash-commands>`_ object. Command that needs for register
-
-Returns:
-    ``None``
 
 @user_command()
 ===============
@@ -258,31 +228,6 @@ Args for event:
 Returns:
     ``Wrapper``
 
-add_user_command()
-==================
-
-.. warning::
-    For application commands your bot needs have ``application.commands`` scope
-
-::
-
-     def add_user_command(command: UserCommand) -> NoReturn
-
-Create command from `User command <application_commands.html#user-commands>`_ object.
-
-Example::
-
-    async def func(ctx: Context, user: DisUser):
-        await ctx.send(user.id)
-
-    bot.add_user_command(UserCommand(name="test", cmd=func))
-
-Params:
-    ``command`` -> `User command <application_commands.html#user-commands>`_ object. Application command object
-
-Returns:
-    ``None``
-
 @message_command()
 ==================
 
@@ -311,56 +256,6 @@ Args for event:
 
 Returns:
     ``Wrapper``
-
-add_message_command()
-=====================
-
-.. warning::
-    For application commands your bot needs have ``application.commands`` scope
-
-::
-
-    def add_message_command(command: MessageCommand) -> NoReturn
-
-Create command from `Message command <application_commands.html#message-commands>`_ object.
-
-Example::
-
-    async def func(ctx: Context, message: DisMessage):
-        await ctx.send(f"Message content: {message.content}")
-
-    bot.add_message_command(MessageCommand(name="test", cmd=func))
-
-Params:
-    ``command`` -> `Message command <application_commands.html#message-commands>`_ object. Application command object
-
-Returns:
-    ``None``
-
-add_application_command()
-=========================
-
-.. warning::
-    For application commands your bot needs have ``application.commands`` scope
-
-::
-
-    def add_application_command(command: ApplicationCommand) -> NoReturn
-
-Create command from Application command object.
-
-Example::
-
-    async def func(ctx: Context):
-        await ctx.send("Hi?")
-
-    bot.add_application_command(ApplicationCommand(type=ApplicationCommandType.TEXT_INPUT, name="test", cmd=func))
-
-Params:
-    ``command`` -> Application command object
-
-Returns:
-    ``None``
 
 run()
 =====
