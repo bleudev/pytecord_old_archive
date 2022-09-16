@@ -39,9 +39,9 @@ from asyncio import run
 from datetime import datetime
 from time import mktime
 import os
+from inspect import signature
 from requests import get
 import requests.exceptions
-
 
 # Disspy imports
 from disspy import errors
@@ -54,7 +54,9 @@ from disspy.activity import Activity
 import disspy.app_commands as appc
 from disspy.channel import (
     DisChannel,
-    DisDmChannel
+    DisDmChannel,
+    DisMessage,
+    DmMessage
 )
 from disspy.http import (
     DisApi,
@@ -74,6 +76,7 @@ from disspy.thread import (
 )
 from disspy.abstract import (
     Channel,
+    Message,
     Thread
 )
 from disspy.state import ConnectionState
@@ -109,11 +112,13 @@ _all_basic_events = [
 #####################
 
 async def blank():
-    pass
+    """ Blank method """
+    return
 
 
 def ignore():
-    pass
+    """ Ignore """
+    return
 
 
 @final
@@ -223,9 +228,10 @@ class DisBot:
     def _raise_unathorized_error(self) -> None:
         raise errors.Unauthorized()
 
-    def __init__(self, token: str, status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
-                flags: Optional[TypeOf(DisFlags)] = None, debug: Optional[bool] = False,
-                activity: Optional[Union[Activity, dict]] = None) -> None:
+    def __init__(self, token: str,
+                 status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
+                 flags: Optional[TypeOf(DisFlags)] = None, debug: Optional[bool] = False,
+                 activity: Optional[Union[Activity, dict]] = None) -> None:
         """
         Create bot
         -----
@@ -479,7 +485,7 @@ class DisBot:
             self._ons["channel"] = [func, channel_id]
 
         return wrapper
-    
+
     def command(self, name: Optional[str] = MISSING) -> Wrapper:
         def wrapper(func, name=name):
             if name is MISSING:
@@ -507,6 +513,37 @@ class DisBot:
             self._logger.log("Register command")
             self.api.create_command(payload, callback)
 
+        return wrapper
+
+    def context_menu(self, name: Optional[str] = MISSING):
+        def wrapper(func, name=name):
+            if name is MISSING:
+                name = func.__name__
+
+            payload = {
+                "name": name,
+                "type": None
+            }
+
+            # Get type of second argument of function
+            sig = signature(func)
+            params = dict(sig.parameters)
+            param = params[list(params.keys())[1]]
+            param_type = param.annotation
+            ###
+
+            message_to_log = ""
+
+            if param_type in (Message, DisMessage, DmMessage):
+                payload["type"] = appc.ApplicationCommandType.MESSAGE
+                message_to_log = "Register message command"
+
+            elif param_type == DisUser:
+                payload["type"] = appc.ApplicationCommandType.USER
+                message_to_log = "Register user command"
+            
+            self._logger.log(message_to_log)
+            self.api.create_command(payload, func)
         return wrapper
 
     def user_command(self, name: str) -> Wrapper:

@@ -488,9 +488,8 @@ class DispyWebhook:
 
                 elif event.type == "INTERACTION_CREATE":
                     if event.data["type"] == 2:  # Application Commands
-                        await self.ons["interaction"](
-                            event.data["token"], event.data["id"], event.data["data"]["name"],
-                            self.token, event.data["type"], event.data, event.data["data"]["type"])
+                        print("Interaction create!")
+                        await self.ons["interaction"](event.data)
 
                         if self._debug:
                             print(_DebugLoggingAwaiting(event.type, "on_interaction"))

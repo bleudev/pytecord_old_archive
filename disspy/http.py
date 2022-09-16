@@ -34,7 +34,8 @@ from typing import (
     NoReturn,
     Text,
     Any,
-    final
+    final,
+    Literal
 )
 
 from enum import Enum, auto
@@ -77,7 +78,7 @@ __all__: tuple = (
     "DisApi",
 )
 
-def _mainurl() -> str:
+def _mainurl() -> Literal['https://discord.com/api/v10/']:
     return "https://discord.com/api/v10/"
 
 
@@ -325,7 +326,7 @@ class DisApi:
 
         _d = self._r.fetch(channel_id, message_id)
 
-        return DisMessage(_d, self.token)
+        return DisMessage(_d, self.token, self.session)
 
     async def run(self, status, ons: Dict[Text, Callable], debug: bool,
                   act: Dict[str, Any]) -> NoReturn:
@@ -346,7 +347,7 @@ class DisApi:
         ons["modalsumbit"] = self._on_modal_sumbit
 
         self._debug = debug
-        
+
         self.session = ClientSession(headers=self._headers)
 
         try:
@@ -408,73 +409,75 @@ class DisApi:
             print(server_app_commands)
             print(f"{colorama.Fore.GREEN}Regsiter is completed!")
 
-    async def _on_interaction(self, token, interaction_id, command_name, bot_token: str,
-                              interaction_type, data: JsonOutput, type_of_command=None) -> NoReturn:
-        interaction_info = (token, interaction_id)
+    async def _on_interaction(self, data) -> NoReturn:
+        print(data)
+        # {'version': 1, 'type': 2,
+        # 'token': 'aW50ZXJhY3Rpb246MTAyMDQwODI2ODUyODU1ODE0MDpQRmlMYnpoU3c1ZG5NcXcxV1heFY4UVB1bWsydGZFbDhrcFV2MVJxcXZ4QnpEMWcwTkpyMGFFWk93dFE4U2djNG4xbVJOYlptdm81MFNKaTV3dE1PQw',
+        # 'member': {'user': {'username': 'pixeldeee', 'public_flags': 256, 'id': '907966263270207519', 'discriminator': '3565', 'avatar_decoration': None,
+        # 'avatar': 'd7a438081e21c31e6c3b76b377b41345'}, 'roles': ['1004009477013504061', '1002528473094570076', '1004009540838236221', '965330581338603551'],
+        # 'premium_since': None, 'permissions': '4398046511103', 'pending': False, 'nick': None, 'mute': False, 'joined_at': '2022-03-22T16:42:07.167000+00:00',
+        # 'is_pending': False, 'flags': 0, 'deaf': False, 'communication_disabled_until': None, 'avatar': None}, 'locale': 'ru', 'id': '1020408268528558140',
+        # 'guild_locale': 'en-US', 'guild_id': '955868993175035934', 'data': {'type': 3, 'target_id': '1020373714983985202',
+        # 'resolved': {'messages': {'1020373714983985202': {'webhook_id': '965666270500495390', 'type': 20, 'tts': False,
+        # 'timestamp': '2022-09-16T16:40:51.279000+00:00', 'pinned': False, 'mentions': [], 'mention_roles': [], 'mention_everyone': False,
+        # 'interaction': {'user': {'username': 'pixeldeee', 'public_flags': 256, 'id': '907966263270207519', 'discriminator': '3565', 'avatar_decoration': None,
+        # 'avatar': 'd7a438081e21c31e6c3b76b377b41345'}, 'type': 2, 'name': 'test', 'id': '1020373713083973662'}, 'id': '1020373714983985202', 'flags': 0, 'embeds': [],
+        # 'edited_timestamp': None, 'content': 'test', 'components': [], 'channel_id': '956099453813678090', 'author': {'username': 'Dispy Tests', 'public_flags': 0,
+        # 'id': '965666270500495390', 'discriminator': '0112', 'bot': True, 'avatar_decoration': None, 'avatar': None}, 'attachments': [], 'application_id':
+        # '965666270500495390'}}}, 'name': 'test_message_command', 'id': '1020408205551095968'}, 'channel_id': '956099453813678090', 'application_id': '965666270500495390',
+        # 'app_permissions': '4398046511103'}
+        
+        interaction_info = (data["token"], int(data["id"]))
+        ctx = Context(interaction_info, self.token)
+        command = data["data"]
+        callback = self.app_commands[command["type"] - 1][command["name"]]
+        
+        async def no_options():
+            ctx.args = OptionArgs()
 
-        if interaction_type == 2:
+            await callback(ctx)
+        
+        async def options():
+            values = []
+
+            for i in command["options"]:
+                def append_arg(val, i=i):
+                    values.append(_Argument(i["name"], i["type"], val))
+                try:
+                    append_arg(i["value"])
+                except KeyError:
+                    append_arg(None)
+
+            ctx.args = OptionArgs(values)
+            
+            await callback(ctx)
+
+        if command["type"] == 1:  # Slash command
             try:
-                if type_of_command == 3:  # Message Commands
-                    resolved: dict = data["data"]["resolved"]["messages"]
-
-                    _m_id = list(resolved.keys())[0]
-                    _m_d: dict = resolved[_m_id]
-
-                    try:
-                        _m_d["id"] = _m_id
-                    except KeyError:
-                        _m_d.setdefault("id", _m_id)
-
-                    _c_id = _m_d["channel_id"]
-
-                    _c_d = get(f"{_mainurl()}channels/{str(_c_id)}")
-
-                    _m = None
-
-                    if _c_d["type"] == 1:
-                        _m = DisMessage(_m_d, self.token)
-                    else:
-                        _m = DmMessage(_m_d, self.token)
-
-                    _ctx = Context(interaction_info, bot_token)
-                    await self.app_commands[type_of_command - 1][command_name](_ctx, _m)
-
-                elif type_of_command == 2:  # User Commands
-                    resolved: dict = data["data"]["resolved"]["users"]
-
-                    _u_id = list(resolved.keys())[0]
-                    _u_d: dict = resolved[_u_id]
-
-                    try:
-                        _u_d["id"] = _u_id
-                    except KeyError:
-                        _u_d.setdefault("id", _u_id)
-
-                    _u = DisUser(_u_d, self.token)
-
-                    _ctx = Context(interaction_info, bot_token)
-                    await self.app_commands[type_of_command - 1][command_name](_ctx, _u)
-
-                elif type_of_command == 1:  # Slash Commands
-                    _args = []
-
-                    try:
-                        for option in data["data"]["options"]:
-                            _args.append(_Argument(option["name"],
-                                                    option["type"],
-                                                    option["value"]))
-                    except KeyError:
-                        _args = []
-
-                    func = self.app_commands[type_of_command - 1][command_name]
-
-                    _ctx = Context(interaction_info, bot_token, OptionArgs(_args))
-
-                    await func(_ctx)
+                if command["options"]:
+                    await options()
                 else:
-                    pass
+                    await no_options()
             except KeyError:
-                pass
+                await no_options()
+
+        elif command["type"] == 2:  # User command
+            target_id = command["target_id"]
+
+            target_json = command["resolved"]["users"][target_id]
+
+            target = DisUser(target_json, self.token)
+
+            await callback(ctx, target)
+
+        elif command["type"] == 3:  # Message command
+            target_id = command["target_id"]
+
+            target_json = command["resolved"]["messages"][target_id]
+
+            target = DisMessage(target_json, self.token, self.session)
+
+            await callback(ctx, target)
 
     async def _on_components(self, data):
         if data["data"]["component_type"] == 2:
