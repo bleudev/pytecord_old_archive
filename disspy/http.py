@@ -410,23 +410,6 @@ class DisApi:
             print(f"{colorama.Fore.GREEN}Regsiter is completed!")
 
     async def _on_interaction(self, data) -> NoReturn:
-        print(data)
-        # {'version': 1, 'type': 2,
-        # 'token': 'aW50ZXJhY3Rpb246MTAyMDQwODI2ODUyODU1ODE0MDpQRmlMYnpoU3c1ZG5NcXcxV1heFY4UVB1bWsydGZFbDhrcFV2MVJxcXZ4QnpEMWcwTkpyMGFFWk93dFE4U2djNG4xbVJOYlptdm81MFNKaTV3dE1PQw',
-        # 'member': {'user': {'username': 'pixeldeee', 'public_flags': 256, 'id': '907966263270207519', 'discriminator': '3565', 'avatar_decoration': None,
-        # 'avatar': 'd7a438081e21c31e6c3b76b377b41345'}, 'roles': ['1004009477013504061', '1002528473094570076', '1004009540838236221', '965330581338603551'],
-        # 'premium_since': None, 'permissions': '4398046511103', 'pending': False, 'nick': None, 'mute': False, 'joined_at': '2022-03-22T16:42:07.167000+00:00',
-        # 'is_pending': False, 'flags': 0, 'deaf': False, 'communication_disabled_until': None, 'avatar': None}, 'locale': 'ru', 'id': '1020408268528558140',
-        # 'guild_locale': 'en-US', 'guild_id': '955868993175035934', 'data': {'type': 3, 'target_id': '1020373714983985202',
-        # 'resolved': {'messages': {'1020373714983985202': {'webhook_id': '965666270500495390', 'type': 20, 'tts': False,
-        # 'timestamp': '2022-09-16T16:40:51.279000+00:00', 'pinned': False, 'mentions': [], 'mention_roles': [], 'mention_everyone': False,
-        # 'interaction': {'user': {'username': 'pixeldeee', 'public_flags': 256, 'id': '907966263270207519', 'discriminator': '3565', 'avatar_decoration': None,
-        # 'avatar': 'd7a438081e21c31e6c3b76b377b41345'}, 'type': 2, 'name': 'test', 'id': '1020373713083973662'}, 'id': '1020373714983985202', 'flags': 0, 'embeds': [],
-        # 'edited_timestamp': None, 'content': 'test', 'components': [], 'channel_id': '956099453813678090', 'author': {'username': 'Dispy Tests', 'public_flags': 0,
-        # 'id': '965666270500495390', 'discriminator': '0112', 'bot': True, 'avatar_decoration': None, 'avatar': None}, 'attachments': [], 'application_id':
-        # '965666270500495390'}}}, 'name': 'test_message_command', 'id': '1020408205551095968'}, 'channel_id': '956099453813678090', 'application_id': '965666270500495390',
-        # 'app_permissions': '4398046511103'}
-        
         interaction_info = (data["token"], int(data["id"]))
         ctx = Context(interaction_info, self.token)
         command = data["data"]

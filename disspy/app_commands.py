@@ -32,7 +32,8 @@ from typing import (
     final,
     List,
     Tuple,
-    Literal
+    Literal,
+    Dict
 )
 from json import dumps
 from abc import ABC, abstractmethod
@@ -56,30 +57,59 @@ __all__: tuple = (
 )
 
 
-def describe(description: str):
-    def wrapper(func):
-        try:
-            to_edit = {"description": description}
-            
-            for key in list(func[0].keys()):
-                val = func[0][key]
+class Option:
+    """
+    Class for using options in application commands (TEXT_INPUT)
+    """
 
-                to_edit.setdefault(key, val)
-            
-            return (to_edit, func[1])
-        except TypeError:
-            return ({"description": description}, func)
-    return wrapper
+    def __init__(self, option_type: int) -> None:
+        """__init__
+        Create option object
+
+        Args:
+            option_type (int): Option type
+
+        Returns:
+            None
+        """
+        self.description: str = "No description"
+        self.option_type: int = option_type
+        self.choices: Union[List[dict], None] = []
+        self.is_required: bool = False
+    
+    def required(self):
+        option = Option(self.option_type)
+        option.is_required = True
+        option.choices = self.choices
+        option.description = self.description
+
+        return option
+
+    def set_description(self, text: str):
+        option = Option(self.option_type)
+        option.is_required = self.is_required
+        option.choices = self.choices
+        option.description = text
+
+        return option
+
+    def set_choices(self, choices: List[dict]):
+        option = Option(self.option_type)
+        option.is_required = self.is_required
+        option.choices = choices
+        option.description = self.description
+
+        return option
 
 
 class _OptionsMethods:
     @staticmethod
-    def describe(**kwargs):
+    def describe(**options: Dict[str, Option]):
         def wrapper(func):
             result = []
 
-            for name in list(kwargs.keys()):
-                value: Option = kwargs[name]
+            for name in list(options.keys()):
+                value: Option = options[name]
 
                 result.append({
                     "name": name,
@@ -104,6 +134,20 @@ class _OptionsMethods:
 
 options = _OptionsMethods()
 
+def describe(description: str):
+    def wrapper(func):
+        try:
+            to_edit = {"description": description}
+            
+            for key in list(func[0].keys()):
+                val = func[0][key]
+
+                to_edit.setdefault(key, val)
+            
+            return (to_edit, func[1])
+        except TypeError:
+            return ({"description": description}, func)
+    return wrapper
 
 @final
 class _MessageFlags:
@@ -155,51 +199,6 @@ class ApplicationCommandType:
     TEXT_INPUT: ClassVar[int] = 1  # Slash Command
     USER: ClassVar[int] = 2  # User Command
     MESSAGE: ClassVar[int] = 3  # Message Command
-
-
-class Option:
-    """
-    Class for using options in application commands (TEXT_INPUT)
-    """
-
-    def __init__(self, option_type: int) -> None:
-        """__init__
-        Create option object
-
-        Args:
-            option_type (int): Option type
-
-        Returns:
-            None
-        """
-        self.description: str = "No description"
-        self.option_type: int = option_type
-        self.choices: Union[List[dict], None] = []
-        self.is_required: bool = False
-    
-    def required(self):
-        option = Option(self.option_type)
-        option.is_required = True
-        option.choices = self.choices
-        option.description = self.description
-
-        return option
-
-    def set_description(self, text: str):
-        option = Option(self.option_type)
-        option.is_required = self.is_required
-        option.choices = self.choices
-        option.description = text
-
-        return option
-
-    def set_choices(self, choices: List[dict]):
-        option = Option(self.option_type)
-        option.is_required = self.is_required
-        option.choices = choices
-        option.description = self.description
-
-        return option
 
 
 @final
