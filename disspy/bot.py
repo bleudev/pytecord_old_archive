@@ -66,7 +66,6 @@ from disspy.http import (
 )
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
-from disspy.jsongenerators import _OptionGenerator
 from disspy.user import DisUser
 from disspy.thread import (
     DisNewsThread,
@@ -510,58 +509,6 @@ class DisBot:
 
         return wrapper
 
-    def slash_command(self, name: str, description: Optional[str] = MISSING,
-                      options: Optional[List[appc.Option]] = None) -> Wrapper:
-        """
-        Create slash command
-        -----
-        :param name: Command's name
-        :param description: Command's description
-        :param options: Command's options
-        :return Wrapper:
-        """
-        _payload = {}
-        
-        if description == MISSING:
-            description = "No description"
-
-        if options:
-            _options_jsons = []
-
-            for option in options:
-                _options_jsons.append(_OptionGenerator(option))
-
-            _payload = {
-                "name": name,
-                "description": description,
-                "type": appc.ApplicationCommandType.TEXT_INPUT,
-                "options": _options_jsons
-            }
-        else:
-            _payload = {
-                "name": name,
-                "description": description,
-                "type": appc.ApplicationCommandType.TEXT_INPUT
-            }
-
-        def wrapper(func):
-            self._logger.log("Register slash command")
-            self.api.create_command(_payload, func)
-
-        return wrapper
-
-    def add_slash_command(self, command: appc.SlashCommand) -> NoReturn:
-        """
-        Create slash command
-        -----
-        :param command: Slash Command
-        :return None:
-        """
-        self._logger.log("Register slash command")
-        self.api.create_command(command.json(), command.cmd)
-
-        return None
-
     def user_command(self, name: str) -> Wrapper:
         """
         Create user command
@@ -580,18 +527,6 @@ class DisBot:
 
         return wrapper
 
-    def add_user_command(self, command: appc.UserCommand) -> NoReturn:
-        """
-        Create user command
-        -----
-        :param command: User Command
-        :return None:
-        """
-        self._logger.log("Register user command")
-        self.api.create_command(command.json(), command.cmd)
-
-        return None
-
     def message_command(self, name: str) -> Wrapper:
         """
         Create message command
@@ -609,31 +544,6 @@ class DisBot:
             self.api.create_command(_payload, func)
 
         return wrapper
-
-    def add_message_command(self,
-                            command: appc.MessageCommand) -> NoReturn:
-        """
-        Create message command
-        -----
-        :param command: Message Command
-        :return None:
-        """
-        self._logger.log("Register message command")
-        self.api.create_command(command.json(), command.cmd)
-
-        return None
-
-    def add_application_command(self, command: appc.ApplicationCommand) -> NoReturn:
-        """
-        Create application command
-        -----
-        :param command: Application Command
-        :return None:
-        """
-        self._logger.log("Register application command")
-        self.api.create_command(command.json(), command.cmd)
-
-        return None
 
     def run(self, status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
             activity: Optional[Union[Activity, dict]] = None) -> NoReturn:

@@ -51,10 +51,6 @@ from disspy.activity import (
 )
 from disspy.app_commands import (
     ApplicationCommandType,
-    ApplicationCommand,
-    SlashCommand,
-    UserCommand,
-    MessageCommand,
     Context,
     Option,
     OptionType,

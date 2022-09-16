@@ -43,12 +43,14 @@ from disspy.ui import ActionRow
 
 __all__: tuple = (
     "ApplicationCommandType",
-    "ApplicationCommand",
     "Option",
+    "StrOption",
+    "IntOption",
+    "NumOption",
+    "BoolOption",
+    "ChannelOption",
+    "UserOption",
     "OptionType",
-    "SlashCommand",
-    "UserCommand",
-    "MessageCommand",
     "Context",
     "OptionArgs"
 )
@@ -155,30 +157,6 @@ class ApplicationCommandType:
     MESSAGE: ClassVar[int] = 3  # Message Command
 
 
-class ApplicationCommand(ABC):
-    """
-    (abstract)
-    Application Command object.
-
-    This use as parent for slash commands, message commands, user commands
-    """
-
-    def __init__(self, name: str, cmd: Callable, command_type: int) -> NoReturn:
-        self.name: str = name
-        self.cmd: Callable = cmd
-        self.command_type: int = command_type
-
-    @abstractmethod
-    def json(self) -> dict:
-        """json
-        Return json data of command
-
-        Returns:
-            dict: Json data
-        """
-        return
-
-
 class Option:
     """
     Class for using options in application commands (TEXT_INPUT)
@@ -275,87 +253,6 @@ class UserOption(Option):
 class ChannelOption(Option):
     def __init__(self) -> None:
         super().__init__(OptionType.CHANNEL)
-
-
-@final
-class SlashCommand(ApplicationCommand):
-    """
-    Application Command with type number 1 (TEXT_INPUT)
-    """
-
-    def __init__(self, name: str, description: str, cmd: Callable,
-                 options: Optional[List[Option]] = None) -> NoReturn:
-        super().__init__(name, cmd, ApplicationCommandType.TEXT_INPUT)
-
-        self.description = description
-
-        if options:
-            _options_jsons = []
-
-            for option in options:
-                _options_jsons.append(_OptionGenerator(option))
-
-            self.options: Union[List[Option], None] = _options_jsons
-        else:
-            self.options: Union[List[Option], None] = None
-
-    def json(self) -> dict:
-        """json
-        Return json data of command
-
-        Returns:
-            dict: Json data
-        """
-        return {
-            "name": self.name,
-            "description": self.description,
-            "type": ApplicationCommandType.TEXT_INPUT,
-            "options": self.options
-        }
-
-
-@final
-class UserCommand(ApplicationCommand):
-    """
-    Application Command with type number 2 (USER)
-    """
-
-    def __init__(self, name: str, cmd: Callable) -> NoReturn:
-        super().__init__(name, cmd, ApplicationCommandType.USER)
-
-    def json(self) -> dict:
-        """json
-        Return json data of command
-
-        Returns:
-            dict: Json data
-        """
-        return {
-            "name": self.name,
-            "type": ApplicationCommandType.USER
-        }
-
-
-@final
-class MessageCommand(ApplicationCommand):
-    """
-    Application Command with type number 3 (MESSAGE)
-    """
-
-    def __init__(self, name: str, cmd: Callable) -> NoReturn:
-        super().__init__(name, cmd, ApplicationCommandType.MESSAGE)
-
-    def json(self) -> dict:
-        """json
-        Return json data of command
-
-        Returns:
-            dict: Json data
-        """
-        return {
-            "name": self.name,
-            "type": ApplicationCommandType.MESSAGE
-        }
 
 
 @final
