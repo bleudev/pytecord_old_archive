@@ -492,17 +492,20 @@ class DisBot:
             payload = {
                     "name": name,
                     "type": appc.ApplicationCommandType.TEXT_INPUT,
-                    "description": None
+                    "description": "No description"
                 }
 
             try:
-                payload["description"] = func[0]
+                for key in list(func[0].keys()):
+                    val = func[0][key]
+                    
+                    payload[key] = val
+                    
                 callback = func[1]
             except TypeError:
-                payload["description"] = "No description"
                 callback = func
 
-            self._logger.log("Register slash command")
+            self._logger.log("Register command")
             self.api.create_command(payload, callback)
 
         return wrapper

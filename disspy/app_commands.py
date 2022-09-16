@@ -31,7 +31,8 @@ from typing import (
     Callable,
     final,
     List,
-    Tuple
+    Tuple,
+    Literal
 )
 from json import dumps
 from abc import ABC, abstractmethod
@@ -55,8 +56,51 @@ __all__: tuple = (
 
 def describe(description: str):
     def wrapper(func):
-        return (description, func)
+        try:
+            to_edit = {"description": description}
+            
+            for key in list(func[0].keys()):
+                val = func[0][key]
+
+                to_edit.setdefault(key, val)
+            
+            return (to_edit, func[1])
+        except TypeError:
+            return ({"description": description}, func)
     return wrapper
+
+
+class _OptionsMethods:
+    @staticmethod
+    def describe(**kwargs):
+        def wrapper(func):
+            result = []
+
+            for name in list(kwargs.keys()):
+                value: Option = kwargs[name]
+
+                result.append({
+                    "name": name,
+                    "type": value.option_type,
+                    "description": value.description,
+                    "required": value.is_required,
+                    "choices": value.choices
+                })
+            try:
+                to_edit = {"options": result}
+                
+                for key in list(func[0].keys()):
+                    val = func[0][key]
+
+                    to_edit.setdefault(key, val)
+                
+                return (to_edit, func[1])
+            except TypeError:
+                return ({"options": result}, func)
+
+        return wrapper
+
+options = _OptionsMethods()
 
 
 @final
@@ -141,23 +185,44 @@ class Option:
     Class for using options in application commands (TEXT_INPUT)
     """
 
-    def __init__(self, name: str, description: str, option_type: int,
-                 choices: Optional[List[dict]] = None,
-                 required: Optional[bool] = False) -> NoReturn:
+    def __init__(self, option_type: int) -> None:
+        """__init__
+        Create option object
+
+        Args:
+            option_type (int): Option type
+
+        Returns:
+            None
         """
-        Init class
-        -----
-        :param name: Name of option
-        :param description: Description of option
-        :param option_type: Type of option
-        :param choices: Option's Choices
-        :param required: Option's required var (bool)
-        """
-        self.name: str = name
-        self.description: str = description
+        self.description: str = "No description"
         self.option_type: int = option_type
-        self.choices: Union[List[dict], None] = choices
-        self.required: bool = required
+        self.choices: Union[List[dict], None] = []
+        self.is_required: bool = False
+    
+    def required(self):
+        option = Option(self.option_type)
+        option.is_required = True
+        option.choices = self.choices
+        option.description = self.description
+
+        return option
+
+    def set_description(self, text: str):
+        option = Option(self.option_type)
+        option.is_required = self.is_required
+        option.choices = self.choices
+        option.description = text
+
+        return option
+
+    def set_choices(self, choices: List[dict]):
+        option = Option(self.option_type)
+        option.is_required = self.is_required
+        option.choices = choices
+        option.description = self.description
+
+        return option
 
 
 @final
@@ -165,18 +230,17 @@ class OptionType:
     """
     Option types (see discord docs)
     """
-    SUB_COMMAND: ClassVar[int] = 1
-    SUB_COMMAND_GROUP: ClassVar[int] = 2
-    STRING: ClassVar[int] = 3
-    INTEGER: ClassVar[int] = 4
-    BOOLEAN: ClassVar[int] = 5
-    USER: ClassVar[int] = 6
-    CHANNEL: ClassVar[int] = 7
-    ROLE: ClassVar[int] = 8
-    MENTIONABLE: ClassVar[int] = 9
-    NUMBER: ClassVar[int] = 10
-    ATTACHMENT: ClassVar[int] = 11
-
+    SUB_COMMAND: Literal[1] = 1
+    SUB_COMMAND_GROUP: Literal[2] = 2
+    STRING: Literal[3] = 3
+    INTEGER: Literal[4] = 4
+    BOOLEAN: Literal[5] = 5
+    USER: Literal[6] = 6
+    CHANNEL: Literal[7] = 7
+    ROLE: Literal[8] = 8
+    MENTIONABLE: Literal[9] = 9
+    NUMBER: Literal[10] = 10
+    ATTACHMENT: Literal[11] = 11
 
 @final
 class SlashCommand(ApplicationCommand):
@@ -295,6 +359,10 @@ class OptionArgs:
         :return bool: Is empty?
         """
         return len(self._v) == 0
+    
+    @property
+    def options_args(self) -> List[_Argument]:
+        return self._v
 
     def get(self, name: str) -> Union[Any, None]:
         """
