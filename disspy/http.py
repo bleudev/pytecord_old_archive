@@ -549,7 +549,7 @@ class DisApi:
         """
         guild_id = int(guild_id)
 
-        return DisGuild(guild_id, self.token)
+        return DisGuild(guild_id, self.token, self.session)
 
     def get_guild_json(self, guild_id: GuildId) -> JsonOutput:
         """
