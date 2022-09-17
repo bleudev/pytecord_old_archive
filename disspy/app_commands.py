@@ -368,7 +368,7 @@ class Context:
         self._t = bot_token
         self.args = args
 
-    async def send(self, content: str, action_row: Optional[ActionRow] = None,
+    async def respond(self, content: str, action_row: Optional[ActionRow] = None,
                    ephemeral: bool = False) -> None:
         """
 
