@@ -472,14 +472,14 @@ class DispyWebhook:
                         j = await data.json()
 
                         if j["type"] == 0:
-                            _e = MessageDeleteEvent(event.data, self.token)
+                            _e = MessageDeleteEvent(event.data, self.token, self.session)
 
                             await self.ons["messaged"](_e)
 
                             if self._debug:
                                 print(_DebugLoggingAwaiting(event.type, "on_messaged"))
                         elif j["type"] == 1:
-                            _e = DmMessageDeleteEvent(event.data, self.token)
+                            _e = DmMessageDeleteEvent(event.data, self.token, self.session)
 
                             await self.ons["dmessaged"](_e)
 
@@ -547,7 +547,7 @@ class DispyWebhook:
                     try:
                         if event.data["guild_id"]:
                             _u: DisUser = DisUser(event.data["member"]["user"], self.token)
-                            _c: DisChannel = DisChannel(event.data["channel_id"], self.token)
+                            _c: DisChannel = DisChannel(event.data["channel_id"], self.token, self.session)
 
                             await self.ons["typing"](_u, _c)
 
@@ -561,7 +561,7 @@ class DispyWebhook:
                             _u_json = get(url=_url, headers=self._headers).json()
 
                             _u: DisUser = DisUser(_u_json, self.token)
-                            _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
+                            _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token, self.session)
 
                             await self.ons["dm_typing"](_u, _c)
 
@@ -575,7 +575,7 @@ class DispyWebhook:
                         _u_json = get(url=_url, headers=self._headers).json()
 
                         _u: DisUser = DisUser(_u_json, self.token)
-                        _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token)
+                        _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token, self.session)
 
                         await self.ons["dm_typing"](_u, _c)
 

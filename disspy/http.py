@@ -522,12 +522,12 @@ class DisApi:
         }
 
         if _type == 1:  # Dm Channels
-            return DisDmChannel(object_id, self.token)
+            return DisDmChannel(object_id, self.token, self.session)
 
         if _type in [10, 11, 12]:  # Threads
             return _threads_objs[_type](j, self.token)
 
-        return DisChannel(object_id, self.token)
+        return DisChannel(object_id, self.token, self.session)
 
     def get_channel_json(self, channel_id: ChannelId) -> JsonOutput:
         """
