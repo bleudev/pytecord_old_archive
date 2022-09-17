@@ -66,7 +66,7 @@ class SupportsStr(Protocol):
         pass
 
 # New types
-Url     = NewType("Url",         str)
+Url     = str
 
 # Custom types
 MISSING = None
