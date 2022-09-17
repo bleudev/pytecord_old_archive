@@ -15,7 +15,7 @@ async def hello(ctx: disspy.Context):
     with open("hello.txt", "r", encoding="utf-8") as f:
         a = f.read()
 
-    await ctx.send(str(a))
+    await ctx.respond(str(a))
 
 
 # Example command with options
@@ -25,19 +25,19 @@ async def hello(ctx: disspy.Context):
 async def foo(ctx: disspy.Context):
     a = ctx.args.get_string("foo")
 
-    await ctx.send(a)
+    await ctx.respond(a)
 
 
 # Example context menus
 # Message context menu
 @bot.context_menu()
 async def info(ctx: disspy.Context, message: disspy.DisMessage):
-    await ctx.send(f"Content: {message.content}\nChannel id: {message.channel.id}\nId: {message.id}")
+    await ctx.respond(f"Content: {message.content}\nChannel id: {message.channel.id}\nId: {message.id}")
 
 
 # User context menu
 @bot.context_menu()
 async def fullname(ctx: disspy.Context, user: disspy.DisUser):
-    await ctx.send(user.fullname)
+    await ctx.respond(user.fullname)
 
 bot.run()  # Running bot
