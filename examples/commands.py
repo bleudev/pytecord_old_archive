@@ -8,7 +8,7 @@ bot = disspy.DisBot(token="TOKEN")  # Create bot
 
 
 # Example command without options
-@bot.slash_command()
+@bot.command()
 @app_commands.describe("Test")
 async def hello(ctx: disspy.Context):
     a = ""
