@@ -24,7 +24,6 @@ SOFTWARE.
 
 from abc import abstractmethod
 from typing import (
-    NewType,
     Protocol
 )
 
