@@ -27,6 +27,10 @@ from typing import (
     Optional
 )
 
+__all__: tuple = (
+    "Application",
+)
+
 class ApplicationPayload(TypedDict):
     id: int
     name: str

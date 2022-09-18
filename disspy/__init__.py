@@ -24,19 +24,20 @@ SOFTWARE.
 
 # Imports
 # Files
-import disspy.activity
 import disspy.abstract
+import disspy.activity
 import disspy.app_commands
-import disspy.channel
+import disspy.application
 import disspy.bot
-import disspy.http
+import disspy.channel
 import disspy.embed
 import disspy.errors
 import disspy.guild
-import disspy.user
 import disspy.reaction
-import disspy.ui
 import disspy.thread
+import disspy.typ
+import disspy.ui
+import disspy.user
 
 # Classes
 from disspy.abstract import (
@@ -112,7 +113,6 @@ from disspy.state import ConnectionState
 from disspy.webhook import DispyWebhook
 from disspy.application import Application
 
-
 # Methods for other variables
 def _all_generator(alls: list) -> tuple:
     result = []
@@ -127,39 +127,27 @@ def _all_generator(alls: list) -> tuple:
     return tuple(result)
 
 
-# Variables
-
-# Version of disspy
-__version__ = "0.6.2.1"
-
-# Link to GitHub repo
+# Info about package
+__version__ = "0.6.2.1dev"
+__pkgname__ = "dispy"
+__description__ = "Dispy - package for creating bots in discord written in Python"
 __github__ = "https://github.com/itttgg/dispy"
-
-# Link to stable version of package
-__latest_version__ = f"https://github.com/itttgg/dispy/releases/tag/{__version__}"
-
-# Description of package
-__description__ = "Dispy - package for creating bots in discord."
-
-# Name of package
-__packagename__ = "dispy"
-
 
 # __all__
 __alls__: list = [
-    disspy.activity.__all__,
     disspy.abstract.__all__,
+    disspy.activity.__all__,
     disspy.app_commands.__all__,
-    disspy.channel.__all__,
+    disspy.application.__all__,
     disspy.bot.__all__,
-    disspy.http.__all__,
+    disspy.channel.__all__,
     disspy.embed.__all__,
     disspy.errors.__all__,
     disspy.guild.__all__,
-    disspy.user.__all__,
     disspy.reaction.__all__,
+    disspy.thread.__all__,
     disspy.ui.__all__,
-    disspy.thread.__all__
+    disspy.user.__all__
 ]
 
 __all__: tuple = _all_generator(__alls__)
