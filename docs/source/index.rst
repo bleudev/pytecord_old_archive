@@ -8,8 +8,6 @@ Links
 #####
 `https://github.com/itttgg/dispy <https://github.com/itttgg/dispy>`_ - GitHub of dispy
 
-`https://github.com/itttgg/dispy-api-docs <https://github.com/itttgg/dispy-api-docs>`_ - GitHub of this site
-
 `https://pypi.org/project/disspy <https://pypi.org/project/disspy>`_ - Dispy on PyPi
 
 .. image:: img/banner.png
