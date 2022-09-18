@@ -60,7 +60,7 @@ class DisOwnReaction:
     """
     Bot's own reaction
     """
-    def __init__(self, emoji: str, message_id, channel_id, token, session):
+    def __init__(self, emoji: str, message_id, channel_id, token, session: ClientSession):
         self.emoji = emoji
         _mainurl = "https://discord.com/api/v10/"
         self._u = f"{_mainurl}channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"

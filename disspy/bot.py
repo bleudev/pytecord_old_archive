@@ -79,6 +79,7 @@ from disspy.abstract import (
     Thread
 )
 from disspy.state import ConnectionState
+from disspy.application import Application
 
 __all__: tuple = (
     "DisBotStatus",
@@ -229,7 +230,7 @@ class DisBot:
 
     def __init__(self, token: str,
                  status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
-                 flags: Optional[TypeOf(DisFlags)] = None, debug: Optional[bool] = False,
+                 flags: Optional[TypeOf(DisFlags)] = None,
                  activity: Optional[Union[Activity, dict]] = None) -> None:
         """
         Create bot
@@ -264,7 +265,7 @@ class DisBot:
         self._act = activity
 
         self.status = status
-        self._debug = debug
+        self.debug = False
         self._logger = _BotLogger()
         self._state = ConnectionState(token)
         self._ons = {
@@ -301,7 +302,13 @@ class DisBot:
         self._logger.log("Bot created succesful!")
 
     @property
-    def application(self):
+    def application(self) -> Application:
+        """application
+        Bot application object
+
+        Returns:
+            Application
+        """
         return self._state.application()
 
     async def _on_register(self, data):
@@ -486,6 +493,16 @@ class DisBot:
         return wrapper
 
     def command(self, name: Optional[str] = MISSING) -> Wrapper:
+        """command
+        Create command
+
+        Args:
+            name (Optional[str], optional): Name of command. Defaults to MISSING.
+                                            (if MISSING: func.__name__)
+
+        Returns:
+            Wrapper
+        """
         def wrapper(func, name=name):
             if name is MISSING:
                 try:
@@ -502,9 +519,9 @@ class DisBot:
             try:
                 for key in list(func[0].keys()):
                     val = func[0][key]
-                    
+
                     payload[key] = val
-                    
+
                 callback = func[1]
             except TypeError:
                 callback = func
@@ -515,6 +532,13 @@ class DisBot:
         return wrapper
 
     def context_menu(self, name: Optional[str] = MISSING):
+        """context_menu
+        Create context menu
+
+        Args:
+            name (Optional[str], optional): Name of context menu. Defaults to MISSING.
+                                            (if MISSING: func.__name__)
+        """
         def wrapper(func, name=name):
             if name is MISSING:
                 name = func.__name__
@@ -578,7 +602,7 @@ class DisBot:
     async def _runner(self) -> None:
         try:
             await self.api.run(self.status, self._ons,
-                               debug=self._debug, act=self._act)
+                               debug=self.debug, act=self._act)
         except KeyboardInterrupt:
             self._write_logs()
             await self._on_close()

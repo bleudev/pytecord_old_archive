@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 __all__: tuple = (
-    "DisUser"
+    "DisUser",
 )
 
 
