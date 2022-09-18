@@ -525,7 +525,7 @@ class DisApi:
             return DisDmChannel(object_id, self.token, self.session)
 
         if _type in [10, 11, 12]:  # Threads
-            return _threads_objs[_type](j, self.token)
+            return _threads_objs[_type](j, self.token, self.session)
 
         return DisChannel(object_id, self.token, self.session)
 
@@ -548,8 +548,9 @@ class DisApi:
         :return DisGuild:
         """
         guild_id = int(guild_id)
+        data = self.get_guild_json(guild_id)
 
-        return DisGuild(guild_id, self.token, self.session)
+        return DisGuild(data, self.token, self.session)
 
     def get_guild_json(self, guild_id: GuildId) -> JsonOutput:
         """

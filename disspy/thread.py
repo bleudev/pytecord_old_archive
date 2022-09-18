@@ -27,19 +27,32 @@ __all__: tuple = (
     "DisThread",
     "DisPrivateThread"
 )
-
+from typing import (
+    Optional,
+    List,
+    Any,
+    Union
+)
 from json import dumps
 from aiohttp import ClientSession
 
 
 from disspy.abstract import Thread
+from disspy.jsongenerators import _EmbedGenerator
+from disspy.channel import DisMessage
+from disspy.ui import ActionRow
+from disspy.typ import (
+    SupportsStr,
+    MISSING
+)
 
 
 class DisNewsThread(Thread):
     """
     Channel with GUILD_NEWS_THREAD type
     """
-    def __init__(self, data, token) -> None:
+    def __init__(self, data, token, __session: ClientSession) -> None:
+        super().__init__()
         self.id: int = int(data["id"])
         self.guild_id: int = int(data["guild_id"])
         self.parent_id: int = int(data["parent_id"])
@@ -50,42 +63,78 @@ class DisNewsThread(Thread):
         self.name: str = data["name"]
 
         self._t = token
+        self.session = __session
 
-    async def send(self, content: str):
+    async def send(self, content: Optional[SupportsStr] = MISSING,
+                   embeds: Optional[List[Any]] = MISSING,
+                   action_row: Optional[ActionRow] = MISSING) -> Union[DisMessage, None]:
         """send
         Send message in thread
 
         Args:
-            content (str): Message content
+            content (SupportsStr, optional): Message content. Defaults to MISSING.
+            embeds (List[Any], optional): Message embeds. Defaults to MISSING.
+            action_row (ActionRow, optional): Action row with components. Defaults to MISSING.
+
+        Returns:
+            DisMessage: Sended message
+            None
         """
         _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
-        _hdrs = {'Authorization': f'Bot {self._t}',
-                 'content-type': 'application/json'}
 
         _payload = {
-            "content": content
+            "content": None,
+            "embeds": None,
+            "components": None
         }
 
-        async with ClientSession(headers=_hdrs) as session:
-            await session.post(_u, data=dumps(_payload))
+        if content:
+            content = str(content)
+
+        if embeds:
+            embeds_json = []
+
+            for i in embeds:
+                embeds_json.append(_EmbedGenerator(i))
+
+            _payload["embeds"] = embeds_json
+        else:
+            del _payload["embeds"]
+
+        if content:
+            _payload["content"] = content
+        else:
+            del _payload["content"]
+
+        if action_row:
+            if action_row.json["components"]:
+                _payload["components"] = action_row.json
+            else:
+                del _payload["components"]
+
+        if _payload:
+            async with self.session.post(_u, data=dumps(_payload)) as post_message:
+                data = await post_message.json()
+
+                return DisMessage(data, self._t, self.session)
+
+        return None
 
     async def delete(self):
         """delete
         Delete thread
         """
         _u = f"https://discord.com/api/v10/channels/{self.id}"
-        _hdrs = {'Authorization': f'Bot {self._t}',
-                 'content-type': 'application/json'}
 
-        async with ClientSession(headers=_hdrs) as session:
-            await session.delete(_u)
+        await self.session.delete(_u)
 
 
 class DisThread(Thread):
     """
     Channel with GUILD_PUBLIC_THREAD type
     """
-    def __init__(self, data, token) -> None:
+    def __init__(self, data, token, __session: ClientSession) -> None:
+        super().__init__()
         self.id: int = int(data["id"])
         self.guild_id: int = int(data["guild_id"])
         self.parent_id: int = int(data["parent_id"])
@@ -96,42 +145,78 @@ class DisThread(Thread):
         self.name: str = data["name"]
 
         self._t = token
+        self.session = __session
 
-    async def send(self, content: str):
+    async def send(self, content: Optional[SupportsStr] = MISSING,
+                   embeds: Optional[List[Any]] = MISSING,
+                   action_row: Optional[ActionRow] = MISSING) -> Union[DisMessage, None]:
         """send
         Send message in thread
 
         Args:
-            content (str): Message content
+            content (SupportsStr, optional): Message content. Defaults to MISSING.
+            embeds (List[Any], optional): Message embeds. Defaults to MISSING.
+            action_row (ActionRow, optional): Action row with components. Defaults to MISSING.
+
+        Returns:
+            DisMessage: Sended message
+            None
         """
         _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
-        _hdrs = {'Authorization': f'Bot {self._t}',
-                 'content-type': 'application/json'}
 
         _payload = {
-            "content": content
+            "content": None,
+            "embeds": None,
+            "components": None
         }
 
-        async with ClientSession(headers=_hdrs) as session:
-            await session.post(_u, data=dumps(_payload))
+        if content:
+            content = str(content)
+
+        if embeds:
+            embeds_json = []
+
+            for i in embeds:
+                embeds_json.append(_EmbedGenerator(i))
+
+            _payload["embeds"] = embeds_json
+        else:
+            del _payload["embeds"]
+
+        if content:
+            _payload["content"] = content
+        else:
+            del _payload["content"]
+
+        if action_row:
+            if action_row.json["components"]:
+                _payload["components"] = action_row.json
+            else:
+                del _payload["components"]
+
+        if _payload:
+            async with self.session.post(_u, data=dumps(_payload)) as post_message:
+                data = await post_message.json()
+
+                return DisMessage(data, self._t, self.session)
+
+        return None
 
     async def delete(self):
         """delete
         Delete thread
         """
         _u = f"https://discord.com/api/v10/channels/{self.id}"
-        _hdrs = {'Authorization': f'Bot {self._t}',
-                 'content-type': 'application/json'}
 
-        async with ClientSession(headers=_hdrs) as session:
-            await session.delete(_u)
+        await self.session.delete(_u)
 
 
 class DisPrivateThread(Thread):
     """
     Channel with GUILD_PRIVATE_THREAD type
     """
-    def __init__(self, data, token) -> None:
+    def __init__(self, data, token, __session: ClientSession) -> None:
+        super().__init__()
         self.id: int = int(data["id"])
         self.guild_id: int = int(data["guild_id"])
         self.parent_id: int = int(data["parent_id"])
@@ -142,32 +227,67 @@ class DisPrivateThread(Thread):
         self.name: str = data["name"]
 
         self._t = token
+        self.session = __session
 
-    async def send(self, content: str):
+    async def send(self, content: Optional[SupportsStr] = MISSING,
+                   embeds: Optional[List[Any]] = MISSING,
+                   action_row: Optional[ActionRow] = MISSING) -> Union[DisMessage, None]:
         """send
         Send message in thread
 
         Args:
-            content (str): Message content
+            content (SupportsStr, optional): Message content. Defaults to MISSING.
+            embeds (List[Any], optional): Message embeds. Defaults to MISSING.
+            action_row (ActionRow, optional): Action row with components. Defaults to MISSING.
+
+        Returns:
+            DisMessage: Sended message
+            None
         """
         _u = f"https://discord.com/api/v10/channels/{self.id}/messages"
-        _hdrs = {'Authorization': f'Bot {self._t}',
-                 'content-type': 'application/json'}
 
         _payload = {
-            "content": content
+            "content": None,
+            "embeds": None,
+            "components": None
         }
 
-        async with ClientSession(headers=_hdrs) as session:
-            await session.post(_u, data=dumps(_payload))
+        if content:
+            content = str(content)
+
+        if embeds:
+            embeds_json = []
+
+            for i in embeds:
+                embeds_json.append(_EmbedGenerator(i))
+
+            _payload["embeds"] = embeds_json
+        else:
+            del _payload["embeds"]
+
+        if content:
+            _payload["content"] = content
+        else:
+            del _payload["content"]
+
+        if action_row:
+            if action_row.json["components"]:
+                _payload["components"] = action_row.json
+            else:
+                del _payload["components"]
+
+        if _payload:
+            async with self.session.post(_u, data=dumps(_payload)) as post_message:
+                data = await post_message.json()
+
+                return DisMessage(data, self._t, self.session)
+
+        return None
 
     async def delete(self):
         """delete
         Delete thread
         """
         _u = f"https://discord.com/api/v10/channels/{self.id}"
-        _hdrs = {'Authorization': f'Bot {self._t}',
-                 'content-type': 'application/json'}
 
-        async with ClientSession(headers=_hdrs) as session:
-            await session.delete(_u)
+        await self.session.delete(_u)
