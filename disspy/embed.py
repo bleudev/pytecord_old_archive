@@ -178,7 +178,8 @@ class DisEmbed:
     """DisEmbed
     Embeds for messages
     """
-    def __init__(self, title: str, description: str = None, color=0xffffff, footer: str = None):
+    def __init__(self, title: str, *, description: str = None, color: int = DisColor.DEFAULT,
+                 footer: str = None) -> None:
         self.title: str = title
         self.description: str = description
         self.color: str = color
@@ -191,7 +192,7 @@ class DisEmbed:
 
         self.fields: List[DisField] = []
 
-    def add_field(self, name: str, value: str, inline: bool = True) -> None:
+    def add_field(self, name: str, value: str, *, inline: bool = True) -> None:
         """add_field
         Add field to embed
 
