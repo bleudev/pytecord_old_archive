@@ -37,7 +37,7 @@ setup(
     version=__version__,
     author="itttgg",
     author_email="aitiiigg1@gmail.com",
-    description="Dispy - package for creating bots",
+    description="Dispy - package for creating bots in discord written in Python",
     download_url=f"https://github.com/itttgg/dispy/tree/{__version__}",
     long_description=long_description,
     long_description_content_type="text/markdown",

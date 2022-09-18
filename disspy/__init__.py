@@ -128,8 +128,8 @@ def _all_generator(alls: list) -> tuple:
 
 
 # Info about package
-__version__ = "0.6.2.1dev"
-__pkgname__ = "dispy"
+__version__ = "0.6.3"
+__pkgname__ = "disspy"
 __description__ = "Dispy - package for creating bots in discord written in Python"
 __github__ = "https://github.com/itttgg/dispy"
 
