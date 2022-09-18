@@ -30,10 +30,10 @@ from typing import (
     final,
     Protocol
 )
-from disspy.typ import SupportsStr
-
 from abc import ABC, abstractmethod
 from enum import Enum, auto, unique
+
+from disspy.typ import SupportsStr
 
 __all__: tuple = (
     "Messageable",
@@ -80,10 +80,19 @@ class _MessageType(_AutoValue):
 
 
 class Messageable(Protocol):
-    @abstractmethod
+    """Messageable
+    Messageable protocol
+
+    (Protocol)
+    """
     async def send(self, content: Optional[SupportsStr] = None, embeds: Optional[List[Any]] = None,
                    action_row: Optional[Any] = None):
-        pass
+        """send
+        Send message
+
+        (protocol method)
+        """
+        return
 
 
 class Channel(ABC, Messageable):
@@ -131,7 +140,8 @@ class Message(ABC):
         self._is_dm = is_dm
 
     @abstractmethod
-    async def reply(self, content: Optional[SupportsStr] = None, embeds: Optional[List[Any]] = None):
+    async def reply(self, content: Optional[SupportsStr] = None,
+                    embeds: Optional[List[Any]] = None):
         """reply
         Reply to message
 
