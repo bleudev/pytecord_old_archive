@@ -27,14 +27,18 @@ from typing import (
     List,
     Any,
     ClassVar,
-    final
+    final,
+    Protocol
 )
-
 from abc import ABC, abstractmethod
 from enum import Enum, auto, unique
 
+from disspy.typ import SupportsStr
+
 __all__: tuple = (
+    "Messageable",
     "Channel",
+    "Thread",
     "Message"
 )
 
@@ -75,14 +79,30 @@ class _MessageType(_AutoValue):
     AUTO_MODERATION_ACTION: ClassVar[int] = auto()
 
 
-class Channel(ABC):
+class Messageable(Protocol):
+    """Messageable
+    Messageable protocol
+
+    (Protocol)
+    """
+    async def send(self, content: Optional[SupportsStr] = None, embeds: Optional[List[Any]] = None,
+                   action_row: Optional[Any] = None):
+        """send
+        Send message
+
+        (protocol method)
+        """
+        return
+
+
+class Channel(ABC, Messageable):
     """Channel
     Any channel in discord
 
     (Abstract class)
     """
     @abstractmethod
-    async def send(self, content: Optional[str] = None, embeds: Optional[List[Any]] = None,
+    async def send(self, content: Optional[SupportsStr] = None, embeds: Optional[List[Any]] = None,
                    action_row: Optional[Any] = None) -> Any:
         """send
         Send message in channel
@@ -95,6 +115,16 @@ class Channel(ABC):
         Returns:
             Any
         """
+        return
+
+
+class Thread(ABC, Messageable):
+    """Thread
+    Any thread in discord
+
+    (Abstract class)
+    """
+    def __init__(self) -> None:
         return
 
 class Message(ABC):
@@ -110,7 +140,8 @@ class Message(ABC):
         self._is_dm = is_dm
 
     @abstractmethod
-    async def reply(self, content: Optional[str] = None, embeds: Optional[List[Any]] = None):
+    async def reply(self, content: Optional[SupportsStr] = None,
+                    embeds: Optional[List[Any]] = None):
         """reply
         Reply to message
 
@@ -138,7 +169,7 @@ class Message(ABC):
         """
         return self._type == _MessageType.DEFAULT.value
 
-    def is_normal(self) -> bool:
+    def is_guild(self) -> bool:
         """is_normal
         Message channel is normal?
 

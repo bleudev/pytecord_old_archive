@@ -27,9 +27,9 @@ from typing import (
     Optional,
     Union,
     Callable,
-    NoReturn,
     final,
-    List
+    List,
+    Literal
 )
 
 # Package imports
@@ -38,26 +38,28 @@ from asyncio import run
 from datetime import datetime
 from time import mktime
 import os
+from inspect import signature
 from requests import get
 import requests.exceptions
-
 
 # Disspy imports
 from disspy import errors
 from disspy.typ import (
     TypeOf,
-    Event
+    Event,
+    MISSING
 )
 from disspy.activity import Activity
-import disspy.application_commands as appc
+import disspy.app_commands as appc
 from disspy.channel import (
     DisChannel,
-    DisDmChannel
+    DisDmChannel,
+    DisMessage,
+    DmMessage
 )
-from disspy.core import (
+from disspy.http import (
     DisApi,
     DisFlags,
-    Snowflake,
     ChannelId,
     ThreadId,
     GuildId,
@@ -65,13 +67,19 @@ from disspy.core import (
 )
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
-from disspy.jsongenerators import _OptionGenerator
 from disspy.user import DisUser
 from disspy.thread import (
     DisNewsThread,
     DisThread,
     DisPrivateThread
 )
+from disspy.abstract import (
+    Channel,
+    Message,
+    Thread
+)
+from disspy.state import ConnectionState
+from disspy.application import Application
 
 __all__: tuple = (
     "DisBotStatus",
@@ -97,6 +105,20 @@ _all_basic_events = [
     "typing",  # Typing start
     "dm_typing"  # Typig start in dm channel
 ]
+
+
+#####################
+# For code readable #
+#####################
+
+async def blank():
+    """ Blank method """
+    return
+
+
+def ignore():
+    """ Ignore """
+    return
 
 
 @final
@@ -203,9 +225,13 @@ class DisBot:
 
     __classname__ = "DisBot"
 
-    def __init__(self, token: Snowflake[str], status: Optional[TypeOf(DisBotStatus)] = None,
-                flags: Optional[TypeOf(DisFlags)] = None, debug: Optional[bool] = False,
-                activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
+    def _raise_unathorized_error(self) -> None:
+        raise errors.Unauthorized()
+
+    def __init__(self, token: str,
+                 status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
+                 flags: Optional[TypeOf(DisFlags)] = None,
+                 activity: Optional[Union[Activity, dict]] = None) -> None:
         """
         Create bot
         -----
@@ -219,9 +245,10 @@ class DisBot:
 
         try:
             if test_j["message"] == "401: Unauthorized" and test_j["code"] == 0:
-                raise errors.Unauthorized()
+                self._raise_unathorized_error()
+
         except KeyError:
-            pass
+            ignore()
 
         self.token: str = str(token)
 
@@ -230,35 +257,35 @@ class DisBot:
         else:
             self.intflags = flags
 
-        if activity is None:
-            activity = {}
-
         if isinstance(activity, Activity):
             activity = activity.json()
+        elif activity is None:
+            activity = {}
 
         self._act = activity
 
         self.status = status
-        self._debug = debug
+        self.debug = False
         self._logger = _BotLogger()
+        self._state = ConnectionState(token)
         self._ons = {
-            "ready": None,
-            "messagec": None,
-            "messageu": None,
-            "messaged": None,
-            "dmessagec": None,
-            "dmessageu": None,
-            "dmessaged": None,
             "register": self._on_register,
-            "register2": None,
-            "interaction": None,
-            "components": None,
-            "modalsumbit": None,
-            "reaction": None,
-            "reactionr": None,
-            "typing": None,
-            "dm_typing": None,
-            "channel": [None, 0]
+            "ready": blank,
+            "messagec": blank,
+            "messageu": blank,
+            "messaged": blank,
+            "dmessagec": blank,
+            "dmessageu": blank,
+            "dmessaged": blank,
+            "register2": blank,
+            "interaction": blank,
+            "components": blank,
+            "modalsumbit": blank,
+            "reaction": blank,
+            "reactionr": blank,
+            "typing": blank,
+            "dm_typing": blank,
+            "channel": [blank, 0]
         }
 
         self._on_messagec = None
@@ -274,13 +301,25 @@ class DisBot:
 
         self._logger.log("Bot created succesful!")
 
-    async def _on_register(self):
+    @property
+    def application(self) -> Application:
+        """application
+        Bot application object
+
+        Returns:
+            Application
+        """
+        return self._state.application()
+
+    async def _on_register(self, data):
         """
         Register user var
         -----
         :return None:
         """
         self.user: DisUser = self.api.user
+
+        self._state.get(data)
 
     async def _on_close(self):
         pass
@@ -336,7 +375,7 @@ class DisBot:
 
         return wrapper
 
-    def add_event(self, event_type: Event(DisBotEventType, str), func: Callable) -> NoReturn:
+    def add_event(self, event_type: Event(DisBotEventType, str), func: Callable) -> None:
         """
         Add event to bot with function and event type
         -----
@@ -374,7 +413,7 @@ class DisBot:
 
         return wrapper
 
-    def on_message(self, event_type: str) -> Wrapper:
+    def on_message(self, event_type: Literal['create', 'update', 'delete']) -> Wrapper:
         """
         Method for changing on_message() events
         -----
@@ -407,7 +446,7 @@ class DisBot:
 
         return wrapper
 
-    def on_dm_message(self, event_type: str) -> Wrapper:
+    def on_dm_message(self, event_type: Literal['create', 'update', 'delete']) -> Wrapper:
         """
         Method for changing on_dm_message() events
         -----
@@ -453,130 +492,85 @@ class DisBot:
 
         return wrapper
 
-    def slash_command(self, name: str, description: str,
-                      options: Optional[List[appc.Option]] = None) -> Wrapper:
+    def command(self, name: Optional[str] = MISSING) -> Wrapper:
+        """command
+        Create command
+
+        Args:
+            name (Optional[str], optional): Name of command. Defaults to MISSING.
+                                            (if MISSING: func.__name__)
+
+        Returns:
+            Wrapper
         """
-        Create slash command
-        -----
-        :param name: Command's name
-        :param description: Command's description
-        :param options: Command's options
-        :return Wrapper:
+        def wrapper(func, name=name):
+            if name is MISSING:
+                try:
+                    name = func.__name__
+                except AttributeError:
+                    name = func[1].__name__
+
+            payload = {
+                    "name": name,
+                    "type": appc.ApplicationCommandType.TEXT_INPUT,
+                    "description": "No description"
+                }
+
+            try:
+                for key in list(func[0].keys()):
+                    val = func[0][key]
+
+                    payload[key] = val
+
+                callback = func[1]
+            except TypeError:
+                callback = func
+
+            self._logger.log("Register command")
+            self.api.create_command(payload, callback)
+
+        return wrapper
+
+    def context_menu(self, name: Optional[str] = MISSING):
+        """context_menu
+        Create context menu
+
+        Args:
+            name (Optional[str], optional): Name of context menu. Defaults to MISSING.
+                                            (if MISSING: func.__name__)
         """
-        _payload = {}
+        def wrapper(func, name=name):
+            if name is MISSING:
+                name = func.__name__
 
-        if options:
-            _options_jsons = []
-
-            for option in options:
-                _options_jsons.append(_OptionGenerator(option))
-
-            _payload = {
+            payload = {
                 "name": name,
-                "description": description,
-                "type": appc.ApplicationCommandType.TEXT_INPUT,
-                "options": _options_jsons
-            }
-        else:
-            _payload = {
-                "name": name,
-                "description": description,
-                "type": appc.ApplicationCommandType.TEXT_INPUT
+                "type": None
             }
 
-        def wrapper(func):
-            self._logger.log("Register slash command")
-            self.api.create_command(_payload, func)
+            # Get type of second argument of function
+            sig = signature(func)
+            params = dict(sig.parameters)
+            param = params[list(params.keys())[1]]
+            param_type = param.annotation
+            ###
 
+            message_to_log = ""
+
+            if param_type in (Message, DisMessage, DmMessage):
+                payload["type"] = appc.ApplicationCommandType.MESSAGE
+                message_to_log = "Register message command"
+
+            elif param_type == DisUser:
+                payload["type"] = appc.ApplicationCommandType.USER
+                message_to_log = "Register user command"
+
+            self._logger.log(message_to_log)
+            self.api.create_command(payload, func)
         return wrapper
 
-    def add_slash_command(self, command: appc.SlashCommand) -> NoReturn:
-        """
-        Create slash command
-        -----
-        :param command: Slash Command
-        :return None:
-        """
-        self._logger.log("Register slash command")
-        self.api.create_command(command.json(), command.cmd)
-
-        return None
-
-    def user_command(self, name: str) -> Wrapper:
-        """
-        Create user command
-        -----
-        :param name: Command's name
-        :return Wrapper:
-        """
-        _payload = {
-            "name": name,
-            "type": appc.ApplicationCommandType.USER
-        }
-
-        def wrapper(func):
-            self._logger.log("Register user command")
-            self.api.create_command(_payload, func)
-
-        return wrapper
-
-    def add_user_command(self, command: appc.UserCommand) -> NoReturn:
-        """
-        Create user command
-        -----
-        :param command: User Command
-        :return None:
-        """
-        self._logger.log("Register user command")
-        self.api.create_command(command.json(), command.cmd)
-
-        return None
-
-    def message_command(self, name: str) -> Wrapper:
-        """
-        Create message command
-        -----
-        :param name: Command's name
-        :return Wrapper:
-        """
-        _payload = {
-            "name": name,
-            "type": appc.ApplicationCommandType.MESSAGE
-        }
-
-        def wrapper(func):
-            self._logger.log("Register message command")
-            self.api.create_command(_payload, func)
-
-        return wrapper
-
-    def add_message_command(self,
-                            command: appc.MessageCommand) -> NoReturn:
-        """
-        Create message command
-        -----
-        :param command: Message Command
-        :return None:
-        """
-        self._logger.log("Register message command")
-        self.api.create_command(command.json(), command.cmd)
-
-        return None
-
-    def add_application_command(self, command: appc.ApplicationCommand) -> NoReturn:
-        """
-        Create application command
-        -----
-        :param command: Application Command
-        :return None:
-        """
-        self._logger.log("Register application command")
-        self.api.create_command(command.json(), command.cmd)
-
-        return None
-
-    def run(self, status: Optional[Union[DisBotStatus, str]] = None,
-            activity: Optional[Union[Activity, dict]] = None) -> NoReturn:
+    def run(self, status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
+            activity: Optional[Union[Activity, dict]] = None) -> None:
         """
         Running bot
         -----
@@ -600,30 +594,36 @@ class DisBot:
 
         run(self._runner())
 
-    async def _runner(self) -> NoReturn:
+    def _raise_internet_error(self):
+        _m = "Please turn on your internet!"
+        _code = "-1000"
+        raise errors.InternetError(_m, _code)
+
+    async def _runner(self) -> None:
         try:
             await self.api.run(self.status, self._ons,
-                               debug=self._debug, act=self._act)
+                               debug=self.debug, act=self._act)
         except KeyboardInterrupt:
             self._write_logs()
             await self._on_close()
+            await self.api.session.close()
             await self._dissconnenter()
         except requests.exceptions.ConnectionError:
-            raise errors.InternetError("Please turn on your internet!", "-1000")
+            self. _raise_internet_error()
 
-    async def disconnect(self) -> NoReturn:
+    async def disconnect(self) -> None:
         """
         Disconnect from Gateway
         """
         await self._dissconnenter()
 
-    async def close(self) -> NoReturn:
+    async def close(self) -> None:
         """
         Disconnect from Gateway
         """
         await self._dissconnenter()
 
-    async def _dissconnenter(self) -> NoReturn:
+    async def _dissconnenter(self) -> None:
         if self.isready:
             self._logger.log("Disconnect bot")
             await self.api.disconnecter()
@@ -651,17 +651,15 @@ class DisBot:
         :param channel_id: Channel Id
         :return Union[DisChannel, DisDmChannel]:
         """
-        _u = f"https://discord.com/api/v10/channels/{channel_id}"
-        _hdrs = {'Authorization': f'Bot {self.token}'}
+        channel = self.api.get_channel_or_thread(channel_id)
 
-        j = get(_u, headers=_hdrs).json()
+        if isinstance(channel, Channel):
+            return channel
 
-        if j["type"] == 1:  # Dm Channels
-            return DisDmChannel(channel_id, self.token)
+        _m = "This channel is not channel! Use get_thread() method"
+        raise RuntimeError(_m)
 
-        return DisChannel(channel_id, self.token)
-
-    def get_thread(self, thread_id: ThreadId):
+    def get_thread(self, thread_id: ThreadId) -> Union[DisNewsThread, DisThread, DisPrivateThread]:
         """get_thread
         Get thread by id
 
@@ -674,22 +672,13 @@ class DisBot:
         Returns:
             Union[DisNewsThread, DisThread, DisPrivateThread]: Getted thread object
         """
-        _u = f"https://discord.com/api/v10/channels/{thread_id}"
-        _hdrs = {'Authorization': f'Bot {self.token}',
-                 'content-type': 'application/json'}
+        thread = self.api.get_channel_or_thread(thread_id)
 
-        j = get(_u, headers=_hdrs).json()
+        if isinstance(thread, Thread):
+            return thread
 
-        if j["type"] == 10:  # News thread
-            return DisNewsThread(j, self.token)
-
-        if j["type"] == 11:  # Public thread
-            return DisThread(j, self.token)
-
-        if j["type"] == 12:  # Private thread
-            return DisPrivateThread(j, self.token)
-
-        raise RuntimeError("This channel is not thread! Use get_channel() method")
+        _m = "This channel is not thread! Use get_channel() method"
+        raise RuntimeError(_m)
 
     def get_guild(self, guild_id: GuildId) -> DisGuild:
         """
@@ -727,7 +716,7 @@ class DisBot:
             "op": 3,
             "d": {
                 "since": mktime(datetime.now().timetuple()) * 1000,
-                "afk": self.api.flow.isafk,
+                "afk": self.api.hook.isafk,
                 "status": self.status,
                 "activities": [act]
             }

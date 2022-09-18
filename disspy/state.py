@@ -22,33 +22,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-__all__: tuple = (
-    "DisUser",
-)
+from disspy.application import Application
 
-
-class DisUser:
+class ConnectionState:
     """
-    User object
+    Bot connection state
     """
-    def __init__(self, data, token):
-        self.id: int = int(data["id"])
+    def __init__(self, token: str) -> None:
         self._t = token
+        self._data = None
 
-        self.username = data["username"]
-        self.discriminator = data["discriminator"]
-        self.fullname = f"{self.username}#{self.discriminator}"
-        self.is_bot = None
-        self.is_verified = None
-        self.email = None
+    def get(self, ready_event: dict) -> None:
+        """get
+        Get connection state from ready event data
 
-        if "bot" in data:
-            self.is_bot: bool = data["bot"]
+        Args:
+            ready_event (dict): Ready event data
+        """
+        self._data = ready_event
 
-        if "verified" in data:
-            self.is_verified: bool = data["verified"]
+    def application(self) -> Application:
+        """application
+        Get application object
 
-        if "email" in data:
-            self.email: bool = data["email"]  # May be ""
-
-        self.flags: int = int(data["public_flags"])
+        Returns:
+            Application: Bot application object
+        """
+        return Application(self._data["application"])

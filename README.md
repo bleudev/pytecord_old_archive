@@ -26,129 +26,47 @@
 - Registering events with wrappers
 - Easy code with syntax sugar
 
-## Needs minimal 3.8 python version
+## For package needs minimal 3.8 python version
 Dispy is package for creating bots in Discord. This package use discord API and discord Gateway
 for handle events or, for example, sending messages. Bot use for different goals; handle information
 on your server, creating mini games in discord, auto moderation in your discord server and other.
-For example, you can send messages use this code:
+
+For example, you can reply to message that is sended by any user using this code:
 
 ```python
 import disspy  # Import package
 
 bot = disspy.DisBot(token="YOUR_TOKEN")  # Create a bot
 
-async def test():  # Send messages needs to execute in the async function
-    channel_id = 000000  # Yours channel id
-    channel = bot.get_channel(channel_id)  # Get the channel for sending to this channel a message
-    
-    await channel.send(content="Message!")  # Sending a message
-    
-if __name__ == '__main__':  # If file is started as a main file
-    from asyncio import run  # Import asyncio.run
-    
-    run(test())  # Run async function
+@bot.on_message("create")
+async def on_messagec(message: disspy.DisMessage):
+    await message.reply("Hello, world!")  # Reply to message
+
+bot.run()  # Run discord in Gateway
 ```
 
 # Download package
-## Download stable version
+## Download latest version
 
-```
+```command
 # Windows
-pip install --upgrade disspy
+pip install -U disspy
 
 # MacOS
-py3 -m pip install --upgrade disspy
+py3 -m pip install -U disspy
 
 # Linux
-sudo pip install --upgrade disspy
+sudo pip install -U disspy
 ```
 
-## Download dev version
-```
+## Download dev version (needs git)
+```command
 git clone https://github.com/itttgg/dispy.git
 cd dispy
-pip install --upgrade .
+pip install -U .
 ```
 
 # Links
 <p><a href="https://github.com/itttgg/dispy">https://github.com/itttgg/dispy</a> - GitHub repo</p>
 <p><a href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</a> - Project site on PyPi</p>
 <p><a href="https://disspy.readthedocs.io">https://disspy.readthedocs.io</a> - Site with docs for package</p>
-
-# Using
-### Creating and running bot
-
-```python
-import disspy
-
-bot = disspy.DisBot(token="YOUR_TOKEN")
-
-bot.run()
-```
-
-### bot.on("ready")
-
-```python
-import disspy
-
-bot = disspy.DisBot(token="YOUR_TOKEN")
-
-
-@bot.on("ready")
-async def on_ready():
-    print("Ready!")
-
-
-bot.run()
-```
-
-### bot.on("messagec")
-*message create event*
-
-```python
-import disspy
-
-bot = disspy.DisBot(token="YOUR_TOKEN", flags=disspy.DisFlags.messages())
-
-
-@bot.on("messagec")
-async def on_messagec(message: disspy.DisMessage):
-    await message.channel.send("Content: " + message.content)
-
-
-bot.run()
-```
-
-### bot.on("messageu")
-*message update event*
-
-```python
-import disspy
-
-bot = disspy.DisBot(token="YOUR_TOKEN", flags=disspy.DisFlags.messages())
-
-
-@bot.on("messageu")
-async def on_messageu(message: disspy.DisMessage):
-    await message.channel.send("New content of message: " + message.content)
-
-
-bot.run()
-```
-
-### bot.on("messaged")
-*message delete event*
-
-```python
-import disspy
-
-bot = disspy.DisBot(token="YOUR_TOKEN", flags=disspy.DisFlags.messages())
-
-
-@bot.on("messaged")
-async def on_messaged(e: disspy.MessageDeleteEvent):
-    await e.channel.send("You deleted message!")
-
-
-bot.run()
-```

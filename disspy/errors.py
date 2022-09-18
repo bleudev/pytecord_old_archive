@@ -47,29 +47,19 @@ __all__: tuple = (
 
 
 # Parents for all errors
-class DisRunTimeError(RuntimeWarning):
+class DisError(Exception):
     """DisRunTimeError
     Parent for other classes
     """
     def __init__(self, code: str, message: str):
         self.__code__ = code
         self.__text__ = message
-        self.__message__ = f"{self.__code__} - {self.__text__}"
+        self.__message__ = f"{self.__text__} (Error code: {self.__code__})"
 
         super().__init__(self.__message__)
-
-
-class _DisError(RuntimeError):
-    def __init__(self, code: str, message: str):
-        self.__code__ = code
-        self.__text__ = message
-        self.__message__ = f"{self.__code__} - {self.__text__}"
-
-        super().__init__(self.__message__)
-
 
 # InternetErrors (Will be called when errors code returned)
-class InternetError(_DisError):
+class InternetError(DisError):
     """InternetError
     Error with internet (For example, with Wi-Fi)
     """
@@ -80,7 +70,7 @@ class InternetError(_DisError):
             super().__init__(code, text)
 
 
-class MissingPerms(DisRunTimeError):
+class MissingPerms(DisError):
     """MissingPerms
     Missing permissions in Discord
     """
@@ -88,7 +78,7 @@ class MissingPerms(DisRunTimeError):
         super().__init__("-2i", text)
 
 
-class Unauthorized(_DisError):
+class Unauthorized(DisError):
     """Unauthorized
     Invalid token!
     """
@@ -97,7 +87,7 @@ class Unauthorized(_DisError):
 
 
 # Client errors
-class BotEventTypeError(_DisError):
+class BotEventTypeError(DisError):
     """BotEventTypeError
     Invalid bot event type
     """
@@ -105,7 +95,7 @@ class BotEventTypeError(_DisError):
         super().__init__("101c", text)
 
 
-class BotStatusError(_DisError):
+class BotStatusError(DisError):
     """BotStatusError
     Invalid bot status
     """
@@ -113,7 +103,7 @@ class BotStatusError(_DisError):
         super().__init__("102c", text)
 
 
-class BotEventVisibleError(_DisError):
+class BotEventVisibleError(DisError):
     """BotEventVisibleError
     Bot don't can see this event (because bot intents < need intents)
     """
@@ -121,7 +111,7 @@ class BotEventVisibleError(_DisError):
         super().__init__("103c", text)
 
 
-class BotApplicationIdInvalid(_DisError):
+class BotApplicationIdInvalid(DisError):
     """BotApplicationIdInvalid
     Invalid bot application id
     """
@@ -129,7 +119,7 @@ class BotApplicationIdInvalid(_DisError):
         super().__init__("104c", text)
 
 
-class ApplicationIdIsNone(DisRunTimeError):
+class ApplicationIdIsNone(DisError):
     """ApplicationIdIsNone
     You don't type application id but you want to create application command
     """
@@ -137,7 +127,7 @@ class ApplicationIdIsNone(DisRunTimeError):
         super().__init__("105c", text)
 
 
-class MessageComponentIsBlocked(_DisError):
+class MessageComponentIsBlocked(DisError):
     """MessageComponentIsBlocked
     Message component is blocked to you
     """
@@ -146,7 +136,7 @@ class MessageComponentIsBlocked(_DisError):
 
 
 # Package errors
-class InvalidArgument(_DisError):
+class InvalidArgument(DisError):
     """InvalidArgument
     Invalid argument in method
     """
@@ -154,7 +144,7 @@ class InvalidArgument(_DisError):
         super().__init__("151p", text)
 
 
-class ClassTypeError(DisRunTimeError):
+class ClassTypeError(DisError):
     """ClassTypeError
     Error with class type
     """
@@ -163,7 +153,7 @@ class ClassTypeError(DisRunTimeError):
 
 
 # User errors
-class UserNitroTypeError(_DisError):
+class UserNitroTypeError(DisError):
     """UserNitroTypeError
     Invalid user nitro!
     """
@@ -172,7 +162,7 @@ class UserNitroTypeError(_DisError):
 
 
 # Json errors
-class JsonError(_DisError):
+class JsonError(DisError):
     """JsonError
     Error with json
     """
@@ -180,7 +170,7 @@ class JsonError(_DisError):
         super().__init__("251j", text)
 
 
-class ActivityUrlError(_DisError):
+class ActivityUrlError(DisError):
     """ActivityUrlError
     Invalid activity url error
     """

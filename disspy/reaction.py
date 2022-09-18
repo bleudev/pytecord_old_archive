@@ -23,8 +23,7 @@ SOFTWARE.
 """
 
 from typing import (
-    Optional,
-    NoReturn
+    Optional
 )
 from aiohttp import ClientSession
 
@@ -43,7 +42,7 @@ class DisEmoji:
     Emoji for reaction and other things
     """
     def __init__(self, unicode: Optional[str] = None, name: Optional[str] = None,
-                 emoji_id: Optional[int] = None) -> NoReturn:
+                 emoji_id: Optional[int] = None) -> None:
         self.unicode = unicode
         self.name = name
         self.emoji_id = emoji_id
@@ -61,20 +60,20 @@ class DisOwnReaction:
     """
     Bot's own reaction
     """
-    def __init__(self, emoji: str, message_id, channel_id, token):
+    def __init__(self, emoji: str, message_id, channel_id, token, session: ClientSession):
         self.emoji = emoji
         _mainurl = "https://discord.com/api/v10/"
         self._u = f"{_mainurl}channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
         self._t = token
+
+        self._session = session
 
     async def delete(self):
         """delete()
 
         Delete own reaction
         """
-        async with ClientSession(headers={'Authorization': f'Bot {self._t}',
-                                          'content-type': 'application/json'}) as session:
-            await session.delete(self._u)
+        await self._session.delete(self._u)
 
 
 class DisReaction:
@@ -82,7 +81,7 @@ class DisReaction:
     Reaction
     """
     def __init__(self, user: DisUser, message_id: int, channel_id: int,
-                 guild_id: int, emoji: DisEmoji, token: str) -> NoReturn:
+                 guild_id: int, emoji: DisEmoji, token: str) -> None:
         self.user = user
         self.message_id = message_id
         self.channel_id = channel_id
@@ -96,7 +95,7 @@ class DisRemovedReaction:
     Removed reaction
     """
     def __init__(self, message_id: int, channel_id: int, guild_id: int, emoji: DisEmoji,
-                 token: str) -> NoReturn:
+                 token: str) -> None:
         self.message_id = message_id
         self.channel_id = channel_id
         self.guild_id = guild_id

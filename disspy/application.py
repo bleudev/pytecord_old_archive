@@ -22,49 +22,56 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from abc import abstractmethod
 from typing import (
-    Protocol
+    TypedDict,
+    Optional
+)
+from disspy.typ import MISSING
+
+__all__: tuple = (
+    "Application",
 )
 
-
-class TypeOf:
+class ApplicationPayload(TypedDict):
+    """ApplicationPayload
+    Application object payload (typed dict)
     """
-    Class for typing in objects receiving in methods
+    id: int
+    name: str
+    description: str
+    bot_public: bool
+    tags: Optional[list]
+    custom_install_url: Optional[str]
 
-    Example
-    def foo(self, bar: TypeOf(foo)):
-        ...
+
+class Application:
     """
-
-    def __new__(cls, *args) -> type:
-        """
-        :param args: [0] is type
-        :param kwargs: No
-        :return type:
-        """
-        return int if str(list(args)[0]).isdigit() else str
-
-
-class Event:
+    Bot application object
     """
-    Class for event typing
+    def __init__(self, payload: ApplicationPayload) -> None:
+        self.id = payload['id']
 
-    Ex, Event(DisBotEventType, str)
-    """
-    def __new__(cls, *args) -> list:
-        return list(args)[1]
+        try:
+            self.name = payload['name']
+        except KeyError:
+            self.name = MISSING
 
+        try:
+            self.description = payload['description']
+        except KeyError:
+            self.description = MISSING
 
-class SupportsStr(Protocol):
-    """SupportsStr
-    Protocol with __str__() method
-    """
-    @abstractmethod
-    def __str__(self) -> str:
-        pass
+        try:
+            self.tags = payload['tags']
+        except KeyError:
+            self.tags = MISSING
 
+        try:
+            self.bot_public = payload['bot_public']
+        except KeyError:
+            self.bot_public = True
 
-# Custom types
-Url = str
-MISSING = None
+        try:
+            self.custom_install_url = payload['custom_install_url']
+        except KeyError:
+            self.custom_install_url = MISSING

@@ -26,32 +26,157 @@ from typing import (
     Union,
     Optional,
     Any,
-    NoReturn,
     ClassVar,
-    Callable,
     final,
     List,
-    Tuple
+    Tuple,
+    Literal,
+    Dict
 )
 from json import dumps
-from abc import ABC, abstractmethod
 import aiohttp
 
-from disspy.jsongenerators import _OptionGenerator
 from disspy.ui import ActionRow
 
 __all__: tuple = (
     "ApplicationCommandType",
-    "ApplicationCommand",
     "Option",
+    "StrOption",
+    "IntOption",
+    "NumOption",
+    "BoolOption",
+    "ChannelOption",
+    "UserOption",
     "OptionType",
-    "SlashCommand",
-    "UserCommand",
-    "MessageCommand",
     "Context",
     "OptionArgs"
 )
 
+
+class Option:
+    """
+    Class for using options in application commands (TEXT_INPUT)
+    """
+
+    def __init__(self, option_type: int) -> None:
+        """__init__
+        Create option object
+
+        Args:
+            option_type (int): Option type
+
+        Returns:
+            None
+        """
+        self.description: str = "No description"
+        self.option_type: int = option_type
+        self.choices: Union[List[dict], None] = []
+        self.is_required: bool = False
+
+    def required(self):
+        """required
+        Set this option required
+
+        Returns:
+            Option: New option
+        """
+        option = Option(self.option_type)
+        option.is_required = True
+        option.choices = self.choices
+        option.description = self.description
+
+        return option
+
+    def set_description(self, text: str):
+        """set_description
+        Set description to this option
+
+        Args:
+            text (str): Description
+
+        Returns:
+            Option: New option
+        """
+        option = Option(self.option_type)
+        option.is_required = self.is_required
+        option.choices = self.choices
+        option.description = text
+
+        return option
+
+    def set_choices(self, choices: List[dict]):
+        """set_choices
+        Set choices to this option
+
+        Args:
+            choices (List[dict]): Choices
+
+        Returns:
+            Option: New option
+        """
+        option = Option(self.option_type)
+        option.is_required = self.is_required
+        option.choices = choices
+        option.description = self.description
+
+        return option
+
+
+class _OptionsMethods:
+    @staticmethod
+    def describe(**options: Dict[str, Option]):
+        """describe
+        Describe options
+        """
+        def wrapper(func):
+            result = []
+
+            for name in list(options.keys()):
+                value: Option = options[name]
+
+                result.append({
+                    "name": name,
+                    "type": value.option_type,
+                    "description": value.description,
+                    "required": value.is_required,
+                    "choices": value.choices
+                })
+            try:
+                to_edit = {"options": result}
+
+                for key in list(func[0].keys()):
+                    val = func[0][key]
+
+                    to_edit.setdefault(key, val)
+
+                return (to_edit, func[1])
+            except TypeError:
+                return ({"options": result}, func)
+
+        return wrapper
+
+options = _OptionsMethods()
+
+def describe(description: str):
+    """describe
+    Desribe command
+
+    Args:
+        description (str): Description
+    """
+    def wrapper(func):
+        try:
+            to_edit = {"description": description}
+
+            for key in list(func[0].keys()):
+                val = func[0][key]
+
+                to_edit.setdefault(key, val)
+
+            return (to_edit, func[1])
+        except TypeError:
+            return ({"description": description}, func)
+    return wrapper
 
 @final
 class _MessageFlags:
@@ -105,157 +230,80 @@ class ApplicationCommandType:
     MESSAGE: ClassVar[int] = 3  # Message Command
 
 
-class ApplicationCommand(ABC):
-    """
-    (abstract)
-    Application Command object.
-
-    This use as parent for slash commands, message commands, user commands
-    """
-
-    def __init__(self, name: str, cmd: Callable, command_type: int) -> NoReturn:
-        self.name: str = name
-        self.cmd: Callable = cmd
-        self.command_type: int = command_type
-
-    @abstractmethod
-    def json(self) -> dict:
-        """json
-        Return json data of command
-
-        Returns:
-            dict: Json data
-        """
-        return
-
-
-@final
-class Option:
-    """
-    Class for using options in application commands (TEXT_INPUT)
-    """
-
-    def __init__(self, name: str, description: str, option_type: int,
-                 choices: Optional[List[dict]] = None,
-                 required: Optional[bool] = False) -> NoReturn:
-        """
-        Init class
-        -----
-        :param name: Name of option
-        :param description: Description of option
-        :param option_type: Type of option
-        :param choices: Option's Choices
-        :param required: Option's required var (bool)
-        """
-        self.name: str = name
-        self.description: str = description
-        self.option_type: int = option_type
-        self.choices: Union[List[dict], None] = choices
-        self.required: bool = required
-
-
 @final
 class OptionType:
     """
     Option types (see discord docs)
     """
-    SUB_COMMAND: ClassVar[int] = 1
-    SUB_COMMAND_GROUP: ClassVar[int] = 2
-    STRING: ClassVar[int] = 3
-    INTEGER: ClassVar[int] = 4
-    BOOLEAN: ClassVar[int] = 5
-    USER: ClassVar[int] = 6
-    CHANNEL: ClassVar[int] = 7
-    ROLE: ClassVar[int] = 8
-    MENTIONABLE: ClassVar[int] = 9
-    NUMBER: ClassVar[int] = 10
-    ATTACHMENT: ClassVar[int] = 11
+    SUB_COMMAND: Literal[1] = 1
+    SUB_COMMAND_GROUP: Literal[2] = 2
+    STRING: Literal[3] = 3
+    INTEGER: Literal[4] = 4
+    BOOLEAN: Literal[5] = 5
+    USER: Literal[6] = 6
+    CHANNEL: Literal[7] = 7
+    ROLE: Literal[8] = 8
+    MENTIONABLE: Literal[9] = 9
+    NUMBER: Literal[10] = 10
+    ATTACHMENT: Literal[11] = 11
 
 
 @final
-class SlashCommand(ApplicationCommand):
+class StrOption(Option):
+    """StrOption
+    Option with STRING type
     """
-    Application Command with type number 1 (TEXT_INPUT)
-    """
-
-    def __init__(self, name: str, description: str, cmd: Callable,
-                 options: Optional[List[Option]] = None) -> NoReturn:
-        super().__init__(name, cmd, ApplicationCommandType.TEXT_INPUT)
-
-        self.description = description
-
-        if options:
-            _options_jsons = []
-
-            for option in options:
-                _options_jsons.append(_OptionGenerator(option))
-
-            self.options: Union[List[Option], None] = _options_jsons
-        else:
-            self.options: Union[List[Option], None] = None
-
-    def json(self) -> dict:
-        """json
-        Return json data of command
-
-        Returns:
-            dict: Json data
-        """
-        return {
-            "name": self.name,
-            "description": self.description,
-            "type": ApplicationCommandType.TEXT_INPUT,
-            "options": self.options
-        }
+    def __init__(self) -> None:
+        super().__init__(OptionType.STRING)
 
 
 @final
-class UserCommand(ApplicationCommand):
+class IntOption(Option):
+    """StrOption
+    Option with INTEGER type
     """
-    Application Command with type number 2 (USER)
-    """
-
-    def __init__(self, name: str, cmd: Callable) -> NoReturn:
-        super().__init__(name, cmd, ApplicationCommandType.USER)
-
-    def json(self) -> dict:
-        """json
-        Return json data of command
-
-        Returns:
-            dict: Json data
-        """
-        return {
-            "name": self.name,
-            "type": ApplicationCommandType.USER
-        }
+    def __init__(self) -> None:
+        super().__init__(OptionType.INTEGER)
 
 
 @final
-class MessageCommand(ApplicationCommand):
+class NumOption(Option):
+    """StrOption
+    Option with NUMBER type
     """
-    Application Command with type number 3 (MESSAGE)
+    def __init__(self) -> None:
+        super().__init__(OptionType.NUMBER)
+
+
+class BoolOption(Option):
+    """StrOption
+    Option with BOOLEAN type
     """
+    def __init__(self) -> None:
+        super().__init__(OptionType.BOOLEAN)
 
-    def __init__(self, name: str, cmd: Callable) -> NoReturn:
-        super().__init__(name, cmd, ApplicationCommandType.MESSAGE)
 
-    def json(self) -> dict:
-        """json
-        Return json data of command
+@final
+class UserOption(Option):
+    """StrOption
+    Option with USER type
+    """
+    def __init__(self) -> None:
+        super().__init__(OptionType.USER)
 
-        Returns:
-            dict: Json data
-        """
-        return {
-            "name": self.name,
-            "type": ApplicationCommandType.MESSAGE
-        }
+
+@final
+class ChannelOption(Option):
+    """StrOption
+    Option with CHANNEL type
+    """
+    def __init__(self) -> None:
+        super().__init__(OptionType.CHANNEL)
 
 
 @final
 class _Argument:
-    def __init__(self, name: str, option_type: int, value: Any) -> NoReturn:
+    def __init__(self, name: str, option_type: int, value: Any) -> None:
         self.name: str = name
         self.type: int = option_type
         self.value: Any = value
@@ -272,7 +320,7 @@ class OptionArgs:
         await ctx.send(args.getString("Hi"))
     """
 
-    def __init__(self, values: Optional[List[_Argument]] = None) -> NoReturn:
+    def __init__(self, values: Optional[List[_Argument]] = None) -> None:
         """
         Init object
         -----
@@ -289,6 +337,16 @@ class OptionArgs:
         :return bool: Is empty?
         """
         return len(self._v) == 0
+
+    @property
+    def options_args(self) -> List[_Argument]:
+        """options_args
+        Get options args
+
+        Returns:
+            List[_Argument]: Option args
+        """
+        return self._v
 
     def get(self, name: str) -> Union[Any, None]:
         """
@@ -360,15 +418,15 @@ class Context:
     """
 
     def __init__(self, interaction_info:Tuple[str, int], bot_token,
-                 args: OptionArgs = None) -> NoReturn:
+                 args: OptionArgs = None) -> None:
         self._interaction_token: str = str(list(interaction_info)[0])
         self._interaction_id: int = int(list(interaction_info)[1])
 
         self._t = bot_token
         self.args = args
 
-    async def send(self, content: str, action_row: Optional[ActionRow] = None,
-                   ephemeral: bool = False) -> NoReturn:
+    async def respond(self, content: str, action_row: Optional[ActionRow] = None,
+                   ephemeral: bool = False) -> None:
         """
 
         :param content: (str) Message content

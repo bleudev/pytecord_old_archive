@@ -26,7 +26,6 @@ SOFTWARE.
 from random import random
 from math import floor
 from typing import (
-    NoReturn,
     List
 )
 
@@ -179,7 +178,8 @@ class DisEmbed:
     """DisEmbed
     Embeds for messages
     """
-    def __init__(self, title: str, description: str = None, color=0xffffff, footer: str = None):
+    def __init__(self, title: str, *, description: str = None, color: int = DisColor.DEFAULT,
+                 footer: str = None) -> None:
         self.title: str = title
         self.description: str = description
         self.color: str = color
@@ -192,7 +192,7 @@ class DisEmbed:
 
         self.fields: List[DisField] = []
 
-    def add_field(self, name: str, value: str, inline: bool = True) -> NoReturn:
+    def add_field(self, name: str, value: str, *, inline: bool = True) -> None:
         """add_field
         Add field to embed
 
@@ -202,11 +202,11 @@ class DisEmbed:
             inline (bool, optional): Field in line?. Defaults to True.
 
         Returns:
-            NoReturn
+            None
         """
         self.fields.append(DisField(name, value, inline))
 
-    def add_field_from_obj(self, field: DisField) -> NoReturn:
+    def add_field_from_obj(self, field: DisField) -> None:
         """add_field_from_obj
         Add field to embed from object
 
@@ -214,12 +214,12 @@ class DisEmbed:
             field (DisField): Field
 
         Returns:
-            NoReturn
+            None
         """
         self.fields.append(field)
 
     def set_author(self, name: str, url: str = None, icon_url: str = None,
-                   proxy_icon_url: str = None) -> NoReturn:
+                   proxy_icon_url: str = None) -> None:
         """set_author
         Set author for embed
 
@@ -230,7 +230,7 @@ class DisEmbed:
             proxy_icon_url (str, optional): Proxy icon url of author. Defaults to None.
 
         Returns:
-            NoReturn
+            None
         """
         self.author = {
             "name": name,
@@ -240,7 +240,7 @@ class DisEmbed:
         }
 
     def set_thumbnail(self, url: str, proxy_url: str = None,
-                      height: int = None, width: int = None) -> NoReturn:
+                      height: int = None, width: int = None) -> None:
         """set_thumbnail
         Set thumbnail for embed
 
@@ -251,7 +251,7 @@ class DisEmbed:
             width (int, optional): Width of thumbnail. Defaults to None.
 
         Returns:
-            NoReturn
+            None
         """
         self.sprite_components.set_thumbnail({
             "url": url,
@@ -261,7 +261,7 @@ class DisEmbed:
         })
 
     def set_image(self, url: str, proxy_url: str = None,
-                  height: int = None, width: int = None) -> NoReturn:
+                  height: int = None, width: int = None) -> None:
         """set_image
         Set image for embed
 
@@ -272,7 +272,7 @@ class DisEmbed:
             width (int, optional): Width of image. Defaults to None.
 
         Returns:
-            NoReturn
+            None
         """
         self.sprite_components.set_image({
             "url": url,
