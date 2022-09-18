@@ -72,8 +72,14 @@ class Option:
         self.option_type: int = option_type
         self.choices: Union[List[dict], None] = []
         self.is_required: bool = False
-    
+
     def required(self):
+        """required
+        Set this option required
+
+        Returns:
+            Option: New option
+        """
         option = Option(self.option_type)
         option.is_required = True
         option.choices = self.choices
@@ -82,6 +88,15 @@ class Option:
         return option
 
     def set_description(self, text: str):
+        """set_description
+        Set description to this option
+
+        Args:
+            text (str): Description
+
+        Returns:
+            Option: New option
+        """
         option = Option(self.option_type)
         option.is_required = self.is_required
         option.choices = self.choices
@@ -90,6 +105,15 @@ class Option:
         return option
 
     def set_choices(self, choices: List[dict]):
+        """set_choices
+        Set choices to this option
+
+        Args:
+            choices (List[dict]): Choices
+
+        Returns:
+            Option: New option
+        """
         option = Option(self.option_type)
         option.is_required = self.is_required
         option.choices = choices
@@ -101,6 +125,9 @@ class Option:
 class _OptionsMethods:
     @staticmethod
     def describe(**options: Dict[str, Option]):
+        """describe
+        Describe options
+        """
         def wrapper(func):
             result = []
 
@@ -116,12 +143,12 @@ class _OptionsMethods:
                 })
             try:
                 to_edit = {"options": result}
-                
+
                 for key in list(func[0].keys()):
                     val = func[0][key]
 
                     to_edit.setdefault(key, val)
-                
+
                 return (to_edit, func[1])
             except TypeError:
                 return ({"options": result}, func)
@@ -131,15 +158,21 @@ class _OptionsMethods:
 options = _OptionsMethods()
 
 def describe(description: str):
+    """describe
+    Desribe command
+
+    Args:
+        description (str): Description
+    """
     def wrapper(func):
         try:
             to_edit = {"description": description}
-            
+
             for key in list(func[0].keys()):
                 val = func[0][key]
 
                 to_edit.setdefault(key, val)
-            
+
             return (to_edit, func[1])
         except TypeError:
             return ({"description": description}, func)
@@ -217,35 +250,53 @@ class OptionType:
 
 @final
 class StrOption(Option):
+    """StrOption
+    Option with STRING type
+    """
     def __init__(self) -> None:
         super().__init__(OptionType.STRING)
 
 
 @final
 class IntOption(Option):
+    """StrOption
+    Option with INTEGER type
+    """
     def __init__(self) -> None:
         super().__init__(OptionType.INTEGER)
 
 
 @final
 class NumOption(Option):
+    """StrOption
+    Option with NUMBER type
+    """
     def __init__(self) -> None:
         super().__init__(OptionType.NUMBER)
 
 
 class BoolOption(Option):
+    """StrOption
+    Option with BOOLEAN type
+    """
     def __init__(self) -> None:
         super().__init__(OptionType.BOOLEAN)
 
 
 @final
 class UserOption(Option):
+    """StrOption
+    Option with USER type
+    """
     def __init__(self) -> None:
         super().__init__(OptionType.USER)
 
 
 @final
 class ChannelOption(Option):
+    """StrOption
+    Option with CHANNEL type
+    """
     def __init__(self) -> None:
         super().__init__(OptionType.CHANNEL)
 
@@ -286,9 +337,15 @@ class OptionArgs:
         :return bool: Is empty?
         """
         return len(self._v) == 0
-    
+
     @property
     def options_args(self) -> List[_Argument]:
+        """options_args
+        Get options args
+
+        Returns:
+            List[_Argument]: Option args
+        """
         return self._v
 
     def get(self, name: str) -> Union[Any, None]:

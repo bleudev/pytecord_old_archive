@@ -26,12 +26,16 @@ from typing import (
     TypedDict,
     Optional
 )
+from disspy.typ import MISSING
 
 __all__: tuple = (
     "Application",
 )
 
 class ApplicationPayload(TypedDict):
+    """ApplicationPayload
+    Application object payload (typed dict)
+    """
     id: int
     name: str
     description: str
@@ -41,10 +45,11 @@ class ApplicationPayload(TypedDict):
 
 
 class Application:
+    """
+    Bot application object
+    """
     def __init__(self, payload: ApplicationPayload) -> None:
         self.id = payload['id']
-        
-        MISSING = "MISSING"
 
         try:
             self.name = payload['name']

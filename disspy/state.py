@@ -25,12 +25,27 @@ SOFTWARE.
 from disspy.application import Application
 
 class ConnectionState:
+    """
+    Bot connection state
+    """
     def __init__(self, token: str) -> None:
         self._t = token
         self._data = None
-    
+
     def get(self, ready_event: dict) -> None:
+        """get
+        Get connection state from ready event data
+
+        Args:
+            ready_event (dict): Ready event data
+        """
         self._data = ready_event
-    
+
     def application(self) -> Application:
+        """application
+        Get application object
+
+        Returns:
+            Application: Bot application object
+        """
         return Application(self._data["application"])

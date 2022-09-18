@@ -547,7 +547,8 @@ class DispyWebhook:
                     try:
                         if event.data["guild_id"]:
                             _u: DisUser = DisUser(event.data["member"]["user"], self.token)
-                            _c: DisChannel = DisChannel(event.data["channel_id"], self.token, self.session)
+                            _c: DisChannel = DisChannel(event.data["channel_id"], self.token,
+                                                        self.session)
 
                             await self.ons["typing"](_u, _c)
 
@@ -561,7 +562,8 @@ class DispyWebhook:
                             _u_json = get(url=_url, headers=self._headers).json()
 
                             _u: DisUser = DisUser(_u_json, self.token)
-                            _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token, self.session)
+                            _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token,
+                                                            self.session)
 
                             await self.ons["dm_typing"](_u, _c)
 
@@ -575,7 +577,8 @@ class DispyWebhook:
                         _u_json = get(url=_url, headers=self._headers).json()
 
                         _u: DisUser = DisUser(_u_json, self.token)
-                        _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token, self.session)
+                        _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token,
+                                                        self.session)
 
                         await self.ons["dm_typing"](_u, _c)
 
