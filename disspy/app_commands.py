@@ -155,6 +155,9 @@ class _OptionsMethods:
 
         return wrapper
 
+class Localization:
+    pass # soon
+
 options = _OptionsMethods()
 
 def describe(description: str):
