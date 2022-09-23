@@ -22,17 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import (
-    Union,
-    Optional,
-    Any,
-    ClassVar,
-    final,
-    List,
-    Tuple,
-    Literal,
-    Dict
-)
+from typing import Union, Optional, Any, ClassVar, final, List, Tuple, Literal, Dict
 from json import dumps
 import aiohttp
 
@@ -49,7 +39,7 @@ __all__: tuple = (
     "UserOption",
     "OptionType",
     "Context",
-    "OptionArgs"
+    "OptionArgs",
 )
 
 
@@ -128,19 +118,22 @@ class _OptionsMethods:
         """describe
         Describe options
         """
+
         def wrapper(func):
             result = []
 
             for name in list(options.keys()):
                 value: Option = options[name]
 
-                result.append({
-                    "name": name,
-                    "type": value.option_type,
-                    "description": value.description,
-                    "required": value.is_required,
-                    "choices": value.choices
-                })
+                result.append(
+                    {
+                        "name": name,
+                        "type": value.option_type,
+                        "description": value.description,
+                        "required": value.is_required,
+                        "choices": value.choices,
+                    }
+                )
             try:
                 to_edit = {"options": result}
 
@@ -155,10 +148,13 @@ class _OptionsMethods:
 
         return wrapper
 
+
 class Localization:
-    pass # soon
+    pass  # soon
+
 
 options = _OptionsMethods()
+
 
 def describe(description: str):
     """describe
@@ -167,6 +163,7 @@ def describe(description: str):
     Args:
         description (str): Description
     """
+
     def wrapper(func):
         try:
             to_edit = {"description": description}
@@ -179,7 +176,9 @@ def describe(description: str):
             return (to_edit, func[1])
         except TypeError:
             return ({"description": description}, func)
+
     return wrapper
+
 
 @final
 class _MessageFlags:
@@ -188,6 +187,7 @@ class _MessageFlags:
 
     This use in send() method of Context class.
     """
+
     CROSSPOSTED: ClassVar[int] = 1 << 0
     IS_CROSSPOST: ClassVar[int] = 1 << 1
     SUPPRESS_EMBEDS: ClassVar[int] = 1 << 2
@@ -212,8 +212,12 @@ class _SendingRestHandler:
         Returns:
             _type_: _description_
         """
-        async with aiohttp.ClientSession(headers={'Authorization': f'Bot {token}',
-                                                  'content-type': 'application/json'}) as session:
+        async with aiohttp.ClientSession(
+            headers={
+                "Authorization": f"Bot {token}",
+                "content-type": "application/json",
+            }
+        ) as session:
             try:
                 async with session.post(url, data=dumps(payload)) as data:
                     j = await data.json()
@@ -228,6 +232,7 @@ class ApplicationCommandType:
     """
     Application command types (see discord docs)
     """
+
     TEXT_INPUT: ClassVar[int] = 1  # Slash Command
     USER: ClassVar[int] = 2  # User Command
     MESSAGE: ClassVar[int] = 3  # Message Command
@@ -238,6 +243,7 @@ class OptionType:
     """
     Option types (see discord docs)
     """
+
     SUB_COMMAND: Literal[1] = 1
     SUB_COMMAND_GROUP: Literal[2] = 2
     STRING: Literal[3] = 3
@@ -256,6 +262,7 @@ class StrOption(Option):
     """StrOption
     Option with STRING type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.STRING)
 
@@ -265,6 +272,7 @@ class IntOption(Option):
     """StrOption
     Option with INTEGER type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.INTEGER)
 
@@ -274,6 +282,7 @@ class NumOption(Option):
     """StrOption
     Option with NUMBER type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.NUMBER)
 
@@ -282,6 +291,7 @@ class BoolOption(Option):
     """StrOption
     Option with BOOLEAN type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.BOOLEAN)
 
@@ -291,6 +301,7 @@ class UserOption(Option):
     """StrOption
     Option with USER type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.USER)
 
@@ -300,6 +311,7 @@ class ChannelOption(Option):
     """StrOption
     Option with CHANNEL type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.CHANNEL)
 
@@ -420,16 +432,21 @@ class Context:
     There are some methods for responding to interaction (Slash Command)
     """
 
-    def __init__(self, interaction_info:Tuple[str, int], bot_token,
-                 args: OptionArgs = None) -> None:
+    def __init__(
+        self, interaction_info: Tuple[str, int], bot_token, args: OptionArgs = None
+    ) -> None:
         self._interaction_token: str = str(list(interaction_info)[0])
         self._interaction_id: int = int(list(interaction_info)[1])
 
         self._t = bot_token
         self.args = args
 
-    async def respond(self, content: str, action_row: Optional[ActionRow] = None,
-                   ephemeral: bool = False) -> None:
+    async def respond(
+        self,
+        content: str,
+        action_row: Optional[ActionRow] = None,
+        ephemeral: bool = False,
+    ) -> None:
         """
 
         :param content: (str) Message content
@@ -445,33 +462,22 @@ class Context:
                     "data": {
                         "content": content,
                         "flags": _MessageFlags.EPHEMERAL,
-                        "components": action_row.json
-                    }
+                        "components": action_row.json,
+                    },
                 }
             else:
                 _payload = {
                     "type": 4,
-                    "data": {
-                        "content": content,
-                        "flags": _MessageFlags.EPHEMERAL
-                    }
+                    "data": {"content": content, "flags": _MessageFlags.EPHEMERAL},
                 }
         else:
             if action_row:
                 _payload = {
                     "type": 4,
-                    "data": {
-                        "content": content,
-                        "components": action_row.json
-                    }
+                    "data": {"content": content, "components": action_row.json},
                 }
             else:
-                _payload = {
-                    "type": 4,
-                    "data": {
-                        "content": content
-                    }
-                }
+                _payload = {"type": 4, "data": {"content": content}}
 
         _id = self._interaction_id
         _token = self._interaction_token
@@ -493,8 +499,8 @@ class Context:
             "data": {
                 "title": title,
                 "custom_id": custom_id,
-                "components": action_row.json
-            }
+                "components": action_row.json,
+            },
         }
 
         _id = self._interaction_id

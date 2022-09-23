@@ -22,13 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import (
-    Dict,
-    Optional,
-    Text,
-    Union,
-    List
-)
+from typing import Dict, Optional, Text, Union, List
 
 from enum import Enum
 
@@ -43,7 +37,7 @@ __all__: tuple = (
     "SelectMenu",
     "TextInput",
     "TextInputStyle",
-    "ActionRow"
+    "ActionRow",
 )
 
 
@@ -51,17 +45,39 @@ class Component:
     """
     Class for creating components
     """
-    def __init__(self, ctype, custom_id=None, label=None, style=None, url=None,
-                 options=None, min_values=None, max_values=None,
-                 min_length=None, max_length=None, placeholder=None, required=None) -> None:
+
+    def __init__(
+        self,
+        ctype,
+        custom_id=None,
+        label=None,
+        style=None,
+        url=None,
+        options=None,
+        min_values=None,
+        max_values=None,
+        min_length=None,
+        max_length=None,
+        placeholder=None,
+        required=None,
+    ) -> None:
         if ctype == 1:
-            raise errors.MessageComponentIsBlocked("Action Rows don't can to use by users")
+            raise errors.MessageComponentIsBlocked(
+                "Action Rows don't can to use by users"
+            )
 
         self.type = ctype
         self.custom_id = custom_id
 
         if ctype == 2:
-            if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
+            if (
+                not style == 5
+                and url
+                and not custom_id
+                or style == 5
+                and not url
+                and custom_id
+            ):
                 raise RuntimeError("Error with creating components!")
 
             self.label = label
@@ -87,9 +103,22 @@ class Button(Component):
     """
     Class for creating buttons in Action Row
     """
-    def __init__(self, label: Text, style: Optional[int] = None, url: Optional[str] = None,
-                 custom_id: Optional[Text] = None, ) -> None:
-        if not style == 5 and url and not custom_id or style == 5 and not url and custom_id:
+
+    def __init__(
+        self,
+        label: Text,
+        style: Optional[int] = None,
+        url: Optional[str] = None,
+        custom_id: Optional[Text] = None,
+    ) -> None:
+        if (
+            not style == 5
+            and url
+            and not custom_id
+            or style == 5
+            and not url
+            and custom_id
+        ):
             raise RuntimeError("Error with creating buttons!")
 
         if style is None:  # Default
@@ -101,6 +130,7 @@ class ButtonStyle(Enum):
     """
     Button styles from official discord docs
     """
+
     BLUE = 1
     GREY = 2
     GREEN = 3
@@ -112,8 +142,15 @@ class SelectMenuOption:
     """
     Class for creating options in select menus
     """
-    def __init__(self, label: str, value: str, description: str, emoji: Union[DisEmoji, str],
-                 default: bool = False) -> None:
+
+    def __init__(
+        self,
+        label: str,
+        value: str,
+        description: str,
+        emoji: Union[DisEmoji, str],
+        default: bool = False,
+    ) -> None:
         self.label = label
         self.value = value
         self.description = description
@@ -128,27 +165,18 @@ class SelectMenuOption:
         """
         if isinstance(self.emoji, DisEmoji):
             if self.emoji.unicode:
-                e_j = {
-                    "name": self.emoji.unicode,
-                    "id": self.emoji.emoji_id
-                }
+                e_j = {"name": self.emoji.unicode, "id": self.emoji.emoji_id}
             else:
-                e_j = {
-                    "name": self.emoji.name,
-                    "id": self.emoji.emoji_id
-                }
+                e_j = {"name": self.emoji.name, "id": self.emoji.emoji_id}
         else:
-            e_j = {
-                "name": self.emoji,
-                "id": None
-            }
+            e_j = {"name": self.emoji, "id": None}
 
         return {
             "label": self.label,
             "value": self.value,
             "description": self.description,
             "emoji": e_j,
-            "default": self.default
+            "default": self.default,
         }
 
 
@@ -156,34 +184,57 @@ class SelectMenu(Component):
     """
     Class for creating select menus in Action Row
     """
-    def __init__(self, custom_id: str, options: List[SelectMenuOption], placeholder: str,
-                 min_values: int, max_values: int) -> None:
+
+    def __init__(
+        self,
+        custom_id: str,
+        options: List[SelectMenuOption],
+        placeholder: str,
+        min_values: int,
+        max_values: int,
+    ) -> None:
         options_json = []
 
         for i in options:
             options_json.append(i.json())
 
-        super().__init__(3, custom_id=custom_id, options=options_json, min_values=min_values,
-                         max_values=max_values, placeholder=placeholder)
+        super().__init__(
+            3,
+            custom_id=custom_id,
+            options=options_json,
+            min_values=min_values,
+            max_values=max_values,
+            placeholder=placeholder,
+        )
 
 
 class TextInput(Component):
     """
     Class for creating text inputs in Action Row
     """
-    def __init__(self, label, min_length, max_length, placeholder,
-                 required=False, style=None) -> None:
+
+    def __init__(
+        self, label, min_length, max_length, placeholder, required=False, style=None
+    ) -> None:
         if style is None:  # Default
             style = 1  # Short
-        super().__init__(4, custom_id=label, style=style, label=label,
-                         min_length=min_length, max_length=max_length,
-                         placeholder=placeholder, required=required)
+        super().__init__(
+            4,
+            custom_id=label,
+            style=style,
+            label=label,
+            min_length=min_length,
+            max_length=max_length,
+            placeholder=placeholder,
+            required=required,
+        )
 
 
 class TextInputStyle:
     """
     Text input styles from official discord docs
     """
+
     SHORT = 1
     PARAGRAPH = 2
 
@@ -196,7 +247,7 @@ class _ComponentGenerator:
                 "custom_id": component.custom_id,
                 "label": component.label,
                 "style": component.style,
-                "url": component.url
+                "url": component.url,
             }
 
         if component.type == 3:  # Select Menu
@@ -206,7 +257,7 @@ class _ComponentGenerator:
                 "min_values": component.min_values,
                 "max_values": component.max_values,
                 "placeholder": component.placeholder,
-                "options": component.options
+                "options": component.options,
             }
 
         if component.type == 4:  # Text Input
@@ -218,7 +269,7 @@ class _ComponentGenerator:
                 "min_length": component.min_length,
                 "max_length": component.max_length,
                 "placeholder": component.placeholder,
-                "required": component.required
+                "required": component.required,
             }
 
         return {}
@@ -228,11 +279,9 @@ class ActionRow:
     """
     Class for creating action rows in messages
     """
+
     def __init__(self, bot) -> None:
-        self.json = [{
-            "type": 1,
-            "components": []
-        }]
+        self.json = [{"type": 1, "components": []}]
         self._b = bot
 
     def add(self, component: Component):
@@ -241,6 +290,7 @@ class ActionRow:
         Args:
             component (Component): Component
         """
+
         def wrapper(func):
             self.json[0]["components"].append(_ComponentGenerator(component))
             self._b = self._b

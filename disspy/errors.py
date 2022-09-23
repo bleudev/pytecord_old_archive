@@ -42,7 +42,7 @@ __all__: tuple = (
     "ClassTypeError",
     "UserNitroTypeError",
     "JsonError",
-    "ActivityUrlError"
+    "ActivityUrlError",
 )
 
 
@@ -51,6 +51,7 @@ class DisError(Exception):
     """DisRunTimeError
     Parent for other classes
     """
+
     def __init__(self, code: str, message: str):
         self.__code__ = code
         self.__text__ = message
@@ -58,11 +59,13 @@ class DisError(Exception):
 
         super().__init__(self.__message__)
 
+
 # InternetErrors (Will be called when errors code returned)
 class InternetError(DisError):
     """InternetError
     Error with internet (For example, with Wi-Fi)
     """
+
     def __init__(self, text, code: Optional[str] = None):
         if code is None:
             super().__init__("-1i", text)
@@ -74,6 +77,7 @@ class MissingPerms(DisError):
     """MissingPerms
     Missing permissions in Discord
     """
+
     def __init__(self, text):
         super().__init__("-2i", text)
 
@@ -82,6 +86,7 @@ class Unauthorized(DisError):
     """Unauthorized
     Invalid token!
     """
+
     def __init__(self):
         super().__init__("-3i", "Invalid token!")
 
@@ -91,6 +96,7 @@ class BotEventTypeError(DisError):
     """BotEventTypeError
     Invalid bot event type
     """
+
     def __init__(self, text):
         super().__init__("101c", text)
 
@@ -99,6 +105,7 @@ class BotStatusError(DisError):
     """BotStatusError
     Invalid bot status
     """
+
     def __init__(self, text):
         super().__init__("102c", text)
 
@@ -107,6 +114,7 @@ class BotEventVisibleError(DisError):
     """BotEventVisibleError
     Bot don't can see this event (because bot intents < need intents)
     """
+
     def __init__(self, text):
         super().__init__("103c", text)
 
@@ -115,6 +123,7 @@ class BotApplicationIdInvalid(DisError):
     """BotApplicationIdInvalid
     Invalid bot application id
     """
+
     def __init__(self, text):
         super().__init__("104c", text)
 
@@ -123,6 +132,7 @@ class ApplicationIdIsNone(DisError):
     """ApplicationIdIsNone
     You don't type application id but you want to create application command
     """
+
     def __init__(self, text):
         super().__init__("105c", text)
 
@@ -131,6 +141,7 @@ class MessageComponentIsBlocked(DisError):
     """MessageComponentIsBlocked
     Message component is blocked to you
     """
+
     def __init__(self, text):
         super().__init__("106c", text)
 
@@ -140,6 +151,7 @@ class InvalidArgument(DisError):
     """InvalidArgument
     Invalid argument in method
     """
+
     def __init__(self, text):
         super().__init__("151p", text)
 
@@ -148,6 +160,7 @@ class ClassTypeError(DisError):
     """ClassTypeError
     Error with class type
     """
+
     def __init__(self, text):
         super().__init__("152p", text)
 
@@ -157,6 +170,7 @@ class UserNitroTypeError(DisError):
     """UserNitroTypeError
     Invalid user nitro!
     """
+
     def __init__(self, text):
         super().__init__("201u", text)
 
@@ -166,6 +180,7 @@ class JsonError(DisError):
     """JsonError
     Error with json
     """
+
     def __init__(self, text):
         super().__init__("251j", text)
 
@@ -174,5 +189,6 @@ class ActivityUrlError(DisError):
     """ActivityUrlError
     Invalid activity url error
     """
+
     def __init__(self, text):
         super().__init__("252j", text)

@@ -22,13 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import (
-    Optional,
-    Union,
-    List,
-    final,
-    TypedDict
-)
+from typing import Optional, Union, List, final, TypedDict
 
 from json import dumps
 from aiohttp import ClientSession
@@ -50,7 +44,7 @@ __all__: tuple = (
     "DmMessage",
     "DisDmChannel",
     "MessageDeleteEvent",
-    "DmMessageDeleteEvent"
+    "DmMessageDeleteEvent",
 )
 
 
@@ -58,6 +52,7 @@ class MessagePayload(TypedDict):
     """MessagePayload
     Text message payload (typed)
     """
+
     content: str
     embeds: Optional[list]
     components: Optional[list]
@@ -65,7 +60,9 @@ class MessagePayload(TypedDict):
 
 class _SendingRestHandler:
     @staticmethod
-    async def execute(channel_id: int, payload: MessagePayload, __session: ClientSession) -> dict:
+    async def execute(
+        channel_id: int, payload: MessagePayload, __session: ClientSession
+    ) -> dict:
         """execute
         Send messages in channels
 
@@ -155,7 +152,7 @@ class _GettingChannelData:
             dict: Json output
         """
         _u = f"https://discord.com/api/v10/channels/{channel_id}"
-        _h = {'Authorization': f'Bot {token}'}
+        _h = {"Authorization": f"Bot {token}"}
 
         return get(_u, headers=_h).json()
 
@@ -173,7 +170,7 @@ class _GettingChannelData:
             dict: Json output
         """
         _u = f"https://discord.com/api/v10/channels/{channel_id}/messages/{message_id}"
-        _h = {'Authorization': f'Bot {token}'}
+        _h = {"Authorization": f"Bot {token}"}
 
         return get(_u, headers=_h).json()
 
@@ -192,7 +189,7 @@ class _GettingGuildData:
             dict: Json output
         """
         _u = f"https://discord.com/api/v10/guilds/{guild_id}"
-        _h = {'Authorization': f'Bot {token}'}
+        _h = {"Authorization": f"Bot {token}"}
 
         return get(_u, headers=_h).json()
 
@@ -202,6 +199,7 @@ class DisMessage(Message):
     """
     Message in channel
     """
+
     def __init__(self, _data, __token, __session):
         super().__init__(_data["type"])
 
@@ -220,7 +218,9 @@ class DisMessage(Message):
                 _e = None
 
                 if i["footer"]["text"]:
-                    _e = DisEmbed(i["title"], i["description"], i["color"], i["footer"]["text"])
+                    _e = DisEmbed(
+                        i["title"], i["description"], i["color"], i["footer"]["text"]
+                    )
                 else:
                     _e = DisEmbed(i["title"], i["description"], i["color"])
 
@@ -236,8 +236,11 @@ class DisMessage(Message):
         self._t = __token
         self.session = __session
 
-    async def reply(self, content: Optional[SupportsStr] = None,
-                    embeds: Optional[List[DisEmbed]] = None):
+    async def reply(
+        self,
+        content: Optional[SupportsStr] = None,
+        embeds: Optional[List[DisEmbed]] = None,
+    ):
         """reply
         Reply to message
 
@@ -249,9 +252,7 @@ class DisMessage(Message):
         _d = {
             "content": None,
             "embeds": {},
-            "message_reference": {
-                "message_id": self.id
-            }
+            "message_reference": {"message_id": self.id},
         }
 
         content = str(content)
@@ -289,7 +290,9 @@ class DisMessage(Message):
                 emoji = emoji.unicode
 
         await _SendingRestHandler.create_reaction(
-            f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self.session)
+            f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me",
+            self.session,
+        )
 
         return DisOwnReaction(emoji, self.id, self.channel.id, self._t, self.session)
 
@@ -297,7 +300,9 @@ class DisMessage(Message):
         """delete
         Delete message
         """
-        _u = f"https://discord.com/api/v10/channels/{self.channel.id}/messages/{self.id}"
+        _u = (
+            f"https://discord.com/api/v10/channels/{self.channel.id}/messages/{self.id}"
+        )
 
         await _SendingRestHandler.delete_message(_u, self.session)
 
@@ -307,6 +312,7 @@ class DisChannel(Channel):
     """
     The class for sending messages to discord channels and fetching messages in channels
     """
+
     def __init__(self, channel_id: int, __token, __session):
         """
         Creating an object DisChannel
@@ -341,9 +347,12 @@ class DisChannel(Channel):
         """
         return self.id == other.id
 
-    async def send(self, content: Optional[SupportsStr] = None,
-                   embeds: Optional[List[DisEmbed]] = None,
-                   action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
+    async def send(
+        self,
+        content: Optional[SupportsStr] = None,
+        embeds: Optional[List[DisEmbed]] = None,
+        action_row: Optional[ActionRow] = None,
+    ) -> Union[DisMessage, None]:
         """
         Sending messages to discord channel
 
@@ -353,11 +362,7 @@ class DisChannel(Channel):
         :param action_row: ActionRow = None -> Action Row with components (default is None)
         :return DisMessage: Message which was sended
         """
-        _payload = {
-            "content": None,
-            "embeds": None,
-            "components": None
-        }
+        _payload = {"content": None, "embeds": None, "components": None}
 
         if embeds:
             embeds_json = []
@@ -442,6 +447,7 @@ class DmMessage(Message):
     """
     Message in DM channel
     """
+
     def __init__(self, data, token, session):
         super().__init__(data["type"], True)
 
@@ -454,8 +460,11 @@ class DmMessage(Message):
         self.content = data["content"]
         self.channel = DisDmChannel(data["channel_id"], self._t, session)
 
-    async def reply(self, content: Optional[SupportsStr] = None,
-                    embeds: Optional[List[DisEmbed]] = None):
+    async def reply(
+        self,
+        content: Optional[SupportsStr] = None,
+        embeds: Optional[List[DisEmbed]] = None,
+    ):
         """reply
         Reply to message
 
@@ -467,9 +476,7 @@ class DmMessage(Message):
         _d = {
             "content": None,
             "embeds": {},
-            "message_reference": {
-                "message_id": self.id
-            }
+            "message_reference": {"message_id": self.id},
         }
 
         content = str(content)
@@ -507,7 +514,9 @@ class DmMessage(Message):
                 emoji = emoji.unicode
 
         await _SendingRestHandler.create_reaction(
-            f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me", self.session)
+            f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me",
+            self.session,
+        )
 
         return DisOwnReaction(emoji, self.id, self.channel.id, self._t, self.session)
 
@@ -517,6 +526,7 @@ class DisDmChannel(Channel):
     """
     The class for sending messages to discord DMchannels and fetching messages in DMchannels
     """
+
     def __init__(self, dm_id: dict, __token, __session):
         """
         Init object
@@ -532,9 +542,12 @@ class DisDmChannel(Channel):
         self._t = __token
         self.session = __session
 
-    async def send(self, content: Optional[SupportsStr] = None,
-                   embeds: Optional[List[DisEmbed]] = None,
-                   action_row: Optional[ActionRow] = None) -> Union[DisMessage, None]:
+    async def send(
+        self,
+        content: Optional[SupportsStr] = None,
+        embeds: Optional[List[DisEmbed]] = None,
+        action_row: Optional[ActionRow] = None,
+    ) -> Union[DisMessage, None]:
         """
         Sending messages to discord channel
 
@@ -544,11 +557,7 @@ class DisDmChannel(Channel):
         :param action_row: ActionRow = None -> Action Row with components (default is None)
         :return DisMessage: Message which was sended
         """
-        _payload = {
-            "content": None,
-            "embeds": None,
-            "components": None
-        }
+        _payload = {"content": None, "embeds": None, "components": None}
 
         if embeds:
             embeds_json = []
@@ -594,15 +603,17 @@ class MessageDeleteEvent:
     """
     MESSAGE_DELETE event class with info about event
     """
+
     def __init__(self, data: dict, token: str, session):
-        self.message_id = data['id']
-        self.channel = DisChannel(data['channel_id'], token, session)
+        self.message_id = data["id"]
+        self.channel = DisChannel(data["channel_id"], token, session)
 
 
 class DmMessageDeleteEvent:
     """
     MESSAGE_DELETE event class with info about event, but in DM channel
     """
+
     def __init__(self, data: dict, token: str, session):
-        self.message_id = data['id']
-        self.channel = DisDmChannel(data['channel_id'], token, session)
+        self.message_id = data["id"]
+        self.channel = DisDmChannel(data["channel_id"], token, session)

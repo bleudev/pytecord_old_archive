@@ -22,17 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import (
-    final,
-    Text,
-    ClassVar,
-    Dict
-)
+from typing import final, Text, ClassVar, Dict
 
-from asyncio import (
-    wait,
-    sleep
-)
+from asyncio import wait, sleep
 from datetime import datetime
 from time import mktime
 import colorama
@@ -45,13 +37,9 @@ from disspy.channel import (
     MessageDeleteEvent,
     DmMessageDeleteEvent,
     DisChannel,
-    DisDmChannel
+    DisDmChannel,
 )
-from disspy.reaction import (
-    DisEmoji,
-    DisReaction,
-    DisRemovedReaction
-)
+from disspy.reaction import DisEmoji, DisReaction, DisRemovedReaction
 from disspy.user import DisUser
 
 
@@ -59,6 +47,7 @@ class Opcodes:
     """
     Flow Event Opcodes (see Discord Developer Portal docs (topics Gateway)
     """
+
     DISPATCH: ClassVar[int] = 0
     HEARTBEAT: ClassVar[int] = 1
     IDENTIFY: ClassVar[int] = 2
@@ -79,26 +68,28 @@ class Opcodes:
         :return Dict[int, str]: Rotated dict
         """
         return {
-            0:  "DISPATCH",
-            1:  "HEARTBEAT",
-            2:  "IDENTIFY",
-            3:  "PRESENCE UPDATE",
-            4:  "VOICE STATE UPDATE",
-            6:  "RESUME",
-            7:  "RECONNECT",
-            8:  "REQUEST GUILD MEMBERS",
-            9:  "INVALID SESSION",
+            0: "DISPATCH",
+            1: "HEARTBEAT",
+            2: "IDENTIFY",
+            3: "PRESENCE UPDATE",
+            4: "VOICE STATE UPDATE",
+            6: "RESUME",
+            7: "RECONNECT",
+            8: "REQUEST GUILD MEMBERS",
+            9: "INVALID SESSION",
             10: "HELLO",
-            11: "HEARTBEAT ACK"
+            11: "HEARTBEAT ACK",
         }
 
 
 colorama.init()  # Init Colorama
 
+
 class _DebugLoggingWebsocket:
     """
     Debug tool for Websocket
     """
+
     def __new__(cls, *args, **kwargs) -> Text:
         _data: dict = args[0]
 
@@ -175,7 +166,7 @@ class _DebugLoggingAwaiting:
         _result = f"{colorama.Fore.CYAN}[{_date}: {_time}]{colorama.Fore.RESET} "
 
         _result += f'{colorama.Fore.RED}Awaiting event "{gateway_event_name}": '
-        _result += f'{colorama.Fore.YELLOW}{event_name}(){colorama.Fore.RESET}'
+        _result += f"{colorama.Fore.YELLOW}{event_name}(){colorama.Fore.RESET}"
 
         return _result
 
@@ -205,16 +196,9 @@ class _Event:
         except TypeError:
             self.type = "ERROR"
             self.session = None
-            self.data = {
-                "type": "json data is not dict!"
-            }
+            self.data = {"type": "json data is not dict!"}
             self.opcode = 0
-            self.json = {
-                "t": "ERROR",
-                "s": None,
-                "d": {},
-                "op": 0
-            }
+            self.json = {"t": "ERROR", "s": None, "d": {}, "op": 0}
 
 
 @final
@@ -222,6 +206,7 @@ class DispyWebhook:
     """
     Flow class was created for opening and working with Discord Gateway
     """
+
     __classname__: str = "Flow"
 
     def __init__(self, gateway_version: int, token: str, intents: int):
@@ -305,9 +290,13 @@ class DispyWebhook:
         if self._debug:
             try:
                 if j["t"]:
-                    print(_DebugLoggingWebsocket(j, send=False, isevent=True, op=j["op"]))
+                    print(
+                        _DebugLoggingWebsocket(j, send=False, isevent=True, op=j["op"])
+                    )
                 else:
-                    print(_DebugLoggingWebsocket(j, send=False, isevent=False, op=j["op"]))
+                    print(
+                        _DebugLoggingWebsocket(j, send=False, isevent=False, op=j["op"])
+                    )
             except KeyError:
                 print(_DebugLoggingWebsocket(j, send=False, isevent=False, op=j["op"]))
 
@@ -344,35 +333,44 @@ class DispyWebhook:
 
     async def _runner(self):
         async with self.session.ws_connect(
-            f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json") as websocket:
+            f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json"
+        ) as websocket:
             self.websocket = websocket
 
             j = await self.get_responce(websocket)
 
             interval = j["d"]["heartbeat_interval"]
 
-
-            await self.send_request({"op": 2, "d": {
-                "token": self.token,
-                "intents": self.intents,
-                "properties": {
-                    "$os": "linux",
-                    "$browser": "disspy",
-                    "$device": "disspy"
+            await self.send_request(
+                {
+                    "op": 2,
+                    "d": {
+                        "token": self.token,
+                        "intents": self.intents,
+                        "properties": {
+                            "$os": "linux",
+                            "$browser": "disspy",
+                            "$device": "disspy",
+                        },
+                        "presence": {
+                            "since": mktime(datetime.now().timetuple()) * 1000,
+                            "afk": self.isafk,
+                            "status": self.status,
+                            "activities": [self.activity],
+                        },
+                    },
                 },
-                "presence": {
-                    "since": mktime(datetime.now().timetuple()) * 1000,
-                    "afk": self.isafk,
-                    "status": self.status,
-                    "activities": [self.activity]
-                }
-            }}, websocket)
+                websocket,
+            )
 
             self.isrunning = True
 
             await wait(
-                fs=[self.heartbeat(websocket, interval / 1000),
-                    self._events_checker(websocket)])  # Run Gateway client
+                fs=[
+                    self.heartbeat(websocket, interval / 1000),
+                    self._events_checker(websocket),
+                ]
+            )  # Run Gateway client
 
     async def heartbeat(self, websocket, interval):
         """heartbeat
@@ -424,24 +422,35 @@ class DispyWebhook:
                             if j["type"] == 0:
                                 _m = DisMessage(event.data, self.token, self.session)
 
-                                if int(event.data["channel_id"]) == int(self.on_channel__id):
+                                if int(event.data["channel_id"]) == int(
+                                    self.on_channel__id
+                                ):
                                     await self.on_channel(_m)
 
                                     if self._debug:
-                                        print(_DebugLoggingAwaiting(event.type, "on_channel"))
-
+                                        print(
+                                            _DebugLoggingAwaiting(
+                                                event.type, "on_channel"
+                                            )
+                                        )
 
                                 await self.ons["messagec"](_m)
 
                                 if self._debug:
-                                    print(_DebugLoggingAwaiting(event.type, "on_messagec"))
+                                    print(
+                                        _DebugLoggingAwaiting(event.type, "on_messagec")
+                                    )
                             elif j["type"] == 1:
                                 _m = DmMessage(event.data, self.token, self.session)
 
                                 await self.ons["dmessagec"](_m)
 
                                 if self._debug:
-                                    print(_DebugLoggingAwaiting(event.type, "on_dmessagec"))
+                                    print(
+                                        _DebugLoggingAwaiting(
+                                            event.type, "on_dmessagec"
+                                        )
+                                    )
 
                 elif event.type == "MESSAGE_UPDATE":
                     _u: str = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
@@ -456,14 +465,20 @@ class DispyWebhook:
                                 await self.ons["messageu"](_m)
 
                                 if self._debug:
-                                    print(_DebugLoggingAwaiting(event.type, "on_messageu"))
+                                    print(
+                                        _DebugLoggingAwaiting(event.type, "on_messageu")
+                                    )
                             elif j["type"] == 1:
                                 _m = DmMessage(event.data, self.token, self.session)
 
                                 await self.ons["dmessageu"](_m)
 
                                 if self._debug:
-                                    print(_DebugLoggingAwaiting(event.type, "on_dmessageu"))
+                                    print(
+                                        _DebugLoggingAwaiting(
+                                            event.type, "on_dmessageu"
+                                        )
+                                    )
 
                 elif event.type == "MESSAGE_DELETE":
                     _u = f"https://discord.com/api/v10/channels/{event.data['channel_id']}"
@@ -472,14 +487,18 @@ class DispyWebhook:
                         j = await data.json()
 
                         if j["type"] == 0:
-                            _e = MessageDeleteEvent(event.data, self.token, self.session)
+                            _e = MessageDeleteEvent(
+                                event.data, self.token, self.session
+                            )
 
                             await self.ons["messaged"](_e)
 
                             if self._debug:
                                 print(_DebugLoggingAwaiting(event.type, "on_messaged"))
                         elif j["type"] == 1:
-                            _e = DmMessageDeleteEvent(event.data, self.token, self.session)
+                            _e = DmMessageDeleteEvent(
+                                event.data, self.token, self.session
+                            )
 
                             await self.ons["dmessaged"](_e)
 
@@ -546,9 +565,12 @@ class DispyWebhook:
                 elif event.type == "TYPING_START":
                     try:
                         if event.data["guild_id"]:
-                            _u: DisUser = DisUser(event.data["member"]["user"], self.token)
-                            _c: DisChannel = DisChannel(event.data["channel_id"], self.token,
-                                                        self.session)
+                            _u: DisUser = DisUser(
+                                event.data["member"]["user"], self.token
+                            )
+                            _c: DisChannel = DisChannel(
+                                event.data["channel_id"], self.token, self.session
+                            )
 
                             await self.ons["typing"](_u, _c)
 
@@ -557,13 +579,14 @@ class DispyWebhook:
                         else:
                             _u_id = event.data["user_id"]
 
-                            _url = f'https://discord.com/api/v10/users/{str(_u_id)}'
+                            _url = f"https://discord.com/api/v10/users/{str(_u_id)}"
 
                             _u_json = get(url=_url, headers=self._headers).json()
 
                             _u: DisUser = DisUser(_u_json, self.token)
-                            _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token,
-                                                            self.session)
+                            _c: DisDmChannel = DisDmChannel(
+                                event.data["channel_id"], self.token, self.session
+                            )
 
                             await self.ons["dm_typing"](_u, _c)
 
@@ -572,13 +595,14 @@ class DispyWebhook:
                     except KeyError:
                         _u_id = event.data["user_id"]
 
-                        _url = f'https://discord.com/api/v10/users/{str(_u_id)}'
+                        _url = f"https://discord.com/api/v10/users/{str(_u_id)}"
 
                         _u_json = get(url=_url, headers=self._headers).json()
 
                         _u: DisUser = DisUser(_u_json, self.token)
-                        _c: DisDmChannel = DisDmChannel(event.data["channel_id"], self.token,
-                                                        self.session)
+                        _c: DisDmChannel = DisDmChannel(
+                            event.data["channel_id"], self.token, self.session
+                        )
 
                         await self.ons["dm_typing"](_u, _c)
 

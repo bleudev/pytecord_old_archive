@@ -22,25 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import (
-    Optional,
-    List,
-    Any,
-    ClassVar,
-    final,
-    Protocol
-)
+from typing import Optional, List, Any, ClassVar, final, Protocol
 from abc import ABC, abstractmethod
 from enum import Enum, auto, unique
 
 from disspy.typ import SupportsStr
 
-__all__: tuple = (
-    "Messageable",
-    "Channel",
-    "Thread",
-    "Message"
-)
+__all__: tuple = ("Messageable", "Channel", "Thread", "Message")
 
 
 class _AutoValue(Enum):
@@ -49,6 +37,7 @@ class _AutoValue(Enum):
             return count + 1
 
         return count
+
 
 @final
 @unique
@@ -85,8 +74,13 @@ class Messageable(Protocol):
 
     (Protocol)
     """
-    async def send(self, content: Optional[SupportsStr] = None, embeds: Optional[List[Any]] = None,
-                   action_row: Optional[Any] = None):
+
+    async def send(
+        self,
+        content: Optional[SupportsStr] = None,
+        embeds: Optional[List[Any]] = None,
+        action_row: Optional[Any] = None,
+    ):
         """send
         Send message
 
@@ -101,9 +95,14 @@ class Channel(ABC, Messageable):
 
     (Abstract class)
     """
+
     @abstractmethod
-    async def send(self, content: Optional[SupportsStr] = None, embeds: Optional[List[Any]] = None,
-                   action_row: Optional[Any] = None) -> Any:
+    async def send(
+        self,
+        content: Optional[SupportsStr] = None,
+        embeds: Optional[List[Any]] = None,
+        action_row: Optional[Any] = None,
+    ) -> Any:
         """send
         Send message in channel
 
@@ -124,8 +123,10 @@ class Thread(ABC, Messageable):
 
     (Abstract class)
     """
+
     def __init__(self) -> None:
         return
+
 
 class Message(ABC):
     """Message
@@ -133,6 +134,7 @@ class Message(ABC):
 
     (Abstract class)
     """
+
     def __init__(self, message_type: int, is_dm: bool = False) -> None:
         super().__init__()
 
@@ -140,8 +142,9 @@ class Message(ABC):
         self._is_dm = is_dm
 
     @abstractmethod
-    async def reply(self, content: Optional[SupportsStr] = None,
-                    embeds: Optional[List[Any]] = None):
+    async def reply(
+        self, content: Optional[SupportsStr] = None, embeds: Optional[List[Any]] = None
+    ):
         """reply
         Reply to message
 

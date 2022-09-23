@@ -39,17 +39,13 @@ class _EmbedGenerator:
             "author": obj.author,
             "thumbnail": obj.sprite_components.thumbnail,
             "image": obj.sprite_components.image,
-            "url": obj.url
+            "url": obj.url,
         }
 
 
 class _FieldGenerator:
     def __new__(cls, obj):
-        return {
-            "name": obj.name,
-            "value": obj.value,
-            "inline": obj.inline
-        }
+        return {"name": obj.name, "value": obj.value, "inline": obj.inline}
 
 
 class _OptionGenerator:
@@ -60,12 +56,12 @@ class _OptionGenerator:
                 "description": obj.description,
                 "type": obj.option_type,
                 "choices": obj.choices,
-                "required": obj.required
+                "required": obj.required,
             }
 
         return {
             "name": obj.name,
             "description": obj.description,
             "type": obj.option_type,
-            "required": obj.required
+            "required": obj.required,
         }

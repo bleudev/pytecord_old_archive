@@ -22,27 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import (
-    Optional
-)
+from typing import Optional
 from aiohttp import ClientSession
 
 from disspy.user import DisUser
 
-__all__: tuple = (
-    "DisEmoji",
-    "DisOwnReaction",
-    "DisReaction",
-    "DisRemovedReaction"
-)
+__all__: tuple = ("DisEmoji", "DisOwnReaction", "DisReaction", "DisRemovedReaction")
 
 
 class DisEmoji:
     """
     Emoji for reaction and other things
     """
-    def __init__(self, unicode: Optional[str] = None, name: Optional[str] = None,
-                 emoji_id: Optional[int] = None) -> None:
+
+    def __init__(
+        self,
+        unicode: Optional[str] = None,
+        name: Optional[str] = None,
+        emoji_id: Optional[int] = None,
+    ) -> None:
         self.unicode = unicode
         self.name = name
         self.emoji_id = emoji_id
@@ -60,7 +58,10 @@ class DisOwnReaction:
     """
     Bot's own reaction
     """
-    def __init__(self, emoji: str, message_id, channel_id, token, session: ClientSession):
+
+    def __init__(
+        self, emoji: str, message_id, channel_id, token, session: ClientSession
+    ):
         self.emoji = emoji
         _mainurl = "https://discord.com/api/v10/"
         self._u = f"{_mainurl}channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
@@ -80,8 +81,16 @@ class DisReaction:
     """
     Reaction
     """
-    def __init__(self, user: DisUser, message_id: int, channel_id: int,
-                 guild_id: int, emoji: DisEmoji, token: str) -> None:
+
+    def __init__(
+        self,
+        user: DisUser,
+        message_id: int,
+        channel_id: int,
+        guild_id: int,
+        emoji: DisEmoji,
+        token: str,
+    ) -> None:
         self.user = user
         self.message_id = message_id
         self.channel_id = channel_id
@@ -94,8 +103,15 @@ class DisRemovedReaction:
     """
     Removed reaction
     """
-    def __init__(self, message_id: int, channel_id: int, guild_id: int, emoji: DisEmoji,
-                 token: str) -> None:
+
+    def __init__(
+        self,
+        message_id: int,
+        channel_id: int,
+        guild_id: int,
+        emoji: DisEmoji,
+        token: str,
+    ) -> None:
         self.message_id = message_id
         self.channel_id = channel_id
         self.guild_id = guild_id

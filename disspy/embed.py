@@ -25,15 +25,9 @@ SOFTWARE.
 # Imports
 from random import random
 from math import floor
-from typing import (
-    List
-)
+from typing import List
 
-__all__: tuple = (
-    "DisColor",
-    "DisField",
-    "DisEmbed"
-)
+__all__: tuple = ("DisColor", "DisField", "DisEmbed")
 
 
 class DisColor:
@@ -102,8 +96,8 @@ class DisColor:
         Returns:
             int: color
         """
-        if hex_color.startswith('#'):
-            hex_color = hex_color.replace('#', '')
+        if hex_color.startswith("#"):
+            hex_color = hex_color.replace("#", "")
 
             if hex_color.isdigit():
                 return int(hex_color, 16)
@@ -117,6 +111,7 @@ class DisField:
     """DisField
     Fields for embeds
     """
+
     def __init__(self, name: str, value: str, inline: bool = True):
         self.name = name
         self.value = value
@@ -178,14 +173,19 @@ class DisEmbed:
     """DisEmbed
     Embeds for messages
     """
-    def __init__(self, title: str, *, description: str = None, color: int = DisColor.DEFAULT,
-                 footer: str = None) -> None:
+
+    def __init__(
+        self,
+        title: str,
+        *,
+        description: str = None,
+        color: int = DisColor.DEFAULT,
+        footer: str = None,
+    ) -> None:
         self.title: str = title
         self.description: str = description
         self.color: str = color
-        self.footer: str = {
-            "text": footer
-        }
+        self.footer: str = {"text": footer}
         self.author: dict = None
 
         self.sprite_components = _SpriteComponents()
@@ -218,8 +218,13 @@ class DisEmbed:
         """
         self.fields.append(field)
 
-    def set_author(self, name: str, url: str = None, icon_url: str = None,
-                   proxy_icon_url: str = None) -> None:
+    def set_author(
+        self,
+        name: str,
+        url: str = None,
+        icon_url: str = None,
+        proxy_icon_url: str = None,
+    ) -> None:
         """set_author
         Set author for embed
 
@@ -236,11 +241,12 @@ class DisEmbed:
             "name": name,
             "url": url,
             "icon_url": icon_url,
-            "proxy_icon_url": proxy_icon_url
+            "proxy_icon_url": proxy_icon_url,
         }
 
-    def set_thumbnail(self, url: str, proxy_url: str = None,
-                      height: int = None, width: int = None) -> None:
+    def set_thumbnail(
+        self, url: str, proxy_url: str = None, height: int = None, width: int = None
+    ) -> None:
         """set_thumbnail
         Set thumbnail for embed
 
@@ -253,15 +259,13 @@ class DisEmbed:
         Returns:
             None
         """
-        self.sprite_components.set_thumbnail({
-            "url": url,
-            "proxy_url": proxy_url,
-            "height": height,
-            "width": width
-        })
+        self.sprite_components.set_thumbnail(
+            {"url": url, "proxy_url": proxy_url, "height": height, "width": width}
+        )
 
-    def set_image(self, url: str, proxy_url: str = None,
-                  height: int = None, width: int = None) -> None:
+    def set_image(
+        self, url: str, proxy_url: str = None, height: int = None, width: int = None
+    ) -> None:
         """set_image
         Set image for embed
 
@@ -274,12 +278,9 @@ class DisEmbed:
         Returns:
             None
         """
-        self.sprite_components.set_image({
-            "url": url,
-            "proxy_url": proxy_url,
-            "height": height,
-            "width": width
-        })
+        self.sprite_components.set_image(
+            {"url": url, "proxy_url": proxy_url, "height": height, "width": width}
+        )
 
     def tojson(self) -> dict:
         """tojson
@@ -301,7 +302,7 @@ class DisEmbed:
             "fields": fields_jsons,
             "author": self.author,
             "thumbnail": self.sprite_components.thumbnail,
-            "image": self.sprite_components.image
+            "image": self.sprite_components.image,
         }
 
         return embed_json

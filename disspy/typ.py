@@ -23,9 +23,7 @@ SOFTWARE.
 """
 
 from abc import abstractmethod
-from typing import (
-    Protocol
-)
+from typing import Protocol
 
 
 class TypeOf:
@@ -52,6 +50,7 @@ class Event:
 
     Ex, Event(DisBotEventType, str)
     """
+
     def __new__(cls, *args) -> list:
         return list(args)[1]
 
@@ -60,6 +59,7 @@ class SupportsStr(Protocol):
     """SupportsStr
     Protocol with __str__() method
     """
+
     @abstractmethod
     def __str__(self) -> str:
         pass
