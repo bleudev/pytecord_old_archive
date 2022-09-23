@@ -54,6 +54,7 @@ from disspy.app_commands import (
     BoolOption,
     UserOption,
     ChannelOption,
+    Localization,
 )
 from disspy.channel import (
     DisChannel,

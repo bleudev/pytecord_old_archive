@@ -27,6 +27,7 @@ from json import dumps
 import aiohttp
 
 from disspy.ui import ActionRow
+from disspy.utils import dict_to_tuples
 
 __all__: tuple = (
     "ApplicationCommandType",
@@ -150,7 +151,15 @@ class _OptionsMethods:
 
 
 class Localization:
-    pass  # soon
+    def __init__(self, *, name: str, description: str) -> None:
+        self.name = name
+        self.description = description
+
+    def json(self) -> dict:
+        return {
+            "name": self.name,
+            "description": self.description
+        }
 
 
 options = _OptionsMethods()
@@ -177,6 +186,38 @@ def describe(description: str):
         except TypeError:
             return ({"description": description}, func)
 
+    return wrapper
+
+def localize(**localizations: Dict[str, Localization]):
+    parsed_info = {
+        "name_localizations": {},
+        "description_localizations": {}
+    }
+    _localizations: list[tuple[str, Localization]] = dict_to_tuples(localizations)
+    
+    for lang, localization in _localizations:
+        _json = localization.json()
+
+        # Name
+        _name = _json["name"]
+        parsed_info["name_localizations"].setdefault(lang, _name)
+        
+        # Description
+        _description = _json["description"]
+        parsed_info["description_localizations"].setdefault(lang, _description)
+
+    def wrapper(func):
+        try:
+            to_edit = parsed_info
+
+            for key in list(func[0].keys()):
+                val = func[0][key]
+
+                to_edit.setdefault(key, val)
+
+            return (to_edit, func[1])
+        except TypeError:
+            return (parsed_info, func)
     return wrapper
 
 
