@@ -20,12 +20,14 @@ async def hello(ctx: disspy.Context):
 
 # Example command with options
 @bot.command()
-@app_commands.describe("bar")
-@app_commands.options.describe(foo=StrOption().set_description("bar").required())
-async def foo(ctx: disspy.Context):
-    a = ctx.args.get_string("foo")
-
-    await ctx.respond(a)
+@app_commands.describe("Bar")
+@app_commands.options.describe(foo=StrOption().set_description("Foo").required(),
+                               foo2=StrOption().set_description("Foo 2"))
+async def foo(ctx: disspy.Context, foo: str, foo2: str = None):
+    if foo2:
+        await ctx.respond(f"{foo}\n{foo2}")
+    else:
+        await ctx.respond(foo)
 
 
 # Example context menus
