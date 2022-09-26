@@ -374,7 +374,8 @@ class Context:
 
     async def respond(
         self,
-        content: str,
+        *args,
+        sep: Optional[str] = "\n",
         action_row: Optional[ActionRow] = None,
         ephemeral: bool = False,
     ) -> None:
@@ -385,6 +386,12 @@ class Context:
         :return None:
         """
         _payload = {}
+        content = ""
+        
+        if list(args):
+            for i in list(args):
+                content += (str(i) + sep)
+            content = content[0:len(content) - len(sep)]
 
         if ephemeral:
             if action_row:

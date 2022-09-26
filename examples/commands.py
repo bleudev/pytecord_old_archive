@@ -25,7 +25,7 @@ async def hello(ctx: disspy.Context):
                                foo2=StrOption().set_description("Foo 2"))
 async def foo(ctx: disspy.Context, foo: str, foo2: str = None):
     if foo2:
-        await ctx.respond(f"{foo}\n{foo2}")
+        await ctx.respond(foo, foo2)
     else:
         await ctx.respond(foo)
 
