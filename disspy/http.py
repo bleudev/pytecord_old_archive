@@ -431,21 +431,19 @@ class DisApi:
             await callback(ctx)
 
         async def options():
-            values = []
+            values = {}
 
             for i in command["options"]:
 
-                def append_arg(val, i=i):
-                    values.append(_Argument(i["name"], i["type"], val))
+                def append_arg(key, value):
+                    values.setdefault(key, value)
 
                 try:
-                    append_arg(i["value"])
+                    append_arg(i["name"], i["value"])
                 except KeyError:
-                    append_arg(None)
+                    pass
 
-            ctx.args = OptionArgs(values)
-
-            await callback(ctx)
+            await callback(ctx, **values)
 
         if command["type"] == 1:  # Slash command
             try:
