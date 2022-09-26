@@ -40,7 +40,6 @@ __all__: tuple = (
     "UserOption",
     "OptionType",
     "Context",
-    "OptionArgs",
 )
 
 
@@ -358,114 +357,6 @@ class ChannelOption(Option):
 
 
 @final
-class _Argument:
-    def __init__(self, name: str, option_type: int, value: Any) -> None:
-        self.name: str = name
-        self.type: int = option_type
-        self.value: Any = value
-
-
-@final
-class OptionArgs:
-    """
-    Class for receiving option values in interactions
-
-    Example
-    @bot.slash_command("Test", "Wow", options=[Option("Hi", "lol", OptionType.STRING)])
-    async def test(ctx: Context, args: OptionArgs):
-        await ctx.send(args.getString("Hi"))
-    """
-
-    def __init__(self, values: Optional[List[_Argument]] = None) -> None:
-        """
-        Init object
-        -----
-        :param values: Option Values
-        """
-        if values is None:
-            values = []
-        self._v: List[_Argument] = values
-
-    def isempty(self) -> bool:
-        """
-        Returns True or False when is empty is True or False
-
-        :return bool: Is empty?
-        """
-        return len(self._v) == 0
-
-    @property
-    def options_args(self) -> List[_Argument]:
-        """options_args
-        Get options args
-
-        Returns:
-            List[_Argument]: Option args
-        """
-        return self._v
-
-    def get(self, name: str) -> Union[Any, None]:
-        """
-        Get value from name
-
-        :param name: Name of option
-        :return Any: Option value
-        """
-        for _a in self._v:
-            if _a.name == name:
-                return _a.value
-        return None
-
-    def get_string(self, name: str) -> Union[str, None]:
-        """
-        Get string value from name
-
-        :param name: Name of option
-        :return str: Option value (always string)
-        """
-        for _a in self._v:
-            if _a.name == name and _a.type == OptionType.STRING:
-                return str(_a.value)
-        return None
-
-    def get_integer(self, name: str) -> Union[int, None]:
-        """
-        Get integer value from na1me
-
-        :param name: Name of option
-        :return int: Option value (always integer)
-        """
-        for _a in self._v:
-            if _a.name == name and _a.type == OptionType.INTEGER:
-                return int(_a.value)
-        return None
-
-    def get_number(self, name: str) -> Union[int, None]:
-        """
-        Get number value from name
-
-        :param name: Name of option
-        :return int: Option value (always integer)
-        """
-        for _a in self._v:
-            if _a.name == name and _a.type == OptionType.NUMBER:
-                return int(_a.value)
-        return None
-
-    def get_boolean(self, name: str) -> Union[bool, None]:
-        """
-        Get boolean value from name
-
-        :param name: Name of option
-        :return bool: Option value (always boolean)
-        """
-        for _a in self._v:
-            if _a.name == name and _a.type == OptionType.BOOLEAN:
-                return bool(_a.value)
-        return None
-
-
-@final
 class Context:
     """
     Class for receiving interaction content and sending messages to users
@@ -474,13 +365,12 @@ class Context:
     """
 
     def __init__(
-        self, interaction_info: Tuple[str, int], bot_token, args: OptionArgs = None
+        self, interaction_info: Tuple[str, int], bot_token
     ) -> None:
         self._interaction_token: str = str(list(interaction_info)[0])
         self._interaction_id: int = int(list(interaction_info)[1])
 
         self._t = bot_token
-        self.args = args
 
     async def respond(
         self,

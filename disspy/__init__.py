@@ -47,7 +47,6 @@ from disspy.app_commands import (
     Context,
     Option,
     OptionType,
-    OptionArgs,
     StrOption,
     IntOption,
     NumOption,

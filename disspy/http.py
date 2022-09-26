@@ -48,7 +48,7 @@ from disspy.channel import DisChannel, DisDmChannel, DisMessage
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.guild import DisGuild
 from disspy.user import DisUser
-from disspy.app_commands import Context, _Argument, OptionArgs
+from disspy.app_commands import Context
 from disspy.webhook import DispyWebhook
 
 JsonOutput = NewType("JsonOutput", Dict[str, Any])
@@ -426,8 +426,6 @@ class DisApi:
         callback = self.app_commands[command["type"] - 1][command["name"]]
 
         async def no_options():
-            ctx.args = OptionArgs()
-
             await callback(ctx)
 
         async def options():
