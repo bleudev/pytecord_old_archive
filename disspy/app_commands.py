@@ -48,7 +48,7 @@ class Option:
     Class for using options in application commands (TEXT_INPUT)
     """
 
-    def __init__(self, option_type: int) -> None:
+    def __init__(self, type: int) -> None:
         """__init__
         Create option object
 
@@ -58,9 +58,9 @@ class Option:
         Returns:
             None
         """
-        self.description: str = "No description"
-        self.option_type: int = option_type
-        self.choices: Union[List[dict], None] = []
+        self.option_description: str = "No description"
+        self.option_type: int = type
+        self.option_choices: Union[List[dict], None] = []
         self.is_required: bool = False
 
     def required(self):
@@ -72,12 +72,12 @@ class Option:
         """
         option = Option(self.option_type)
         option.is_required = True
-        option.choices = self.choices
-        option.description = self.description
+        option.option_choices = self.option_choices
+        option.option_description = self.option_description
 
         return option
 
-    def set_description(self, text: str):
+    def description(self, text: str):
         """set_description
         Set description to this option
 
@@ -89,12 +89,12 @@ class Option:
         """
         option = Option(self.option_type)
         option.is_required = self.is_required
-        option.choices = self.choices
-        option.description = text
+        option.option_choices = self.option_choices
+        option.option_description = text
 
         return option
 
-    def set_choices(self, choices: List[dict]):
+    def choices(self, choices: List[dict]):
         """set_choices
         Set choices to this option
 
@@ -106,8 +106,8 @@ class Option:
         """
         option = Option(self.option_type)
         option.is_required = self.is_required
-        option.choices = choices
-        option.description = self.description
+        option.option_choices = choices
+        option.option_description = self.option_description
 
         return option
 
@@ -129,9 +129,9 @@ class _OptionsMethods:
                     {
                         "name": name,
                         "type": value.option_type,
-                        "description": value.description,
+                        "description": value.option_description,
                         "required": value.is_required,
-                        "choices": value.choices,
+                        "choices": value.option_choices,
                     }
                 )
             try:
