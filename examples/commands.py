@@ -34,7 +34,7 @@ async def foo(ctx: disspy.Context, foo: str, foo2: str = None):
 # Message context menu
 @bot.context_menu()
 async def info(ctx: disspy.Context, message: disspy.DisMessage):
-    await ctx.respond(f"Content: {message.content}\nChannel id: {message.channel.id}\nId: {message.id}")
+    await ctx.respond(f"Content: {message.content}", f"Channel id: {message.channel.id}", f"Id: {message.id}")
 
 
 # User context menu
