@@ -81,3 +81,4 @@ python3 -m pip install -U .
 <p><a href="https://github.com/itttgg/dispy">https://github.com/itttgg/dispy</a> - GitHub repo</p>
 <p><a href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</a> - Project site on PyPi</p>
 <p><a href="https://disspy.readthedocs.io">https://disspy.readthedocs.io</a> - Site with docs for package</p>
+<p><a href="https://discord.gg/QsE5DSQrsx">https://discord.gg/QsE5DSQrsx</a> - Discord server</p>
