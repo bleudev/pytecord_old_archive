@@ -43,6 +43,15 @@ __all__: tuple = (
 )
 
 
+class Choice:
+    """
+    Class for using choices in options (STRING, INTEGER, NUMBER types only)
+    """
+    def __init__(self, name: str, value: Union[str, int, float]) -> None:
+        self.name = value
+        self.value = value
+
+
 class Option:
     """
     Class for using options in application commands (TEXT_INPUT)
@@ -94,7 +103,7 @@ class Option:
 
         return option
 
-    def choices(self, choices: List[dict]):
+    def choices(self, choices: List[Choice]):
         """set_choices
         Set choices to this option
 
@@ -104,10 +113,29 @@ class Option:
         Returns:
             Option: New option
         """
+        assert (self.option_type in [3, 4, 10]), "For using choices a your option must have STRING, INTEGER or NUMBER type!"
+
         option = Option(self.option_type)
         option.is_required = self.is_required
-        option.option_choices = choices
         option.option_description = self.option_description
+
+        json_choices = []
+
+        for i in choices:
+            option_types = {
+                3: str,
+                4: int,
+                10: float
+            }
+            option_type = option_types[self.option_type]
+
+            assert isinstance(i.value, option_type), "A your value type must be equal with a your option type!"
+            json_choices.append({
+                "name": i.name,
+                "value": i.value
+            })
+
+        option.option_choices = json_choices
 
         return option
 
