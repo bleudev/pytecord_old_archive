@@ -39,36 +39,42 @@ on your server, creating mini games in discord, auto moderation in your discord 
 For example, you can reply to message that is sended by any user using this code:
 
 ```python
-import disspy  # Import package
+from disspy import DisBot, DisMessage  # Import package
+import os
 
-bot = disspy.DisBot(token="YOUR_TOKEN")  # Create a bot
+TOKEN = os.environ["TOKEN"]
+bot = DisBot(token=TOKEN)  # Create a bot
 
-@bot.on_message("create")
-async def on_messagec(message: disspy.DisMessage):
-    await message.reply("Hello, world!")  # Reply to message
+@bot.on_message("create")  # On message create
+async def on_messagec(message: DisMessage):  # message - sended message
+    await message.reply("Hello, world!")  # Reply to a message
 
-bot.run()  # Run discord in Gateway
+bot.run()  # Run bot in Gateway
 ```
 
 # Download package
-## Download latest version
+## Download latest version (needs pip)
 
 ```command
 # Windows
 pip install -U disspy
 
-# MacOS
-py3 -m pip install -U disspy
-
-# Linux
-sudo pip install -U disspy
+# MacOS / Lunix
+python3 -m pip install -U disspy
 ```
 
-## Download dev version (needs git)
+## Download dev version (needs git and pip)
+
 ```command
+# Windows
 git clone https://github.com/itttgg/dispy.git
 cd dispy
 pip install -U .
+
+# MacOs / Lunix
+git clone https://github.com/itttgg/dispy.git
+cd dispy
+python3 -m pip install -U .
 ```
 
 # Links
