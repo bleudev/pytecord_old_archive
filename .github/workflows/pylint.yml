@@ -2,9 +2,13 @@ name: Pylint
 
 on:
   push:
+    paths:
+      - '**.py'
     branches:
       - master
   pull_request:
+    paths:
+      - '**.py'
     branches:
       - master
 
