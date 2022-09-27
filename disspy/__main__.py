@@ -25,26 +25,26 @@ SOFTWARE.
 from sys import argv
 from . import __version__
 
+def cli_print(string: str) -> None:
+    """cli_print
+    CLI print
+
+    Args:
+        string (str): message to print
+    Returns:
+        None
+    """
+    endl = '\n'
+    print(endl, string, sep="")
+
 try:
     _op = argv[1]
 
-    if _op in ["-version", "-V"]:
-        print(
-            f"""
-        Dispy v{__version__}
-        """
-        )
+    if _op in ["--version", "-V"]:
+        cli_print(f"Dispy v{__version__}")
 
     else:
-        print(
-            """
-        Invalid command!
-        """
-        )
+        cli_print("Invalid command!")
 
 except IndexError:
-    print(
-        """
-        Please type any command!
-        """
-    )
+    cli_print("Please type any command!")
