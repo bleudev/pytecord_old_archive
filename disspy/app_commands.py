@@ -47,6 +47,7 @@ class Choice:
     """
     Class for using choices in options (STRING, INTEGER, NUMBER types only)
     """
+
     def __init__(self, name: str, value: Union[str, int, float]) -> None:
         self.name = value
         self.value = value
@@ -113,7 +114,11 @@ class Option:
         Returns:
             Option: New option
         """
-        assert (self.option_type in [3, 4, 10]), "For using choices a your option must have STRING, INTEGER or NUMBER type!"
+        assert self.option_type in [
+            3,
+            4,
+            10,
+        ], "For using choices a your option must have STRING, INTEGER or NUMBER type!"
 
         option = Option(self.option_type)
         option.is_required = self.is_required
@@ -122,18 +127,13 @@ class Option:
         json_choices = []
 
         for i in choices:
-            option_types = {
-                3: str,
-                4: int,
-                10: float
-            }
+            option_types = {3: str, 4: int, 10: float}
             option_type = option_types[self.option_type]
 
-            assert isinstance(i.value, option_type), "A your value type must be equal with a your option type!"
-            json_choices.append({
-                "name": i.name,
-                "value": i.value
-            })
+            assert isinstance(
+                i.value, option_type
+            ), "A your value type must be equal with a your option type!"
+            json_choices.append({"name": i.name, "value": i.value})
 
         option.option_choices = json_choices
 
@@ -183,10 +183,7 @@ class Localization:
         self.description = description
 
     def json(self) -> dict:
-        return {
-            "name": self.name,
-            "description": self.description
-        }
+        return {"name": self.name, "description": self.description}
 
 
 options = _OptionsMethods()
@@ -215,20 +212,18 @@ def describe(description: str):
 
     return wrapper
 
+
 def localize(**localizations: Dict[str, Localization]):
-    parsed_info = {
-        "name_localizations": {},
-        "description_localizations": {}
-    }
+    parsed_info = {"name_localizations": {}, "description_localizations": {}}
     _localizations: list[tuple[str, Localization]] = dict_to_tuples(localizations)
-    
+
     for lang, localization in _localizations:
         _json = localization.json()
 
         # Name
         _name = _json["name"]
         parsed_info["name_localizations"].setdefault(lang, _name)
-        
+
         # Description
         _description = _json["description"]
         parsed_info["description_localizations"].setdefault(lang, _description)
@@ -245,6 +240,7 @@ def localize(**localizations: Dict[str, Localization]):
             return (to_edit, func[1])
         except TypeError:
             return (parsed_info, func)
+
     return wrapper
 
 
@@ -392,9 +388,7 @@ class Context:
     There are some methods for responding to interaction (Slash Command)
     """
 
-    def __init__(
-        self, interaction_info: Tuple[str, int], bot_token
-    ) -> None:
+    def __init__(self, interaction_info: Tuple[str, int], bot_token) -> None:
         self._interaction_token: str = str(list(interaction_info)[0])
         self._interaction_id: int = int(list(interaction_info)[1])
 
@@ -415,11 +409,11 @@ class Context:
         """
         _payload = {}
         content = ""
-        
+
         if list(args):
             for i in list(args):
-                content += (str(i) + sep)
-            content = content[0:len(content) - len(sep)]
+                content += str(i) + sep
+            content = content[0 : len(content) - len(sep)]
 
         if ephemeral:
             if action_row:
