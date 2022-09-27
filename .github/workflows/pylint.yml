@@ -27,7 +27,4 @@ jobs:
         python -m pip install -r ./requirements.txt
     - name: Analysing the code with pylint
       run: |
-        for file in $(find -name 'disspy/*.py')
-          do
-            pylint --disable=E0401,W0611 "$file" --fail-under=6.0;
-          done
+        pylint $(git ls-files 'disspy/*.py') --fail-under=6.0
