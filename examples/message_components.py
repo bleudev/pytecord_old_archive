@@ -49,6 +49,6 @@ async def info_about_role(ctx: disspy.Context):
         elif value == "moderator":
             await menu_ctx.respond("Moderator is a person who is moderate this server for good chatting")
 
-    await ctx.respond(content="Choose role for info", action_row=ar)
+    await ctx.respond("Choose role for info", action_row=ar)
 
 bot.run()  # Running bot

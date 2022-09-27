@@ -22,20 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import (
-    TypedDict,
-    Optional
-)
+from typing import TypedDict, Optional
 from disspy.typ import MISSING
 
-__all__: tuple = (
-    "Application",
-)
+__all__: tuple = ("Application",)
+
 
 class ApplicationPayload(TypedDict):
     """ApplicationPayload
     Application object payload (typed dict)
     """
+
     id: int
     name: str
     description: str
@@ -48,30 +45,31 @@ class Application:
     """
     Bot application object
     """
+
     def __init__(self, payload: ApplicationPayload) -> None:
-        self.id = payload['id']
+        self.id = payload["id"]
 
         try:
-            self.name = payload['name']
+            self.name = payload["name"]
         except KeyError:
             self.name = MISSING
 
         try:
-            self.description = payload['description']
+            self.description = payload["description"]
         except KeyError:
             self.description = MISSING
 
         try:
-            self.tags = payload['tags']
+            self.tags = payload["tags"]
         except KeyError:
             self.tags = MISSING
 
         try:
-            self.bot_public = payload['bot_public']
+            self.bot_public = payload["bot_public"]
         except KeyError:
             self.bot_public = True
 
         try:
-            self.custom_install_url = payload['custom_install_url']
+            self.custom_install_url = payload["custom_install_url"]
         except KeyError:
             self.custom_install_url = MISSING

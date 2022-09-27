@@ -23,19 +23,10 @@ SOFTWARE.
 """
 
 
-__all__: tuple = (
-    "Activity",
-    "ActivityType"
-)
+__all__: tuple = ("Activity", "ActivityType")
 
 
-from typing import (
-    Dict,
-    Any,
-    Optional,
-    NewType,
-    ClassVar
-)
+from typing import Dict, Any, Optional, NewType, ClassVar
 
 from disspy import errors
 
@@ -43,7 +34,9 @@ Url = NewType("Url", str)
 
 
 def _raise_url_error():
-    _m = "Only https://youtube.com/ or https://twitch.tv/ links supported in Discord API"
+    _m = (
+        "Only https://youtube.com/ or https://twitch.tv/ links supported in Discord API"
+    )
     raise errors.ActivityUrlError(_m)
 
 
@@ -51,7 +44,10 @@ class Activity:
     """
     Activity class for changing activities in Discord
     """
-    def __init__(self, name: str, activity_type: int, url: Optional[Url] = None) -> None:
+
+    def __init__(
+        self, name: str, activity_type: int, url: Optional[Url] = None
+    ) -> None:
         self.name: str = name
         self.activity_type: int = activity_type
         self.url = None
@@ -61,7 +57,9 @@ class Activity:
 
         if url:
             if self.activity_type == 1:  # Streaming
-                if url.startswith('https://twitch.tv/') or url.startswith('https://youtube.com/'):
+                if url.startswith("https://twitch.tv/") or url.startswith(
+                    "https://youtube.com/"
+                ):
                     self.url = url
                 else:
                     _raise_url_error()
@@ -85,16 +83,9 @@ class Activity:
             Dict[str, Any]: Json data of activity
         """
         if self.url:
-            return {
-                "name": self.name,
-                "type": self.activity_type,
-                "url": self.url
-            }
+            return {"name": self.name, "type": self.activity_type, "url": self.url}
 
-        return {
-            "name": self.name,
-            "type": self.activity_type
-        }
+        return {"name": self.name, "type": self.activity_type}
 
 
 class ActivityType:
@@ -108,6 +99,7 @@ class ActivityType:
         WATCHING -> Label "Watching {some_film}"
         COMPETING -> Label "Competing in {some_game}"
     """
+
     GAME: ClassVar[int] = 0
     STREAMING: ClassVar[int] = 1
     LISTENING: ClassVar[int] = 2

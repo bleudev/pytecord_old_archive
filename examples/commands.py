@@ -2,7 +2,7 @@
 Example slash commands
 """
 import disspy
-from disspy import app_commands, StrOption
+from disspy import app_commands, StrOption, IntOption
 
 bot = disspy.DisBot(token="TOKEN")  # Create bot
 
@@ -20,19 +20,21 @@ async def hello(ctx: disspy.Context):
 
 # Example command with options
 @bot.command()
-@app_commands.describe("bar")
-@app_commands.options.describe(foo=StrOption().set_description("bar").required())
-async def foo(ctx: disspy.Context):
-    a = ctx.args.get_string("foo")
-
-    await ctx.respond(a)
+@app_commands.describe("Example command")
+@app_commands.options.describe(message=StrOption().description("Message").required(),
+                               integer=IntOption().description("Integer for math operation"))
+async def foo(ctx: disspy.Context, message: str, integer: int = None):
+    if integer:
+        await ctx.respond(message, integer + 2, sep=" | ")
+    else:
+        await ctx.respond(message)
 
 
 # Example context menus
 # Message context menu
 @bot.context_menu()
 async def info(ctx: disspy.Context, message: disspy.DisMessage):
-    await ctx.respond(f"Content: {message.content}\nChannel id: {message.channel.id}\nId: {message.id}")
+    await ctx.respond(f"Content: {message.content}", f"Channel id: {message.channel.id}", f"Id: {message.id}")
 
 
 # User context menu

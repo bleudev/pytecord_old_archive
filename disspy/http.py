@@ -34,7 +34,7 @@ from typing import (
     Text,
     Any,
     final,
-    Literal
+    Literal,
 )
 
 from enum import Enum, auto
@@ -44,19 +44,11 @@ import colorama
 
 
 # disspy imports
-from disspy.channel import (
-    DisChannel,
-    DisDmChannel,
-    DisMessage
-)
-from disspy.thread import (
-    DisNewsThread,
-    DisThread,
-    DisPrivateThread
-)
+from disspy.channel import DisChannel, DisDmChannel, DisMessage
+from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.guild import DisGuild
 from disspy.user import DisUser
-from disspy.app_commands import Context, _Argument, OptionArgs
+from disspy.app_commands import Context
 from disspy.webhook import DispyWebhook
 
 JsonOutput = NewType("JsonOutput", Dict[str, Any])
@@ -76,13 +68,15 @@ __all__: tuple = (
     "DisApi",
 )
 
-def _mainurl() -> Literal['https://discord.com/api/v10/']:
+
+def _mainurl() -> Literal["https://discord.com/api/v10/"]:
     return "https://discord.com/api/v10/"
 
 
 class _AutoFlags(Enum):
     def _generate_next_value_(name, start, count, last_values):
         return 1 << count
+
 
 class _Intents(_AutoFlags):
     GUILDS = auto()
@@ -99,7 +93,7 @@ class _Intents(_AutoFlags):
     GUILD_MESSAGE_TYPING = auto()
     DIRECT_MESSAGES = auto()
     DIRECT_MESSAGE_REACTIONS = auto()
-    DIRECT_MESSAGE_TYPING  = auto()
+    DIRECT_MESSAGE_TYPING = auto()
     MESSAGE_CONTENT = auto()
     GUILD_SCHEDULED_EVENTS = auto()
 
@@ -114,6 +108,7 @@ class DisFlags:
         :method: all()
             Implements all Gateway Intents
     """
+
     __classname__: str = "DisFlags"
 
     def __all__(self) -> List[str]:
@@ -142,7 +137,9 @@ class DisFlags:
         :return int: integer value of intents
         """
 
-        _typings = _Intents.GUILD_MESSAGE_TYPING.value + _Intents.DIRECT_MESSAGE_TYPING.value
+        _typings = (
+            _Intents.GUILD_MESSAGE_TYPING.value + _Intents.DIRECT_MESSAGE_TYPING.value
+        )
         _messages = _Intents.GUILD_MESSAGES.value + _Intents.DIRECT_MESSAGES.value
         _content = _Intents.MESSAGE_CONTENT.value
 
@@ -205,10 +202,14 @@ class Rest:
     """
     Rest class
     """
+
     __classname__: str = "Rest"
 
     def __init__(self, token: str):
-        self._headers = {'Authorization': f'Bot {token}', "content-type": "application/json"}
+        self._headers = {
+            "Authorization": f"Bot {token}",
+            "content-type": "application/json",
+        }
 
         self.__slots__ = [self._headers]
 
@@ -220,22 +221,19 @@ class Rest:
         """
         goal_id = int(goal_id)
 
-        if goal.casefold() == 'guild':
-            _url = f'{_mainurl()}guilds/{str(goal_id)}'
-            return get(url=_url,
-                       headers=self._headers).json()
+        if goal.casefold() == "guild":
+            _url = f"{_mainurl()}guilds/{str(goal_id)}"
+            return get(url=_url, headers=self._headers).json()
 
-        if goal.casefold() == 'channel':
-            _url = f'{_mainurl()}channels/{str(goal_id)}'
+        if goal.casefold() == "channel":
+            _url = f"{_mainurl()}channels/{str(goal_id)}"
 
-            return get(url=_url,
-                       headers=self._headers).json()
+            return get(url=_url, headers=self._headers).json()
 
         if goal.casefold() == "user":
-            _url = f'{_mainurl()}users/{str(goal_id)}'
+            _url = f"{_mainurl()}users/{str(goal_id)}"
 
-            return get(url=_url,
-                       headers=self._headers).json()
+            return get(url=_url, headers=self._headers).json()
 
         return None
 
@@ -278,6 +276,7 @@ class DisApi:
     """DisApi
     Class for init Rest and DispyWebhook event and edit they
     """
+
     def __init__(self, token: str, intents):
         """
         Init Class
@@ -289,7 +288,10 @@ class DisApi:
         super().__init__()
 
         self.comsevs = {}
-        self._headers = {'Authorization': f'Bot {token}', "content-type": "application/json"}
+        self._headers = {
+            "Authorization": f"Bot {token}",
+            "content-type": "application/json",
+        }
         self.app_commands_jsons = []
 
         self._on_ready = None
@@ -327,8 +329,9 @@ class DisApi:
 
         return DisMessage(_d, self.token, self.session)
 
-    async def run(self, status, ons: Dict[Text, Callable], debug: bool,
-                  act: Dict[str, Any]) -> None:
+    async def run(
+        self, status, ons: Dict[Text, Callable], debug: bool, act: Dict[str, Any]
+    ) -> None:
         """
         Run the hook of DisApi or run the bot.
         Running bot in Discord, changing status and registering
@@ -362,7 +365,9 @@ class DisApi:
         self.user: DisUser = self.get_user(self.hook.user_id)
 
         if self._debug:
-            print(f"{colorama.Fore.YELLOW}Registering application commands...{colorama.Fore.RESET}")
+            print(
+                f"{colorama.Fore.YELLOW}Registering application commands...{colorama.Fore.RESET}"
+            )
 
         app_id = data["application"]["id"]
 
@@ -379,7 +384,9 @@ class DisApi:
                 post_event = post(_url, json=code, headers=self._headers).json()
 
                 if self._debug:
-                    print(f"{colorama.Fore.BLUE}POST |{colorama.Fore.RESET} {post_event}")
+                    print(
+                        f"{colorama.Fore.BLUE}POST |{colorama.Fore.RESET} {post_event}"
+                    )
 
         elif not application_commands_from_code and application_commands_from_server:
             for server in application_commands_from_server:
@@ -398,13 +405,17 @@ class DisApi:
                 post_event = post(_url, json=code, headers=self._headers).json()
 
                 if self._debug:
-                    print(f"{colorama.Fore.BLUE}POST |{colorama.Fore.RESET} {post_event}")
+                    print(
+                        f"{colorama.Fore.BLUE}POST |{colorama.Fore.RESET} {post_event}"
+                    )
 
         if self._debug:
             server_app_commands = get(_url, headers=self._headers).json()
 
-            print(f"{colorama.Fore.YELLOW}Current commands on server: {colorama.Fore.RESET}",
-                  end="")
+            print(
+                f"{colorama.Fore.YELLOW}Current commands on server: {colorama.Fore.RESET}",
+                end="",
+            )
             print(server_app_commands)
             print(f"{colorama.Fore.GREEN}Regsiter is completed!")
 
@@ -415,24 +426,22 @@ class DisApi:
         callback = self.app_commands[command["type"] - 1][command["name"]]
 
         async def no_options():
-            ctx.args = OptionArgs()
-
             await callback(ctx)
 
         async def options():
-            values = []
+            values = {}
 
             for i in command["options"]:
-                def append_arg(val, i=i):
-                    values.append(_Argument(i["name"], i["type"], val))
+
+                def append_arg(key, value):
+                    values.setdefault(key, value)
+
                 try:
-                    append_arg(i["value"])
+                    append_arg(i["name"], i["value"])
                 except KeyError:
-                    append_arg(None)
+                    pass
 
-            ctx.args = OptionArgs(values)
-
-            await callback(ctx)
+            await callback(ctx, **values)
 
         if command["type"] == 1:  # Slash command
             try:
@@ -503,9 +512,9 @@ class DisApi:
 
         return self._r.get("user", user_id)
 
-    def get_channel_or_thread(self, object_id: int) -> Union[DisChannel, DisDmChannel,
-                                                             DisNewsThread, DisThread,
-                                                             DisPrivateThread]:
+    def get_channel_or_thread(
+        self, object_id: int
+    ) -> Union[DisChannel, DisDmChannel, DisNewsThread, DisThread, DisPrivateThread]:
         """
         Get channel by id
         -----
@@ -515,11 +524,7 @@ class DisApi:
         j = self._r.get("channel", object_id)
         _type = j["type"]
 
-        _threads_objs = {
-            10: DisNewsThread,
-            11: DisThread,
-            12: DisPrivateThread
-        }
+        _threads_objs = {10: DisNewsThread, 11: DisThread, 12: DisPrivateThread}
 
         if _type == 1:  # Dm Channels
             return DisDmChannel(object_id, self.token, self.session)
@@ -564,7 +569,9 @@ class DisApi:
 
         return self._r.get("guild", guild_id)
 
-    def create_command(self, payload: dict, func: Callable[..., Coroutine[Any, Any, Any]]):
+    def create_command(
+        self, payload: dict, func: Callable[..., Coroutine[Any, Any, Any]]
+    ):
         """create_command
         Create application command
 
@@ -572,6 +579,7 @@ class DisApi:
             payload (dict): Json data of command
             func (Awaitable): Function for awaiting command
         """
+
         def app_func_register(number):
             self.app_commands[number][payload["name"]] = func
 

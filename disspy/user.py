@@ -22,15 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-__all__: tuple = (
-    "DisUser",
-)
+__all__: tuple = ("DisUser",)
 
 
 class DisUser:
     """
     User object
     """
+
     def __init__(self, data, token):
         self.id: int = int(data["id"])
         self._t = token

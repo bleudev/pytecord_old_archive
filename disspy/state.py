@@ -24,10 +24,12 @@ SOFTWARE.
 
 from disspy.application import Application
 
+
 class ConnectionState:
     """
     Bot connection state
     """
+
     def __init__(self, token: str) -> None:
         self._t = token
         self._data = None

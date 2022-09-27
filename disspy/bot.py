@@ -23,14 +23,7 @@ SOFTWARE.
 """
 
 # Typing imports
-from typing import (
-    Optional,
-    Union,
-    Callable,
-    final,
-    List,
-    Literal
-)
+from typing import Optional, Union, Callable, final, List, Literal
 
 # Package imports
 from pathlib import Path
@@ -44,48 +37,20 @@ import requests.exceptions
 
 # Disspy imports
 from disspy import errors
-from disspy.typ import (
-    TypeOf,
-    Event,
-    MISSING
-)
+from disspy.typ import TypeOf, Event, MISSING
 from disspy.activity import Activity
 import disspy.app_commands as appc
-from disspy.channel import (
-    DisChannel,
-    DisDmChannel,
-    DisMessage,
-    DmMessage
-)
-from disspy.http import (
-    DisApi,
-    DisFlags,
-    ChannelId,
-    ThreadId,
-    GuildId,
-    UserId
-)
+from disspy.channel import DisChannel, DisDmChannel, DisMessage, DmMessage
+from disspy.http import DisApi, DisFlags, ChannelId, ThreadId, GuildId, UserId
 from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.user import DisUser
-from disspy.thread import (
-    DisNewsThread,
-    DisThread,
-    DisPrivateThread
-)
-from disspy.abstract import (
-    Channel,
-    Message,
-    Thread
-)
+from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
+from disspy.abstract import Channel, Message, Thread
 from disspy.state import ConnectionState
 from disspy.application import Application
 
-__all__: tuple = (
-    "DisBotStatus",
-    "DisBotEventType",
-    "DisBot"
-)
+__all__: tuple = ("DisBotStatus", "DisBotEventType", "DisBot")
 
 # For Type Hints
 Wrapper = Callable
@@ -103,7 +68,7 @@ _all_basic_events = [
     "reaction",  # On reaction add
     "reactionr",  # On reaction remove
     "typing",  # Typing start
-    "dm_typing"  # Typig start in dm channel
+    "dm_typing",  # Typig start in dm channel
 ]
 
 
@@ -111,13 +76,14 @@ _all_basic_events = [
 # For code readable #
 #####################
 
+
 async def blank():
-    """ Blank method """
+    """Blank method"""
     return
 
 
 def ignore():
-    """ Ignore """
+    """Ignore"""
     return
 
 
@@ -137,8 +103,14 @@ class _BotLogger:
 
         tformat = "%d/%d/%d %d:%d:%d"
 
-        _time = tformat % (_datetime.year, _datetime.month, _datetime.day,
-                           _datetime.hour, _datetime.minute, _datetime.second)
+        _time = tformat % (
+            _datetime.year,
+            _datetime.month,
+            _datetime.day,
+            _datetime.hour,
+            _datetime.minute,
+            _datetime.second,
+        )
 
         self.logs.append(f"[{_time}] {msg}")
 
@@ -208,10 +180,20 @@ class DisBotEventType:
         -----
         :return list: All varibles in this class
         """
-        return [self.ON_READY, self.ON_MESSAGEC, self.ON_MESSAGEU,
-                self.ON_MESSAGED, self.ON_DMESSAGEC, self.ON_DMESSAGEU,
-                self.ON_DMESSAGED, self.ON_CLOSE, self.ON_REACTION,
-                self.ON_REACTIONR, self.ON_TYPING, self.ON_DM_TYPING]
+        return [
+            self.ON_READY,
+            self.ON_MESSAGEC,
+            self.ON_MESSAGEU,
+            self.ON_MESSAGED,
+            self.ON_DMESSAGEC,
+            self.ON_DMESSAGEU,
+            self.ON_DMESSAGED,
+            self.ON_CLOSE,
+            self.ON_REACTION,
+            self.ON_REACTIONR,
+            self.ON_TYPING,
+            self.ON_DM_TYPING,
+        ]
 
     def __str__(self) -> str:
         return "ready"
@@ -228,10 +210,13 @@ class DisBot:
     def _raise_unathorized_error(self) -> None:
         raise errors.Unauthorized()
 
-    def __init__(self, token: str,
-                 status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
-                 flags: Optional[TypeOf(DisFlags)] = None,
-                 activity: Optional[Union[Activity, dict]] = None) -> None:
+    def __init__(
+        self,
+        token: str,
+        status: Optional[Literal["online", "dnd", "invisible", "idle"]] = None,
+        flags: Optional[TypeOf(DisFlags)] = None,
+        activity: Optional[Union[Activity, dict]] = None,
+    ) -> None:
         """
         Create bot
         -----
@@ -241,7 +226,7 @@ class DisBot:
         """
 
         _u = "https://discord.com/api/v10/users/@me"
-        test_j = get(_u, headers={'Authorization': f'Bot {token}'}).json()
+        test_j = get(_u, headers={"Authorization": f"Bot {token}"}).json()
 
         try:
             if test_j["message"] == "401: Unauthorized" and test_j["code"] == 0:
@@ -285,7 +270,7 @@ class DisBot:
             "reactionr": blank,
             "typing": blank,
             "dm_typing": blank,
-            "channel": [blank, 0]
+            "channel": [blank, 0],
         }
 
         self._on_messagec = None
@@ -336,9 +321,11 @@ class DisBot:
         __methodname__ = f"{self.__classname__}.on()"
 
         if isinstance(event_type, DisBotEventType):
-            _message = f"Error! In method {__methodname__} was moved" \
-                        "invalid argument! Argument type is DisBotEventType," \
-                        "but in method have to type is str!"
+            _message = (
+                f"Error! In method {__methodname__} was moved"
+                "invalid argument! Argument type is DisBotEventType,"
+                "but in method have to type is str!"
+            )
             raise errors.InvalidArgument(_message)
 
         def wrapper(func):
@@ -347,16 +334,25 @@ class DisBot:
                     self._on_close = func
                     self._logger.log("Register on_close() event")
                 else:
-                    if event_type in ["messagec", "messageu", "messaged", "typing", "dm_typing",
-                                "dmessagec", "dmessageu", "dmessaged"]:
+                    if event_type in [
+                        "messagec",
+                        "messageu",
+                        "messaged",
+                        "typing",
+                        "dm_typing",
+                        "dmessagec",
+                        "dmessageu",
+                        "dmessaged",
+                    ]:
                         if self.intflags >= DisFlags.messages():
                             self._ons[event_type] = func
                             self._logger.log(f"Register on_{event_type}() event")
                         else:
                             self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
-                                "messagec(), typing(), dm_typing() and other events" +
-                                "don't avaivable right now because flags < DisFlags.messages()")
+                                "messagec(), typing(), dm_typing() and other events"
+                                + "don't avaivable right now because flags < DisFlags.messages()"
+                            )
                     elif event_type in ["reaction", "reactionr"]:
                         if self.intflags >= DisFlags.reactions():
                             self._ons[event_type] = func
@@ -364,8 +360,9 @@ class DisBot:
                         else:
                             self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
-                                "reaction() and reactionr() events don't" +
-                                " avaivable right now because flags < DisFlags.reactions()")
+                                "reaction() and reactionr() events don't"
+                                + " avaivable right now because flags < DisFlags.reactions()"
+                            )
                     else:
                         self._ons[event_type] = func
                         self._logger.log(f"Register on_{event_type}() event")
@@ -375,7 +372,9 @@ class DisBot:
 
         return wrapper
 
-    def add_event(self, event_type: Event(DisBotEventType, str), func: Callable) -> None:
+    def add_event(
+        self, event_type: Event(DisBotEventType, str), func: Callable
+    ) -> None:
         """
         Add event to bot with function and event type
         -----
@@ -386,9 +385,11 @@ class DisBot:
         __methodname__ = f"{self.__classname__}.add_event()"
 
         if isinstance(event_type, DisBotEventType):
-            _message = f"Error! In method {__methodname__} was moved" \
-                        "invalid argument! Argument type is DisBotEventType," \
-                        "but in method have to type is str!"
+            _message = (
+                f"Error! In method {__methodname__} was moved"
+                "invalid argument! Argument type is DisBotEventType,"
+                "but in method have to type is str!"
+            )
             raise errors.InvalidArgument(_message)
 
         if event_type in _all_basic_events:
@@ -413,7 +414,7 @@ class DisBot:
 
         return wrapper
 
-    def on_message(self, event_type: Literal['create', 'update', 'delete']) -> Wrapper:
+    def on_message(self, event_type: Literal["create", "update", "delete"]) -> Wrapper:
         """
         Method for changing on_message() events
         -----
@@ -423,13 +424,13 @@ class DisBot:
         _ts: List[str] = [
             "create",  # Message create
             "update",  # Message update
-            "delete"  # Message delete
+            "delete",  # Message delete
         ]
 
         _mse: List[str] = [
             "messagec",  # Message create
             "messageu",  # Message update
-            "messaged"  # Message delete
+            "messaged",  # Message delete
         ]
 
         def wrapper(func):
@@ -446,7 +447,9 @@ class DisBot:
 
         return wrapper
 
-    def on_dm_message(self, event_type: Literal['create', 'update', 'delete']) -> Wrapper:
+    def on_dm_message(
+        self, event_type: Literal["create", "update", "delete"]
+    ) -> Wrapper:
         """
         Method for changing on_dm_message() events
         -----
@@ -456,13 +459,13 @@ class DisBot:
         _ts: List[str] = [
             "create",  # Message create
             "update",  # Message update
-            "delete"  # Message delete
+            "delete",  # Message delete
         ]
 
         _mse: List[str] = [
             "dmessagec",  # Message create
             "dmessageu",  # Message update
-            "dmessaged"  # Message delete
+            "dmessaged",  # Message delete
         ]
 
         def wrapper(func):
@@ -486,6 +489,7 @@ class DisBot:
         :param channel_id: Channel id
         :return Wrapper:
         """
+
         def wrapper(func):
             self._logger.log("Register on_channel() event")
             self._ons["channel"] = [func, channel_id]
@@ -503,6 +507,7 @@ class DisBot:
         Returns:
             Wrapper
         """
+
         def wrapper(func, name=name):
             if name is MISSING:
                 try:
@@ -511,10 +516,10 @@ class DisBot:
                     name = func[1].__name__
 
             payload = {
-                    "name": name,
-                    "type": appc.ApplicationCommandType.TEXT_INPUT,
-                    "description": "No description"
-                }
+                "name": name,
+                "type": appc.ApplicationCommandType.TEXT_INPUT,
+                "description": "No description",
+            }
 
             try:
                 for key in list(func[0].keys()):
@@ -539,14 +544,12 @@ class DisBot:
             name (Optional[str], optional): Name of context menu. Defaults to MISSING.
                                             (if MISSING: func.__name__)
         """
+
         def wrapper(func, name=name):
             if name is MISSING:
                 name = func.__name__
 
-            payload = {
-                "name": name,
-                "type": None
-            }
+            payload = {"name": name, "type": None}
 
             # Get type of second argument of function
             sig = signature(func)
@@ -567,10 +570,14 @@ class DisBot:
 
             self._logger.log(message_to_log)
             self.api.create_command(payload, func)
+
         return wrapper
 
-    def run(self, status: Optional[Literal['online', 'dnd', 'invisible', 'idle']] = None,
-            activity: Optional[Union[Activity, dict]] = None) -> None:
+    def run(
+        self,
+        status: Optional[Literal["online", "dnd", "invisible", "idle"]] = None,
+        activity: Optional[Union[Activity, dict]] = None,
+    ) -> None:
         """
         Running bot
         -----
@@ -601,15 +608,14 @@ class DisBot:
 
     async def _runner(self) -> None:
         try:
-            await self.api.run(self.status, self._ons,
-                               debug=self.debug, act=self._act)
+            await self.api.run(self.status, self._ons, debug=self.debug, act=self._act)
         except KeyboardInterrupt:
             self._write_logs()
             await self._on_close()
             await self.api.session.close()
             await self._dissconnenter()
         except requests.exceptions.ConnectionError:
-            self. _raise_internet_error()
+            self._raise_internet_error()
 
     async def disconnect(self) -> None:
         """
@@ -628,8 +634,12 @@ class DisBot:
             self._logger.log("Disconnect bot")
             await self.api.disconnecter()
 
-    async def send(self, channel_id: int, content: Optional[str] = None,
-                    embeds: Optional[List[DisEmbed]] = None):
+    async def send(
+        self,
+        channel_id: int,
+        content: Optional[str] = None,
+        embeds: Optional[List[DisEmbed]] = None,
+    ):
         """
         Send message to channel
         -----
@@ -659,7 +669,9 @@ class DisBot:
         _m = "This channel is not channel! Use get_thread() method"
         raise RuntimeError(_m)
 
-    def get_thread(self, thread_id: ThreadId) -> Union[DisNewsThread, DisThread, DisPrivateThread]:
+    def get_thread(
+        self, thread_id: ThreadId
+    ) -> Union[DisNewsThread, DisThread, DisPrivateThread]:
         """get_thread
         Get thread by id
 
@@ -712,28 +724,36 @@ class DisBot:
         elif isinstance(activity, dict):
             act = activity
 
-        await self.api.fsend_request({
-            "op": 3,
-            "d": {
-                "since": mktime(datetime.now().timetuple()) * 1000,
-                "afk": self.api.hook.isafk,
-                "status": self.status,
-                "activities": [act]
+        await self.api.fsend_request(
+            {
+                "op": 3,
+                "d": {
+                    "since": mktime(datetime.now().timetuple()) * 1000,
+                    "afk": self.api.hook.isafk,
+                    "status": self.status,
+                    "activities": [act],
+                },
             }
-        })
+        )
 
     def _write_logs(self):
         _datetime = datetime.now()
 
         tformat = "%d %d %d %d %d %d"
 
-        filename = tformat % (_datetime.year, _datetime.month, _datetime.day,
-                              _datetime.hour, _datetime.minute, _datetime.second)
+        filename = tformat % (
+            _datetime.year,
+            _datetime.month,
+            _datetime.day,
+            _datetime.hour,
+            _datetime.minute,
+            _datetime.second,
+        )
 
         filename += ".txt"
 
         current_directory = os.getcwd()
-        final_directory = os.path.join(current_directory, r'__logs__')
+        final_directory = os.path.join(current_directory, r"__logs__")
         if not os.path.exists(final_directory):
             os.makedirs(final_directory)
 

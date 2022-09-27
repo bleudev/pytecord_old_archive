@@ -22,17 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-__all__: tuple = (
-    "DisNewsThread",
-    "DisThread",
-    "DisPrivateThread"
-)
-from typing import (
-    Optional,
-    List,
-    Any,
-    Union
-)
+__all__: tuple = ("DisNewsThread", "DisThread", "DisPrivateThread")
+from typing import Optional, List, Any, Union
 from json import dumps
 from aiohttp import ClientSession
 
@@ -41,10 +32,7 @@ from disspy.abstract import Thread
 from disspy.jsongenerators import _EmbedGenerator
 from disspy.channel import DisMessage
 from disspy.ui import ActionRow
-from disspy.typ import (
-    SupportsStr,
-    MISSING
-)
+from disspy.typ import SupportsStr, MISSING
 
 
 class _Thread:
@@ -53,19 +41,18 @@ class _Thread:
         self.session = __session
         self._t = __token
 
-    async def send_message(self, content: Optional[SupportsStr] = MISSING,
-                            embeds: Optional[List[Any]] = MISSING,
-                            action_row: Optional[ActionRow] = MISSING):
+    async def send_message(
+        self,
+        content: Optional[SupportsStr] = MISSING,
+        embeds: Optional[List[Any]] = MISSING,
+        action_row: Optional[ActionRow] = MISSING,
+    ):
         """send_message
         Send message to thread
         """
         _u = f"https://discord.com/api/v10/channels/{self._id}/messages"
 
-        _payload = {
-            "content": None,
-            "embeds": None,
-            "components": None
-        }
+        _payload = {"content": None, "embeds": None, "components": None}
 
         if content:
             content = str(content)
@@ -111,6 +98,7 @@ class DisNewsThread(Thread):
     """
     Channel with GUILD_NEWS_THREAD type
     """
+
     def __init__(self, data, token, __session: ClientSession) -> None:
         super().__init__()
         self.id: int = int(data["id"])
@@ -124,9 +112,12 @@ class DisNewsThread(Thread):
 
         self._thread_client = _Thread(self.id, __session, token)
 
-    async def send(self, content: Optional[SupportsStr] = MISSING,
-                   embeds: Optional[List[Any]] = MISSING,
-                   action_row: Optional[ActionRow] = MISSING) -> Union[DisMessage, None]:
+    async def send(
+        self,
+        content: Optional[SupportsStr] = MISSING,
+        embeds: Optional[List[Any]] = MISSING,
+        action_row: Optional[ActionRow] = MISSING,
+    ) -> Union[DisMessage, None]:
         """send
         Send message in thread
 
@@ -152,6 +143,7 @@ class DisThread(Thread):
     """
     Channel with GUILD_PUBLIC_THREAD type
     """
+
     def __init__(self, data, token, __session: ClientSession) -> None:
         super().__init__()
         self.id: int = int(data["id"])
@@ -165,9 +157,12 @@ class DisThread(Thread):
 
         self._thread_client = _Thread(self.id, __session, token)
 
-    async def send(self, content: Optional[SupportsStr] = MISSING,
-                   embeds: Optional[List[Any]] = MISSING,
-                   action_row: Optional[ActionRow] = MISSING) -> Union[DisMessage, None]:
+    async def send(
+        self,
+        content: Optional[SupportsStr] = MISSING,
+        embeds: Optional[List[Any]] = MISSING,
+        action_row: Optional[ActionRow] = MISSING,
+    ) -> Union[DisMessage, None]:
         """send
         Send message in thread
 
@@ -193,6 +188,7 @@ class DisPrivateThread(Thread):
     """
     Channel with GUILD_PRIVATE_THREAD type
     """
+
     def __init__(self, data, token, __session: ClientSession) -> None:
         super().__init__()
         self.id: int = int(data["id"])
@@ -206,9 +202,12 @@ class DisPrivateThread(Thread):
 
         self._thread_client = _Thread(self.id, __session, token)
 
-    async def send(self, content: Optional[SupportsStr] = MISSING,
-                   embeds: Optional[List[Any]] = MISSING,
-                   action_row: Optional[ActionRow] = MISSING) -> Union[DisMessage, None]:
+    async def send(
+        self,
+        content: Optional[SupportsStr] = MISSING,
+        embeds: Optional[List[Any]] = MISSING,
+        action_row: Optional[ActionRow] = MISSING,
+    ) -> Union[DisMessage, None]:
         """send
         Send message in thread
 

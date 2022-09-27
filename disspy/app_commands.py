@@ -22,21 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import (
-    Union,
-    Optional,
-    Any,
-    ClassVar,
-    final,
-    List,
-    Tuple,
-    Literal,
-    Dict
-)
+from typing import Union, Optional, Any, ClassVar, final, List, Tuple, Literal, Dict
 from json import dumps
 import aiohttp
 
 from disspy.ui import ActionRow
+from disspy.utils import dict_to_tuples
 
 __all__: tuple = (
     "ApplicationCommandType",
@@ -49,8 +40,17 @@ __all__: tuple = (
     "UserOption",
     "OptionType",
     "Context",
-    "OptionArgs"
 )
+
+
+class Choice:
+    """
+    Class for using choices in options (STRING, INTEGER, NUMBER types only)
+    """
+
+    def __init__(self, name: str, value: Union[str, int, float]) -> None:
+        self.name = value
+        self.value = value
 
 
 class Option:
@@ -58,7 +58,7 @@ class Option:
     Class for using options in application commands (TEXT_INPUT)
     """
 
-    def __init__(self, option_type: int) -> None:
+    def __init__(self, type: int) -> None:
         """__init__
         Create option object
 
@@ -68,9 +68,9 @@ class Option:
         Returns:
             None
         """
-        self.description: str = "No description"
-        self.option_type: int = option_type
-        self.choices: Union[List[dict], None] = []
+        self.option_description: str = "No description"
+        self.option_type: int = type
+        self.option_choices: Union[List[dict], None] = []
         self.is_required: bool = False
 
     def required(self):
@@ -82,12 +82,12 @@ class Option:
         """
         option = Option(self.option_type)
         option.is_required = True
-        option.choices = self.choices
-        option.description = self.description
+        option.option_choices = self.option_choices
+        option.option_description = self.option_description
 
         return option
 
-    def set_description(self, text: str):
+    def description(self, text: str):
         """set_description
         Set description to this option
 
@@ -99,12 +99,12 @@ class Option:
         """
         option = Option(self.option_type)
         option.is_required = self.is_required
-        option.choices = self.choices
-        option.description = text
+        option.option_choices = self.option_choices
+        option.option_description = text
 
         return option
 
-    def set_choices(self, choices: List[dict]):
+    def choices(self, choices: List[Choice]):
         """set_choices
         Set choices to this option
 
@@ -114,10 +114,28 @@ class Option:
         Returns:
             Option: New option
         """
+        assert self.option_type in [
+            3,
+            4,
+            10,
+        ], "For using choices a your option must have STRING, INTEGER or NUMBER type!"
+
         option = Option(self.option_type)
         option.is_required = self.is_required
-        option.choices = choices
-        option.description = self.description
+        option.option_description = self.option_description
+
+        json_choices = []
+
+        for i in choices:
+            option_types = {3: str, 4: int, 10: float}
+            option_type = option_types[self.option_type]
+
+            assert isinstance(
+                i.value, option_type
+            ), "A your value type must be equal with a your option type!"
+            json_choices.append({"name": i.name, "value": i.value})
+
+        option.option_choices = json_choices
 
         return option
 
@@ -128,19 +146,22 @@ class _OptionsMethods:
         """describe
         Describe options
         """
+
         def wrapper(func):
             result = []
 
             for name in list(options.keys()):
                 value: Option = options[name]
 
-                result.append({
-                    "name": name,
-                    "type": value.option_type,
-                    "description": value.description,
-                    "required": value.is_required,
-                    "choices": value.choices
-                })
+                result.append(
+                    {
+                        "name": name,
+                        "type": value.option_type,
+                        "description": value.option_description,
+                        "required": value.is_required,
+                        "choices": value.option_choices,
+                    }
+                )
             try:
                 to_edit = {"options": result}
 
@@ -155,7 +176,18 @@ class _OptionsMethods:
 
         return wrapper
 
+
+class Localization:
+    def __init__(self, *, name: str, description: str) -> None:
+        self.name = name
+        self.description = description
+
+    def json(self) -> dict:
+        return {"name": self.name, "description": self.description}
+
+
 options = _OptionsMethods()
+
 
 def describe(description: str):
     """describe
@@ -164,6 +196,7 @@ def describe(description: str):
     Args:
         description (str): Description
     """
+
     def wrapper(func):
         try:
             to_edit = {"description": description}
@@ -176,7 +209,40 @@ def describe(description: str):
             return (to_edit, func[1])
         except TypeError:
             return ({"description": description}, func)
+
     return wrapper
+
+
+def localize(**localizations: Dict[str, Localization]):
+    parsed_info = {"name_localizations": {}, "description_localizations": {}}
+    _localizations: list = dict_to_tuples(localizations)
+
+    for lang, localization in _localizations:
+        _json = localization.json()
+
+        # Name
+        _name = _json["name"]
+        parsed_info["name_localizations"].setdefault(lang, _name)
+
+        # Description
+        _description = _json["description"]
+        parsed_info["description_localizations"].setdefault(lang, _description)
+
+    def wrapper(func):
+        try:
+            to_edit = parsed_info
+
+            for key in list(func[0].keys()):
+                val = func[0][key]
+
+                to_edit.setdefault(key, val)
+
+            return (to_edit, func[1])
+        except TypeError:
+            return (parsed_info, func)
+
+    return wrapper
+
 
 @final
 class _MessageFlags:
@@ -185,6 +251,7 @@ class _MessageFlags:
 
     This use in send() method of Context class.
     """
+
     CROSSPOSTED: ClassVar[int] = 1 << 0
     IS_CROSSPOST: ClassVar[int] = 1 << 1
     SUPPRESS_EMBEDS: ClassVar[int] = 1 << 2
@@ -209,8 +276,12 @@ class _SendingRestHandler:
         Returns:
             _type_: _description_
         """
-        async with aiohttp.ClientSession(headers={'Authorization': f'Bot {token}',
-                                                  'content-type': 'application/json'}) as session:
+        async with aiohttp.ClientSession(
+            headers={
+                "Authorization": f"Bot {token}",
+                "content-type": "application/json",
+            }
+        ) as session:
             try:
                 async with session.post(url, data=dumps(payload)) as data:
                     j = await data.json()
@@ -225,6 +296,7 @@ class ApplicationCommandType:
     """
     Application command types (see discord docs)
     """
+
     TEXT_INPUT: ClassVar[int] = 1  # Slash Command
     USER: ClassVar[int] = 2  # User Command
     MESSAGE: ClassVar[int] = 3  # Message Command
@@ -235,6 +307,7 @@ class OptionType:
     """
     Option types (see discord docs)
     """
+
     SUB_COMMAND: Literal[1] = 1
     SUB_COMMAND_GROUP: Literal[2] = 2
     STRING: Literal[3] = 3
@@ -253,6 +326,7 @@ class StrOption(Option):
     """StrOption
     Option with STRING type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.STRING)
 
@@ -262,6 +336,7 @@ class IntOption(Option):
     """StrOption
     Option with INTEGER type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.INTEGER)
 
@@ -271,6 +346,7 @@ class NumOption(Option):
     """StrOption
     Option with NUMBER type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.NUMBER)
 
@@ -279,6 +355,7 @@ class BoolOption(Option):
     """StrOption
     Option with BOOLEAN type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.BOOLEAN)
 
@@ -288,6 +365,7 @@ class UserOption(Option):
     """StrOption
     Option with USER type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.USER)
 
@@ -297,116 +375,9 @@ class ChannelOption(Option):
     """StrOption
     Option with CHANNEL type
     """
+
     def __init__(self) -> None:
         super().__init__(OptionType.CHANNEL)
-
-
-@final
-class _Argument:
-    def __init__(self, name: str, option_type: int, value: Any) -> None:
-        self.name: str = name
-        self.type: int = option_type
-        self.value: Any = value
-
-
-@final
-class OptionArgs:
-    """
-    Class for receiving option values in interactions
-
-    Example
-    @bot.slash_command("Test", "Wow", options=[Option("Hi", "lol", OptionType.STRING)])
-    async def test(ctx: Context, args: OptionArgs):
-        await ctx.send(args.getString("Hi"))
-    """
-
-    def __init__(self, values: Optional[List[_Argument]] = None) -> None:
-        """
-        Init object
-        -----
-        :param values: Option Values
-        """
-        if values is None:
-            values = []
-        self._v: List[_Argument] = values
-
-    def isempty(self) -> bool:
-        """
-        Returns True or False when is empty is True or False
-
-        :return bool: Is empty?
-        """
-        return len(self._v) == 0
-
-    @property
-    def options_args(self) -> List[_Argument]:
-        """options_args
-        Get options args
-
-        Returns:
-            List[_Argument]: Option args
-        """
-        return self._v
-
-    def get(self, name: str) -> Union[Any, None]:
-        """
-        Get value from name
-
-        :param name: Name of option
-        :return Any: Option value
-        """
-        for _a in self._v:
-            if _a.name == name:
-                return _a.value
-        return None
-
-    def get_string(self, name: str) -> Union[str, None]:
-        """
-        Get string value from name
-
-        :param name: Name of option
-        :return str: Option value (always string)
-        """
-        for _a in self._v:
-            if _a.name == name and _a.type == OptionType.STRING:
-                return str(_a.value)
-        return None
-
-    def get_integer(self, name: str) -> Union[int, None]:
-        """
-        Get integer value from na1me
-
-        :param name: Name of option
-        :return int: Option value (always integer)
-        """
-        for _a in self._v:
-            if _a.name == name and _a.type == OptionType.INTEGER:
-                return int(_a.value)
-        return None
-
-    def get_number(self, name: str) -> Union[int, None]:
-        """
-        Get number value from name
-
-        :param name: Name of option
-        :return int: Option value (always integer)
-        """
-        for _a in self._v:
-            if _a.name == name and _a.type == OptionType.NUMBER:
-                return int(_a.value)
-        return None
-
-    def get_boolean(self, name: str) -> Union[bool, None]:
-        """
-        Get boolean value from name
-
-        :param name: Name of option
-        :return bool: Option value (always boolean)
-        """
-        for _a in self._v:
-            if _a.name == name and _a.type == OptionType.BOOLEAN:
-                return bool(_a.value)
-        return None
 
 
 @final
@@ -417,16 +388,19 @@ class Context:
     There are some methods for responding to interaction (Slash Command)
     """
 
-    def __init__(self, interaction_info:Tuple[str, int], bot_token,
-                 args: OptionArgs = None) -> None:
+    def __init__(self, interaction_info: Tuple[str, int], bot_token) -> None:
         self._interaction_token: str = str(list(interaction_info)[0])
         self._interaction_id: int = int(list(interaction_info)[1])
 
         self._t = bot_token
-        self.args = args
 
-    async def respond(self, content: str, action_row: Optional[ActionRow] = None,
-                   ephemeral: bool = False) -> None:
+    async def respond(
+        self,
+        *args,
+        sep: Optional[str] = "\n",
+        action_row: Optional[ActionRow] = None,
+        ephemeral: bool = False,
+    ) -> None:
         """
 
         :param content: (str) Message content
@@ -434,6 +408,12 @@ class Context:
         :return None:
         """
         _payload = {}
+        content = ""
+
+        if list(args):
+            for i in list(args):
+                content += str(i) + sep
+            content = content[0 : len(content) - len(sep)]
 
         if ephemeral:
             if action_row:
@@ -442,33 +422,22 @@ class Context:
                     "data": {
                         "content": content,
                         "flags": _MessageFlags.EPHEMERAL,
-                        "components": action_row.json
-                    }
+                        "components": action_row.json,
+                    },
                 }
             else:
                 _payload = {
                     "type": 4,
-                    "data": {
-                        "content": content,
-                        "flags": _MessageFlags.EPHEMERAL
-                    }
+                    "data": {"content": content, "flags": _MessageFlags.EPHEMERAL},
                 }
         else:
             if action_row:
                 _payload = {
                     "type": 4,
-                    "data": {
-                        "content": content,
-                        "components": action_row.json
-                    }
+                    "data": {"content": content, "components": action_row.json},
                 }
             else:
-                _payload = {
-                    "type": 4,
-                    "data": {
-                        "content": content
-                    }
-                }
+                _payload = {"type": 4, "data": {"content": content}}
 
         _id = self._interaction_id
         _token = self._interaction_token
@@ -490,8 +459,8 @@ class Context:
             "data": {
                 "title": title,
                 "custom_id": custom_id,
-                "components": action_row.json
-            }
+                "components": action_row.json,
+            },
         }
 
         _id = self._interaction_id
