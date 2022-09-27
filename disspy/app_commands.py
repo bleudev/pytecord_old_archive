@@ -215,7 +215,7 @@ def describe(description: str):
 
 def localize(**localizations: Dict[str, Localization]):
     parsed_info = {"name_localizations": {}, "description_localizations": {}}
-    _localizations: list[tuple[str, Localization]] = dict_to_tuples(localizations)
+    _localizations: list = dict_to_tuples(localizations)
 
     for lang, localization in _localizations:
         _json = localization.json()
