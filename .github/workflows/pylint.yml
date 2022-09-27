@@ -1,14 +1,11 @@
 name: Pylint
 
 on:
-  push:
-    paths-ignore:
-      - 'docs/**'
+  [push, pull_request]:
+    paths:
+      - '**.py':
     branches:
       - master
-  pull_request:
-    paths-ignore:
-      - 'docs/**'
 
 jobs:
   build:
