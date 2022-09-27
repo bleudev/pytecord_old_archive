@@ -19,6 +19,9 @@
     <a href='https://disspy.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/disspy/badge/?version=latest' alt='documentation Status'/>
     </a>
+    <a href="https://github.com/psf/black">
+        <img src="https://img.shields.io/badge/code_style-black-black?style=flat" alt="Code style: black">
+    </a>
 </p>
 
 # Advantages
