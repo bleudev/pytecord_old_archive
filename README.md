@@ -59,7 +59,7 @@ bot.run()  # Run bot in Gateway
 # Windows
 pip install -U disspy
 
-# MacOS / Lunix
+# MacOS / Linux
 python3 -m pip install -U disspy
 ```
 
@@ -71,7 +71,7 @@ git clone https://github.com/itttgg/dispy.git
 cd dispy
 pip install -U .
 
-# MacOs / Lunix
+# MacOs / Linux
 git clone https://github.com/itttgg/dispy.git
 cd dispy
 python3 -m pip install -U .
