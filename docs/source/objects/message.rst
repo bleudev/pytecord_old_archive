@@ -1,12 +1,6 @@
 Message
 #######
 
-Contents:
-    * `DisMessage`_
-    * `DmMessage`_
-    * `MessageDeleteEvent`_
-    * `DmMessageDeleteEvent`_
-
 DisMessage
 **********
 
