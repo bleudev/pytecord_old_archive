@@ -5,6 +5,6 @@ html_theme = 'sphinx_book_theme'
 
 html_theme_options = {
     'logo_only': True,
-    "repository_url": "https://github.com/{your-docs-url}",
+    "repository_url": "https://github.com/itttgg/dispy",
     "repository_branch": "master"
 }
