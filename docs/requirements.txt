@@ -1,1 +1,1 @@
-sphinx_bootstrap_theme
+sphinx-book-theme
