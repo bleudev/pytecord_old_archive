@@ -6,5 +6,9 @@ html_theme = 'sphinx_book_theme'
 html_theme_options = {
     "logo_only": True,
     "repository_url": "https://github.com/itttgg/dispy",
-    "use_repository_button": True
+    "repository_branch": "master",
+    "use_repository_button": True,
+    "use_download_button": False,
+    "use_fullscreen_button": True,
+    "use_issues_button": True
 }
