@@ -7,5 +7,4 @@ html_theme = 'bootstrap'
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 html_theme_options = {
-    'bootswatch_theme': 'https://bootswatch.com/flatly'
 }
