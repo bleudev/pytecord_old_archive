@@ -199,7 +199,7 @@ Returns:
 
 More info in `this page <application_commands.html#slash-commands>`_
 
-@user_command()
+@context_menu()
 ===============
 
 .. warning::
@@ -207,15 +207,19 @@ More info in `this page <application_commands.html#slash-commands>`_
 
 ::
 
-    def user_command(name: str) -> Wrapper
+    @context_menu(*name: str) -> Wrapper
 
-Create `User command. <application_commands.html#user-commands>`_
+Create `User or Message command. <application_commands.html#user-commands>`_
 
 Example::
 
-    @bot.user_command("info")
+    @bot.context_menu()  # Example user command
     async def info(ctx: Context, user: DisUser):
         await ctx.send(f"Fullname: {user.fullname}")
+    
+    @bot.context_menu()  # Example message command
+    async def info_again(ctx: Context, message: DisMessage):
+        await ctx.send(message.content)
 
 Params:
     ``name: str`` -> Name of user command
@@ -223,36 +227,7 @@ Params:
 Args for event:
     ``ctx`` -> `Context <application_commands.html#context>`_ object. Command context
 
-    ``user`` -> Resolved user
-
-Returns:
-    ``Wrapper``
-
-@message_command()
-==================
-
-.. warning::
-    For application commands your bot needs have ``application.commands`` scope
-
-::
-
-    def message_command(self, name: str) -> Wrapper
-
-Create `Message command. <application_commands.html#message-commands>`_
-
-Example::
-
-    @bot.user_command("info")
-    async def info(ctx: Context, message: disspy.DisMessage):
-        await ctx.send(f"Message content: {message.content}")
-
-Params:
-    ``name: str`` -> Name of message command
-
-Args for event:
-    ``ctx`` -> `Context <application_commands.html#context>`_ object. Command context
-
-    ``message`` -> Message
+    ``user or message`` -> Resolved user or message
 
 Returns:
     ``Wrapper``
