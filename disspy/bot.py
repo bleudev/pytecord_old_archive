@@ -131,10 +131,10 @@ class DisBotStatus:
     bot = disspy.DisBot(token="TOKEN", status=disspy.DisBotStatus.ONLINE)
     """
 
-    ONLINE = "online"
-    DND = "dnd"
-    INVISIBLE = "invisible"
-    IDLE = "idle"
+    ONLINE: Literal["online"] = "online"
+    DND: Literal["dnd"] = "dnd"
+    INVISIBLE: Literal["invisible"] = "invisible"
+    IDLE: Literal["idle"] = "idle"
 
     def __all__(self) -> list:
         """
@@ -143,9 +143,6 @@ class DisBotStatus:
         :return list: All varibles in this class
         """
         return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
-
-    def __str__(self) -> str:
-        return "online"
 
 
 @final
@@ -195,9 +192,6 @@ class DisBotEventType:
             self.ON_DM_TYPING,
         ]
 
-    def __str__(self) -> str:
-        return "ready"
-
 
 @final
 class DisBot:
@@ -213,16 +207,13 @@ class DisBot:
     def __init__(
         self,
         token: str,
-        status: Optional[Literal["online", "dnd", "invisible", "idle"]] = None,
-        flags: Optional[TypeOf(DisFlags)] = None,
-        activity: Optional[Union[Activity, dict]] = None,
+        flags: Optional[TypeOf(DisFlags)] = None
     ) -> None:
-        """
-        Create bot
-        -----
-        :param token: Discord Developers Portal Bot Token
-        :param status: Status that use in run()
-        :param flags: Flags (Intents) for bot (default is 512)
+        """__init__
+
+        Args:
+            token (str): Bot token from Discord developers portal
+            flags (Optional[TypeOf(DisFlags), optional): Flags of bot. Defaults to None.
         """
 
         _u = "https://discord.com/api/v10/users/@me"
@@ -235,6 +226,8 @@ class DisBot:
         except KeyError:
             ignore()
 
+        del test_j, _u  # Delete variables
+
         self.token: str = str(token)
 
         if flags is None:
@@ -242,14 +235,7 @@ class DisBot:
         else:
             self.intflags = flags
 
-        if isinstance(activity, Activity):
-            activity = activity.json()
-        elif activity is None:
-            activity = {}
-
-        self._act = activity
-
-        self.status = status
+        self.status = None
         self.debug = False
         self._logger = _BotLogger()
         self._state = ConnectionState(token)
@@ -272,17 +258,12 @@ class DisBot:
             "dm_typing": blank,
             "channel": [blank, 0],
         }
-
-        self._on_messagec = None
-        self._on_ready = None
-
+        self._act = None
         self.user = None
 
         self.api = DisApi(self.token, self.intflags)
 
         self.isready = False
-
-        self.__classname__ = "DisBot"
 
         self._logger.log("Bot created succesful!")
 
@@ -576,7 +557,7 @@ class DisBot:
     def run(
         self,
         status: Optional[Literal["online", "dnd", "invisible", "idle"]] = None,
-        activity: Optional[Union[Activity, dict]] = None,
+        activity: Optional[Activity] = None,
     ) -> None:
         """
         Running bot
@@ -584,18 +565,17 @@ class DisBot:
         :param status: Status for bot user
         :return: None
         """
-        if isinstance(status, DisBotStatus):
-            raise errors.InvalidArgument("Invalid argument type!")
-
         self.isready = True
 
         if status:
             self.status = status
-        elif not status and not self.status:
+        elif not status:
             self.status = "online"
 
         if activity:
-            self._act = activity
+            self._act = activity.json()
+        else:
+            self._act = None
 
         self._logger.log("Running bot")
 

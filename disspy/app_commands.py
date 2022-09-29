@@ -397,7 +397,7 @@ class Context:
     async def respond(
         self,
         *args,
-        sep: Optional[str] = "\n",
+        sep: str = "\n",
         action_row: Optional[ActionRow] = None,
         ephemeral: bool = False,
     ) -> None:
