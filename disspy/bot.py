@@ -289,6 +289,58 @@ class DisBot:
 
     async def _on_close(self):
         pass
+    
+    def event(self) -> Wrapper:
+        """event
+        Add event to bot
+
+        Returns:
+            Wrapper
+        """
+        def wrapper(func):
+            event_type = func.__name__
+            
+            if event_type in _all_basic_events:
+                if event_type == "close":
+                    self._on_close = func
+                    self._logger.log("Register on_close() event")
+                else:
+                    if event_type in [
+                        "messagec",
+                        "messageu",
+                        "messaged",
+                        "typing",
+                        "dm_typing",
+                        "dmessagec",
+                        "dmessageu",
+                        "dmessaged",
+                    ]:
+                        if self.intflags >= DisFlags.messages():
+                            self._ons[event_type] = func
+                            self._logger.log(f"Register on_{event_type}() event")
+                        else:
+                            self._logger.log("Error: BotEventVisibleError")
+                            raise errors.BotEventVisibleError(
+                                "messagec(), typing(), dm_typing() and other events"
+                                + "don't avaivable right now because flags < DisFlags.messages()"
+                            )
+                    elif event_type in ["reaction", "reactionr"]:
+                        if self.intflags >= DisFlags.reactions():
+                            self._ons[event_type] = func
+                            self._logger.log(f"Register on_{event_type}() event")
+                        else:
+                            self._logger.log("Error: BotEventVisibleError")
+                            raise errors.BotEventVisibleError(
+                                "reaction() and reactionr() events don't"
+                                + " avaivable right now because flags < DisFlags.reactions()"
+                            )
+                    else:
+                        self._ons[event_type] = func
+                        self._logger.log(f"Register on_{event_type}() event")
+            else:
+                self._logger.log("Error: BotEventTypeError")
+                raise errors.BotEventTypeError("Invalid type of event!")
+        return wrapper
 
     def on(self, event_type: Event(DisBotEventType, str)) -> Wrapper:
         """
