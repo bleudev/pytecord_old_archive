@@ -1,11 +1,6 @@
 Bot
 ###
 
-Contents:
-    * `DisBot`_
-    * `DisBotStatus`_
-    * `DisBotEventType`_
-
 DisBot
 ******
 
