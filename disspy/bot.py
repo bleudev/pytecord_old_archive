@@ -298,7 +298,10 @@ class DisBot:
             Wrapper
         """
         def wrapper(func):
-            event_type = func.__name__
+            event_type: str = func.__name__
+            
+            if event_type.startswith('on_'):
+                event_type = event_type.removeprefix('on_')
             
             if event_type in _all_basic_events:
                 if event_type == "close":
