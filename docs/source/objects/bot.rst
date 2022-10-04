@@ -37,7 +37,7 @@ DisBot
 
 ::
 
-    @on(event_type: Event(DisBotEventType, str)) -> Wrapper
+    @on(event_type: TypeOf[DisBotEventType]) -> Wrapper
 
 Registering events with event type and function
 
@@ -58,7 +58,7 @@ add_event()
 
 ::
 
-    def add_event(event_type: Event(DisBotEventType, str), func: Callable) -> None
+    def add_event(event_type: TypeOf[DisBotEventType], func: Callable) -> None
 
 Registering events with event type and function
 

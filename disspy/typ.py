@@ -23,37 +23,39 @@ SOFTWARE.
 """
 
 from abc import abstractmethod
-from typing import Protocol
+from typing import (
+    Protocol,
+    Any
+)
 
 
-class TypeOf:
+class _Generic:
+    """
+    Class for generic typing
+    """
+
+    def __getitem__(self, _: Any):
+        return _
+
+
+class _GenericTypeOf(_Generic):
     """
     Class for typing in objects receiving in methods
 
     Example
-    def foo(self, bar: TypeOf(foo)):
+    def foo(self, bar: TypeOf[foo]):
         ...
     """
 
-    def __new__(cls, *args) -> type:
+    def __getitem__(self, _: Any):
         """
         :param args: [0] is type
         :param kwargs: No
         :return type:
         """
-        return int if str(list(args)[0]).isdigit() else str
+        return int if str(_).isdigit() else str
 
-
-class Event:
-    """
-    Class for event typing
-
-    Ex, Event(DisBotEventType, str)
-    """
-
-    def __new__(cls, *args) -> list:
-        return list(args)[1]
-
+TypeOf = _GenericTypeOf()
 
 class SupportsStr(Protocol):
     """SupportsStr

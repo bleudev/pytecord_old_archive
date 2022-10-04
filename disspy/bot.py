@@ -37,7 +37,7 @@ import requests.exceptions
 
 # Disspy imports
 from disspy import errors
-from disspy.typ import TypeOf, Event, MISSING
+from disspy.typ import TypeOf, MISSING
 from disspy.activity import Activity
 import disspy.app_commands as appc
 from disspy.channel import DisChannel, DisDmChannel, DisMessage, DmMessage
@@ -207,13 +207,13 @@ class DisBot:
     def __init__(
         self,
         token: str,
-        flags: Optional[TypeOf(DisFlags)] = None
+        flags: Optional[TypeOf[DisFlags]] = None
     ) -> None:
         """__init__
 
         Args:
             token (str): Bot token from Discord developers portal
-            flags (Optional[TypeOf(DisFlags), optional): Flags of bot. Defaults to None.
+            flags (Optional[TypeOf[DisFlags], optional): Flags of bot. Defaults to None.
         """
 
         _u = "https://discord.com/api/v10/users/@me"
@@ -345,7 +345,7 @@ class DisBot:
                 raise errors.BotEventTypeError("Invalid type of event!")
         return wrapper
 
-    def on(self, event_type: Event(DisBotEventType, str)) -> Wrapper:
+    def on(self, event_type: TypeOf[DisBotEventType]) -> Wrapper:
         """
         This method was created for changing on_ready(), on_messagec()
         and other methods that using in _runner
@@ -409,7 +409,7 @@ class DisBot:
         return wrapper
 
     def add_event(
-        self, event_type: Event(DisBotEventType, str), func: Callable
+        self, event_type: Event[DisBotEventType, str], func: Callable
     ) -> None:
         """
         Add event to bot with function and event type
@@ -611,7 +611,7 @@ class DisBot:
 
     def run(
         self,
-        status: Optional[Literal["online", "dnd", "invisible", "idle"]] = None,
+        status: Literal["online", "dnd", "invisible", "idle"] = "online",
         activity: Optional[Activity] = None,
     ) -> None:
         """
@@ -622,10 +622,7 @@ class DisBot:
         """
         self.isready = True
 
-        if status:
-            self.status = status
-        elif not status:
-            self.status = "online"
+        self.status = status
 
         if activity:
             self._act = activity.json()
