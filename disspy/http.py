@@ -114,6 +114,9 @@ class DisFlags:
     def __all__(self) -> List[str]:
         return [str(self.default()), str(self.all())]
 
+    def __type__(self) -> type:
+        return int
+
     @staticmethod
     def default() -> int:
         """

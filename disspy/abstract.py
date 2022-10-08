@@ -143,7 +143,8 @@ class Message(ABC):
 
     @abstractmethod
     async def reply(
-        self, content: Optional[SupportsStr] = None, embeds: Optional[List[Any]] = None
+        self, content: Optional[SupportsStr] = None, *, embeds: Optional[List[Any]] = None,
+        action_row: Optional[Any] = None
     ):
         """reply
         Reply to message
@@ -152,7 +153,7 @@ class Message(ABC):
             content (Optional[str], optional): Message content. Defaults to None.
             embeds (Optional[List[Any]], optional): Message embeds. Defaults to None.
         """
-        return
+        raise NotImplementedError()
 
     def is_reply(self) -> bool:
         """is_reply

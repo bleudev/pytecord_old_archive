@@ -126,9 +126,6 @@ class DisBotStatus:
     bot.run(disspy.DisBotStatus.DND)
 
     bot.run(disspy.DisBotStatus.IDLE)
-
-    And you may use status in __init__()
-    bot = disspy.DisBot(token="TOKEN", status=disspy.DisBotStatus.ONLINE)
     """
 
     ONLINE: Literal["online"] = "online"
@@ -143,6 +140,9 @@ class DisBotStatus:
         :return list: All varibles in this class
         """
         return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
+    
+    def __type__(self) -> type:
+        return str
 
 
 @final
@@ -158,39 +158,21 @@ class DisBotEventType:
         await message.channel.send('Test!')
     """
 
-    ON_MESSAGEC: str = "messagec"
-    ON_MESSAGEU: str = "messageu"
-    ON_MESSAGED: str = "messaged"
-    ON_DMESSAGEC: str = "dmessagec"
-    ON_DMESSAGEU: str = "dmessageu"
-    ON_DMESSAGED: str = "dmessaged"
-    ON_READY: str = "ready"
-    ON_CLOSE: str = "close"
-    ON_REACTION: str = "reaction"
-    ON_REACTIONR: str = "reactionr"
-    ON_TYPING: str = "typing"
-    ON_DM_TYPING: str = "dm_typing"
+    MESSAGEC: str = "messagec"
+    MESSAGEU: str = "messageu"
+    MESSAGED: str = "messaged"
+    DMESSAGEC: str = "dmessagec"
+    DMESSAGEU: str = "dmessageu"
+    DMESSAGED: str = "dmessaged"
+    READY: str = "ready"
+    CLOSE: str = "close"
+    REACTION: str = "reaction"
+    REACTIONR: str = "reactionr"
+    TYPING: str = "typing"
+    DM_TYPING: str = "dm_typing"
 
-    def __all__(self) -> list:
-        """
-        Returns all varibles in this class
-        -----
-        :return list: All varibles in this class
-        """
-        return [
-            self.ON_READY,
-            self.ON_MESSAGEC,
-            self.ON_MESSAGEU,
-            self.ON_MESSAGED,
-            self.ON_DMESSAGEC,
-            self.ON_DMESSAGEU,
-            self.ON_DMESSAGED,
-            self.ON_CLOSE,
-            self.ON_REACTION,
-            self.ON_REACTIONR,
-            self.ON_TYPING,
-            self.ON_DM_TYPING,
-        ]
+    def __type__(self) -> type:
+        return str
 
 
 @final
@@ -409,7 +391,7 @@ class DisBot:
         return wrapper
 
     def add_event(
-        self, event_type: Event[DisBotEventType, str], func: Callable
+        self, event_type: TypeOf[DisBotEventType], func: Callable
     ) -> None:
         """
         Add event to bot with function and event type

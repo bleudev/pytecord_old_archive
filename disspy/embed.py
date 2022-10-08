@@ -187,6 +187,7 @@ class DisEmbed:
         self.color: str = color
         self.footer: str = {"text": footer}
         self.author: dict = None
+        self.url = None
 
         self.sprite_components = _SpriteComponents()
 

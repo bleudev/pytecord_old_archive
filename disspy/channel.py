@@ -36,6 +36,7 @@ from disspy.guild import DisGuild
 from disspy.jsongenerators import _EmbedGenerator
 from disspy.ui import ActionRow
 from disspy.reaction import DisEmoji, DisOwnReaction
+from disspy.payloads import message_payload
 
 
 __all__: tuple = (
@@ -219,17 +220,22 @@ class DisMessage(Message):
 
                 if i["footer"]["text"]:
                     _e = DisEmbed(
-                        i["title"], i["description"], i["color"], i["footer"]["text"]
+                        title=i["title"],
+                        description=i["description"],
+                        color=i["color"],
+                        footer=i["footer"]["text"]
                     )
                 else:
-                    _e = DisEmbed(i["title"], i["description"], i["color"])
+                    _e = DisEmbed(i["title"], description=i["description"], color=i["color"])
 
                 if i["fields"]:
                     for field in i["fields"]:
                         try:
-                            _e.add_field(field["name"], field["value"], field["inline"])
+                            _e.add_field(field["name"], field["value"], inline=field["inline"])
                         except KeyError:
                             _e.add_field(field["name"], field["value"])
+
+                self.embeds.append(_e)
 
         self.id: int = int(_data["id"])
 
@@ -239,7 +245,9 @@ class DisMessage(Message):
     async def reply(
         self,
         content: Optional[SupportsStr] = None,
+        *,
         embeds: Optional[List[DisEmbed]] = None,
+        action_row: Optional[ActionRow] = None
     ):
         """reply
         Reply to message
@@ -248,30 +256,18 @@ class DisMessage(Message):
             content (Optional[str], optional): Message content (text). Defaults to None.
             embeds (Optional[List[DisEmbed]], optional): Message embeds (DisEmbed objects).
                                                          Defaults to None.
+            action_row (Optional[ActionRow], optional): Action row with components.
+                                                         Defaults to None.
         """
-        _d = {
-            "content": None,
-            "embeds": {},
-            "message_reference": {"message_id": self.id},
-        }
+        _payload = message_payload(content, embeds, action_row)
+        _payload.setdefault("message_reference", {"message_id": self.id})
 
-        content = str(content)
+        if _payload:
+            data = await _SendingRestHandler.execute(self.channel.id, _payload, self.session)
 
-        if content:
-            _d["content"] = content
+            return DisMessage(data, self._t, self.session)
 
-        if embeds:
-            embeds_jsons = []
-
-            for i in embeds:
-                embeds_jsons.append(_EmbedGenerator(i))
-
-            _d["embeds"] = embeds_jsons
-
-        if not embeds and not content:
-            return
-
-        await _SendingRestHandler.execute(self.channel.id, _d, self.session)
+        return None
 
     async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisOwnReaction:
         """create_reaction
@@ -353,37 +349,26 @@ class DisChannel(Channel):
         embeds: Optional[List[DisEmbed]] = None,
         action_row: Optional[ActionRow] = None,
     ) -> Union[DisMessage, None]:
+        """send
+        Send message in channels
+
+        Examples:
+            await channel.send("Test!")  # Send message with content
+
+            await channel.send("Test!", embeds=[DisEmbed()])  # Send message with content and embeds
+
+        Args:
+            content (Optional[SupportsStr], optional): Message content. Defaults to None.
+            embeds (Optional[List[DisEmbed]], optional): Message embeds (For one embed
+                                                         use `[your_embed]`). Defaults to None.
+            action_row (Optional[ActionRow], optional): Action row with components.
+                                                        Defaults to None.
+
+        Returns:
+            DisMessage: Sended message (If message is sended)
+            None: If message is not sended
         """
-        Sending messages to discord channel
-
-        :param content: str = None -> Content of message which will be sended (default is None)
-        :param embeds: List[DisEmbed] = None -> Embeds for message (DisEmbed - embed)
-                                                (default is None)
-        :param action_row: ActionRow = None -> Action Row with components (default is None)
-        :return DisMessage: Message which was sended
-        """
-        _payload = {"content": None, "embeds": None, "components": None}
-
-        if embeds:
-            embeds_json = []
-
-            for i in embeds:
-                embeds_json.append(_EmbedGenerator(i))
-
-            _payload["embeds"] = embeds_json
-        else:
-            del _payload["embeds"]
-
-        if content:
-            _payload["content"] = content
-        else:
-            del _payload["content"]
-
-        if action_row:
-            if action_row.json["components"]:
-                _payload["components"] = action_row.json
-            else:
-                del _payload["components"]
+        _payload = message_payload(content, embeds, action_row)
 
         if _payload:
             data = await _SendingRestHandler.execute(self.id, _payload, self.session)

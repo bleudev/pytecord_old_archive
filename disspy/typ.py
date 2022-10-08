@@ -28,6 +28,9 @@ from typing import (
     Any
 )
 
+def _get_type(cls: type):
+    return cls().__type__()
+
 
 class _Generic:
     """
@@ -47,13 +50,17 @@ class _GenericTypeOf(_Generic):
         ...
     """
 
-    def __getitem__(self, _: Any):
+    def __getitem__(self, cls: type):
+        """__getitem__
+        Generic method
+
+        Args:
+            cls (type): Class for generic
+
+        Returns:
+            type: Generic output
         """
-        :param args: [0] is type
-        :param kwargs: No
-        :return type:
-        """
-        return int if str(_).isdigit() else str
+        return _get_type(cls)
 
 TypeOf = _GenericTypeOf()
 
