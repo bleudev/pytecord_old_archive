@@ -23,7 +23,6 @@ SOFTWARE.
 """
 
 from setuptools import setup
-from disspy import __version__
 
 with open('README.md', 'r', encoding='utf-8') as mdf:
     long_description = mdf.read()
@@ -33,6 +32,8 @@ requires = """aiohttp>=3.6.0,<4
               asyncio
               colorama""".replace(' ', '').split("\n")
 
+
+__version__ = "0.6.3.1.1"
 
 setup(
     name="disspy",
