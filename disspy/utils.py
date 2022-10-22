@@ -41,3 +41,11 @@ def dict_to_tuples(__dict: dict) -> List[tuple]:
     result = [(key, values[keys.index(key)]) for key in keys]
 
     return result
+
+def _type_check(__v: object, __t: type) -> bool:
+    check = isinstance(__v, __t)
+
+    if not check:
+        raise TypeError('Expected %s: Got %s' % (__t, type(__v)))
+
+    return check
