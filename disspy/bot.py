@@ -49,6 +49,7 @@ from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.abstract import Channel, Message, Thread
 from disspy.state import ConnectionState
 from disspy.application import Application
+from disspy.utils import _type_check, _type_of, NoneType
 
 __all__: tuple = ("DisBotStatus", "DisBotEventType", "DisBot")
 
@@ -133,7 +134,7 @@ class DisBotStatus:
     INVISIBLE: Literal["invisible"] = "invisible"
     IDLE: Literal["idle"] = "idle"
 
-    def __all__(self) -> list:
+    def __values__(self) -> list:
         """
         Returns all varibles in this class
         -----
@@ -171,6 +172,11 @@ class DisBotEventType:
     TYPING: str = "typing"
     DM_TYPING: str = "dm_typing"
 
+    def __values__(self) -> list:
+        return [self.MESSAGEC, self.MESSAGEU, self.MESSAGED, self.DMESSAGEC, self.DMESSAGEU,
+                self.DMESSAGED, self.READY, self.CLOSE, self.REACTION, self.REACTIONR,
+                self.TYPING, self.DM_TYPING]
+
     def __type__(self) -> type:
         return str
 
@@ -197,6 +203,10 @@ class DisBot:
             token (str): Bot token from Discord developers portal
             flags (Optional[TypeOf[DisFlags], optional): Flags of bot. Defaults to None.
         """
+        # Type checks
+        _type_check(token, str)
+        _type_check(flags, (TypeOf[DisFlags], NoneType))
+        # _END
 
         _u = "https://discord.com/api/v10/users/@me"
         test_j = get(_u, headers={"Authorization": f"Bot {token}"}).json()
@@ -335,6 +345,10 @@ class DisBot:
         :param t: Type of event
         :return Wrapper:
         """
+        # Type checks
+        _type_check(event_type, TypeOf[DisBotEventType])
+        _type_of(event_type, DisBotEventType)
+        # _END
 
         __methodname__ = f"{self.__classname__}.on()"
 

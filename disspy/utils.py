@@ -22,8 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import List
+from typing import (
+    Protocol,
+    List
+)
 
+class TypedOf(Protocol):
+    def __type__(self) -> type: ...
+    def __values__(self) -> list: ...
 
 def dict_to_tuples(__dict: dict) -> List[tuple]:
     """dict_to_tuples
@@ -42,10 +48,20 @@ def dict_to_tuples(__dict: dict) -> List[tuple]:
 
     return result
 
-def _type_check(__v: object, __t: type) -> bool:
-    check = isinstance(__v, __t)
+def _type_check(__o: object, __t: type) -> bool:
+    check = isinstance(__o, __t)
 
     if not check:
-        raise TypeError('Expected %s: Got %s' % (__t, type(__v)))
+        raise TypeError(f'Expected {__t}: Got {type(__o)}')
 
     return check
+
+def _type_of(__o: object, __t: TypedOf) -> bool:
+    check = __o in __t().__values__()
+
+    if not check:
+        raise ValueError(f'Expected type of {__t}: Got {__o}')
+
+    return check
+
+NoneType = type(None)
