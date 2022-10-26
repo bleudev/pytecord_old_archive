@@ -414,6 +414,12 @@ class DisBot:
         :param func: Function
         :return None:
         """
+        # Type checks
+        _type_check(event_type, TypeOf[DisBotEventType])
+        _type_check(func, Callable)
+        _type_of(event_type, DisBotEventType)
+        # _END
+
         __methodname__ = f"{self.__classname__}.add_event()"
 
         if isinstance(event_type, DisBotEventType):
@@ -514,13 +520,16 @@ class DisBot:
 
         return wrapper
 
-    def on_channel(self, channel_id: ChannelId) -> Wrapper:
+    def on_channel(self, channel_id: int) -> Wrapper:
         """
         On channel event (on_messagec event only in the channel)
         -----
         :param channel_id: Channel id
         :return Wrapper:
         """
+        # Type checks
+        _type_check(channel_id, int)
+        # _END
 
         def wrapper(func):
             self._logger.log("Register on_channel() event")
@@ -539,6 +548,9 @@ class DisBot:
         Returns:
             Wrapper
         """
+        # Type checks
+        _type_check(name, (str, NoneType))
+        # _END
 
         def wrapper(func, name=name):
             if name is MISSING:
@@ -576,6 +588,9 @@ class DisBot:
             name (Optional[str], optional): Name of context menu. Defaults to MISSING.
                                             (if MISSING: func.__name__)
         """
+        # Type checks
+        _type_check(name, (str, NoneType))
+        # _END
 
         def wrapper(func, name=name):
             if name is MISSING:
