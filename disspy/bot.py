@@ -48,7 +48,7 @@ from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.abstract import Channel, Message, Thread
 from disspy.state import ConnectionState
 from disspy.application import Application
-from disspy.utils import _type_check, _type_of, optional
+from disspy.utils import _type_check, _type_of, optional, type_check_obj
 
 __all__: tuple = ("DisBotEventType", "DisBot")
 
@@ -534,15 +534,10 @@ class DisBot:
         :return: None
         """
         # Type checks
-        class _StatusTypeCheck:
-            def __values__(self) -> list:
-                return ["online", "dnd", "invisible", "idle"]
+        status_type_check = type_check_obj(["online", "dnd", "invisible", "idle"], str)
 
-            def __type__(self) -> type:
-                return str
-
-        _type_check(status, TypeOf[_StatusTypeCheck])
-        _type_of(status, _StatusTypeCheck)
+        _type_check(status, TypeOf[status_type_check])
+        _type_of(status, status_type_check)
         _type_check(activity, optional(Activity))
         # _END
         self.isready = True

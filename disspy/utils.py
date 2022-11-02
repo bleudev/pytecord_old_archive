@@ -77,3 +77,21 @@ def optional(__t: type) -> tuple:
         tuple: (__t, NoneType)
     """
     return (__t, NoneType)
+
+def type_check_obj(vls, typ) -> type:
+    """type_check_obj
+    Get type check object
+
+    Args:
+        vls: __values__
+        typ: __type__
+
+    Returns:
+        type
+    """
+    class _Result:
+        def __values__(self):
+            return vls
+        def __type__(self):
+            return typ
+    return _Result
