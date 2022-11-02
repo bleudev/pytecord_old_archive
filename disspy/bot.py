@@ -591,13 +591,17 @@ class DisBot:
             self._logger.log("Disconnect bot")
             await self.api.disconnecter()
 
-    def get_channel(self, channel_id: ChannelId) -> Union[DisChannel, DisDmChannel]:
+    def get_channel(self, channel_id: int) -> Union[DisChannel, DisDmChannel]:
         """
         Get channel from id
         -----
         :param channel_id: Channel Id
         :return Union[DisChannel, DisDmChannel]:
         """
+        # Type checks
+        _type_check(channel_id, int)
+        # _END
+        
         channel = self.api.get_channel_or_thread(channel_id)
 
         if isinstance(channel, Channel):
@@ -607,7 +611,7 @@ class DisBot:
         raise RuntimeError(_m)
 
     def get_thread(
-        self, thread_id: ThreadId
+        self, thread_id: int
     ) -> Union[DisNewsThread, DisThread, DisPrivateThread]:
         """get_thread
         Get thread by id
@@ -621,6 +625,10 @@ class DisBot:
         Returns:
             Union[DisNewsThread, DisThread, DisPrivateThread]: Getted thread object
         """
+        # Type checks
+        _type_check(thread_id, int)
+        # _END
+        
         thread = self.api.get_channel_or_thread(thread_id)
 
         if isinstance(thread, Thread):
@@ -629,37 +637,44 @@ class DisBot:
         _m = "This channel is not thread! Use get_channel() method"
         raise RuntimeError(_m)
 
-    def get_guild(self, guild_id: GuildId) -> DisGuild:
+    def get_guild(self, guild_id: int) -> DisGuild:
         """
         Get guild from id
         -----
         :param guild_id: Guild Id
         :return DisGuild:
         """
+        # Type checks
+        _type_check(guild_id, int)
+        # _END
+        
         return self.api.get_guild(guild_id)
 
-    def get_user(self, user_id: UserId) -> DisUser:
+    def get_user(self, user_id: int) -> DisUser:
         """
         Get user from id
         -----
         :param user_id: User Id
         :return DisUser:
         """
+        # Type checks
+        _type_check(user_id, int)
+        # _END
+
         return self.api.get_user(user_id)
 
-    async def change_activity(self, activity: Union[Activity, dict]):
+    async def change_activity(self, activity: Activity):
         """
         Change activity
         -----
         :param activity: Activity to change
         :return None:
         """
-        act = {}
+        # Type checks
+        _type_check(activity, Activity)
+        # _END
 
-        if isinstance(activity, Activity):
-            act = activity.json()
-        elif isinstance(activity, dict):
-            act = activity
+        act = activity.json()
 
         await self.api.fsend_request(
             {
