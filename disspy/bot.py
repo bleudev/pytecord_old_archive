@@ -41,7 +41,7 @@ from disspy.typ import TypeOf, MISSING
 from disspy.activity import Activity
 import disspy.app_commands as appc
 from disspy.channel import DisChannel, DisDmChannel, DisMessage, DmMessage
-from disspy.http import DisApi, DisFlags, ChannelId, ThreadId, GuildId, UserId
+from disspy.http import DisApi, DisFlags
 from disspy.guild import DisGuild
 from disspy.user import DisUser
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
@@ -601,7 +601,7 @@ class DisBot:
         # Type checks
         _type_check(channel_id, int)
         # _END
-        
+
         channel = self.api.get_channel_or_thread(channel_id)
 
         if isinstance(channel, Channel):
@@ -628,7 +628,7 @@ class DisBot:
         # Type checks
         _type_check(thread_id, int)
         # _END
-        
+
         thread = self.api.get_channel_or_thread(thread_id)
 
         if isinstance(thread, Thread):
@@ -647,7 +647,7 @@ class DisBot:
         # Type checks
         _type_check(guild_id, int)
         # _END
-        
+
         return self.api.get_guild(guild_id)
 
     def get_user(self, user_id: int) -> DisUser:
