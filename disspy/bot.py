@@ -51,7 +51,7 @@ from disspy.state import ConnectionState
 from disspy.application import Application
 from disspy.utils import _type_check, _type_of, NoneType
 
-__all__: tuple = ("DisBotStatus", "DisBotEventType", "DisBot")
+__all__: tuple = ("DisBotEventType", "DisBot")
 
 # For Type Hints
 Wrapper = Callable
@@ -114,36 +114,6 @@ class _BotLogger:
         )
 
         self.logs.append(f"[{_time}] {msg}")
-
-
-@final
-class DisBotStatus:
-    """
-    Class for adding discord status for bot
-
-    Examples
-    bot.run(disspy.DisBotStatus.ONLINE)
-
-    bot.run(disspy.DisBotStatus.DND)
-
-    bot.run(disspy.DisBotStatus.IDLE)
-    """
-
-    ONLINE: Literal["online"] = "online"
-    DND: Literal["dnd"] = "dnd"
-    INVISIBLE: Literal["invisible"] = "invisible"
-    IDLE: Literal["idle"] = "idle"
-
-    def __values__(self) -> list:
-        """
-        Returns all varibles in this class
-        -----
-        :return list: All varibles in this class
-        """
-        return [self.ONLINE, self.DND, self.INVISIBLE, self.IDLE]
-    
-    def __type__(self) -> type:
-        return str
 
 
 @final
@@ -335,73 +305,6 @@ class DisBot:
             else:
                 self._logger.log("Error: BotEventTypeError")
                 raise errors.BotEventTypeError("Invalid type of event!")
-        return wrapper
-
-    def on(self, event_type: TypeOf[DisBotEventType]) -> Wrapper:
-        """
-        This method was created for changing on_ready(), on_messagec()
-        and other methods that using in _runner
-        -----
-        :param t: Type of event
-        :return Wrapper:
-        """
-        # Type checks
-        _type_check(event_type, TypeOf[DisBotEventType])
-        _type_of(event_type, DisBotEventType)
-        # _END
-
-        __methodname__ = f"{self.__classname__}.on()"
-
-        if isinstance(event_type, DisBotEventType):
-            _message = (
-                f"Error! In method {__methodname__} was moved"
-                "invalid argument! Argument type is DisBotEventType,"
-                "but in method have to type is str!"
-            )
-            raise errors.InvalidArgument(_message)
-
-        def wrapper(func):
-            if event_type in _all_basic_events:
-                if event_type == "close":
-                    self._on_close = func
-                    self._logger.log("Register on_close() event")
-                else:
-                    if event_type in [
-                        "messagec",
-                        "messageu",
-                        "messaged",
-                        "typing",
-                        "dm_typing",
-                        "dmessagec",
-                        "dmessageu",
-                        "dmessaged",
-                    ]:
-                        if self.intflags >= DisFlags.messages():
-                            self._ons[event_type] = func
-                            self._logger.log(f"Register on_{event_type}() event")
-                        else:
-                            self._logger.log("Error: BotEventVisibleError")
-                            raise errors.BotEventVisibleError(
-                                "messagec(), typing(), dm_typing() and other events"
-                                + "don't avaivable right now because flags < DisFlags.messages()"
-                            )
-                    elif event_type in ["reaction", "reactionr"]:
-                        if self.intflags >= DisFlags.reactions():
-                            self._ons[event_type] = func
-                            self._logger.log(f"Register on_{event_type}() event")
-                        else:
-                            self._logger.log("Error: BotEventVisibleError")
-                            raise errors.BotEventVisibleError(
-                                "reaction() and reactionr() events don't"
-                                + " avaivable right now because flags < DisFlags.reactions()"
-                            )
-                    else:
-                        self._ons[event_type] = func
-                        self._logger.log(f"Register on_{event_type}() event")
-            else:
-                self._logger.log("Error: BotEventTypeError")
-                raise errors.BotEventTypeError("Invalid type of event!")
-
         return wrapper
 
     def add_event(
@@ -631,6 +534,18 @@ class DisBot:
         :param status: Status for bot user
         :return: None
         """
+        # Type checks
+        class _StatusTypeCheck:
+            def __values__(self) -> list:
+                return ["online", "dnd", "invisible", "idle"]
+
+            def __type__(self) -> type:
+                return str
+
+        _type_check(status, TypeOf[_StatusTypeCheck])
+        _type_of(status, _StatusTypeCheck)
+        _type_check(activity, (Activity, NoneType))
+        # _END
         self.isready = True
 
         self.status = status
@@ -676,26 +591,6 @@ class DisBot:
         if self.isready:
             self._logger.log("Disconnect bot")
             await self.api.disconnecter()
-
-    async def send(
-        self,
-        channel_id: int,
-        content: Optional[str] = None,
-        embeds: Optional[List[DisEmbed]] = None,
-    ):
-        """
-        Send message to channel
-        -----
-        :param channel_id: Channel Id
-        :param content: Message Content
-        :param embeds: Message embeds
-        :return None:
-        """
-        if self.isready:
-            channel = self.get_channel(channel_id)
-            await channel.send(content=content, embeds=embeds)
-        else:
-            raise errors.InternetError("Bot is not ready!")
 
     def get_channel(self, channel_id: ChannelId) -> Union[DisChannel, DisDmChannel]:
         """
