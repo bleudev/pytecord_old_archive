@@ -42,7 +42,6 @@ from disspy.activity import Activity
 import disspy.app_commands as appc
 from disspy.channel import DisChannel, DisDmChannel, DisMessage, DmMessage
 from disspy.http import DisApi, DisFlags, ChannelId, ThreadId, GuildId, UserId
-from disspy.embed import DisEmbed
 from disspy.guild import DisGuild
 from disspy.user import DisUser
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
