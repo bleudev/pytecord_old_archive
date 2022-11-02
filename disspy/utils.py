@@ -22,8 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import List
+from typing import (
+    Protocol,
+    List
+)
 
+class TypedOf(Protocol):
+    def __type__(self) -> type: ...
+    def __values__(self) -> list: ...
 
 def dict_to_tuples(__dict: dict) -> List[tuple]:
     """dict_to_tuples
@@ -41,3 +47,51 @@ def dict_to_tuples(__dict: dict) -> List[tuple]:
     result = [(key, values[keys.index(key)]) for key in keys]
 
     return result
+
+def _type_check(__o: object, __t: type) -> bool:
+    check = isinstance(__o, __t)
+
+    if not check:
+        raise TypeError(f'Expected {__t}: Got {type(__o)}')
+
+    return check
+
+def _type_of(__o: object, __t: TypedOf) -> bool:
+    check = __o in __t().__values__()
+
+    if not check:
+        raise ValueError(f'Expected type of {__t}: Got {__o}')
+
+    return check
+
+NoneType = type(None)
+
+def optional(__t: type) -> tuple:
+    """optional
+    Get tuple with __t and NoneType
+
+    Args:
+        __t (type)
+
+    Returns:
+        tuple: (__t, NoneType)
+    """
+    return (__t, NoneType)
+
+def type_check_obj(vls, typ) -> type:
+    """type_check_obj
+    Get type check object
+
+    Args:
+        vls: __values__
+        typ: __type__
+
+    Returns:
+        type
+    """
+    class _Result:
+        def __values__(self):
+            return vls
+        def __type__(self):
+            return typ
+    return _Result
