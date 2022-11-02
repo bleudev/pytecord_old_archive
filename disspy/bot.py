@@ -48,7 +48,7 @@ from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.abstract import Channel, Message, Thread
 from disspy.state import ConnectionState
 from disspy.application import Application
-from disspy.utils import _type_check, _type_of, NoneType
+from disspy.utils import _type_check, _type_of, optional
 
 __all__: tuple = ("DisBotEventType", "DisBot")
 
@@ -174,7 +174,7 @@ class DisBot:
         """
         # Type checks
         _type_check(token, str)
-        _type_check(flags, (TypeOf[DisFlags], NoneType))
+        _type_check(flags, optional(TypeOf[DisFlags]))
         # _END
 
         _u = "https://discord.com/api/v10/users/@me"
@@ -451,7 +451,7 @@ class DisBot:
             Wrapper
         """
         # Type checks
-        _type_check(name, (str, NoneType))
+        _type_check(name, optional(str))
         # _END
 
         def wrapper(func, name=name):
@@ -491,7 +491,7 @@ class DisBot:
                                             (if MISSING: func.__name__)
         """
         # Type checks
-        _type_check(name, (str, NoneType))
+        _type_check(name, optional(str))
         # _END
 
         def wrapper(func, name=name):
@@ -543,7 +543,7 @@ class DisBot:
 
         _type_check(status, TypeOf[_StatusTypeCheck])
         _type_of(status, _StatusTypeCheck)
-        _type_check(activity, (Activity, NoneType))
+        _type_check(activity, optional(Activity))
         # _END
         self.isready = True
 

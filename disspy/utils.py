@@ -65,3 +65,15 @@ def _type_of(__o: object, __t: TypedOf) -> bool:
     return check
 
 NoneType = type(None)
+
+def optional(__t: type) -> tuple:
+    """optional
+    Get tuple with __t and NoneType
+
+    Args:
+        __t (type)
+
+    Returns:
+        tuple: (__t, NoneType)
+    """
+    return (__t, NoneType)
