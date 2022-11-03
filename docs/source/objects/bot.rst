@@ -1,12 +1,12 @@
 Bot
 ###
 
-DisBot
+Client
 ******
 
 ::
 
-    class DisBot(token: str, status: Optional[TypeOf(DisBotStatus)],
+    class Client(token: str, status: Optional[TypeOf(DisBotStatus)],
                  flags: Optional[TypeOf(DisFlags)], debug: Optional[bool] = False,
                  activity: Optional[Union[Activity, dict]])
 
@@ -483,7 +483,7 @@ Args for event:
 ON_CLOSE
 ========
 
-Will be called when calling ``DisBot.__del__`` function
+Will be called when calling ``Client.__del__`` function
 
 Args for event:
     ``None``

@@ -39,11 +39,11 @@ on your server, creating mini games in discord, auto moderation in your discord 
 For example, you can reply to message that is sended by any user using this code:
 
 ```python
-from disspy import DisBot, DisMessage  # Import package
+from disspy import Client, DisMessage  # Import package
 import os
 
 TOKEN = os.environ["TOKEN"]
-bot = DisBot(token=TOKEN)  # Create a bot
+bot = Client(TOKEN)  # Create a bot
 
 @bot.on_message("create")  # On message create
 async def on_messagec(message: DisMessage):  # message - sended message

@@ -4,7 +4,7 @@ Example slash commands
 import disspy
 from disspy import app_commands, StrOption, IntOption
 
-bot = disspy.DisBot(token="TOKEN")  # Create bot
+bot = disspy.Client(token="TOKEN")  # Create bot
 
 
 # Example command without options

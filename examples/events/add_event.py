@@ -1,6 +1,6 @@
 import disspy
 
-bot = disspy.DisBot(token="TOKEN")  # Create bot
+bot = disspy.Client(token="TOKEN")  # Create bot
 
 
 # add_event() example

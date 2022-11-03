@@ -72,7 +72,7 @@ Now, let's write some code!
 
     token = "YOUR_COPIED_TOKEN"
 
-    bot = disspy.DisBot(token=token, application_id=application_id)  # You created bot!
+    bot = disspy.Client(token=token, application_id=application_id)  # You created bot!
 
 Then, you can add any event using ``on() method``::
 

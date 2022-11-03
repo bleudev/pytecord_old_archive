@@ -50,7 +50,7 @@ from disspy.state import ConnectionState
 from disspy.application import Application
 from disspy.utils import _type_check, _type_of, optional, type_check_obj
 
-__all__: tuple = ("DisBotEventType", "DisBot")
+__all__: tuple = ("DisBotEventType", "Client")
 
 # For Type Hints
 Wrapper = Callable
@@ -118,7 +118,7 @@ class _BotLogger:
 @final
 class DisBotEventType:
     """
-    This class created for simplification adding events to DisBot.
+    This class created for simplification adding events to Client.
     This is class, not an object
 
     Using
@@ -151,12 +151,10 @@ class DisBotEventType:
 
 
 @final
-class DisBot:
+class Client:
     """
     Class for accessing and sending information in Discord API
     """
-
-    __classname__ = "DisBot"
 
     def _raise_unathorized_error(self) -> None:
         raise errors.Unauthorized()

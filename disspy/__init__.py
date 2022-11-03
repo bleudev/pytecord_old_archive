@@ -63,7 +63,7 @@ from disspy.channel import (
     MessageDeleteEvent,
     DmMessageDeleteEvent,
 )
-from disspy.bot import DisBot, DisBotEventType
+from disspy.bot import Client, DisBotEventType
 from disspy.http import DisApi, DisFlags, JsonOutput
 from disspy.embed import DisEmbed, DisField, DisColor
 from disspy.guild import DisGuild

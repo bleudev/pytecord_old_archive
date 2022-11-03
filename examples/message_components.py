@@ -1,7 +1,7 @@
 import disspy
 from disspy import app_commands, TextInput, Button, SelectMenu, SelectMenuOption
 
-bot = disspy.DisBot(token="TOKEN")  # Create bot
+bot = disspy.Client(token="TOKEN")  # Create bot
 
 
 # Buttons
