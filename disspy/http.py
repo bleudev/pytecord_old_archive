@@ -519,10 +519,16 @@ class DisApi:
         self, object_id: int
     ) -> Union[Channel, DisNewsThread, DisThread, DisPrivateThread]:
         """
-        Get channel by id
-        -----
-        :param channel_id: id of channel
-        :return DisChannel:
+        Get channel or thread
+
+        Args:
+            object_id (int): Id of channel or thread
+
+        Returns:
+            Channel
+            DisNewsThread
+            DisThread
+            DisPrivateThread
         """
         j = self._r.get("channel", object_id)
         _type = j["type"]

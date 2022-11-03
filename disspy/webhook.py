@@ -36,8 +36,7 @@ from disspy.channel import (
     DmMessage,
     MessageDeleteEvent,
     DmMessageDeleteEvent,
-    DisChannel,
-    DisDmChannel,
+    Channel
 )
 from disspy.reaction import DisEmoji, DisReaction, DisRemovedReaction
 from disspy.user import User
@@ -80,6 +79,25 @@ class Opcodes:
             10: "HELLO",
             11: "HEARTBEAT ACK",
         }
+
+
+class _GettingChannelData:
+    @staticmethod
+    def execute(channel_id: int, token: str):
+        """execute
+        Get channel data by id
+
+        Args:
+            channel_id (int): Channel id
+            token (str): Bot token
+
+        Returns:
+            dict: Json output
+        """
+        _u = f"https://discord.com/api/v10/channels/{channel_id}"
+        _h = {"Authorization": f"Bot {token}"}
+
+        return get(_u, headers=_h).json()
 
 
 colorama.init()  # Init Colorama
@@ -568,8 +586,10 @@ class DispyWebhook:
                             _u: User = User(
                                 event.data["member"]["user"], self.token
                             )
-                            _c: DisChannel = DisChannel(
-                                event.data["channel_id"], self.token, self.session
+                            _channel_data = _GettingChannelData.execute(event.data['channel_id'], self.token)
+
+                            _c = Channel(
+                                _channel_data, self.token, self.session
                             )
 
                             await self.ons["typing"](_u, _c)

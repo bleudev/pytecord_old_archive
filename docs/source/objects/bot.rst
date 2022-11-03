@@ -302,7 +302,7 @@ get_channel()
 
 ::
 
-    def get_channel(channel_id: ChannelId) -> DisChannel | DisDmChannel
+    def get_channel(channel_id: ChannelId) -> Channel
 
 Get channel by id
 
@@ -315,9 +315,7 @@ Params:
     ``channel_id`` -> Channel id. ``int`` type
 
 Returns:
-    ``DisChannel``
-
-    ``DisDmChannel``
+    ``Channel``
 
 
 get_thread()
@@ -512,7 +510,7 @@ Represention of Gateway "TYPING_START" event
 Args for event:
     ``user``: User object. User who started typing
 
-    ``channel``: DisChannel object. Channel where typing was started
+    ``channel``: Channel object. Channel where typing was started
 
 ON_DM_TYPING
 ============
