@@ -586,7 +586,10 @@ class DispyWebhook:
                             _u: User = User(
                                 event.data["member"]["user"], self.token
                             )
-                            _channel_data = _GettingChannelData.execute(event.data['channel_id'], self.token)
+                            _channel_data = _GettingChannelData.execute(
+                                event.data['channel_id'],
+                                self.token
+                                )
 
                             _c = Channel(
                                 _channel_data, self.token, self.session
@@ -604,8 +607,14 @@ class DispyWebhook:
                             _u_json = get(url=_url, headers=self._headers).json()
 
                             _u: User = User(_u_json, self.token)
-                            _c: DisDmChannel = DisDmChannel(
-                                event.data["channel_id"], self.token, self.session
+
+                            _channel_data = _GettingChannelData.execute(
+                                event.data['channel_id'],
+                                self.token
+                                )
+
+                            _c = Channel(
+                                _channel_data, self.token, self.session
                             )
 
                             await self.ons["dm_typing"](_u, _c)
@@ -620,8 +629,14 @@ class DispyWebhook:
                         _u_json = get(url=_url, headers=self._headers).json()
 
                         _u: User = User(_u_json, self.token)
-                        _c: DisDmChannel = DisDmChannel(
-                            event.data["channel_id"], self.token, self.session
+
+                        _channel_data = _GettingChannelData.execute(
+                            event.data['channel_id'],
+                            self.token
+                        )
+
+                        _c = Channel(
+                            _channel_data, self.token, self.session
                         )
 
                         await self.ons["dm_typing"](_u, _c)

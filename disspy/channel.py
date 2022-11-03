@@ -395,7 +395,9 @@ class DmMessage:
         self.id = data["id"]
 
         self.content = data["content"]
-        self.channel = DisDmChannel(data["channel_id"], self._t, session)
+        
+        _channel_data = _GettingChannelData.execute(data['channel_id'], token)
+        self.channel = Channel(_channel_data, token, session)
 
     async def reply(
         self,

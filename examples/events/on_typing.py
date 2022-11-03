@@ -12,7 +12,7 @@ async def on_typing(user: disspy.User, channel: disspy.Channel):  # or async def
 
 # on_dm_typing()
 @bot.event()
-async def on_dm_typing(user: disspy.User, channel: disspy.DisDmChannel):  # or async def dm_typing(...): ...
+async def on_dm_typing(user: disspy.User, channel: disspy.Channel):  # or async def dm_typing(...): ...
     print(user.id)
     print(channel.id)
 

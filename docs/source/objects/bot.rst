@@ -520,4 +520,4 @@ Represention of Gateway "TYPING_START" event only in DM channel
 Args for event:
     ``user``: User object. User who started typing
 
-    ``channel``: DisDmChannel object. Channel where typing was started
+    ``channel``: Channel object. Channel where typing was started
