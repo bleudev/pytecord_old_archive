@@ -59,6 +59,7 @@ from disspy.channel import (
     MessageDeleteEvent,
     DmMessageDeleteEvent,
     Channel,
+    ChannelType,
 )
 from disspy.bot import Client, DisBotEventType
 from disspy.http import DisApi, DisFlags

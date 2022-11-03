@@ -40,6 +40,7 @@ from disspy.payloads import message_payload
 __all__: tuple = (
     "DisMessage",
     "Channel",
+    "ChannelType",
     "DmMessage",
     "MessageDeleteEvent",
     "DmMessageDeleteEvent",
@@ -298,6 +299,24 @@ class DisMessage:
         )
 
         await _SendingRestHandler.delete_message(_u, self.session)
+
+
+class ChannelType:
+    """
+    Channel types
+    """
+    text = 0
+    dm = 1
+    voice = 2  # Not working for full
+    dm_group = 3  # Not working for full
+    category = 4  # Not working for full
+    news = 5  # Not working for full
+    news_thread = 10
+    public_thread = 11
+    private_thread = 12
+    stage_voice = 13  # Not working for full
+    directory = 14  # Not working for full
+    forum = 15  # Not working for full
 
 
 class Channel:
