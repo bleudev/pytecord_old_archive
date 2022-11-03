@@ -46,7 +46,7 @@ import colorama
 # disspy imports
 from disspy.channel import DisChannel, DisDmChannel, DisMessage
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
-from disspy.guild import DisGuild
+from disspy.guild import Guild
 from disspy.user import DisUser
 from disspy.app_commands import Context
 from disspy.webhook import DispyWebhook
@@ -548,17 +548,17 @@ class DisApi:
 
         return self._r.get("channel", channel_id)
 
-    def get_guild(self, guild_id: GuildId) -> DisGuild:
+    def get_guild(self, guild_id: GuildId) -> Guild:
         """
         Get guild by id
 
         :param guild_id: id of guild
-        :return DisGuild:
+        :return Guild:
         """
         guild_id = int(guild_id)
         data = self.get_guild_json(guild_id)
 
-        return DisGuild(data, self.token, self.session)
+        return Guild(data, self.token, self.session)
 
     def get_guild_json(self, guild_id: GuildId) -> JsonOutput:
         """

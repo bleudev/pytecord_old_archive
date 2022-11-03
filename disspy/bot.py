@@ -42,7 +42,7 @@ from disspy.activity import Activity
 import disspy.app_commands as appc
 from disspy.channel import DisChannel, DisDmChannel, DisMessage, DmMessage
 from disspy.http import DisApi, DisFlags
-from disspy.guild import DisGuild
+from disspy.guild import Guild
 from disspy.user import DisUser
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.abstract import Channel, Message, Thread
@@ -630,12 +630,12 @@ class Client:
         _m = "This channel is not thread! Use get_channel() method"
         raise RuntimeError(_m)
 
-    def get_guild(self, guild_id: int) -> DisGuild:
+    def get_guild(self, guild_id: int) -> Guild:
         """
         Get guild from id
         -----
         :param guild_id: Guild Id
-        :return DisGuild:
+        :return Guild:
         """
         # Type checks
         _type_check(guild_id, int)

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-__all__: tuple = ("DisGuildTemplate", "DisGuild")
+__all__: tuple = ("DisGuildTemplate", "Guild")
 
 from typing import Text, NewType, Union, Optional
 
@@ -232,7 +232,7 @@ class DisGuildTemplate:
         return int(j["id"])
 
 
-class DisGuild:
+class Guild:
     """
     Info
     --------

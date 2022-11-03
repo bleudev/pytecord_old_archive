@@ -32,7 +32,7 @@ from disspy.typ import Url, SupportsStr
 
 from disspy.abstract import Message, Channel
 from disspy.embed import DisEmbed
-from disspy.guild import DisGuild
+from disspy.guild import Guild
 from disspy.jsongenerators import _EmbedGenerator
 from disspy.ui import ActionRow
 from disspy.reaction import DisEmoji, DisOwnReaction
@@ -329,7 +329,7 @@ class DisChannel(Channel):
 
             _d = _GettingGuildData.execute(g_id, self._t)
 
-            self.guild = DisGuild(_d, self._t, self.session)
+            self.guild = Guild(_d, self._t, self.session)
         except KeyError:
             pass
 

@@ -350,7 +350,7 @@ get_guild()
 
 ::
 
-    def get_guild(guild_id: GuildId) -> DisGuild
+    def get_guild(guild_id: GuildId) -> Guild
 
 Get guild by id
 
@@ -362,7 +362,7 @@ Params:
     ``guild_id`` -> Guild id. ``int`` type
 
 Returns:
-    ``DisGuild``
+    ``Guild``
 
 
 change_activity()
