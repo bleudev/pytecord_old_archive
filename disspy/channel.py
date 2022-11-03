@@ -29,8 +29,6 @@ from aiohttp import ClientSession
 from requests import get
 from disspy.typ import Url, SupportsStr
 
-
-from disspy.abstract import Message, Channel
 from disspy.embed import DisEmbed
 from disspy.guild import Guild
 from disspy.jsongenerators import _EmbedGenerator
@@ -196,13 +194,12 @@ class _GettingGuildData:
 
 
 @final
-class DisMessage(Message):
+class DisMessage:
     """
     Message in channel
     """
 
     def __init__(self, _data, __token, __session):
-        super().__init__(_data["type"])
 
         self.json = _data
 
@@ -303,8 +300,88 @@ class DisMessage(Message):
         await _SendingRestHandler.delete_message(_u, self.session)
 
 
+class Channel:
+    """
+    Channel class
+    """
+    def __init__(self, __data: dict, __token, __session):
+        def _try(k: str, __t: Optional[type] = None):
+            try:
+                if __t is not None:
+                    return __t(__data[k])
+                return __data[k]
+            except KeyError:
+                return None
+
+        self._t = __token
+        self._s = __session
+
+        self.id: int = int(__data['id'])
+        self.type: int = __data['type']
+
+        self.guild_id: int = _try('guild_id', int)
+        self.position: int = _try('position')
+
+        self.name: str = _try('name')
+
+    async def send(
+        self,
+        content: Optional[SupportsStr] = None,
+        embeds: Optional[List[DisEmbed]] = None,
+        action_row: Optional[ActionRow] = None,
+    ):
+        """
+        Send message in channel
+
+        Args:
+            content (SupportsStr, optional): Message content (any object supports str() function)
+            embeds (List[DisEmbed], optional): Message embeds (For one embed use `[your_embed]`)
+            action_row (ActionRow, optional): Action row with components
+
+        Returns:
+            Message or None
+        """
+        _payload = message_payload(str(content), embeds, action_row)
+
+        if _payload:
+            data = await _SendingRestHandler.execute(self.id, _payload, self._s)
+
+            return DisMessage(data, self._t, self._s)
+
+        return None
+
+    def fetch(self, message_id: int) -> DisMessage:
+        """
+        Fetch message in this channel by id
+
+        Args:
+            message_id (int): Id of message that is fetching
+
+        Returns:
+            Message
+        """
+        data = _GettingChannelData.fetch(self.id, self._t, message_id)
+
+        return DisMessage(data, self._t, self._s)
+
+    async def delete(self):
+        """
+        Delete channel
+        """
+        _u = f"https://discord.com/api/v10/channels/{self.id}"
+
+        await _SendingRestHandler.delete(_u, self._s)
+
+    async def typing(self):
+        """
+        Show typing indicator in channel
+        """
+        _u = f"https://discord.com/api/v10/channels/{self.id}/typing"
+
+        await _SendingRestHandler.post_without_payload(_u, self._s)
+
 @final
-class DisChannel(Channel):
+class DisChannel:
     """
     The class for sending messages to discord channels and fetching messages in channels
     """
@@ -316,7 +393,6 @@ class DisChannel(Channel):
         :param id: dict -> id of the channel
         :param rest: Rest -> Rest client with token for channel
         """
-        super().__init__()
 
         self._t = __token
         self.id = channel_id
@@ -428,14 +504,12 @@ class DisChannel(Channel):
 
 
 @final
-class DmMessage(Message):
+class DmMessage:
     """
     Message in DM channel
     """
 
     def __init__(self, data, token, session):
-        super().__init__(data["type"], True)
-
         self.json = data
         self._t = token
         self.session = session
@@ -507,7 +581,7 @@ class DmMessage(Message):
 
 
 @final
-class DisDmChannel(Channel):
+class DisDmChannel:
     """
     The class for sending messages to discord DMchannels and fetching messages in DMchannels
     """
@@ -519,8 +593,6 @@ class DisDmChannel(Channel):
         :param id: Id of channel
         :param api: DisApi object with token
         """
-        super().__init__()
-
         _data = _GettingChannelData.execute(dm_id, __token)
 
         self.id = _data["id"]

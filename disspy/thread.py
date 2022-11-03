@@ -27,8 +27,6 @@ from typing import Optional, List, Any, Union
 from json import dumps
 from aiohttp import ClientSession
 
-
-from disspy.abstract import Thread
 from disspy.jsongenerators import _EmbedGenerator
 from disspy.channel import DisMessage
 from disspy.ui import ActionRow
@@ -94,13 +92,12 @@ class _Thread:
         await self.session.delete(_u)
 
 
-class DisNewsThread(Thread):
+class DisNewsThread:
     """
     Channel with GUILD_NEWS_THREAD type
     """
 
     def __init__(self, data, token, __session: ClientSession) -> None:
-        super().__init__()
         self.id: int = int(data["id"])
         self.guild_id: int = int(data["guild_id"])
         self.parent_id: int = int(data["parent_id"])
@@ -139,13 +136,12 @@ class DisNewsThread(Thread):
         await self._thread_client.delete()
 
 
-class DisThread(Thread):
+class DisThread:
     """
     Channel with GUILD_PUBLIC_THREAD type
     """
 
     def __init__(self, data, token, __session: ClientSession) -> None:
-        super().__init__()
         self.id: int = int(data["id"])
         self.guild_id: int = int(data["guild_id"])
         self.parent_id: int = int(data["parent_id"])
@@ -184,13 +180,12 @@ class DisThread(Thread):
         await self._thread_client.delete()
 
 
-class DisPrivateThread(Thread):
+class DisPrivateThread:
     """
     Channel with GUILD_PRIVATE_THREAD type
     """
 
     def __init__(self, data, token, __session: ClientSession) -> None:
-        super().__init__()
         self.id: int = int(data["id"])
         self.guild_id: int = int(data["guild_id"])
         self.parent_id: int = int(data["parent_id"])

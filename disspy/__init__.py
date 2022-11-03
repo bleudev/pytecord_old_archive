@@ -24,7 +24,6 @@ SOFTWARE.
 
 # Imports
 # Files
-import disspy.abstract
 import disspy.activity
 import disspy.app_commands
 import disspy.application
@@ -40,7 +39,6 @@ import disspy.ui
 import disspy.user
 
 # Classes
-from disspy.abstract import Messageable, Channel, Message, Thread
 from disspy.activity import Activity, ActivityType
 from disspy.app_commands import (
     ApplicationCommandType,
@@ -106,7 +104,6 @@ __github__ = "https://github.com/itttgg/dispy"
 
 # __all__
 __alls__: list = [
-    disspy.abstract.__all__,
     disspy.activity.__all__,
     disspy.app_commands.__all__,
     disspy.application.__all__,

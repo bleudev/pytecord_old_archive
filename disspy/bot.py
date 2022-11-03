@@ -40,12 +40,11 @@ from disspy import errors
 from disspy.typ import TypeOf, MISSING
 from disspy.activity import Activity
 import disspy.app_commands as appc
-from disspy.channel import DisChannel, DisDmChannel, DisMessage, DmMessage
+from disspy.channel import Channel, DisMessage, DmMessage
 from disspy.http import DisApi, DisFlags
 from disspy.guild import Guild
 from disspy.user import User
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
-from disspy.abstract import Channel, Message, Thread
 from disspy.state import ConnectionState
 from disspy.application import Application
 from disspy.utils import _type_check, _type_of, optional, type_check_obj
@@ -584,12 +583,18 @@ class Client:
             self._logger.log("Disconnect bot")
             await self.api.disconnecter()
 
-    def get_channel(self, channel_id: int) -> Union[DisChannel, DisDmChannel]:
-        """
-        Get channel from id
-        -----
-        :param channel_id: Channel Id
-        :return Union[DisChannel, DisDmChannel]:
+    def get_channel(self, channel_id: int) -> Channel:
+        """get_channel
+        Get channel by its id
+
+        Args:
+            channel_id (int) 
+
+        Raises:
+            RuntimeError: Getted channel is thread or None
+
+        Returns:
+            Channel: Getted channel
         """
         # Type checks
         _type_check(channel_id, int)
