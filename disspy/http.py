@@ -47,7 +47,7 @@ import colorama
 from disspy.channel import DisChannel, DisDmChannel, DisMessage
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.guild import Guild
-from disspy.user import DisUser
+from disspy.user import User
 from disspy.app_commands import Context
 from disspy.webhook import DispyWebhook
 
@@ -365,7 +365,7 @@ class DisApi:
 
     async def _register2(self, data: dict):
         # pass
-        self.user: DisUser = self.get_user(self.hook.user_id)
+        self.user: User = self.get_user(self.hook.user_id)
 
         if self._debug:
             print(
@@ -460,7 +460,7 @@ class DisApi:
 
             target_json = command["resolved"]["users"][target_id]
 
-            target = DisUser(target_json, self.token)
+            target = User(target_json, self.token)
 
             await callback(ctx, target)
 
@@ -494,15 +494,15 @@ class DisApi:
 
         await self.comsevs[data["data"]["custom_id"]](_ctx, _v)
 
-    def get_user(self, user_id: UserId) -> DisUser:
+    def get_user(self, user_id: UserId) -> User:
         """
         Get user by id
         -----
         :param user_id: id of user
-        :return DisUser: User
+        :return User: User
         """
 
-        return DisUser(self.get_user_json(user_id), self.token)
+        return User(self.get_user_json(user_id), self.token)
 
     def get_user_json(self, user_id: UserId) -> JsonOutput:
         """

@@ -209,7 +209,7 @@ Create `User or Message command. <application_commands.html#user-commands>`_
 Example::
 
     @bot.context_menu()  # Example user command
-    async def info(ctx: Context, user: DisUser):
+    async def info(ctx: Context, user: User):
         await ctx.send(f"Fullname: {user.fullname}")
     
     @bot.context_menu()  # Example message command
@@ -510,7 +510,7 @@ ON_TYPING
 Represention of Gateway "TYPING_START" event
 
 Args for event:
-    ``user``: DisUser object. User who started typing
+    ``user``: User object. User who started typing
 
     ``channel``: DisChannel object. Channel where typing was started
 
@@ -520,6 +520,6 @@ ON_DM_TYPING
 Represention of Gateway "TYPING_START" event only in DM channel
 
 Args for event:
-    ``user``: DisUser object. User who started typing
+    ``user``: User object. User who started typing
 
     ``channel``: DisDmChannel object. Channel where typing was started

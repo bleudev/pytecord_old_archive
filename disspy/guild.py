@@ -162,7 +162,7 @@ class DisGuildTemplate:
         self.name = data["name"]
         self.description: Union[str, None] = data["description"]
         self.usage_count: int = int(data["usage_count"])
-        self.creator: disspy.user.DisUser = disspy.user.DisUser(
+        self.creator = disspy.user.User(
             data["creator"], self._t
         )
 

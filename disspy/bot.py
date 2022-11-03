@@ -43,7 +43,7 @@ import disspy.app_commands as appc
 from disspy.channel import DisChannel, DisDmChannel, DisMessage, DmMessage
 from disspy.http import DisApi, DisFlags
 from disspy.guild import Guild
-from disspy.user import DisUser
+from disspy.user import User
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.abstract import Channel, Message, Thread
 from disspy.state import ConnectionState
@@ -242,7 +242,7 @@ class Client:
         -----
         :return None:
         """
-        self.user: DisUser = self.api.user
+        self.user: User = self.api.user
 
         self._state.get(data)
 
@@ -511,7 +511,7 @@ class Client:
                 payload["type"] = appc.ApplicationCommandType.MESSAGE
                 message_to_log = "Register message command"
 
-            elif param_type == DisUser:
+            elif param_type == User:
                 payload["type"] = appc.ApplicationCommandType.USER
                 message_to_log = "Register user command"
 
@@ -643,12 +643,12 @@ class Client:
 
         return self.api.get_guild(guild_id)
 
-    def get_user(self, user_id: int) -> DisUser:
+    def get_user(self, user_id: int) -> User:
         """
         Get user from id
         -----
         :param user_id: User Id
-        :return DisUser:
+        :return User:
         """
         # Type checks
         _type_check(user_id, int)

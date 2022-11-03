@@ -39,7 +39,7 @@ async def info(ctx: disspy.Context, message: disspy.DisMessage):
 
 # User context menu
 @bot.context_menu()
-async def fullname(ctx: disspy.Context, user: disspy.DisUser):
+async def fullname(ctx: disspy.Context, user: disspy.User):
     await ctx.respond(user.fullname)
 
 bot.run()  # Running bot

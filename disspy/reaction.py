@@ -25,7 +25,7 @@ SOFTWARE.
 from typing import Optional
 from aiohttp import ClientSession
 
-from disspy.user import DisUser
+from disspy.user import User
 
 __all__: tuple = ("DisEmoji", "DisOwnReaction", "DisReaction", "DisRemovedReaction")
 
@@ -84,7 +84,7 @@ class DisReaction:
 
     def __init__(
         self,
-        user: DisUser,
+        user: User,
         message_id: int,
         channel_id: int,
         guild_id: int,

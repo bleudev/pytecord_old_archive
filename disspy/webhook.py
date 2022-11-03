@@ -40,7 +40,7 @@ from disspy.channel import (
     DisDmChannel,
 )
 from disspy.reaction import DisEmoji, DisReaction, DisRemovedReaction
-from disspy.user import DisUser
+from disspy.user import User
 
 
 class Opcodes:
@@ -524,7 +524,7 @@ class DispyWebhook:
                             print(_DebugLoggingAwaiting(event.type, "on_modalsumbit"))
 
                 elif event.type == "MESSAGE_REACTION_ADD":
-                    _u = DisUser(event.data["member"]["user"], self.token)
+                    _u = User(event.data["member"]["user"], self.token)
                     _m_id = int(event.data["message_id"])
                     _c_id = int(event.data["channel_id"])
                     _g_id = int(event.data["guild_id"])
@@ -565,7 +565,7 @@ class DispyWebhook:
                 elif event.type == "TYPING_START":
                     try:
                         if event.data["guild_id"]:
-                            _u: DisUser = DisUser(
+                            _u: User = User(
                                 event.data["member"]["user"], self.token
                             )
                             _c: DisChannel = DisChannel(
@@ -583,7 +583,7 @@ class DispyWebhook:
 
                             _u_json = get(url=_url, headers=self._headers).json()
 
-                            _u: DisUser = DisUser(_u_json, self.token)
+                            _u: User = User(_u_json, self.token)
                             _c: DisDmChannel = DisDmChannel(
                                 event.data["channel_id"], self.token, self.session
                             )
@@ -599,7 +599,7 @@ class DispyWebhook:
 
                         _u_json = get(url=_url, headers=self._headers).json()
 
-                        _u: DisUser = DisUser(_u_json, self.token)
+                        _u: User = User(_u_json, self.token)
                         _c: DisDmChannel = DisDmChannel(
                             event.data["channel_id"], self.token, self.session
                         )
