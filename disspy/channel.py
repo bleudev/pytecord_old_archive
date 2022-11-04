@@ -194,6 +194,94 @@ class _GettingGuildData:
 
 
 @final
+class Message:
+    """
+    Any message in channel
+
+    ```
+    @client.on_message('create')
+    async def on_messagec(m: Message):
+        await m.channel.send(m.content)
+    ```
+
+    ### Attributies
+
+    `id: int` - Id of message (Snowflake)
+    `type: int` - Type of message (For example, DM)
+    `channel: Channel` - Message channel
+    `content: str` - Message content (what's written in message)
+    """
+    def __init__(self, __data: dict, __token, __session) -> None:
+        self._t = __token
+        self._s = __session
+
+        self.id: int = int(__data['id'])
+        self.type: int = int(__data['type'])
+
+        _channel_data = _GettingChannelData.execute(__data['channel_id'], __token)
+        self.channel: Channel = Channel(_channel_data, __token, __session)
+
+        self.content: str = __data['content']
+
+    async def reply(
+        self,
+        content: Optional[SupportsStr] = None,
+        *,
+        embeds: Optional[List[DisEmbed]] = None,
+        action_row: Optional[ActionRow] = None
+    ):
+        """
+        Reply to message
+
+        Args:
+            content (Optional[str], optional): Message content (text)
+            embeds (Optional[List[DisEmbed]], optional): Message embeds (DisEmbed objects)
+            action_row (Optional[ActionRow], optional): Action row with components
+        """
+        _payload = message_payload(content, embeds, action_row)
+        _payload.setdefault("message_reference", {"message_id": self.id})
+
+        if _payload:
+            data = await _SendingRestHandler.execute(self.channel.id, _payload, self._s)
+
+            return Message(data, self._t, self._s)
+
+        return None
+
+    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisOwnReaction:
+        """
+        Create reaction to message
+
+        Args:
+            emoji (Union[DisEmoji, str]): Emoji for reaction
+
+        Returns:
+            DisOwnReaction: Your reaction
+        """
+        if isinstance(emoji, DisEmoji):
+            if emoji.type == "custom":
+                emoji = f"{emoji.name}:{str(emoji.emoji_id)}"
+            elif emoji.type == "normal":
+                emoji = emoji.unicode
+
+        await _SendingRestHandler.create_reaction(
+            f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me",
+            self._s,
+        )
+
+        return DisOwnReaction(emoji, self.id, self.channel.id, self._t, self._s)
+
+    async def delete(self):
+        """
+        Delete message
+        """
+        _u = (
+            f"https://discord.com/api/v10/channels/{self.channel.id}/messages/{self.id}"
+        )
+
+        await _SendingRestHandler.delete_message(_u, self._s)
+
+@final
 class DisMessage:
     """
     Message in channel
