@@ -40,7 +40,7 @@ from disspy import errors
 from disspy.typ import TypeOf, MISSING
 from disspy.activity import Activity
 import disspy.app_commands as appc
-from disspy.channel import Channel, Message, DmMessage
+from disspy.channel import Channel, Message
 from disspy.http import DisApi, DisFlags
 from disspy.guild import Guild
 from disspy.user import User
@@ -506,7 +506,7 @@ class Client:
 
             message_to_log = ""
 
-            if param_type in (Message, DmMessage):
+            if param_type == Message:
                 payload["type"] = appc.ApplicationCommandType.MESSAGE
                 message_to_log = "Register message command"
 

@@ -6,11 +6,6 @@ Message
 
 None
 
-DmMessage
-*********
-
-None
-
 MessageDeleteEvent
 ******************
 

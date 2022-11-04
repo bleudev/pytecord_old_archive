@@ -55,8 +55,6 @@ from disspy.app_commands import (
 )
 from disspy.channel import (
     Message,
-    Message,
-    DmMessage,
     MessageDeleteEvent,
     DmMessageDeleteEvent,
     Channel,

@@ -33,7 +33,6 @@ from requests import get
 
 from disspy.channel import (
     Message,
-    DmMessage,
     MessageDeleteEvent,
     DmMessageDeleteEvent,
     Channel
@@ -459,7 +458,7 @@ class DispyWebhook:
                                         _DebugLoggingAwaiting(event.type, "on_messagec")
                                     )
                             elif j["type"] == 1:
-                                _m = DmMessage(event.data, self.token, self.session)
+                                _m = Message(event.data, self.token, self.session)
 
                                 await self.ons["dmessagec"](_m)
 
@@ -487,7 +486,7 @@ class DispyWebhook:
                                         _DebugLoggingAwaiting(event.type, "on_messageu")
                                     )
                             elif j["type"] == 1:
-                                _m = DmMessage(event.data, self.token, self.session)
+                                _m = Message(event.data, self.token, self.session)
 
                                 await self.ons["dmessageu"](_m)
 

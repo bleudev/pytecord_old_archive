@@ -131,7 +131,7 @@ Register on_dmessage() events
 Example::
 
     @bot.on_dm_message("update")
-        async def on_dmessageu(message: disspy.DmMessage):
+        async def on_dmessageu(message: disspy.Message):
             await message.channel.send("Dota 2 - 👎🏼")
 
 Params:
@@ -452,7 +452,7 @@ ON_DMESSAGEC
 Represention of Gateway "MESSAGE_CREATE" event only in DM channel
 
 Args for event:
-    message -> `DmMessage <message.html#dmmessage>`_ object. Message that was created
+    message -> `Message <message.html#dmmessage>`_ object. Message that was created
 
 ON_DMESSAGEU
 ============
@@ -460,7 +460,7 @@ ON_DMESSAGEU
 Represention of Gateway "MESSAGE_UPDATE" event only in DM channel
 
 Args for event:
-    message -> `DmMessage <message.html#dmmessage>`_ object. Message that was updated
+    message -> `Message <message.html#dmmessage>`_ object. Message that was updated
 
 ON_DMESSAGED
 ============
