@@ -33,8 +33,7 @@ from requests import get
 
 from disspy.channel import (
     Message,
-    MessageDeleteEvent,
-    DmMessageDeleteEvent,
+    RawMessage,
     Channel
 )
 from disspy.reaction import DisEmoji, DisReaction, DisRemovedReaction
@@ -504,7 +503,7 @@ class DispyWebhook:
                         j = await data.json()
 
                         if j["type"] == 0:
-                            _e = MessageDeleteEvent(
+                            _e = RawMessage(
                                 event.data, self.token, self.session
                             )
 
@@ -513,7 +512,7 @@ class DispyWebhook:
                             if self._debug:
                                 print(_DebugLoggingAwaiting(event.type, "on_messaged"))
                         elif j["type"] == 1:
-                            _e = DmMessageDeleteEvent(
+                            _e = RawMessage(
                                 event.data, self.token, self.session
                             )
 

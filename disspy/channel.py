@@ -41,8 +41,7 @@ __all__: tuple = (
     "Message",
     "Channel",
     "ChannelType",
-    "MessageDeleteEvent",
-    "DmMessageDeleteEvent",
+    "RawMessage",
 )
 
 
@@ -380,25 +379,13 @@ class Channel:
         await _SendingRestHandler.post_without_payload(_u, self._s)
 
 
-class MessageDeleteEvent:
+class RawMessage:
     """
-    MESSAGE_DELETE event class with info about event
-    """
-
-    def __init__(self, data: dict, token: str, session):
-        self.message_id = data["id"]
-
-        _channel_data = _GettingChannelData.execute(data['channel_id'], token)
-        self.channel = Channel(_channel_data, token, session)
-
-
-class DmMessageDeleteEvent:
-    """
-    MESSAGE_DELETE event class with info about event, but in DM channel
+    Raw message for MESSAGE DELETE event
     """
 
     def __init__(self, data: dict, token: str, session):
-        self.message_id = data["id"]
+        self.id = data['id']
 
         _channel_data = _GettingChannelData.execute(data['channel_id'], token)
         self.channel = Channel(_channel_data, token, session)

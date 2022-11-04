@@ -6,12 +6,7 @@ Message
 
 None
 
-MessageDeleteEvent
+Raw message
 ******************
-
-None
-
-DmMessageDeleteEvent
-********************
 
 None

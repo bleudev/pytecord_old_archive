@@ -31,12 +31,12 @@ async def messageu(message: disspy.Message):
 
 # "On message delete" event
 @bot.event()
-async def messaged(e: disspy.MessageDeleteEvent):
+async def messaged(e: disspy.RawMessage):
     await e.channel.send("Message deleted!")
 
 # on_message()
 @bot.on_message("delete")
-async def messaged(e: disspy.MessageDeleteEvent):
+async def messaged(e: disspy.RawMessage):
     await e.channel.send("Message deleted!")
 
 

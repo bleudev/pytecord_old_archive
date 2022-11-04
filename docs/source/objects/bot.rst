@@ -444,7 +444,7 @@ ON_MESSAGED
 Represention of Gateway "MESSAGE_DELETE" event
 
 Args for event:
-    event -> `MessageDeleteEvent <message.html#messagedeleteevent>`_ object. Message deleting event
+    event -> `Raw message <message.html#rawmessage>`_ object. Message deleting event
 
 ON_DMESSAGEC
 ============
@@ -468,7 +468,7 @@ ON_DMESSAGED
 Represention of Gateway "MESSAGE_DELETE" event only in DM channel
 
 Args for event:
-    event -> `DmMessageDeleteEvent <message.html#dmmessagedeleteevent>`_ object. Message deleting event
+    event -> `Raw message <message.html#rawmessage>`_ object. Message deleting event
 
 ON_READY
 ========

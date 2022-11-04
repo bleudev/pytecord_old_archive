@@ -54,11 +54,10 @@ from disspy.app_commands import (
     Localization,
 )
 from disspy.channel import (
-    Message,
-    MessageDeleteEvent,
-    DmMessageDeleteEvent,
     Channel,
     ChannelType,
+    Message,
+    RawMessage,
 )
 from disspy.bot import Client, DisBotEventType
 from disspy.http import DisApi, DisFlags
