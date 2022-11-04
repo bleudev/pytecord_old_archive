@@ -110,7 +110,7 @@ Register on_message() events
 Example::
 
     @bot.on_message("create")
-    async def on_messagec(message: disspy.DisMessage):
+    async def on_messagec(message: disspy.Message):
         await message.channel.send(f"Channel id: {message.channel.id}")
 
 Params:
@@ -152,7 +152,7 @@ Register on_channel() event (on_messagec() event, but in one channel)
 Example::
 
     @bot.on_channel(955869165162479648)
-    async def on_channel(message: disspy.DisMessage):
+    async def on_channel(message: disspy.Message):
         await message.reply("Hi")
 
 Params:
@@ -213,7 +213,7 @@ Example::
         await ctx.send(f"Fullname: {user.fullname}")
     
     @bot.context_menu()  # Example message command
-    async def info_again(ctx: Context, message: DisMessage):
+    async def info_again(ctx: Context, message: Message):
         await ctx.send(message.content)
 
 Params:
@@ -405,7 +405,7 @@ DisBotEventType
 Usage example::
 
     @bot.on(disspy.DisBotEventType.ON_MESSAGEC)
-    async def on_messagec(message: disspy.DisMessage):
+    async def on_messagec(message: disspy.Message):
         await message.reply("This is example of usage DisBotEventType!")
 
 Variables:
@@ -428,7 +428,7 @@ ON_MESSAGEC
 Represention of Gateway "MESSAGE_CREATE" event
 
 Args for event:
-    message -> `DisMessage <message.html#dismessage>`_ object. Message that was created
+    message -> `Message <message.html#dismessage>`_ object. Message that was created
 
 ON_MESSAGEU
 ===========
@@ -436,7 +436,7 @@ ON_MESSAGEU
 Represention of Gateway "MESSAGE_UPDATE" event
 
 Args for event:
-    message -> `DisMessage <message.html#dismessage>`_ object. Message that was updated
+    message -> `Message <message.html#dismessage>`_ object. Message that was updated
 
 ON_MESSAGED
 ===========

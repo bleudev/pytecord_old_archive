@@ -38,10 +38,9 @@ from disspy.payloads import message_payload
 
 
 __all__: tuple = (
-    "DisMessage",
+    "Message",
     "Channel",
     "ChannelType",
-    "DmMessage",
     "MessageDeleteEvent",
     "DmMessageDeleteEvent",
 )
@@ -281,113 +280,6 @@ class Message:
 
         await _SendingRestHandler.delete_message(_u, self._s)
 
-@final
-class DisMessage:
-    """
-    Message in channel
-    """
-
-    def __init__(self, _data, __token, __session):
-
-        self.json = _data
-
-        _channel_data = _GettingChannelData.execute(_data['channel_id'], __token)
-        self.channel = Channel(_channel_data, __token, __session)
-
-        self.content: str = str(_data["content"])
-
-        if _data["embeds"]:
-            _j = _data["embeds"]
-
-            self.embeds = []
-
-            for i in _j:
-                _e = None
-
-                if i["footer"]["text"]:
-                    _e = DisEmbed(
-                        title=i["title"],
-                        description=i["description"],
-                        color=i["color"],
-                        footer=i["footer"]["text"]
-                    )
-                else:
-                    _e = DisEmbed(i["title"], description=i["description"], color=i["color"])
-
-                if i["fields"]:
-                    for field in i["fields"]:
-                        try:
-                            _e.add_field(field["name"], field["value"], inline=field["inline"])
-                        except KeyError:
-                            _e.add_field(field["name"], field["value"])
-
-                self.embeds.append(_e)
-
-        self.id: int = int(_data["id"])
-
-        self._t = __token
-        self.session = __session
-
-    async def reply(
-        self,
-        content: Optional[SupportsStr] = None,
-        *,
-        embeds: Optional[List[DisEmbed]] = None,
-        action_row: Optional[ActionRow] = None
-    ):
-        """reply
-        Reply to message
-
-        Args:
-            content (Optional[str], optional): Message content (text). Defaults to None.
-            embeds (Optional[List[DisEmbed]], optional): Message embeds (DisEmbed objects).
-                                                         Defaults to None.
-            action_row (Optional[ActionRow], optional): Action row with components.
-                                                         Defaults to None.
-        """
-        _payload = message_payload(content, embeds, action_row)
-        _payload.setdefault("message_reference", {"message_id": self.id})
-
-        if _payload:
-            data = await _SendingRestHandler.execute(self.channel.id, _payload, self.session)
-
-            return DisMessage(data, self._t, self.session)
-
-        return None
-
-    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisOwnReaction:
-        """create_reaction
-        Create reaction to message
-
-        Args:
-            emoji (Union[DisEmoji, str]): Emoji for reaction
-
-        Returns:
-            DisOwnReaction: Your reaction
-        """
-        if isinstance(emoji, DisEmoji):
-            if emoji.type == "custom":
-                emoji = f"{emoji.name}:{str(emoji.emoji_id)}"
-            elif emoji.type == "normal":
-                emoji = emoji.unicode
-
-        await _SendingRestHandler.create_reaction(
-            f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me",
-            self.session,
-        )
-
-        return DisOwnReaction(emoji, self.id, self.channel.id, self._t, self.session)
-
-    async def delete(self):
-        """delete
-        Delete message
-        """
-        _u = (
-            f"https://discord.com/api/v10/channels/{self.channel.id}/messages/{self.id}"
-        )
-
-        await _SendingRestHandler.delete_message(_u, self.session)
-
 
 class ChannelType:
     """
@@ -453,11 +345,11 @@ class Channel:
         if _payload:
             data = await _SendingRestHandler.execute(self.id, _payload, self._s)
 
-            return DisMessage(data, self._t, self._s)
+            return Message(data, self._t, self._s)
 
         return None
 
-    def fetch(self, message_id: int) -> DisMessage:
+    def fetch(self, message_id: int) -> Message:
         """
         Fetch message in this channel by id
 
@@ -469,7 +361,7 @@ class Channel:
         """
         data = _GettingChannelData.fetch(self.id, self._t, message_id)
 
-        return DisMessage(data, self._t, self._s)
+        return Message(data, self._t, self._s)
 
     async def delete(self):
         """
@@ -486,85 +378,6 @@ class Channel:
         _u = f"https://discord.com/api/v10/channels/{self.id}/typing"
 
         await _SendingRestHandler.post_without_payload(_u, self._s)
-
-
-@final
-class DmMessage:
-    """
-    Message in DM channel
-    """
-
-    def __init__(self, data, token, session):
-        self.json = data
-        self._t = token
-        self.session = session
-
-        self.id = data["id"]
-
-        self.content = data["content"]
-        
-        _channel_data = _GettingChannelData.execute(data['channel_id'], token)
-        self.channel = Channel(_channel_data, token, session)
-
-    async def reply(
-        self,
-        content: Optional[SupportsStr] = None,
-        embeds: Optional[List[DisEmbed]] = None,
-    ):
-        """reply
-        Reply to message
-
-        Args:
-            content (Optional[Any], optional): Message content (text). Defaults to None.
-            embeds (Optional[List[DisEmbed]], optional): Message embeds (DisEmbed objects).
-                                                         Defaults to None.
-        """
-        _d = {
-            "content": None,
-            "embeds": {},
-            "message_reference": {"message_id": self.id},
-        }
-
-        content = str(content)
-
-        if content:
-            _d["content"] = content
-
-        if embeds:
-            embeds_jsons = []
-
-            for i in embeds:
-                embeds_jsons.append(_EmbedGenerator(i))
-
-            _d["embeds"] = embeds_jsons
-
-        if not embeds and not content:
-            return
-
-        await _SendingRestHandler.execute(self.channel.id, _d, self.session)
-
-    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisOwnReaction:
-        """create_reaction
-        Create reaction in message
-
-        Args:
-            emoji (Union[DisEmoji, str]): Emoji for reaction
-
-        Returns:
-            DisOwnReaction: Your reaction
-        """
-        if isinstance(emoji, DisEmoji):
-            if emoji.type == "custom":
-                emoji = f"{emoji.name}:{str(emoji.emoji_id)}"
-            elif emoji.type == "normal":
-                emoji = emoji.unicode
-
-        await _SendingRestHandler.create_reaction(
-            f"/channels/{self.channel.id}/messages/{self.id}/reactions/{emoji}/@me",
-            self.session,
-        )
-
-        return DisOwnReaction(emoji, self.id, self.channel.id, self._t, self.session)
 
 
 class MessageDeleteEvent:

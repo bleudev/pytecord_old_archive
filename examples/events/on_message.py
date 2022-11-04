@@ -4,39 +4,39 @@ bot = disspy.Client(token="TOKEN", flags=disspy.DisFlags.messages())  # Create b
 
 
 # "On message create" event
-@bot.on("messagec")
-async def on_messagec(message: disspy.DisMessage):
+@bot.event()
+async def messagec(message: disspy.Message):
     if message.content == "!help":
         await message.channel.send("Help command*")
 
 # on_message()
 @bot.on_message("create")
-async def on_messagec(message: disspy.DisMessage):
+async def messagec(message: disspy.Message):
     if message.content == "!help":
         await message.channel.send("Help command*")
 
 
 
 # "On message update" event
-@bot.on("messageu")
-async def on_messageu(message: disspy.DisMessage):
+@bot.event()
+async def messageu(message: disspy.Message):
     await message.reply("You updated this message!")
 
 # on_message()
 @bot.on_message("update")
-async def on_messageu(message: disspy.DisMessage):
+async def messageu(message: disspy.Message):
     await message.reply("You updated this message!")
 
 
 
 # "On message delete" event
-@bot.on("messaged")
-async def on_messaged(e: disspy.MessageDeleteEvent):
+@bot.event()
+async def messaged(e: disspy.MessageDeleteEvent):
     await e.channel.send("Message deleted!")
 
 # on_message()
 @bot.on_message("delete")
-async def on_messaged(e: disspy.MessageDeleteEvent):
+async def messaged(e: disspy.MessageDeleteEvent):
     await e.channel.send("Message deleted!")
 
 

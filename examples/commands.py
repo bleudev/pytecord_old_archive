@@ -33,7 +33,7 @@ async def foo(ctx: disspy.Context, message: str, integer: int = None):
 # Example context menus
 # Message context menu
 @bot.context_menu()
-async def info(ctx: disspy.Context, message: disspy.DisMessage):
+async def info(ctx: disspy.Context, message: disspy.Message):
     await ctx.respond(f"Content: {message.content}", f"Channel id: {message.channel.id}", f"Id: {message.id}")
 
 

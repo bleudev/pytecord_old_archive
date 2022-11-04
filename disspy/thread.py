@@ -28,7 +28,7 @@ from json import dumps
 from aiohttp import ClientSession
 
 from disspy.jsongenerators import _EmbedGenerator
-from disspy.channel import DisMessage
+from disspy.channel import Message
 from disspy.ui import ActionRow
 from disspy.typ import SupportsStr, MISSING
 
@@ -80,7 +80,7 @@ class _Thread:
             async with self.session.post(_u, data=dumps(_payload)) as post_message:
                 data = await post_message.json()
 
-                return DisMessage(data, self._t, self.session)
+                return Message(data, self._t, self.session)
 
         return None
 
@@ -114,7 +114,7 @@ class DisNewsThread:
         content: Optional[SupportsStr] = MISSING,
         embeds: Optional[List[Any]] = MISSING,
         action_row: Optional[ActionRow] = MISSING,
-    ) -> Union[DisMessage, None]:
+    ) -> Union[Message, None]:
         """send
         Send message in thread
 
@@ -124,7 +124,7 @@ class DisNewsThread:
             action_row (ActionRow, optional): Action row with components. Defaults to MISSING.
 
         Returns:
-            DisMessage: Sended message
+            Message: Sended message
             None
         """
         return await self._thread_client.send_message(content, embeds, action_row)
@@ -158,7 +158,7 @@ class DisThread:
         content: Optional[SupportsStr] = MISSING,
         embeds: Optional[List[Any]] = MISSING,
         action_row: Optional[ActionRow] = MISSING,
-    ) -> Union[DisMessage, None]:
+    ) -> Union[Message, None]:
         """send
         Send message in thread
 
@@ -168,7 +168,7 @@ class DisThread:
             action_row (ActionRow, optional): Action row with components. Defaults to MISSING.
 
         Returns:
-            DisMessage: Sended message
+            Message: Sended message
             None
         """
         return await self._thread_client.send_message(content, embeds, action_row)
@@ -202,7 +202,7 @@ class DisPrivateThread:
         content: Optional[SupportsStr] = MISSING,
         embeds: Optional[List[Any]] = MISSING,
         action_row: Optional[ActionRow] = MISSING,
-    ) -> Union[DisMessage, None]:
+    ) -> Union[Message, None]:
         """send
         Send message in thread
 
@@ -212,7 +212,7 @@ class DisPrivateThread:
             action_row (ActionRow, optional): Action row with components. Defaults to MISSING.
 
         Returns:
-            DisMessage: Sended message
+            Message: Sended message
             None
         """
         return await self._thread_client.send_message(content, embeds, action_row)

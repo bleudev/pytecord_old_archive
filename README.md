@@ -39,14 +39,14 @@ on your server, creating mini games in discord, auto moderation in your discord 
 For example, you can reply to message that is sended by any user using this code:
 
 ```python
-from disspy import Client, DisMessage  # Import package
+from disspy import Client, Message  # Import package
 import os
 
 TOKEN = os.environ["TOKEN"]
 bot = Client(TOKEN)  # Create a bot
 
 @bot.on_message("create")  # On message create
-async def on_messagec(message: DisMessage):  # message - sended message
+async def on_messagec(message: Message):  # message - sended message
     await message.reply("Hello, world!")  # Reply to a message
 
 bot.run()  # Run bot in Gateway

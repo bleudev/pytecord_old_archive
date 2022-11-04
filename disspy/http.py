@@ -44,7 +44,7 @@ import colorama
 
 
 # disspy imports
-from disspy.channel import Channel, DisMessage
+from disspy.channel import Channel, Message
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.guild import Guild
 from disspy.user import User
@@ -315,7 +315,7 @@ class DisApi:
         self.app_commands.append({})  # User Commands
         self.app_commands.append({})  # Message Commands
 
-    def fetch(self, channel_id, message_id) -> DisMessage:
+    def fetch(self, channel_id, message_id) -> Message:
         """fetch
         Fetch message by its id and channel id
 
@@ -324,13 +324,13 @@ class DisApi:
             message_id (int): Message id
 
         Returns:
-            DisMessage: Fetched message
+            Message: Fetched message
         """
         _url = f"{_mainurl()}channels/{channel_id}/messages/{message_id}"
 
         _d = self._r.fetch(channel_id, message_id)
 
-        return DisMessage(_d, self.token, self.session)
+        return Message(_d, self.token, self.session)
 
     async def run(
         self, status, ons: Dict[Text, Callable], debug: bool, act: Dict[str, Any]
@@ -469,7 +469,7 @@ class DisApi:
 
             target_json = command["resolved"]["messages"][target_id]
 
-            target = DisMessage(target_json, self.token, self.session)
+            target = Message(target_json, self.token, self.session)
 
             await callback(ctx, target)
 

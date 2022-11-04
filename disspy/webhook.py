@@ -32,7 +32,7 @@ from requests import get
 
 
 from disspy.channel import (
-    DisMessage,
+    Message,
     DmMessage,
     MessageDeleteEvent,
     DmMessageDeleteEvent,
@@ -253,12 +253,12 @@ class DispyWebhook:
         self.ons = None
 
     # Event methods
-    async def on_channel(self, message: DisMessage):
+    async def on_channel(self, message: Message):
         """on_channel
         "MESSAGE CREATE" event, but only in one channel
 
         Args:
-            message (DisMessage): Message that was created
+            message (Message): Message that was created
         """
         return message.content  # For PyLint
 
@@ -438,7 +438,7 @@ class DispyWebhook:
                             j = await data.json()
 
                             if j["type"] == 0:
-                                _m = DisMessage(event.data, self.token, self.session)
+                                _m = Message(event.data, self.token, self.session)
 
                                 if int(event.data["channel_id"]) == int(
                                     self.on_channel__id
@@ -478,7 +478,7 @@ class DispyWebhook:
                             j = await data.json()
 
                             if j["type"] == 0:
-                                _m = DisMessage(event.data, self.token, self.session)
+                                _m = Message(event.data, self.token, self.session)
 
                                 await self.ons["messageu"](_m)
 
