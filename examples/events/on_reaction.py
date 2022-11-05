@@ -5,25 +5,25 @@ bot = disspy.Client(token="TOKEN", flags=disspy.DisFlags.reactions())  # Create 
 
 # "On reaction add" event
 @bot.on("reaction")
-async def on_reaction(reaction: disspy.DisReaction):
+async def on_reaction(reaction: disspy.Reaction):
     print(reaction.user.fullname)
 
 
 # event()
 @bot.event()
-async def on_reaction(reaction: disspy.DisReaction):  # or async def reaction(...): ...
+async def on_reaction(reaction: disspy.Reaction):  # or async def reaction(...): ...
     print(reaction.user.fullname)
 
 
 # "On reaction remove" event
 @bot.on("reactionr")
-async def on_reactionr(reaction: disspy.DisRemovedReaction):
+async def on_reactionr(reaction: disspy.Reaction):
     print(reaction.emoji.unicode)
 
 
 # event()
 @bot.event()
-async def on_reactionr(reaction: disspy.DisRemovedReaction):  # or async def reactionr(...): ...
+async def on_reactionr(reaction: disspy.Reaction):  # or async def reactionr(...): ...
     print(reaction.emoji.unicode)
 
 bot.run()  # Running bot

@@ -33,7 +33,7 @@ from disspy.embed import DisEmbed
 from disspy.guild import Guild
 from disspy.jsongenerators import _EmbedGenerator
 from disspy.ui import ActionRow
-from disspy.reaction import DisEmoji, DisOwnReaction
+from disspy.reaction import DisEmoji, Reaction
 from disspy.payloads import message_payload
 
 
@@ -246,7 +246,7 @@ class Message:
 
         return None
 
-    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> DisOwnReaction:
+    async def create_reaction(self, emoji: Union[DisEmoji, str]) -> Reaction:
         """
         Create reaction to message
 
@@ -254,7 +254,7 @@ class Message:
             emoji (Union[DisEmoji, str]): Emoji for reaction
 
         Returns:
-            DisOwnReaction: Your reaction
+            Reaction: Created reaction
         """
         if isinstance(emoji, DisEmoji):
             if emoji.type == "custom":
@@ -267,7 +267,14 @@ class Message:
             self._s,
         )
 
-        return DisOwnReaction(emoji, self.id, self.channel.id, self._t, self._s)
+        _r_json = {
+            "message_id": self.id,
+            "channel_id": self.channel.id,
+            "guild_id": self.channel.guild_id,
+            "emoji": emoji
+        }
+        
+        return Reaction(_r_json, self._t, self._s)
 
     async def delete(self):
         """

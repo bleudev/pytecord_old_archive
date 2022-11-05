@@ -64,7 +64,7 @@ from disspy.http import DisApi, DisFlags
 from disspy.embed import DisEmbed, DisField, DisColor
 from disspy.guild import Guild
 from disspy.user import User
-from disspy.reaction import DisEmoji, DisOwnReaction, DisReaction, DisRemovedReaction
+from disspy.reaction import DisEmoji, Reaction
 from disspy.ui import (
     Component,
     ActionRow,

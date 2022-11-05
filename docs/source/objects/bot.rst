@@ -492,7 +492,7 @@ ON_REACTION
 Represention of Gateway "REACTION_ADD" event
 
 Args for event:
-    reaction: DisReaction object. Reaction that was added
+    reaction: Reaction object. Reaction that was added
 
 ON_REACTIONR
 ============
@@ -500,7 +500,7 @@ ON_REACTIONR
 Represention of Gateway "REACTION_REMOVE" event
 
 Args for event:
-    reaction: DisRemovedReaction object. Reaction that was removed
+    reaction: Reaction object. Reaction that was removed
 
 ON_TYPING
 =========

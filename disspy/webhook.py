@@ -36,7 +36,7 @@ from disspy.channel import (
     RawMessage,
     Channel
 )
-from disspy.reaction import DisEmoji, DisReaction, DisRemovedReaction
+from disspy.reaction import DisEmoji, Reaction
 from disspy.user import User
 
 
@@ -540,19 +540,22 @@ class DispyWebhook:
                             print(_DebugLoggingAwaiting(event.type, "on_modalsumbit"))
 
                 elif event.type == "MESSAGE_REACTION_ADD":
-                    _u = User(event.data["member"]["user"], self.token)
-                    _m_id = int(event.data["message_id"])
-                    _c_id = int(event.data["channel_id"])
-                    _g_id = int(event.data["guild_id"])
-
                     _e_json = event.data["emoji"]
 
                     if _e_json["id"] is None:
                         _e = DisEmoji(unicode=_e_json["name"])
                     else:
                         _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+                    
+                    _r_json = {
+                        "user": User(event.data["member"]["user"], self.token),
+                        "message_id": int(event.data["message_id"]),
+                        "channel_id": int(event.data["channel_id"]),
+                        "guild_id": int(event.data["guild_id"]),
+                        "emoji": _e
+                    }
 
-                    _r = DisReaction(_u, _m_id, _c_id, _g_id, _e, self.token)
+                    _r = Reaction(_r_json, self.token, self.session)
 
                     await self.ons["reaction"](_r)
 
@@ -560,18 +563,21 @@ class DispyWebhook:
                         print(_DebugLoggingAwaiting(event.type, "on_reaction"))
 
                 elif event.type == "MESSAGE_REACTION_REMOVE":
-                    _m_id = int(event.data["message_id"])
-                    _c_id = int(event.data["channel_id"])
-                    _g_id = int(event.data["guild_id"])
-
                     _e_json = event.data["emoji"]
 
                     if _e_json["id"] is None:
                         _e = DisEmoji(unicode=_e_json["name"])
                     else:
                         _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+                    
+                    _r_json = {
+                        "message_id": int(event.data["message_id"]),
+                        "channel_id": int(event.data["channel_id"]),
+                        "guild_id": int(event.data["guild_id"]),
+                        "emoji": _e
+                    }
 
-                    _r = DisRemovedReaction(_m_id, _c_id, _g_id, _e, self.token)
+                    _r = Reaction(_r_json, self.token, self.session)
 
                     await self.ons["reactionr"](_r)
 
