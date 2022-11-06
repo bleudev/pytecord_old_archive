@@ -57,11 +57,7 @@ JsonOutput = NewType("JsonOutput", Dict[str, Any])
 __all__: tuple = (
     # Classes for simpler creating other classes
     "JsonOutput",
-    "DisFlags",
-    "ChannelId",
-    "ThreadId",
-    "UserId",
-    "GuildId",
+    "Flags",
     # Private clients
     "Rest",
     # Main client
@@ -98,18 +94,27 @@ class _Intents(_AutoFlags):
     GUILD_SCHEDULED_EVENTS = auto()
 
 
-class DisFlags:
+def _value(*args):
+    res = 0
+
+    for i in list(args):
+        res += int(i.value)
+
+    return res
+
+
+class Flags:
     """
     The class for using intents in bots
 
-    :methods:
-        :method: default()
-            Implements GUILD_MESSAGES and default intents
-        :method: all()
-            Implements all Gateway Intents
-    """
+    # Methods
 
-    __classname__: str = "DisFlags"
+    `default()`
+        Implements GUILD_MESSAGES and default intents
+
+    `all()`
+        Implements all Gateway Intents
+    """
 
     def __all__(self) -> List[str]:
         return [str(self.default()), str(self.all())]
@@ -125,7 +130,7 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        return int(_Intents.GUILD_INTEGRATIONS.value)
+        return _value(_Intents.GUILD_INTEGRATIONS)
 
     @staticmethod
     def messages() -> int:
@@ -140,13 +145,12 @@ class DisFlags:
         :return int: integer value of intents
         """
 
-        _typings = (
-            _Intents.GUILD_MESSAGE_TYPING.value + _Intents.DIRECT_MESSAGE_TYPING.value
-        )
-        _messages = _Intents.GUILD_MESSAGES.value + _Intents.DIRECT_MESSAGES.value
-        _content = _Intents.MESSAGE_CONTENT.value
-
-        return int(_Intents.GUILD_INTEGRATIONS.value + _typings + _messages + _content)
+        return _value(_Intents.GUILD_MESSAGE_TYPING,
+                      _Intents.DIRECT_MESSAGE_TYPING,
+                      _Intents.GUILD_MESSAGES,
+                      _Intents.DIRECT_MESSAGES,
+                      _Intents.MESSAGE_CONTENT,
+                      _Intents.GUILD_INTEGRATIONS)
 
     @staticmethod
     def reactions() -> int:
@@ -157,10 +161,10 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        _dm_reactions = _Intents.DIRECT_MESSAGE_REACTIONS.value
-        _reactions = _Intents.GUILD_MESSAGE_REACTIONS.value + _dm_reactions
 
-        return int(_Intents.GUILD_INTEGRATIONS.value + _reactions)
+        return _value(_Intents.DIRECT_MESSAGE_REACTIONS,
+                      _Intents.GUILD_MESSAGE_REACTIONS,
+                      _Intents.GUILD_INTEGRATIONS)
 
     @staticmethod
     def all() -> int:
@@ -192,12 +196,6 @@ class DisFlags:
             result += i.value
 
         return int(result)
-
-
-ChannelId = NewType("ChannelId", int)
-ThreadId = NewType("ThreadId", int)
-UserId = NewType("UserId", int)
-GuildId = NewType("GuildId", int)
 
 
 @final
@@ -475,16 +473,16 @@ class DisApi:
 
     async def _on_components(self, data):
         if data["data"]["component_type"] == 2:
-            _ctx = Context(data["token"], data["id"], self.token)
+            _ctx = Context((data["token"], data["id"]), self.token)
             await self.comsevs[data["data"]["custom_id"]](_ctx)
 
         if data["data"]["component_type"] == 3:
-            _ctx = Context(data["token"], data["id"], self.token)
+            _ctx = Context((data["token"], data["id"]), self.token)
             _vs = data["data"]["values"]
             await self.comsevs[data["data"]["custom_id"]](_ctx, _vs)
 
     async def _on_modal_sumbit(self, data):
-        _ctx = Context(data["token"], data["id"], self.token)
+        _ctx = Context((data["token"], data["id"]), self.token)
         coms = data["data"]["components"][0]["components"]
         _v = ""
 
@@ -494,7 +492,7 @@ class DisApi:
 
         await self.comsevs[data["data"]["custom_id"]](_ctx, _v)
 
-    def get_user(self, user_id: UserId) -> User:
+    def get_user(self, user_id: int) -> User:
         """
         Get user by id
         -----
@@ -504,7 +502,7 @@ class DisApi:
 
         return User(self.get_user_json(user_id), self.token)
 
-    def get_user_json(self, user_id: UserId) -> JsonOutput:
+    def get_user_json(self, user_id: int) -> JsonOutput:
         """
         Get user by id (Json Output)
         -----
@@ -543,7 +541,7 @@ class DisApi:
 
         return None
 
-    def get_channel_json(self, channel_id: ChannelId) -> JsonOutput:
+    def get_channel_json(self, channel_id: int) -> JsonOutput:
         """
         Get channel by id (Json Output)
         -----
@@ -554,7 +552,7 @@ class DisApi:
 
         return self._r.get("channel", channel_id)
 
-    def get_guild(self, guild_id: GuildId) -> Guild:
+    def get_guild(self, guild_id: int) -> Guild:
         """
         Get guild by id
 
@@ -566,7 +564,7 @@ class DisApi:
 
         return Guild(data, self.token, self.session)
 
-    def get_guild_json(self, guild_id: GuildId) -> JsonOutput:
+    def get_guild_json(self, guild_id: int) -> JsonOutput:
         """
         Get guild by id (Json Output)
 

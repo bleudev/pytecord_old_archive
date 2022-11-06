@@ -7,7 +7,7 @@ Client
 ::
 
     class Client(token: str, status: Optional[TypeOf(DisBotStatus)],
-                 flags: Optional[TypeOf(DisFlags)], debug: Optional[bool] = False,
+                 flags: Optional[TypeOf(Flags)], debug: Optional[bool] = False,
                  activity: Optional[Union[Activity, dict]])
 
 ``token`` -> Token of bot from Discord Developer Portal
@@ -17,10 +17,10 @@ Client
 .. note::
     Default is ``DisBotStatus.ONLINE``
 
-``flags`` -> Key of DisFlags. Special privellegions for bot (for example, DisFlags.messages() for on_message() events, or DisFlags.reactions() for on_reaction() events)
+``flags`` -> Key of Flags. Special privellegions for bot (for example, Flags.messages() for on_message() events, or Flags.reactions() for on_reaction() events)
 
 .. note::
-    Default is ``DisFlags.default()``
+    Default is ``Flags.default()``
 
 ``debug`` -> Enable debug in console
 
@@ -145,7 +145,7 @@ Returns:
 
 ::
 
-    @on_channel(channel_id: ChannelId) -> Wrapper
+    @on_channel(channel_id: int) -> Wrapper
 
 Register on_channel() event (on_messagec() event, but in one channel)
 
@@ -302,7 +302,7 @@ get_channel()
 
 ::
 
-    def get_channel(channel_id: ChannelId) -> Channel
+    def get_channel(channel_id: int) -> Channel
 
 Get channel by id
 
@@ -323,7 +323,7 @@ get_thread()
 
 ::
 
-    def get_thread(thread_id: ThreadId) -> DisNewsThread | DisThread | DisPrivateThread
+    def get_thread(thread_id: int) -> DisNewsThread | DisThread | DisPrivateThread
 
 Get thread by id
 
@@ -348,7 +348,7 @@ get_guild()
 
 ::
 
-    def get_guild(guild_id: GuildId) -> Guild
+    def get_guild(guild_id: int) -> Guild
 
 Get guild by id
 

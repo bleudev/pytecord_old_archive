@@ -41,7 +41,7 @@ from disspy.typ import TypeOf, MISSING
 from disspy.activity import Activity
 import disspy.app_commands as appc
 from disspy.channel import Channel, Message
-from disspy.http import DisApi, DisFlags
+from disspy.http import DisApi, Flags
 from disspy.guild import Guild
 from disspy.user import User
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
@@ -161,17 +161,17 @@ class Client:
     def __init__(
         self,
         token: str,
-        flags: Optional[TypeOf[DisFlags]] = None
+        flags: Optional[TypeOf[Flags]] = None
     ) -> None:
         """__init__
 
         Args:
             token (str): Bot token from Discord developers portal
-            flags (Optional[TypeOf[DisFlags], optional): Flags of bot. Defaults to None.
+            flags (Optional[TypeOf[Flags], optional): Flags of bot. Defaults to None.
         """
         # Type checks
         _type_check(token, str)
-        _type_check(flags, optional(TypeOf[DisFlags]))
+        _type_check(flags, optional(TypeOf[Flags]))
         # _END
 
         _u = "https://discord.com/api/v10/users/@me"
@@ -189,7 +189,7 @@ class Client:
         self.token: str = str(token)
 
         if flags is None:
-            self.intflags = DisFlags.default()
+            self.intflags = Flags.default()
         else:
             self.intflags = flags
 
@@ -276,24 +276,24 @@ class Client:
                         "dmessageu",
                         "dmessaged",
                     ]:
-                        if self.intflags >= DisFlags.messages():
+                        if self.intflags >= Flags.messages():
                             self._ons[event_type] = func
                             self._logger.log(f"Register on_{event_type}() event")
                         else:
                             self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
                                 "messagec(), typing(), dm_typing() and other events"
-                                + "don't avaivable right now because flags < DisFlags.messages()"
+                                + "don't avaivable right now because flags < Flags.messages()"
                             )
                     elif event_type in ["reaction", "reactionr"]:
-                        if self.intflags >= DisFlags.reactions():
+                        if self.intflags >= Flags.reactions():
                             self._ons[event_type] = func
                             self._logger.log(f"Register on_{event_type}() event")
                         else:
                             self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
                                 "reaction() and reactionr() events don't"
-                                + " avaivable right now because flags < DisFlags.reactions()"
+                                + " avaivable right now because flags < Flags.reactions()"
                             )
                     else:
                         self._ons[event_type] = func
@@ -615,7 +615,7 @@ class Client:
         Get thread by id
 
         Args:
-            thread_id (ThreadId): Thread id
+            thread_id (int): Thread id
 
         Raises:
             RuntimeError: Argument is not thread id
