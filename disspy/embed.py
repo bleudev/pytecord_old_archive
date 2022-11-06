@@ -25,9 +25,12 @@ SOFTWARE.
 # Imports
 from random import random
 from math import floor
-from typing import List
+from typing import (
+    List,
+    Optional
+)
 
-__all__: tuple = ("DisColor", "DisField", "DisEmbed")
+__all__: tuple = ("DisColor", "DisField", "Embed")
 
 
 class DisColor:
@@ -169,8 +172,8 @@ class _SpriteComponents:
         self.thumbnail = thumbnail
 
 
-class DisEmbed:
-    """DisEmbed
+class Embed:
+    """
     Embeds for messages
     """
 
@@ -193,7 +196,14 @@ class DisEmbed:
 
         self.fields: List[DisField] = []
 
-    def add_field(self, name: str, value: str, *, inline: bool = True) -> None:
+    def add_field(
+        self,
+        name: str,
+        value: str,
+        *,
+        inline: bool = True,
+        obj: Optional[DisField] = None
+    ) -> None:
         """add_field
         Add field to embed
 
@@ -201,23 +211,15 @@ class DisEmbed:
             name (str): Name of field
             value (str): Value of field
             inline (bool, optional): Field in line?. Defaults to True.
+            obj (DisField, optional): Field object. Defaults to None
 
         Returns:
             None
         """
+        if obj:
+            self.fields.append(obj)
+            return
         self.fields.append(DisField(name, value, inline))
-
-    def add_field_from_obj(self, field: DisField) -> None:
-        """add_field_from_obj
-        Add field to embed from object
-
-        Args:
-            field (DisField): Field
-
-        Returns:
-            None
-        """
-        self.fields.append(field)
 
     def set_author(
         self,

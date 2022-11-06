@@ -279,7 +279,7 @@ send()
 ::
 
     async def send(channel_id: int, content: Optional[str],
-                   embeds: Optional[List[DisEmbed]])
+                   embeds: Optional[List[Embed]])
 
 Send message to channel by id
 

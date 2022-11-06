@@ -29,7 +29,7 @@ from aiohttp import ClientSession
 from requests import get
 from disspy.typ import Url, SupportsStr
 
-from disspy.embed import DisEmbed
+from disspy.embed import Embed
 from disspy.guild import Guild
 from disspy.jsongenerators import _EmbedGenerator
 from disspy.ui import ActionRow
@@ -225,7 +225,7 @@ class Message:
         self,
         content: Optional[SupportsStr] = None,
         *,
-        embeds: Optional[List[DisEmbed]] = None,
+        embeds: Optional[List[Embed]] = None,
         action_row: Optional[ActionRow] = None
     ):
         """
@@ -233,7 +233,7 @@ class Message:
 
         Args:
             content (Optional[str], optional): Message content (text)
-            embeds (Optional[List[DisEmbed]], optional): Message embeds (DisEmbed objects)
+            embeds (Optional[List[Embed]], optional): Message embeds (Embed objects)
             action_row (Optional[ActionRow], optional): Action row with components
         """
         _payload = message_payload(content, embeds, action_row)
@@ -332,7 +332,7 @@ class Channel:
     async def send(
         self,
         content: Optional[SupportsStr] = None,
-        embeds: Optional[List[DisEmbed]] = None,
+        embeds: Optional[List[Embed]] = None,
         action_row: Optional[ActionRow] = None,
     ):
         """
@@ -340,7 +340,7 @@ class Channel:
 
         Args:
             content (SupportsStr, optional): Message content (any object supports str() function)
-            embeds (List[DisEmbed], optional): Message embeds (For one embed use `[your_embed]`)
+            embeds (List[Embed], optional): Message embeds (For one embed use `[your_embed]`)
             action_row (ActionRow, optional): Action row with components
 
         Returns:

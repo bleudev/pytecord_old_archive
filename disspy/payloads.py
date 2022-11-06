@@ -37,7 +37,7 @@ def message_payload(content=None, embeds=None, action_row=None) -> dict:
 
     Args:
         content (str): Message content
-        embeds (List[DisEmbed]): Message embeds
+        embeds (List[Embed]): Message embeds
         action_row (ActionRow): Message action row
 
     Returns:
