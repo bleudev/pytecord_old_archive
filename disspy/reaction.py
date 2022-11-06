@@ -27,10 +27,10 @@ from aiohttp import ClientSession
 
 from disspy.user import User
 
-__all__: tuple = ("DisEmoji", "Reaction")
+__all__: tuple = ("Emoji", "Reaction")
 
 
-class DisEmoji:
+class Emoji:
     """
     Emoji for reaction and other things
     """
@@ -78,7 +78,7 @@ class Reaction:
         self.channel_id: int = __data['channel_id']
         self.message_id: int = __data['message_id']
         self.guild_id: int = __data['guild_id']
-        self.emoji: DisEmoji = __data['emoji']
+        self.emoji: Emoji = __data['emoji']
 
     async def delete(self) -> None:
         """

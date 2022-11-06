@@ -36,7 +36,7 @@ from disspy.channel import (
     RawMessage,
     Channel
 )
-from disspy.reaction import DisEmoji, Reaction
+from disspy.reaction import Emoji, Reaction
 from disspy.user import User
 
 
@@ -543,9 +543,9 @@ class DispyWebhook:
                     _e_json = event.data["emoji"]
 
                     if _e_json["id"] is None:
-                        _e = DisEmoji(unicode=_e_json["name"])
+                        _e = Emoji(unicode=_e_json["name"])
                     else:
-                        _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+                        _e = Emoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
                     
                     _r_json = {
                         "user": User(event.data["member"]["user"], self.token),
@@ -566,9 +566,9 @@ class DispyWebhook:
                     _e_json = event.data["emoji"]
 
                     if _e_json["id"] is None:
-                        _e = DisEmoji(unicode=_e_json["name"])
+                        _e = Emoji(unicode=_e_json["name"])
                     else:
-                        _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+                        _e = Emoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
                     
                     _r_json = {
                         "message_id": int(event.data["message_id"]),
