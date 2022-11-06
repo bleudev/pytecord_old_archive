@@ -27,7 +27,7 @@ SOFTWARE.
 import disspy.activity
 import disspy.app_commands
 import disspy.application
-import disspy.bot
+import disspy.client
 import disspy.channel
 import disspy.embed
 import disspy.errors
@@ -59,7 +59,7 @@ from disspy.channel import (
     Message,
     RawMessage,
 )
-from disspy.bot import Client, DisBotEventType
+from disspy.client import Client, DisBotEventType
 from disspy.http import DisApi, DisFlags
 from disspy.embed import Embed, Field, Color
 from disspy.guild import Guild
@@ -105,7 +105,7 @@ __alls__: list = [
     disspy.activity.__all__,
     disspy.app_commands.__all__,
     disspy.application.__all__,
-    disspy.bot.__all__,
+    disspy.client.__all__,
     disspy.channel.__all__,
     disspy.embed.__all__,
     disspy.errors.__all__,
