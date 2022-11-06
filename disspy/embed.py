@@ -30,7 +30,7 @@ from typing import (
     Optional
 )
 
-__all__: tuple = ("Color", "DisField", "Embed")
+__all__: tuple = ("Color", "Field", "Embed")
 
 
 class Color:
@@ -108,8 +108,8 @@ class Color:
         raise RuntimeError("Invlid hex! (It needs start from #)")
 
 
-class DisField:
-    """DisField
+class Field:
+    """
     Fields for embeds
     """
 
@@ -192,7 +192,7 @@ class Embed:
 
         self.sprite_components = _SpriteComponents()
 
-        self.fields: List[DisField] = []
+        self.fields: List[Field] = []
 
     def add_field(
         self,
@@ -200,7 +200,7 @@ class Embed:
         value: str,
         *,
         inline: bool = True,
-        obj: Optional[DisField] = None
+        obj: Optional[Field] = None
     ) -> None:
         """add_field
         Add field to embed
@@ -209,7 +209,7 @@ class Embed:
             name (str): Name of field
             value (str): Value of field
             inline (bool, optional): Field in line?. Defaults to True.
-            obj (DisField, optional): Field object. Defaults to None
+            obj (Field, optional): Field object. Defaults to None
 
         Returns:
             None
@@ -217,7 +217,7 @@ class Embed:
         if obj:
             self.fields.append(obj)
             return
-        self.fields.append(DisField(name, value, inline))
+        self.fields.append(Field(name, value, inline))
 
     def set_author(
         self,
