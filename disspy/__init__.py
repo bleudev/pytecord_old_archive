@@ -61,7 +61,7 @@ from disspy.channel import (
 )
 from disspy.bot import Client, DisBotEventType
 from disspy.http import DisApi, DisFlags
-from disspy.embed import Embed, DisField, DisColor
+from disspy.embed import Embed, DisField, Color
 from disspy.guild import Guild
 from disspy.user import User
 from disspy.reaction import DisEmoji, Reaction

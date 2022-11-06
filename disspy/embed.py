@@ -30,15 +30,13 @@ from typing import (
     Optional
 )
 
-__all__: tuple = ("DisColor", "DisField", "Embed")
+__all__: tuple = ("Color", "DisField", "Embed")
 
 
-class DisColor:
-    """DisColor
+class Color:
+    """
     Colors for embeds
     """
-
-    __classname__ = "DisColor"
 
     DEFAULT = 0
     AQUA = 1752220
@@ -182,7 +180,7 @@ class Embed:
         title: str,
         *,
         description: str = None,
-        color: int = DisColor.DEFAULT,
+        color: int = Color.DEFAULT,
         footer: str = None,
     ) -> None:
         self.title: str = title
