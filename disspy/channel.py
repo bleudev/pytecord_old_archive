@@ -329,6 +329,15 @@ class Channel:
 
         self.name: str = _try('name')
 
+        # Threads
+        self.parent_id: int = _try("parent_id", int)
+        self.owner_id: int = _try("owner_id", int)
+
+        try:
+            self.archived: bool = __data["thread_metadata"]["archived"]
+        except KeyError:
+            self.archived: bool = False
+
     async def send(
         self,
         content: Optional[SupportsStr] = None,
