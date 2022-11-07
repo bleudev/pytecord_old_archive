@@ -44,7 +44,6 @@ from disspy.channel import Channel, Message
 from disspy.http import DispyApi, Flags
 from disspy.guild import Guild
 from disspy.user import User
-from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.state import ConnectionState
 from disspy.application import Application
 from disspy.utils import _type_check, _type_of, optional, type_check_obj
@@ -600,40 +599,7 @@ class Client:
         _type_check(channel_id, int)
         # _END
 
-        channel = self.api.get_channel_or_thread(channel_id)
-
-        if isinstance(channel, Channel):
-            return channel
-
-        _m = "This channel is not channel! Use get_thread() method"
-        raise RuntimeError(_m)
-
-    def get_thread(
-        self, thread_id: int
-    ) -> Union[DisNewsThread, DisThread, DisPrivateThread]:
-        """get_thread
-        Get thread by id
-
-        Args:
-            thread_id (int): Thread id
-
-        Raises:
-            RuntimeError: Argument is not thread id
-
-        Returns:
-            Union[DisNewsThread, DisThread, DisPrivateThread]: Getted thread object
-        """
-        # Type checks
-        _type_check(thread_id, int)
-        # _END
-
-        thread = self.api.get_channel_or_thread(thread_id)
-
-        if isinstance(thread, Thread):
-            return thread
-
-        _m = "This channel is not thread! Use get_channel() method"
-        raise RuntimeError(_m)
+        return self.api.get_channel(channel_id)
 
     def get_guild(self, guild_id: int) -> Guild:
         """

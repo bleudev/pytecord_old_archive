@@ -45,7 +45,6 @@ import colorama
 
 # disspy imports
 from disspy.channel import Channel, Message
-from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.guild import Guild
 from disspy.user import User
 from disspy.app_commands import Context
@@ -513,33 +512,21 @@ class DispyApi:
 
         return self._r.get("user", user_id)
 
-    def get_channel_or_thread(
-        self, object_id: int
-    ) -> Union[Channel, DisNewsThread, DisThread, DisPrivateThread]:
+    def get_channel(
+        self, channel_id: int
+    ) -> Channel:
         """
         Get channel or thread
 
         Args:
-            object_id (int): Id of channel or thread
+            channel_id (int): Id of channel
 
         Returns:
             Channel
-            DisNewsThread
-            DisThread
-            DisPrivateThread
         """
-        j = self._r.get("channel", object_id)
-        _type = j["type"]
+        j = self._r.get("channel", channel_id)
 
-        _threads_objs = {10: DisNewsThread, 11: DisThread, 12: DisPrivateThread}
-
-        if _type in (0, 1):  # Basic Channels
-            return Channel(j, self.token, self.session)
-
-        if _type in (10, 11, 12):  # Threads
-            return _threads_objs[_type](j, self.token, self.session)
-
-        return None
+        return Channel(j, self.token, self.session)
 
     def get_channel_json(self, channel_id: int) -> JsonOutput:
         """

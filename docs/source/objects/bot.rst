@@ -317,32 +317,6 @@ Params:
 Returns:
     ``Channel``
 
-
-get_thread()
-============
-
-::
-
-    def get_thread(thread_id: int) -> DisNewsThread | DisThread | DisPrivateThread
-
-Get thread by id
-
-Example::
-
-    th = bot.get_thread(1001044473331060818)
-    await th.send("Hi?")
-
-Params:
-    ``thread_id`` -> Thread id. ``int`` type
-
-Returns:
-    ``DisNewsThread``
-
-    ``DisThread``
-
-    ``DisPrivateThread``
-
-
 get_guild()
 ===========
 

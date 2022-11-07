@@ -33,7 +33,6 @@ import disspy.embed
 import disspy.errors
 import disspy.guild
 import disspy.reaction
-import disspy.thread
 import disspy.typ
 import disspy.ui
 import disspy.user
@@ -74,8 +73,6 @@ from disspy.ui import (
     SelectMenu,
     SelectMenuOption,
 )
-
-from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.state import ConnectionState
 from disspy.webhook import DispyWebhook
 from disspy.application import Application
@@ -111,7 +108,6 @@ __alls__: list = [
     disspy.errors.__all__,
     disspy.guild.__all__,
     disspy.reaction.__all__,
-    disspy.thread.__all__,
     disspy.ui.__all__,
     disspy.user.__all__,
 ]
