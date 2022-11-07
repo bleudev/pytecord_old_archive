@@ -1,6 +1,6 @@
 import disspy
 
-bot = disspy.Client(token="TOKEN")  # Create bot
+client = disspy.Client(token="TOKEN")  # Create client
 
 
 # add_event() example
@@ -8,6 +8,6 @@ async def on_ready():
     print("Hi")
 
 
-bot.add_event("ready", on_ready)
+client.add_event("ready", on_ready)
 
-bot.run()  # Running bot
+client.run()  # Running client

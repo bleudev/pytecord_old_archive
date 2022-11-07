@@ -4,11 +4,11 @@ Example slash commands
 import disspy
 from disspy import app_commands, StrOption, IntOption
 
-bot = disspy.Client(token="TOKEN")  # Create bot
+client = disspy.Client(token="TOKEN")  # Create client
 
 
 # Example command without options
-@bot.command()
+@client.command()
 @app_commands.describe("Test")
 async def hello(ctx: disspy.Context):
     a = ""
@@ -19,7 +19,7 @@ async def hello(ctx: disspy.Context):
 
 
 # Example command with options
-@bot.command()
+@client.command()
 @app_commands.describe("Example command")
 @app_commands.options.describe(message=StrOption().description("Message").required(),
                                integer=IntOption().description("Integer for math operation"))
@@ -32,14 +32,14 @@ async def foo(ctx: disspy.Context, message: str, integer: int = None):
 
 # Example context menus
 # Message context menu
-@bot.context_menu()
+@client.context_menu()
 async def info(ctx: disspy.Context, message: disspy.Message):
     await ctx.respond(f"Content: {message.content}", f"Channel id: {message.channel.id}", f"Id: {message.id}")
 
 
 # User context menu
-@bot.context_menu()
+@client.context_menu()
 async def fullname(ctx: disspy.Context, user: disspy.User):
     await ctx.respond(user.fullname)
 
-bot.run()  # Running bot
+client.run()  # Running bot

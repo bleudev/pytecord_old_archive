@@ -1,5 +1,5 @@
 import disspy
 
-bot = disspy.Client(token="TOKEN")  # Create bot
+client = disspy.Client(token="TOKEN")  # Create client
 
-bot.run()  # Running bot
+client.run()  # Running client
