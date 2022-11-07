@@ -3,18 +3,11 @@ import disspy
 bot = disspy.Client(token="TOKEN", flags=disspy.Flags.messages())  # Create bot
 
 
-# on_typing()
+# On typing event
 @bot.event()
-async def on_typing(user: disspy.User, channel: disspy.Channel):  # or async def typing(...): ...
-    print(user.id)
-    await channel.send("You started typing!")
-
-
-# on_dm_typing()
-@bot.event()
-async def on_dm_typing(user: disspy.User, channel: disspy.Channel):  # or async def dm_typing(...): ...
-    print(user.id)
-    print(channel.id)
+async def typing(info: disspy.TypingInfo):
+    print(info.author.id)
+    await info.channel.send("You started typing!")
 
 
 bot.run()  # Running bot
