@@ -37,7 +37,7 @@ Client
 
 ::
 
-    @on(event_type: TypeOf[DisBotEventType]) -> Wrapper
+    @on(event_type: TypeOf[EventType]) -> Wrapper
 
 Registering events with event type and function
 
@@ -48,7 +48,7 @@ Example::
         print("I'm ready!")
 
 Params:
-    ``event_type: str`` -> Key of `DisBotEventType`_ 
+    ``event_type: str`` -> Key of `EventType`_ 
 
 Returns:
     ``Wrapper``
@@ -58,7 +58,7 @@ add_event()
 
 ::
 
-    def add_event(event_type: TypeOf[DisBotEventType], func: Callable) -> None
+    def add_event(event_type: TypeOf[EventType], func: Callable) -> None
 
 Registering events with event type and function
 
@@ -70,7 +70,7 @@ Example::
     bot.add_event("ready", on_ready)
 
 Params:
-    ``event_type: str`` -> Key of `DisBotEventType`_
+    ``event_type: str`` -> Key of `EventType`_
 
     ``func: Callable`` -> `Callable <https://docs.python.org/3/library/typing.html#callable>`_ argument. function for event
 
@@ -399,14 +399,14 @@ Variables:
     * ``INVISIBLE`` -> Invisible status (5th status on image)
     * ``IDLE`` -> Idle status (2nd status on image)
 
-DisBotEventType
+EventType
 ***************
 
 Usage example::
 
-    @bot.on(disspy.DisBotEventType.ON_MESSAGEC)
+    @bot.on(disspy.EventType.ON_MESSAGEC)
     async def on_messagec(message: disspy.Message):
-        await message.reply("This is example of usage DisBotEventType!")
+        await message.reply("This is example of usage EventType!")
 
 Variables:
     * ``ON_MESSAGEC`` -> On message create

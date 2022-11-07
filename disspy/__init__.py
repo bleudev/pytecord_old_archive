@@ -59,7 +59,7 @@ from disspy.channel import (
     Message,
     RawMessage,
 )
-from disspy.client import Client, DisBotEventType
+from disspy.client import Client, EventType
 from disspy.http import DisApi, Flags
 from disspy.embed import Embed, Field, Color
 from disspy.guild import Guild

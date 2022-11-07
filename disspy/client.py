@@ -49,7 +49,7 @@ from disspy.state import ConnectionState
 from disspy.application import Application
 from disspy.utils import _type_check, _type_of, optional, type_check_obj
 
-__all__: tuple = ("DisBotEventType", "Client")
+__all__: tuple = ("EventType", "Client")
 
 # For Type Hints
 Wrapper = Callable
@@ -115,16 +115,18 @@ class _BotLogger:
 
 
 @final
-class DisBotEventType:
+class EventType:
     """
     This class created for simplification adding events to Client.
     This is class, not an object
 
-    Using
-    ------
-    @bot.on(disspy.DisBotEventType.ONMESSAGEC)
+    ### Using
+
+    ```
+    @client.on(disspy.EventType.MESSAGEC)
     async def on_messagec(message):
         await message.channel.send('Test!')
+    ```
     """
 
     MESSAGEC: str = "messagec"
@@ -304,7 +306,7 @@ class Client:
         return wrapper
 
     def add_event(
-        self, event_type: TypeOf[DisBotEventType], func: Callable
+        self, event_type: TypeOf[EventType], func: Callable
     ) -> None:
         """
         Add event to bot with function and event type
@@ -314,17 +316,15 @@ class Client:
         :return None:
         """
         # Type checks
-        _type_check(event_type, TypeOf[DisBotEventType])
+        _type_check(event_type, TypeOf[EventType])
         _type_check(func, Callable)
-        _type_of(event_type, DisBotEventType)
+        _type_of(event_type, EventType)
         # _END
 
-        __methodname__ = f"{self.__classname__}.add_event()"
-
-        if isinstance(event_type, DisBotEventType):
+        if isinstance(event_type, EventType):
             _message = (
-                f"Error! In method {__methodname__} was moved"
-                "invalid argument! Argument type is DisBotEventType,"
+                "Error! In method add_event() was moved"
+                "invalid argument! Argument type is EventType,"
                 "but in method have to type is str!"
             )
             raise errors.InvalidArgument(_message)
