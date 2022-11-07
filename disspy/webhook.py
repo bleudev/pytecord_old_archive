@@ -217,6 +217,12 @@ class _Event:
             self.json = {"t": "ERROR", "s": None, "d": {}, "op": 0}
 
 
+class TypingInfo:
+    def __init__(self, __data) -> None:
+        self.author: User = __data['author']
+        self.channel: Channel = __data['channel']
+
+
 @final
 class DispyWebhook:
     """
@@ -244,7 +250,10 @@ class DispyWebhook:
         self.token = token
         self._debug = False
 
-        self._headers = {}
+        self._headers = {
+            "Authorization": f"Bot {token}",
+            "content-type": "application/json",
+        }
 
         self.websocket = None
         self.session = None
@@ -585,68 +594,25 @@ class DispyWebhook:
                         print(_DebugLoggingAwaiting(event.type, "on_reactionr"))
 
                 elif event.type == "TYPING_START":
-                    try:
-                        if event.data["guild_id"]:
-                            _u: User = User(
-                                event.data["member"]["user"], self.token
-                            )
-                            _channel_data = _GettingChannelData.execute(
-                                event.data['channel_id'],
-                                self.token
-                                )
+                    _u_id = event.data["user_id"]
+                    _url = f"https://discord.com/api/v10/users/{str(_u_id)}"
 
-                            _c = Channel(
-                                _channel_data, self.token, self.session
-                            )
+                    _u_json = get(url=_url, headers=self._headers).json()
 
-                            await self.ons["typing"](_u, _c)
+                    _channel_data = _GettingChannelData.execute(
+                        event.data['channel_id'],
+                        self.token
+                    )
 
-                            if self._debug:
-                                print(_DebugLoggingAwaiting(event.type, "on_typing"))
-                        else:
-                            _u_id = event.data["user_id"]
+                    _d = {
+                        'author': User(_u_json, self.token),
+                        'channel': Channel(_channel_data, self.token, self.session)
+                    }
 
-                            _url = f"https://discord.com/api/v10/users/{str(_u_id)}"
+                    await self.ons["typing"](TypingInfo(_d))
 
-                            _u_json = get(url=_url, headers=self._headers).json()
-
-                            _u: User = User(_u_json, self.token)
-
-                            _channel_data = _GettingChannelData.execute(
-                                event.data['channel_id'],
-                                self.token
-                                )
-
-                            _c = Channel(
-                                _channel_data, self.token, self.session
-                            )
-
-                            await self.ons["dm_typing"](_u, _c)
-
-                            if self._debug:
-                                print(_DebugLoggingAwaiting(event.type, "on_dm_typing"))
-                    except KeyError:
-                        _u_id = event.data["user_id"]
-
-                        _url = f"https://discord.com/api/v10/users/{str(_u_id)}"
-
-                        _u_json = get(url=_url, headers=self._headers).json()
-
-                        _u: User = User(_u_json, self.token)
-
-                        _channel_data = _GettingChannelData.execute(
-                            event.data['channel_id'],
-                            self.token
-                        )
-
-                        _c = Channel(
-                            _channel_data, self.token, self.session
-                        )
-
-                        await self.ons["dm_typing"](_u, _c)
-
-                        if self._debug:
-                            print(_DebugLoggingAwaiting(event.type, "on_dm_typing"))
+                    if self._debug:
+                        print(_DebugLoggingAwaiting(event.type, "on_typing"))
             except TypeError:
                 pass
             except KeyError:

@@ -74,7 +74,7 @@ from disspy.ui import (
     SelectMenuOption,
 )
 from disspy.state import ConnectionState
-from disspy.webhook import DispyWebhook
+from disspy.webhook import DispyWebhook, TypingInfo
 from disspy.application import Application
 
 # Methods for other variables

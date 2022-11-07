@@ -66,7 +66,6 @@ _all_basic_events = [
     "reaction",  # On reaction add
     "reactionr",  # On reaction remove
     "typing",  # Typing start
-    "dm_typing",  # Typig start in dm channel
 ]
 
 
@@ -87,8 +86,9 @@ def ignore():
 
 @final
 class _BotLogger:
-    def __init__(self) -> None:
+    def __init__(self, debug: bool = False) -> None:
         self.logs = []
+        self.debug = debug
 
     def log(self, msg: str):
         """log
@@ -109,8 +109,12 @@ class _BotLogger:
             _datetime.minute,
             _datetime.second,
         )
+        
+        _log_msg = f"[{_time}] {msg}"
 
-        self.logs.append(f"[{_time}] {msg}")
+        if self.debug:
+            print(_log_msg)
+        self.logs.append(_log_msg)
 
 
 @final
@@ -139,12 +143,11 @@ class EventType:
     REACTION: str = "reaction"
     REACTIONR: str = "reactionr"
     TYPING: str = "typing"
-    DM_TYPING: str = "dm_typing"
 
     def __values__(self) -> list:
         return [self.MESSAGEC, self.MESSAGEU, self.MESSAGED, self.DMESSAGEC, self.DMESSAGEU,
                 self.DMESSAGED, self.READY, self.CLOSE, self.REACTION, self.REACTIONR,
-                self.TYPING, self.DM_TYPING]
+                self.TYPING]
 
     def __type__(self) -> type:
         return str
@@ -162,7 +165,8 @@ class Client:
     def __init__(
         self,
         token: str,
-        flags: Optional[TypeOf[Flags]] = None
+        flags: Optional[TypeOf[Flags]] = None,
+        debug: bool = False
     ) -> None:
         """__init__
 
@@ -195,8 +199,10 @@ class Client:
             self.intflags = flags
 
         self.status = None
-        self.debug = False
-        self._logger = _BotLogger()
+
+        self.debug = debug
+        self._logger = _BotLogger(debug)
+
         self._state = ConnectionState(token)
         self._ons = {
             "register": self._on_register,
@@ -259,9 +265,6 @@ class Client:
         def wrapper(func):
             event_type: str = func.__name__
 
-            if event_type.startswith('on_'):
-                event_type = event_type.removeprefix('on_')
-
             if event_type in _all_basic_events:
                 if event_type == "close":
                     self._on_close = func
@@ -272,7 +275,6 @@ class Client:
                         "messageu",
                         "messaged",
                         "typing",
-                        "dm_typing",
                         "dmessagec",
                         "dmessageu",
                         "dmessaged",
