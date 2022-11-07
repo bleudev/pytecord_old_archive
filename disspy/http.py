@@ -61,7 +61,7 @@ __all__: tuple = (
     # Private clients
     "Rest",
     # Main client
-    "DisApi",
+    "DispyApi",
 )
 
 
@@ -273,8 +273,8 @@ class Rest:
 
 
 @final
-class DisApi:
-    """DisApi
+class DispyApi:
+    """
     Class for init Rest and DispyWebhook event and edit they
     """
 
@@ -334,7 +334,7 @@ class DisApi:
         self, status, ons: Dict[Text, Callable], debug: bool, act: Dict[str, Any]
     ) -> None:
         """
-        Run the hook of DisApi or run the bot.
+        Run the hook of DispyApi or run the bot.
         Running bot in Discord, changing status and registering
         and running events in discord Gateway
         -----

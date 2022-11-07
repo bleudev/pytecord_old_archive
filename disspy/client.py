@@ -41,7 +41,7 @@ from disspy.typ import TypeOf, MISSING
 from disspy.activity import Activity
 import disspy.app_commands as appc
 from disspy.channel import Channel, Message
-from disspy.http import DisApi, Flags
+from disspy.http import DispyApi, Flags
 from disspy.guild import Guild
 from disspy.user import User
 from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
@@ -221,7 +221,7 @@ class Client:
         self._act = None
         self.user = None
 
-        self.api = DisApi(self.token, self.intflags)
+        self.api = DispyApi(self.token, self.intflags)
 
         self.isready = False
 
