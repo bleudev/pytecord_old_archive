@@ -587,7 +587,7 @@ class Client:
         Get channel by its id
 
         Args:
-            channel_id (int) 
+            channel_id (int)
 
         Raises:
             RuntimeError: Getted channel is thread or None
