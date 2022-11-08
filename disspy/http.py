@@ -500,7 +500,7 @@ class DispyApi:
 
         return User(self.get_user_json(user_id), self.token)
 
-    def get_user_json(self, user_id: int) -> JsonOutput:
+    def get_user_json(self, user_id: int) -> dict:
         """
         Get user by id (Json Output)
         -----
