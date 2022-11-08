@@ -6,7 +6,7 @@ Client
 
 ::
 
-    class Client(token: str, status: Optional[TypeOf(DisBotStatus)],
+    class Client(token: str,
                  flags: Optional[TypeOf(Flags)], debug: Optional[bool] = False,
                  activity: Optional[Union[Activity, dict]])
 
