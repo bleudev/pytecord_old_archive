@@ -47,7 +47,7 @@ bot = Client(TOKEN)  # Create a bot
 
 @bot.on_message("create")  # On message create
 async def on_messagec(message: Message):  # message - sended message
-    await message.reply("Hello, world!")  # Reply to a message
+    await message.reply("Hello!")  # Reply to a message
 
 bot.run()  # Run bot in Gateway
 ```
