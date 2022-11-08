@@ -324,14 +324,6 @@ class Client:
         _type_of(event_type, EventType)
         # _END
 
-        if isinstance(event_type, EventType):
-            _message = (
-                "Error! In method add_event() was moved"
-                "invalid argument! Argument type is EventType,"
-                "but in method have to type is str!"
-            )
-            raise errors.InvalidArgument(_message)
-
         if event_type in _all_basic_events:
             if event_type == "close":
                 self._on_close = func
