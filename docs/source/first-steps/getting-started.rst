@@ -74,7 +74,7 @@ Now, let's write some code!
 
     bot = disspy.Client(token=token)  # You created bot!
 
-Then, you can add any event using ``on() method``::
+Then, you can add any event using ``event() method``::
 
     @bot.on("ready")
     async def on_ready():
