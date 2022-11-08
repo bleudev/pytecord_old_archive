@@ -50,8 +50,6 @@ from disspy.user import User
 from disspy.app_commands import Context
 from disspy.webhook import DispyWebhook
 
-JsonOutput = NewType("JsonOutput", Dict[str, Any])
-
 # __all__
 __all__: tuple = (
     # Classes for simpler creating other classes
@@ -212,11 +210,16 @@ class Rest:
 
         self.__slots__ = [self._headers]
 
-    def get(self, goal: str, goal_id: int) -> Union[JsonOutput, None]:
+    def get(self, goal: str, goal_id: int) -> dict:
         """
-        :param goal: guild/channel/user
-        :param id: id of guild/channel/user
-        :return JsonOutput: Json answer from Discord API server
+        Get data
+
+        Args:
+            goal (str): Get goal (for ex, 'guild')
+            goal_id (int): Get goal id (for ex, 955868993175035934)
+
+        Returns:
+            dict
         """
         goal_id = int(goal_id)
 
@@ -236,7 +239,7 @@ class Rest:
 
         return None
 
-    def fetch(self, channel_id, message_id) -> JsonOutput:
+    def fetch(self, channel_id, message_id) -> dict:
         """fetch()
 
         Args:
@@ -244,7 +247,7 @@ class Rest:
             message_id (_type_): Message id from this channel
 
         Returns:
-            JsonOutput: Json data about fetched message
+            : Json data about fetched message
         """
         _channel_id, _message_id = [str(channel_id), str(message_id)]
 
@@ -501,11 +504,14 @@ class DispyApi:
         return User(self.get_user_json(user_id), self.token)
 
     def get_user_json(self, user_id: int) -> dict:
-        """
-        Get user by id (Json Output)
-        -----
-        :param user_id: id of user
-        :return JsonOutput:
+        """get_user_json
+        Get user json by id
+
+        Args:
+            user_id (int): User id
+
+        Returns:
+            dict
         """
         user_id = int(user_id)
 
@@ -529,10 +535,13 @@ class DispyApi:
 
     def get_channel_json(self, channel_id: int) -> dict:
         """
-        Get channel by id (Json Output)
-        -----
-        :param channel_id: id of channel
-        :return JsonOutput:
+        Get channel json
+
+        Args:
+            channel_id (int): Channel id
+
+        Returns:
+            dict
         """
         channel_id = int(channel_id)
 
@@ -552,10 +561,13 @@ class DispyApi:
 
     def get_guild_json(self, guild_id: int) -> dict:
         """
-        Get guild by id (Json Output)
+        Get guild json
 
-        :param guild_id: id of guild
-        :return JsonOutput:
+        Args:
+            guild_id (int): Guild id
+
+        Returns:
+            dict
         """
 
         guild_id = int(guild_id)
