@@ -55,7 +55,6 @@ JsonOutput = NewType("JsonOutput", Dict[str, Any])
 # __all__
 __all__: tuple = (
     # Classes for simpler creating other classes
-    "JsonOutput",
     "Flags",
     # Private clients
     "Rest",
