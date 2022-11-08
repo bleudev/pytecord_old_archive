@@ -550,7 +550,7 @@ class DispyApi:
 
         return Guild(data, self.token, self.session)
 
-    def get_guild_json(self, guild_id: int) -> JsonOutput:
+    def get_guild_json(self, guild_id: int) -> dict:
         """
         Get guild by id (Json Output)
 
