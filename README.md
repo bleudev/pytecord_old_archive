@@ -43,13 +43,13 @@ from disspy import Client, Message  # Import package
 import os
 
 TOKEN = os.environ["TOKEN"]
-bot = Client(TOKEN)  # Create a bot
+client = Client(TOKEN)  # Create a client
 
-@bot.on_message("create")  # On message create
+@client.on_message("create")  # On message create
 async def on_messagec(message: Message):  # message - sended message
     await message.reply("Hello!")  # Reply to a message
 
-bot.run()  # Run bot
+client.run()  # Run client
 ```
 
 # Download package
