@@ -2,7 +2,6 @@ import disspy
 
 client = disspy.Client(token="TOKEN")  # Create bot
 
-# On ready event
 
 # on_ready()
 @client.on_ready()
