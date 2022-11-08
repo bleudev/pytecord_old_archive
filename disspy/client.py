@@ -173,7 +173,8 @@ class Client:
 
         Args:
             token (str): Bot token from Discord developers portal
-            flags (Optional[TypeOf[Flags], optional): Flags of bot. Defaults to None.
+            flags (TypeOf[Flags], optional): Flags of bot. Defaults to None.
+            debug (bool, optional): Enable debuging in disspy? Defaults to False
         """
         # Type checks
         _type_check(token, str)
