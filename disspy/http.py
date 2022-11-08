@@ -329,7 +329,7 @@ class DispyApi:
         return Message(_d, self.token, self.session)
 
     async def run(
-        self, status, ons: Dict[Text, Callable], debug: bool, act: Dict[str, Any]
+        self, status, ons: dict, debug: bool, act: dict
     ) -> None:
         """
         Run the hook of DispyApi or run the bot.
