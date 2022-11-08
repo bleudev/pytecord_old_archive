@@ -597,7 +597,7 @@ class Client:
             RuntimeError: Getted channel is thread or None
 
         Returns:
-            Channel: Getted channel
+            Channel
         """
         # Type checks
         _type_check(channel_id, int)
