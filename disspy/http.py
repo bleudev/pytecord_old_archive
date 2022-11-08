@@ -527,7 +527,7 @@ class DispyApi:
 
         return Channel(j, self.token, self.session)
 
-    def get_channel_json(self, channel_id: int) -> JsonOutput:
+    def get_channel_json(self, channel_id: int) -> dict:
         """
         Get channel by id (Json Output)
         -----
