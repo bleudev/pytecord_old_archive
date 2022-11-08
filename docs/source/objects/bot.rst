@@ -72,7 +72,7 @@ Example::
 Params:
     ``event_type: str`` -> Key of `EventType`_
 
-    ``func: Callable`` -> `Callable <https://docs.python.org/3/library/typing.html#callable>`_ argument. function for event
+    ``func: Callable`` -> `Callable <https://docs.python.org/3/library/typing.html#callable>`_ argument. Function for event
 
 Returns:
     ``None``
