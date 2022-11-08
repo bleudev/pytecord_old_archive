@@ -196,9 +196,9 @@ class Client:
         self.token: str = str(token)
 
         if flags is None:
-            self.intflags = Flags.default()
-        else:
-            self.intflags = flags
+            flags = Flags.default()
+
+        self.flags = flags
 
         self.status = None
 
@@ -228,7 +228,7 @@ class Client:
         self._act = None
         self.user = None
 
-        self.api = DispyApi(self.token, self.intflags)
+        self.api = DispyApi(self.token, self.flags)
 
         self.isready = False
 
@@ -281,7 +281,7 @@ class Client:
                         "dmessageu",
                         "dmessaged",
                     ]:
-                        if self.intflags >= Flags.messages():
+                        if self.flags >= Flags.messages():
                             self._ons[event_type] = func
                             self._logger.log(f"Register on_{event_type}() event")
                         else:
@@ -291,7 +291,7 @@ class Client:
                                 + "don't avaivable right now because flags < Flags.messages()"
                             )
                     elif event_type in ["reaction", "reactionr"]:
-                        if self.intflags >= Flags.reactions():
+                        if self.flags >= Flags.reactions():
                             self._ons[event_type] = func
                             self._logger.log(f"Register on_{event_type}() event")
                         else:
