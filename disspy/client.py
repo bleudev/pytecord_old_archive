@@ -165,6 +165,7 @@ class Client:
     def __init__(
         self,
         token: str,
+        *,
         flags: Optional[TypeOf[Flags]] = None,
         debug: bool = False
     ) -> None:
