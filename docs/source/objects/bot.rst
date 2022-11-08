@@ -22,7 +22,7 @@ Client
 .. note::
     Default is ``Flags.default()``
 
-``debug`` -> Enable debug in console
+``debug`` -> Enable debug logs in console?
 
 .. note::
     Default is ``False``
