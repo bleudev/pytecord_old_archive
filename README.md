@@ -49,7 +49,7 @@ bot = Client(TOKEN)  # Create a bot
 async def on_messagec(message: Message):  # message - sended message
     await message.reply("Hello!")  # Reply to a message
 
-bot.run()  # Run bot in Gateway
+bot.run()  # Run bot
 ```
 
 # Download package
