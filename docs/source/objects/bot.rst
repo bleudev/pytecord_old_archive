@@ -1,13 +1,13 @@
 Bot
 ###
 
-DisBot
+Client
 ******
 
 ::
 
-    class DisBot(token: str, status: Optional[TypeOf(DisBotStatus)],
-                 flags: Optional[TypeOf(DisFlags)], debug: Optional[bool] = False,
+    class Client(token: str,
+                 flags: Optional[TypeOf(Flags)], debug: Optional[bool] = False,
                  activity: Optional[Union[Activity, dict]])
 
 ``token`` -> Token of bot from Discord Developer Portal
@@ -17,12 +17,12 @@ DisBot
 .. note::
     Default is ``DisBotStatus.ONLINE``
 
-``flags`` -> Key of DisFlags. Special privellegions for bot (for example, DisFlags.messages() for on_message() events, or DisFlags.reactions() for on_reaction() events)
+``flags`` -> Key of Flags. Special privellegions for bot (for example, Flags.messages() for on_message() events, or Flags.reactions() for on_reaction() events)
 
 .. note::
-    Default is ``DisFlags.default()``
+    Default is ``Flags.default()``
 
-``debug`` -> Enable debug in console
+``debug`` -> Enable debug logs in console?
 
 .. note::
     Default is ``False``
@@ -32,33 +32,12 @@ DisBot
 .. note::
     Default is ``None``
 
-@on()
-=====
-
-::
-
-    @on(event_type: TypeOf[DisBotEventType]) -> Wrapper
-
-Registering events with event type and function
-
-Example::
-
-    @bot.on("ready")
-    async def on_ready():
-        print("I'm ready!")
-
-Params:
-    ``event_type: str`` -> Key of `DisBotEventType`_ 
-
-Returns:
-    ``Wrapper``
-
 add_event()
 ===========
 
 ::
 
-    def add_event(event_type: TypeOf[DisBotEventType], func: Callable) -> None
+    def add_event(event_type: str, func: Callable) -> None
 
 Registering events with event type and function
 
@@ -70,9 +49,9 @@ Example::
     bot.add_event("ready", on_ready)
 
 Params:
-    ``event_type: str`` -> Key of `DisBotEventType`_
+    ``event_type: str`` -> Key of `EventType`_
 
-    ``func: Callable`` -> `Callable <https://docs.python.org/3/library/typing.html#callable>`_ argument. function for event
+    ``func: Callable`` -> `Callable <https://docs.python.org/3/library/typing.html#callable>`_ argument. Function for event
 
 Returns:
     ``None``
@@ -110,7 +89,7 @@ Register on_message() events
 Example::
 
     @bot.on_message("create")
-    async def on_messagec(message: disspy.DisMessage):
+    async def on_messagec(message: disspy.Message):
         await message.channel.send(f"Channel id: {message.channel.id}")
 
 Params:
@@ -131,7 +110,7 @@ Register on_dmessage() events
 Example::
 
     @bot.on_dm_message("update")
-        async def on_dmessageu(message: disspy.DmMessage):
+        async def on_dmessageu(message: disspy.Message):
             await message.channel.send("Dota 2 - 👎🏼")
 
 Params:
@@ -145,14 +124,14 @@ Returns:
 
 ::
 
-    @on_channel(channel_id: ChannelId) -> Wrapper
+    @on_channel(channel_id: int) -> Wrapper
 
 Register on_channel() event (on_messagec() event, but in one channel)
 
 Example::
 
     @bot.on_channel(955869165162479648)
-    async def on_channel(message: disspy.DisMessage):
+    async def on_channel(message: disspy.Message):
         await message.reply("Hi")
 
 Params:
@@ -209,11 +188,11 @@ Create `User or Message command. <application_commands.html#user-commands>`_
 Example::
 
     @bot.context_menu()  # Example user command
-    async def info(ctx: Context, user: DisUser):
+    async def info(ctx: Context, user: User):
         await ctx.send(f"Fullname: {user.fullname}")
     
     @bot.context_menu()  # Example message command
-    async def info_again(ctx: Context, message: DisMessage):
+    async def info_again(ctx: Context, message: Message):
         await ctx.send(message.content)
 
 Params:
@@ -279,7 +258,7 @@ send()
 ::
 
     async def send(channel_id: int, content: Optional[str],
-                   embeds: Optional[List[DisEmbed]])
+                   embeds: Optional[List[Embed]])
 
 Send message to channel by id
 
@@ -302,7 +281,7 @@ get_channel()
 
 ::
 
-    def get_channel(channel_id: ChannelId) -> DisChannel | DisDmChannel
+    def get_channel(channel_id: int) -> Channel
 
 Get channel by id
 
@@ -315,42 +294,14 @@ Params:
     ``channel_id`` -> Channel id. ``int`` type
 
 Returns:
-    ``DisChannel``
-
-    ``DisDmChannel``
-
-
-get_thread()
-============
-
-::
-
-    def get_thread(thread_id: ThreadId) -> DisNewsThread | DisThread | DisPrivateThread
-
-Get thread by id
-
-Example::
-
-    th = bot.get_thread(1001044473331060818)
-    await th.send("Hi?")
-
-Params:
-    ``thread_id`` -> Thread id. ``int`` type
-
-Returns:
-    ``DisNewsThread``
-
-    ``DisThread``
-
-    ``DisPrivateThread``
-
+    ``Channel``
 
 get_guild()
 ===========
 
 ::
 
-    def get_guild(guild_id: GuildId) -> DisGuild
+    def get_guild(guild_id: int) -> Guild
 
 Get guild by id
 
@@ -362,7 +313,7 @@ Params:
     ``guild_id`` -> Guild id. ``int`` type
 
 Returns:
-    ``DisGuild``
+    ``Guild``
 
 
 change_activity()
@@ -401,14 +352,10 @@ Variables:
     * ``INVISIBLE`` -> Invisible status (5th status on image)
     * ``IDLE`` -> Idle status (2nd status on image)
 
-DisBotEventType
+EventType
 ***************
 
-Usage example::
-
-    @bot.on(disspy.DisBotEventType.ON_MESSAGEC)
-    async def on_messagec(message: disspy.DisMessage):
-        await message.reply("This is example of usage DisBotEventType!")
+All events in disspy
 
 Variables:
     * ``ON_MESSAGEC`` -> On message create
@@ -430,7 +377,7 @@ ON_MESSAGEC
 Represention of Gateway "MESSAGE_CREATE" event
 
 Args for event:
-    message -> `DisMessage <message.html#dismessage>`_ object. Message that was created
+    message -> `Message <message.html#dismessage>`_ object. Message that was created
 
 ON_MESSAGEU
 ===========
@@ -438,7 +385,7 @@ ON_MESSAGEU
 Represention of Gateway "MESSAGE_UPDATE" event
 
 Args for event:
-    message -> `DisMessage <message.html#dismessage>`_ object. Message that was updated
+    message -> `Message <message.html#dismessage>`_ object. Message that was updated
 
 ON_MESSAGED
 ===========
@@ -446,7 +393,7 @@ ON_MESSAGED
 Represention of Gateway "MESSAGE_DELETE" event
 
 Args for event:
-    event -> `MessageDeleteEvent <message.html#messagedeleteevent>`_ object. Message deleting event
+    event -> `Raw message <message.html#rawmessage>`_ object. Message deleting event
 
 ON_DMESSAGEC
 ============
@@ -454,7 +401,7 @@ ON_DMESSAGEC
 Represention of Gateway "MESSAGE_CREATE" event only in DM channel
 
 Args for event:
-    message -> `DmMessage <message.html#dmmessage>`_ object. Message that was created
+    message -> `Message <message.html#dmmessage>`_ object. Message that was created
 
 ON_DMESSAGEU
 ============
@@ -462,7 +409,7 @@ ON_DMESSAGEU
 Represention of Gateway "MESSAGE_UPDATE" event only in DM channel
 
 Args for event:
-    message -> `DmMessage <message.html#dmmessage>`_ object. Message that was updated
+    message -> `Message <message.html#dmmessage>`_ object. Message that was updated
 
 ON_DMESSAGED
 ============
@@ -470,7 +417,7 @@ ON_DMESSAGED
 Represention of Gateway "MESSAGE_DELETE" event only in DM channel
 
 Args for event:
-    event -> `DmMessageDeleteEvent <message.html#dmmessagedeleteevent>`_ object. Message deleting event
+    event -> `Raw message <message.html#rawmessage>`_ object. Message deleting event
 
 ON_READY
 ========
@@ -483,7 +430,7 @@ Args for event:
 ON_CLOSE
 ========
 
-Will be called when calling ``DisBot.__del__`` function
+Will be called when calling ``Client.__del__`` function
 
 Args for event:
     ``None``
@@ -494,7 +441,7 @@ ON_REACTION
 Represention of Gateway "REACTION_ADD" event
 
 Args for event:
-    reaction: DisReaction object. Reaction that was added
+    reaction: Reaction object. Reaction that was added
 
 ON_REACTIONR
 ============
@@ -502,7 +449,7 @@ ON_REACTIONR
 Represention of Gateway "REACTION_REMOVE" event
 
 Args for event:
-    reaction: DisRemovedReaction object. Reaction that was removed
+    reaction: Reaction object. Reaction that was removed
 
 ON_TYPING
 =========
@@ -510,9 +457,9 @@ ON_TYPING
 Represention of Gateway "TYPING_START" event
 
 Args for event:
-    ``user``: DisUser object. User who started typing
+    ``user``: User object. User who started typing
 
-    ``channel``: DisChannel object. Channel where typing was started
+    ``channel``: Channel object. Channel where typing was started
 
 ON_DM_TYPING
 ============
@@ -520,6 +467,6 @@ ON_DM_TYPING
 Represention of Gateway "TYPING_START" event only in DM channel
 
 Args for event:
-    ``user``: DisUser object. User who started typing
+    ``user``: User object. User who started typing
 
-    ``channel``: DisDmChannel object. Channel where typing was started
+    ``channel``: Channel object. Channel where typing was started

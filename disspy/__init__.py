@@ -24,23 +24,20 @@ SOFTWARE.
 
 # Imports
 # Files
-import disspy.abstract
 import disspy.activity
 import disspy.app_commands
 import disspy.application
-import disspy.bot
+import disspy.client
 import disspy.channel
 import disspy.embed
 import disspy.errors
 import disspy.guild
 import disspy.reaction
-import disspy.thread
 import disspy.typ
 import disspy.ui
 import disspy.user
 
 # Classes
-from disspy.abstract import Messageable, Channel, Message, Thread
 from disspy.activity import Activity, ActivityType
 from disspy.app_commands import (
     ApplicationCommandType,
@@ -56,19 +53,17 @@ from disspy.app_commands import (
     Localization,
 )
 from disspy.channel import (
-    DisChannel,
-    DisDmChannel,
-    DisMessage,
-    DmMessage,
-    MessageDeleteEvent,
-    DmMessageDeleteEvent,
+    Channel,
+    ChannelType,
+    Message,
+    RawMessage,
 )
-from disspy.bot import DisBot, DisBotEventType
-from disspy.http import DisApi, DisFlags, JsonOutput
-from disspy.embed import DisEmbed, DisField, DisColor
-from disspy.guild import DisGuild
-from disspy.user import DisUser
-from disspy.reaction import DisEmoji, DisOwnReaction, DisReaction, DisRemovedReaction
+from disspy.client import Client
+from disspy.http import Flags
+from disspy.embed import Embed, Field, Color
+from disspy.guild import Guild
+from disspy.user import User
+from disspy.reaction import Emoji, Reaction
 from disspy.ui import (
     Component,
     ActionRow,
@@ -78,10 +73,8 @@ from disspy.ui import (
     SelectMenu,
     SelectMenuOption,
 )
-
-from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
 from disspy.state import ConnectionState
-from disspy.webhook import DispyWebhook
+from disspy.webhook import DispyWebhook, TypingInfo
 from disspy.application import Application
 
 # Methods for other variables
@@ -106,17 +99,15 @@ __github__ = "https://github.com/itttgg/dispy"
 
 # __all__
 __alls__: list = [
-    disspy.abstract.__all__,
     disspy.activity.__all__,
     disspy.app_commands.__all__,
     disspy.application.__all__,
-    disspy.bot.__all__,
+    disspy.client.__all__,
     disspy.channel.__all__,
     disspy.embed.__all__,
     disspy.errors.__all__,
     disspy.guild.__all__,
     disspy.reaction.__all__,
-    disspy.thread.__all__,
     disspy.ui.__all__,
     disspy.user.__all__,
 ]

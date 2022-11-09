@@ -44,28 +44,20 @@ import colorama
 
 
 # disspy imports
-from disspy.channel import DisChannel, DisDmChannel, DisMessage
-from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
-from disspy.guild import DisGuild
-from disspy.user import DisUser
+from disspy.channel import Channel, Message
+from disspy.guild import Guild
+from disspy.user import User
 from disspy.app_commands import Context
 from disspy.webhook import DispyWebhook
-
-JsonOutput = NewType("JsonOutput", Dict[str, Any])
 
 # __all__
 __all__: tuple = (
     # Classes for simpler creating other classes
-    "JsonOutput",
-    "DisFlags",
-    "ChannelId",
-    "ThreadId",
-    "UserId",
-    "GuildId",
+    "Flags",
     # Private clients
     "Rest",
     # Main client
-    "DisApi",
+    "DispyApi",
 )
 
 
@@ -98,18 +90,27 @@ class _Intents(_AutoFlags):
     GUILD_SCHEDULED_EVENTS = auto()
 
 
-class DisFlags:
+def _value(*args):
+    res = 0
+
+    for i in list(args):
+        res += int(i.value)
+
+    return res
+
+
+class Flags:
     """
     The class for using intents in bots
 
-    :methods:
-        :method: default()
-            Implements GUILD_MESSAGES and default intents
-        :method: all()
-            Implements all Gateway Intents
-    """
+    # Methods
 
-    __classname__: str = "DisFlags"
+    `default()`
+        Implements GUILD_MESSAGES and default intents
+
+    `all()`
+        Implements all Gateway Intents
+    """
 
     def __all__(self) -> List[str]:
         return [str(self.default()), str(self.all())]
@@ -125,7 +126,7 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        return int(_Intents.GUILD_INTEGRATIONS.value)
+        return _value(_Intents.GUILD_INTEGRATIONS)
 
     @staticmethod
     def messages() -> int:
@@ -140,13 +141,12 @@ class DisFlags:
         :return int: integer value of intents
         """
 
-        _typings = (
-            _Intents.GUILD_MESSAGE_TYPING.value + _Intents.DIRECT_MESSAGE_TYPING.value
-        )
-        _messages = _Intents.GUILD_MESSAGES.value + _Intents.DIRECT_MESSAGES.value
-        _content = _Intents.MESSAGE_CONTENT.value
-
-        return int(_Intents.GUILD_INTEGRATIONS.value + _typings + _messages + _content)
+        return _value(_Intents.GUILD_MESSAGE_TYPING,
+                      _Intents.DIRECT_MESSAGE_TYPING,
+                      _Intents.GUILD_MESSAGES,
+                      _Intents.DIRECT_MESSAGES,
+                      _Intents.MESSAGE_CONTENT,
+                      _Intents.GUILD_INTEGRATIONS)
 
     @staticmethod
     def reactions() -> int:
@@ -157,10 +157,10 @@ class DisFlags:
 
         :return int: integer value of intents
         """
-        _dm_reactions = _Intents.DIRECT_MESSAGE_REACTIONS.value
-        _reactions = _Intents.GUILD_MESSAGE_REACTIONS.value + _dm_reactions
 
-        return int(_Intents.GUILD_INTEGRATIONS.value + _reactions)
+        return _value(_Intents.DIRECT_MESSAGE_REACTIONS,
+                      _Intents.GUILD_MESSAGE_REACTIONS,
+                      _Intents.GUILD_INTEGRATIONS)
 
     @staticmethod
     def all() -> int:
@@ -194,12 +194,6 @@ class DisFlags:
         return int(result)
 
 
-ChannelId = NewType("ChannelId", int)
-ThreadId = NewType("ThreadId", int)
-UserId = NewType("UserId", int)
-GuildId = NewType("GuildId", int)
-
-
 @final
 class Rest:
     """
@@ -216,11 +210,16 @@ class Rest:
 
         self.__slots__ = [self._headers]
 
-    def get(self, goal: str, goal_id: int) -> Union[JsonOutput, None]:
+    def get(self, goal: str, goal_id: int) -> dict:
         """
-        :param goal: guild/channel/user
-        :param id: id of guild/channel/user
-        :return JsonOutput: Json answer from Discord API server
+        Get data
+
+        Args:
+            goal (str): Get goal (for ex, 'guild')
+            goal_id (int): Get goal id (for ex, 955868993175035934)
+
+        Returns:
+            dict
         """
         goal_id = int(goal_id)
 
@@ -240,7 +239,7 @@ class Rest:
 
         return None
 
-    def fetch(self, channel_id, message_id) -> JsonOutput:
+    def fetch(self, channel_id, message_id) -> dict:
         """fetch()
 
         Args:
@@ -248,7 +247,7 @@ class Rest:
             message_id (_type_): Message id from this channel
 
         Returns:
-            JsonOutput: Json data about fetched message
+            : Json data about fetched message
         """
         _channel_id, _message_id = [str(channel_id), str(message_id)]
 
@@ -275,8 +274,8 @@ class Rest:
 
 
 @final
-class DisApi:
-    """DisApi
+class DispyApi:
+    """
     Class for init Rest and DispyWebhook event and edit they
     """
 
@@ -315,7 +314,7 @@ class DisApi:
         self.app_commands.append({})  # User Commands
         self.app_commands.append({})  # Message Commands
 
-    def fetch(self, channel_id, message_id) -> DisMessage:
+    def fetch(self, channel_id, message_id) -> Message:
         """fetch
         Fetch message by its id and channel id
 
@@ -324,19 +323,19 @@ class DisApi:
             message_id (int): Message id
 
         Returns:
-            DisMessage: Fetched message
+            Message: Fetched message
         """
         _url = f"{_mainurl()}channels/{channel_id}/messages/{message_id}"
 
         _d = self._r.fetch(channel_id, message_id)
 
-        return DisMessage(_d, self.token, self.session)
+        return Message(_d, self.token, self.session)
 
     async def run(
-        self, status, ons: Dict[Text, Callable], debug: bool, act: Dict[str, Any]
+        self, status, ons: dict, debug: bool, act: dict
     ) -> None:
         """
-        Run the hook of DisApi or run the bot.
+        Run the hook of DispyApi or run the bot.
         Running bot in Discord, changing status and registering
         and running events in discord Gateway
         -----
@@ -365,7 +364,7 @@ class DisApi:
 
     async def _register2(self, data: dict):
         # pass
-        self.user: DisUser = self.get_user(self.hook.user_id)
+        self.user: User = self.get_user(self.hook.user_id)
 
         if self._debug:
             print(
@@ -460,7 +459,7 @@ class DisApi:
 
             target_json = command["resolved"]["users"][target_id]
 
-            target = DisUser(target_json, self.token)
+            target = User(target_json, self.token)
 
             await callback(ctx, target)
 
@@ -469,22 +468,22 @@ class DisApi:
 
             target_json = command["resolved"]["messages"][target_id]
 
-            target = DisMessage(target_json, self.token, self.session)
+            target = Message(target_json, self.token, self.session)
 
             await callback(ctx, target)
 
     async def _on_components(self, data):
         if data["data"]["component_type"] == 2:
-            _ctx = Context(data["token"], data["id"], self.token)
+            _ctx = Context((data["token"], data["id"]), self.token)
             await self.comsevs[data["data"]["custom_id"]](_ctx)
 
         if data["data"]["component_type"] == 3:
-            _ctx = Context(data["token"], data["id"], self.token)
+            _ctx = Context((data["token"], data["id"]), self.token)
             _vs = data["data"]["values"]
             await self.comsevs[data["data"]["custom_id"]](_ctx, _vs)
 
     async def _on_modal_sumbit(self, data):
-        _ctx = Context(data["token"], data["id"], self.token)
+        _ctx = Context((data["token"], data["id"]), self.token)
         coms = data["data"]["components"][0]["components"]
         _v = ""
 
@@ -494,78 +493,81 @@ class DisApi:
 
         await self.comsevs[data["data"]["custom_id"]](_ctx, _v)
 
-    def get_user(self, user_id: UserId) -> DisUser:
+    def get_user(self, user_id: int) -> User:
         """
         Get user by id
         -----
         :param user_id: id of user
-        :return DisUser: User
+        :return User: User
         """
 
-        return DisUser(self.get_user_json(user_id), self.token)
+        return User(self.get_user_json(user_id), self.token)
 
-    def get_user_json(self, user_id: UserId) -> JsonOutput:
-        """
-        Get user by id (Json Output)
-        -----
-        :param user_id: id of user
-        :return JsonOutput:
+    def get_user_json(self, user_id: int) -> dict:
+        """get_user_json
+        Get user json by id
+
+        Args:
+            user_id (int): User id
+
+        Returns:
+            dict
         """
         user_id = int(user_id)
 
         return self._r.get("user", user_id)
 
-    def get_channel_or_thread(
-        self, object_id: int
-    ) -> Union[DisChannel, DisDmChannel, DisNewsThread, DisThread, DisPrivateThread]:
+    def get_channel(
+        self, channel_id: int
+    ) -> Channel:
         """
-        Get channel by id
-        -----
-        :param channel_id: id of channel
-        :return DisChannel:
+        Get channel or thread
+
+        Args:
+            channel_id (int): Id of channel
+
+        Returns:
+            Channel
         """
-        j = self._r.get("channel", object_id)
-        _type = j["type"]
+        j = self._r.get("channel", channel_id)
 
-        _threads_objs = {10: DisNewsThread, 11: DisThread, 12: DisPrivateThread}
+        return Channel(j, self.token, self.session)
 
-        if _type == 1:  # Dm Channels
-            return DisDmChannel(object_id, self.token, self.session)
-
-        if _type in [10, 11, 12]:  # Threads
-            return _threads_objs[_type](j, self.token, self.session)
-
-        return DisChannel(object_id, self.token, self.session)
-
-    def get_channel_json(self, channel_id: ChannelId) -> JsonOutput:
+    def get_channel_json(self, channel_id: int) -> dict:
         """
-        Get channel by id (Json Output)
-        -----
-        :param channel_id: id of channel
-        :return JsonOutput:
+        Get channel json
+
+        Args:
+            channel_id (int): Channel id
+
+        Returns:
+            dict
         """
         channel_id = int(channel_id)
 
         return self._r.get("channel", channel_id)
 
-    def get_guild(self, guild_id: GuildId) -> DisGuild:
+    def get_guild(self, guild_id: int) -> Guild:
         """
         Get guild by id
 
         :param guild_id: id of guild
-        :return DisGuild:
+        :return Guild:
         """
         guild_id = int(guild_id)
         data = self.get_guild_json(guild_id)
 
-        return DisGuild(data, self.token, self.session)
+        return Guild(data, self.token, self.session)
 
-    def get_guild_json(self, guild_id: GuildId) -> JsonOutput:
+    def get_guild_json(self, guild_id: int) -> dict:
         """
-        Get guild by id (Json Output)
+        Get guild json
 
-        :param guild_id: id of guild
-        :return JsonOutput:
+        Args:
+            guild_id (int): Guild id
+
+        Returns:
+            dict
         """
 
         guild_id = int(guild_id)

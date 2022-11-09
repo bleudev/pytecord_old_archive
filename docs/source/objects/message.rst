@@ -1,22 +1,12 @@
 Message
 #######
 
-DisMessage
+Message
 **********
 
 None
 
-DmMessage
-*********
-
-None
-
-MessageDeleteEvent
+Raw message
 ******************
-
-None
-
-DmMessageDeleteEvent
-********************
 
 None

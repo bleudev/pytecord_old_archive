@@ -40,17 +40,15 @@ from disspy import errors
 from disspy.typ import TypeOf, MISSING
 from disspy.activity import Activity
 import disspy.app_commands as appc
-from disspy.channel import DisChannel, DisDmChannel, DisMessage, DmMessage
-from disspy.http import DisApi, DisFlags
-from disspy.guild import DisGuild
-from disspy.user import DisUser
-from disspy.thread import DisNewsThread, DisThread, DisPrivateThread
-from disspy.abstract import Channel, Message, Thread
+from disspy.channel import Channel, Message
+from disspy.http import DispyApi, Flags
+from disspy.guild import Guild
+from disspy.user import User
 from disspy.state import ConnectionState
 from disspy.application import Application
 from disspy.utils import _type_check, _type_of, optional, type_check_obj
 
-__all__: tuple = ("DisBotEventType", "DisBot")
+__all__: tuple = "Client",
 
 # For Type Hints
 Wrapper = Callable
@@ -68,7 +66,6 @@ _all_basic_events = [
     "reaction",  # On reaction add
     "reactionr",  # On reaction remove
     "typing",  # Typing start
-    "dm_typing",  # Typig start in dm channel
 ]
 
 
@@ -89,8 +86,9 @@ def ignore():
 
 @final
 class _BotLogger:
-    def __init__(self) -> None:
+    def __init__(self, debug: bool = False) -> None:
         self.logs = []
+        self.debug = debug
 
     def log(self, msg: str):
         """log
@@ -111,52 +109,19 @@ class _BotLogger:
             _datetime.minute,
             _datetime.second,
         )
+        
+        _log_msg = f"[{_time}] {msg}"
 
-        self.logs.append(f"[{_time}] {msg}")
-
-
-@final
-class DisBotEventType:
-    """
-    This class created for simplification adding events to DisBot.
-    This is class, not an object
-
-    Using
-    ------
-    @bot.on(disspy.DisBotEventType.ONMESSAGEC)
-    async def on_messagec(message):
-        await message.channel.send('Test!')
-    """
-
-    MESSAGEC: str = "messagec"
-    MESSAGEU: str = "messageu"
-    MESSAGED: str = "messaged"
-    DMESSAGEC: str = "dmessagec"
-    DMESSAGEU: str = "dmessageu"
-    DMESSAGED: str = "dmessaged"
-    READY: str = "ready"
-    CLOSE: str = "close"
-    REACTION: str = "reaction"
-    REACTIONR: str = "reactionr"
-    TYPING: str = "typing"
-    DM_TYPING: str = "dm_typing"
-
-    def __values__(self) -> list:
-        return [self.MESSAGEC, self.MESSAGEU, self.MESSAGED, self.DMESSAGEC, self.DMESSAGEU,
-                self.DMESSAGED, self.READY, self.CLOSE, self.REACTION, self.REACTIONR,
-                self.TYPING, self.DM_TYPING]
-
-    def __type__(self) -> type:
-        return str
+        if self.debug:
+            print(_log_msg)
+        self.logs.append(_log_msg)
 
 
 @final
-class DisBot:
+class Client:
     """
     Class for accessing and sending information in Discord API
     """
-
-    __classname__ = "DisBot"
 
     def _raise_unathorized_error(self) -> None:
         raise errors.Unauthorized()
@@ -164,17 +129,20 @@ class DisBot:
     def __init__(
         self,
         token: str,
-        flags: Optional[TypeOf[DisFlags]] = None
+        *,
+        flags: Optional[TypeOf[Flags]] = None,
+        debug: bool = False
     ) -> None:
         """__init__
 
         Args:
             token (str): Bot token from Discord developers portal
-            flags (Optional[TypeOf[DisFlags], optional): Flags of bot. Defaults to None.
+            flags (TypeOf[Flags], optional): Flags of bot. Defaults to None.
+            debug (bool, optional): Enable debuging in disspy? Defaults to False
         """
         # Type checks
         _type_check(token, str)
-        _type_check(flags, optional(TypeOf[DisFlags]))
+        _type_check(flags, optional(TypeOf[Flags]))
         # _END
 
         _u = "https://discord.com/api/v10/users/@me"
@@ -189,16 +157,18 @@ class DisBot:
 
         del test_j, _u  # Delete variables
 
-        self.token: str = str(token)
+        self.token: str = token
 
         if flags is None:
-            self.intflags = DisFlags.default()
-        else:
-            self.intflags = flags
+            flags = Flags.default()
+
+        self.flags = flags
 
         self.status = None
-        self.debug = False
-        self._logger = _BotLogger()
+
+        self.debug = debug
+        self._logger = _BotLogger(debug)
+
         self._state = ConnectionState(token)
         self._ons = {
             "register": self._on_register,
@@ -222,7 +192,7 @@ class DisBot:
         self._act = None
         self.user = None
 
-        self.api = DisApi(self.token, self.intflags)
+        self.api = DispyApi(self.token, self.flags)
 
         self.isready = False
 
@@ -244,7 +214,7 @@ class DisBot:
         -----
         :return None:
         """
-        self.user: DisUser = self.api.user
+        self.user: User = self.api.user
 
         self._state.get(data)
 
@@ -261,9 +231,6 @@ class DisBot:
         def wrapper(func):
             event_type: str = func.__name__
 
-            if event_type.startswith('on_'):
-                event_type = event_type.removeprefix('on_')
-
             if event_type in _all_basic_events:
                 if event_type == "close":
                     self._on_close = func
@@ -274,29 +241,28 @@ class DisBot:
                         "messageu",
                         "messaged",
                         "typing",
-                        "dm_typing",
                         "dmessagec",
                         "dmessageu",
                         "dmessaged",
                     ]:
-                        if self.intflags >= DisFlags.messages():
+                        if self.flags >= Flags.messages():
                             self._ons[event_type] = func
                             self._logger.log(f"Register on_{event_type}() event")
                         else:
                             self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
                                 "messagec(), typing(), dm_typing() and other events"
-                                + "don't avaivable right now because flags < DisFlags.messages()"
+                                + "don't avaivable right now because flags < Flags.messages()"
                             )
                     elif event_type in ["reaction", "reactionr"]:
-                        if self.intflags >= DisFlags.reactions():
+                        if self.flags >= Flags.reactions():
                             self._ons[event_type] = func
                             self._logger.log(f"Register on_{event_type}() event")
                         else:
                             self._logger.log("Error: BotEventVisibleError")
                             raise errors.BotEventVisibleError(
                                 "reaction() and reactionr() events don't"
-                                + " avaivable right now because flags < DisFlags.reactions()"
+                                + " avaivable right now because flags < Flags.reactions()"
                             )
                     else:
                         self._ons[event_type] = func
@@ -307,7 +273,7 @@ class DisBot:
         return wrapper
 
     def add_event(
-        self, event_type: TypeOf[DisBotEventType], func: Callable
+        self, event_type: str, func: Callable
     ) -> None:
         """
         Add event to bot with function and event type
@@ -317,20 +283,18 @@ class DisBot:
         :return None:
         """
         # Type checks
-        _type_check(event_type, TypeOf[DisBotEventType])
+        class _EventTypeTypeCheck:
+            def __values__(self):
+                return _all_basic_events
+            def __type__(self):
+                return str
+
+        _type_check(event_type, TypeOf[_EventTypeTypeCheck])
         _type_check(func, Callable)
-        _type_of(event_type, DisBotEventType)
+        _type_of(event_type, _EventTypeTypeCheck)
+
+        del _EventTypeTypeCheck
         # _END
-
-        __methodname__ = f"{self.__classname__}.add_event()"
-
-        if isinstance(event_type, DisBotEventType):
-            _message = (
-                f"Error! In method {__methodname__} was moved"
-                "invalid argument! Argument type is DisBotEventType,"
-                "but in method have to type is str!"
-            )
-            raise errors.InvalidArgument(_message)
 
         if event_type in _all_basic_events:
             if event_type == "close":
@@ -509,11 +473,11 @@ class DisBot:
 
             message_to_log = ""
 
-            if param_type in (Message, DisMessage, DmMessage):
+            if param_type == Message:
                 payload["type"] = appc.ApplicationCommandType.MESSAGE
                 message_to_log = "Register message command"
 
-            elif param_type == DisUser:
+            elif param_type == User:
                 payload["type"] = appc.ApplicationCommandType.USER
                 message_to_log = "Register user command"
 
@@ -586,58 +550,31 @@ class DisBot:
             self._logger.log("Disconnect bot")
             await self.api.disconnecter()
 
-    def get_channel(self, channel_id: int) -> Union[DisChannel, DisDmChannel]:
-        """
-        Get channel from id
-        -----
-        :param channel_id: Channel Id
-        :return Union[DisChannel, DisDmChannel]:
+    def get_channel(self, channel_id: int) -> Channel:
+        """get_channel
+        Get channel by its id
+
+        Args:
+            channel_id (int): Channel id
+
+        Raises:
+            RuntimeError: Getted channel is thread or None
+
+        Returns:
+            Channel
         """
         # Type checks
         _type_check(channel_id, int)
         # _END
 
-        channel = self.api.get_channel_or_thread(channel_id)
+        return self.api.get_channel(channel_id)
 
-        if isinstance(channel, Channel):
-            return channel
-
-        _m = "This channel is not channel! Use get_thread() method"
-        raise RuntimeError(_m)
-
-    def get_thread(
-        self, thread_id: int
-    ) -> Union[DisNewsThread, DisThread, DisPrivateThread]:
-        """get_thread
-        Get thread by id
-
-        Args:
-            thread_id (ThreadId): Thread id
-
-        Raises:
-            RuntimeError: Argument is not thread id
-
-        Returns:
-            Union[DisNewsThread, DisThread, DisPrivateThread]: Getted thread object
-        """
-        # Type checks
-        _type_check(thread_id, int)
-        # _END
-
-        thread = self.api.get_channel_or_thread(thread_id)
-
-        if isinstance(thread, Thread):
-            return thread
-
-        _m = "This channel is not thread! Use get_channel() method"
-        raise RuntimeError(_m)
-
-    def get_guild(self, guild_id: int) -> DisGuild:
+    def get_guild(self, guild_id: int) -> Guild:
         """
         Get guild from id
         -----
         :param guild_id: Guild Id
-        :return DisGuild:
+        :return Guild:
         """
         # Type checks
         _type_check(guild_id, int)
@@ -645,12 +582,12 @@ class DisBot:
 
         return self.api.get_guild(guild_id)
 
-    def get_user(self, user_id: int) -> DisUser:
+    def get_user(self, user_id: int) -> User:
         """
         Get user from id
         -----
         :param user_id: User Id
-        :return DisUser:
+        :return User:
         """
         # Type checks
         _type_check(user_id, int)

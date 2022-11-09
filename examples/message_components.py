@@ -1,14 +1,14 @@
 import disspy
 from disspy import app_commands, TextInput, Button, SelectMenu, SelectMenuOption
 
-bot = disspy.DisBot(token="TOKEN")  # Create bot
+client = disspy.Client(token="TOKEN")  # Create client
 
 
 # Buttons
-@bot.command()
+@client.command()
 @app_commands.describe("Testing buttons")
 async def test_button(ctx: disspy.Context):
-    ar = disspy.ActionRow(bot)
+    ar = disspy.ActionRow(client)
 
     @ar.add(Button(label="Test", custom_id="test"))
     async def test(button_ctx: disspy.Context):
@@ -18,10 +18,10 @@ async def test_button(ctx: disspy.Context):
 
 
 # Modal with TextInput
-@bot.command()
+@client.command()
 @app_commands.describe("Say hello for you ;)")
 async def say_hello(ctx: disspy.Context):
-    ar = disspy.ActionRow(bot)
+    ar = disspy.ActionRow(client)
 
     @ar.add(TextInput(label="name", min_length=1, max_length=100, placeholder="John", required=True))
     async def test(input_ctx: disspy.Context, value: str):
@@ -31,10 +31,10 @@ async def say_hello(ctx: disspy.Context):
 
 
 # Select menu
-@bot.command()
+@client.command()
 @app_commands.describe("Info about roles on server")
 async def info_about_role(ctx: disspy.Context):
-    ar = disspy.ActionRow(bot)
+    ar = disspy.ActionRow(client)
     options = []
 
     options.append(SelectMenuOption(label="Moderator", description="Person who is moderate users", value="moderator", emoji='😎'))
@@ -51,4 +51,4 @@ async def info_about_role(ctx: disspy.Context):
 
     await ctx.respond("Choose role for info", action_row=ar)
 
-bot.run()  # Running bot
+client.run()  # Running bot

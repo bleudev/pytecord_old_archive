@@ -32,15 +32,12 @@ from requests import get
 
 
 from disspy.channel import (
-    DisMessage,
-    DmMessage,
-    MessageDeleteEvent,
-    DmMessageDeleteEvent,
-    DisChannel,
-    DisDmChannel,
+    Message,
+    RawMessage,
+    Channel
 )
-from disspy.reaction import DisEmoji, DisReaction, DisRemovedReaction
-from disspy.user import DisUser
+from disspy.reaction import Emoji, Reaction
+from disspy.user import User
 
 
 class Opcodes:
@@ -80,6 +77,25 @@ class Opcodes:
             10: "HELLO",
             11: "HEARTBEAT ACK",
         }
+
+
+class _GettingChannelData:
+    @staticmethod
+    def execute(channel_id: int, token: str):
+        """execute
+        Get channel data by id
+
+        Args:
+            channel_id (int): Channel id
+            token (str): Bot token
+
+        Returns:
+            dict: Json output
+        """
+        _u = f"https://discord.com/api/v10/channels/{channel_id}"
+        _h = {"Authorization": f"Bot {token}"}
+
+        return get(_u, headers=_h).json()
 
 
 colorama.init()  # Init Colorama
@@ -201,6 +217,12 @@ class _Event:
             self.json = {"t": "ERROR", "s": None, "d": {}, "op": 0}
 
 
+class TypingInfo:
+    def __init__(self, __data) -> None:
+        self.author: User = __data['author']
+        self.channel: Channel = __data['channel']
+
+
 @final
 class DispyWebhook:
     """
@@ -228,19 +250,22 @@ class DispyWebhook:
         self.token = token
         self._debug = False
 
-        self._headers = {}
+        self._headers = {
+            "Authorization": f"Bot {token}",
+            "content-type": "application/json",
+        }
 
         self.websocket = None
         self.session = None
         self.ons = None
 
     # Event methods
-    async def on_channel(self, message: DisMessage):
+    async def on_channel(self, message: Message):
         """on_channel
         "MESSAGE CREATE" event, but only in one channel
 
         Args:
-            message (DisMessage): Message that was created
+            message (Message): Message that was created
         """
         return message.content  # For PyLint
 
@@ -420,7 +445,7 @@ class DispyWebhook:
                             j = await data.json()
 
                             if j["type"] == 0:
-                                _m = DisMessage(event.data, self.token, self.session)
+                                _m = Message(event.data, self.token, self.session)
 
                                 if int(event.data["channel_id"]) == int(
                                     self.on_channel__id
@@ -441,7 +466,7 @@ class DispyWebhook:
                                         _DebugLoggingAwaiting(event.type, "on_messagec")
                                     )
                             elif j["type"] == 1:
-                                _m = DmMessage(event.data, self.token, self.session)
+                                _m = Message(event.data, self.token, self.session)
 
                                 await self.ons["dmessagec"](_m)
 
@@ -460,7 +485,7 @@ class DispyWebhook:
                             j = await data.json()
 
                             if j["type"] == 0:
-                                _m = DisMessage(event.data, self.token, self.session)
+                                _m = Message(event.data, self.token, self.session)
 
                                 await self.ons["messageu"](_m)
 
@@ -469,7 +494,7 @@ class DispyWebhook:
                                         _DebugLoggingAwaiting(event.type, "on_messageu")
                                     )
                             elif j["type"] == 1:
-                                _m = DmMessage(event.data, self.token, self.session)
+                                _m = Message(event.data, self.token, self.session)
 
                                 await self.ons["dmessageu"](_m)
 
@@ -487,7 +512,7 @@ class DispyWebhook:
                         j = await data.json()
 
                         if j["type"] == 0:
-                            _e = MessageDeleteEvent(
+                            _e = RawMessage(
                                 event.data, self.token, self.session
                             )
 
@@ -496,7 +521,7 @@ class DispyWebhook:
                             if self._debug:
                                 print(_DebugLoggingAwaiting(event.type, "on_messaged"))
                         elif j["type"] == 1:
-                            _e = DmMessageDeleteEvent(
+                            _e = RawMessage(
                                 event.data, self.token, self.session
                             )
 
@@ -524,19 +549,22 @@ class DispyWebhook:
                             print(_DebugLoggingAwaiting(event.type, "on_modalsumbit"))
 
                 elif event.type == "MESSAGE_REACTION_ADD":
-                    _u = DisUser(event.data["member"]["user"], self.token)
-                    _m_id = int(event.data["message_id"])
-                    _c_id = int(event.data["channel_id"])
-                    _g_id = int(event.data["guild_id"])
-
                     _e_json = event.data["emoji"]
 
                     if _e_json["id"] is None:
-                        _e = DisEmoji(unicode=_e_json["name"])
+                        _e = Emoji(unicode=_e_json["name"])
                     else:
-                        _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+                        _e = Emoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+                    
+                    _r_json = {
+                        "user": User(event.data["member"]["user"], self.token),
+                        "message_id": int(event.data["message_id"]),
+                        "channel_id": int(event.data["channel_id"]),
+                        "guild_id": int(event.data["guild_id"]),
+                        "emoji": _e
+                    }
 
-                    _r = DisReaction(_u, _m_id, _c_id, _g_id, _e, self.token)
+                    _r = Reaction(_r_json, self.token, self.session)
 
                     await self.ons["reaction"](_r)
 
@@ -544,18 +572,21 @@ class DispyWebhook:
                         print(_DebugLoggingAwaiting(event.type, "on_reaction"))
 
                 elif event.type == "MESSAGE_REACTION_REMOVE":
-                    _m_id = int(event.data["message_id"])
-                    _c_id = int(event.data["channel_id"])
-                    _g_id = int(event.data["guild_id"])
-
                     _e_json = event.data["emoji"]
 
                     if _e_json["id"] is None:
-                        _e = DisEmoji(unicode=_e_json["name"])
+                        _e = Emoji(unicode=_e_json["name"])
                     else:
-                        _e = DisEmoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+                        _e = Emoji(name=_e_json["name"], emoji_id=int(_e_json["id"]))
+                    
+                    _r_json = {
+                        "message_id": int(event.data["message_id"]),
+                        "channel_id": int(event.data["channel_id"]),
+                        "guild_id": int(event.data["guild_id"]),
+                        "emoji": _e
+                    }
 
-                    _r = DisRemovedReaction(_m_id, _c_id, _g_id, _e, self.token)
+                    _r = Reaction(_r_json, self.token, self.session)
 
                     await self.ons["reactionr"](_r)
 
@@ -563,51 +594,25 @@ class DispyWebhook:
                         print(_DebugLoggingAwaiting(event.type, "on_reactionr"))
 
                 elif event.type == "TYPING_START":
-                    try:
-                        if event.data["guild_id"]:
-                            _u: DisUser = DisUser(
-                                event.data["member"]["user"], self.token
-                            )
-                            _c: DisChannel = DisChannel(
-                                event.data["channel_id"], self.token, self.session
-                            )
+                    _u_id = event.data["user_id"]
+                    _url = f"https://discord.com/api/v10/users/{str(_u_id)}"
 
-                            await self.ons["typing"](_u, _c)
+                    _u_json = get(url=_url, headers=self._headers).json()
 
-                            if self._debug:
-                                print(_DebugLoggingAwaiting(event.type, "on_typing"))
-                        else:
-                            _u_id = event.data["user_id"]
+                    _channel_data = _GettingChannelData.execute(
+                        event.data['channel_id'],
+                        self.token
+                    )
 
-                            _url = f"https://discord.com/api/v10/users/{str(_u_id)}"
+                    _d = {
+                        'author': User(_u_json, self.token),
+                        'channel': Channel(_channel_data, self.token, self.session)
+                    }
 
-                            _u_json = get(url=_url, headers=self._headers).json()
+                    await self.ons["typing"](TypingInfo(_d))
 
-                            _u: DisUser = DisUser(_u_json, self.token)
-                            _c: DisDmChannel = DisDmChannel(
-                                event.data["channel_id"], self.token, self.session
-                            )
-
-                            await self.ons["dm_typing"](_u, _c)
-
-                            if self._debug:
-                                print(_DebugLoggingAwaiting(event.type, "on_dm_typing"))
-                    except KeyError:
-                        _u_id = event.data["user_id"]
-
-                        _url = f"https://discord.com/api/v10/users/{str(_u_id)}"
-
-                        _u_json = get(url=_url, headers=self._headers).json()
-
-                        _u: DisUser = DisUser(_u_json, self.token)
-                        _c: DisDmChannel = DisDmChannel(
-                            event.data["channel_id"], self.token, self.session
-                        )
-
-                        await self.ons["dm_typing"](_u, _c)
-
-                        if self._debug:
-                            print(_DebugLoggingAwaiting(event.type, "on_dm_typing"))
+                    if self._debug:
+                        print(_DebugLoggingAwaiting(event.type, "on_typing"))
             except TypeError:
                 pass
             except KeyError:

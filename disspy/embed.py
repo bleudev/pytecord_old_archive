@@ -25,52 +25,39 @@ SOFTWARE.
 # Imports
 from random import random
 from math import floor
-from typing import List
+from typing import (
+    List,
+    Optional
+)
 
-__all__: tuple = ("DisColor", "DisField", "DisEmbed")
+__all__: tuple = ("Color", "Field", "Embed")
 
 
-class DisColor:
-    """DisColor
+class Color:
+    """
     Colors for embeds
     """
 
-    __classname__ = "DisColor"
-
-    DEFAULT = 0
-    AQUA = 1752220
-    DARK_AQUA = 1146986
-    GREEN = 3066993
-    DARK_GREEN = 2067276
-    BLUE = 3447003
-    DARK_BLUE = 2123412
-    PURPLE = 10181046
-    DARK_PURPLE = 7419530
-    LUMINOUS_VIVID_PINK = 15277667
-    DARK_VIVID_PINK = 11342935
-    GOLD = 15844367
-    DARK_GOLD = 12745742
-    ORANGE = 15105570
-    DARK_ORANGE = 11027200
-    RED = 15158332
-    DARK_RED = 10038562
-    GREY = 9807270
-    DARK_GREY = 9936031
-    DARKER_GREY = 8359053
-    LIGHT_GREY = 12370112
-    NAVY = 3426654
-    DARK_NAVY = 2899536
-    YELLOW = 16776960
-    WHITE = 16777215
-    BLURPLE = 5793266
-    GREYPLE = 10070709
-    DARK_BUT_NOT_BLACK = 2895667
-    NOT_QUITE_BLACK = 2303786
-    OFFICIAL_GREEN = 5763719
-    OFFICIAL_YELLOW = 16705372
-    FUSCHIA = 15418782
-    BLACK = 2303786
-    OFFICIAL_RED = 15548997
+    DEFAULT = 0xffffff
+    BLUE = 0x0080ff
+    DARK_BLUE = 0x003c78
+    TURQUOISE = 0x00ff8c
+    DARK_TURQUOISE = 0x009e57
+    GREEN = 0x00ff2a
+    DARK_GREEN = 0x008516
+    PURPLE = 0xb700ff
+    DARK_PURPLE = 0x5f0085
+    MAGENTA = 0xff00e6
+    PINK = 0xff9cf5
+    YELLOW = 0xffff00
+    DARK_YELLOW = 0x969600
+    ORANGE = 0xffa200
+    DARK_ORANGE = 0xb06f00
+    RED = 0xff0000
+    DARK_RED = 0x9e0000
+    GREY = 0xa3a3a3
+    DARK_GREY = 0x616161
+    BLACK = 0x000000
 
     @staticmethod
     def random():
@@ -107,8 +94,8 @@ class DisColor:
         raise RuntimeError("Invlid hex! (It needs start from #)")
 
 
-class DisField:
-    """DisField
+class Field:
+    """
     Fields for embeds
     """
 
@@ -169,8 +156,8 @@ class _SpriteComponents:
         self.thumbnail = thumbnail
 
 
-class DisEmbed:
-    """DisEmbed
+class Embed:
+    """
     Embeds for messages
     """
 
@@ -179,7 +166,7 @@ class DisEmbed:
         title: str,
         *,
         description: str = None,
-        color: int = DisColor.DEFAULT,
+        color: int = Color.DEFAULT,
         footer: str = None,
     ) -> None:
         self.title: str = title
@@ -191,9 +178,16 @@ class DisEmbed:
 
         self.sprite_components = _SpriteComponents()
 
-        self.fields: List[DisField] = []
+        self.fields: List[Field] = []
 
-    def add_field(self, name: str, value: str, *, inline: bool = True) -> None:
+    def add_field(
+        self,
+        name: str,
+        value: str,
+        *,
+        inline: bool = True,
+        obj: Optional[Field] = None
+    ) -> None:
         """add_field
         Add field to embed
 
@@ -201,23 +195,15 @@ class DisEmbed:
             name (str): Name of field
             value (str): Value of field
             inline (bool, optional): Field in line?. Defaults to True.
+            obj (Field, optional): Field object. Defaults to None
 
         Returns:
             None
         """
-        self.fields.append(DisField(name, value, inline))
-
-    def add_field_from_obj(self, field: DisField) -> None:
-        """add_field_from_obj
-        Add field to embed from object
-
-        Args:
-            field (DisField): Field
-
-        Returns:
-            None
-        """
-        self.fields.append(field)
+        if obj:
+            self.fields.append(obj)
+            return
+        self.fields.append(Field(name, value, inline))
 
     def set_author(
         self,

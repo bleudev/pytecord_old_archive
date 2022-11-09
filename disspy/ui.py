@@ -26,7 +26,7 @@ from typing import Dict, Optional, Text, Union, List
 
 from enum import Enum
 
-from disspy.reaction import DisEmoji
+from disspy.reaction import Emoji
 from disspy import errors
 
 __all__: tuple = (
@@ -148,7 +148,7 @@ class SelectMenuOption:
         label: str,
         value: str,
         description: str,
-        emoji: Union[DisEmoji, str],
+        emoji: Union[Emoji, str],
         default: bool = False,
     ) -> None:
         self.label = label
@@ -163,7 +163,7 @@ class SelectMenuOption:
         Returns:
             Dict: Json data of option
         """
-        if isinstance(self.emoji, DisEmoji):
+        if isinstance(self.emoji, Emoji):
             if self.emoji.unicode:
                 e_j = {"name": self.emoji.unicode, "id": self.emoji.emoji_id}
             else:

@@ -25,12 +25,12 @@ SOFTWARE.
 from typing import Optional
 from aiohttp import ClientSession
 
-from disspy.user import DisUser
+from disspy.user import User
 
-__all__: tuple = ("DisEmoji", "DisOwnReaction", "DisReaction", "DisRemovedReaction")
+__all__: tuple = ("Emoji", "Reaction")
 
 
-class DisEmoji:
+class Emoji:
     """
     Emoji for reaction and other things
     """
@@ -54,66 +54,34 @@ class DisEmoji:
             self.type = "normal"
 
 
-class DisOwnReaction:
+class Reaction:
     """
-    Bot's own reaction
+    Any reaction
     """
+    def __init__(self, __data: dict, __token: str, __session: ClientSession) -> None:
+        self._t = __token
+        self._s = __session
 
-    def __init__(
-        self, emoji: str, message_id, channel_id, token, session: ClientSession
-    ):
-        self.emoji = emoji
         _mainurl = "https://discord.com/api/v10/"
-        self._u = f"{_mainurl}channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
-        self._t = token
+        _c_id = __data['channel_id']
+        _m_id = __data['message_id']
+        _e = __data['emoji']
+        self._u = f"{_mainurl}channels/{_c_id}/messages/{_m_id}/reactions/{_e}/@me"
 
-        self._session = session
+        def _try(k: str):
+            try:
+                return __data[k]
+            except KeyError:
+                return None
 
-    async def delete(self):
-        """delete()
+        self.user: User = _try('user')
+        self.channel_id: int = __data['channel_id']
+        self.message_id: int = __data['message_id']
+        self.guild_id: int = __data['guild_id']
+        self.emoji: Emoji = __data['emoji']
 
-        Delete own reaction
+    async def delete(self) -> None:
         """
-        await self._session.delete(self._u)
-
-
-class DisReaction:
-    """
-    Reaction
-    """
-
-    def __init__(
-        self,
-        user: DisUser,
-        message_id: int,
-        channel_id: int,
-        guild_id: int,
-        emoji: DisEmoji,
-        token: str,
-    ) -> None:
-        self.user = user
-        self.message_id = message_id
-        self.channel_id = channel_id
-        self.guild_id = guild_id
-        self.emoji = emoji
-        self._t = token
-
-
-class DisRemovedReaction:
-    """
-    Removed reaction
-    """
-
-    def __init__(
-        self,
-        message_id: int,
-        channel_id: int,
-        guild_id: int,
-        emoji: DisEmoji,
-        token: str,
-    ) -> None:
-        self.message_id = message_id
-        self.channel_id = channel_id
-        self.guild_id = guild_id
-        self.emoji = emoji
-        self._t = token
+        Delete reaction
+        """
+        await self._s.delete(self._u)

@@ -1,33 +1,13 @@
 import disspy
 
-bot = disspy.DisBot(token="TOKEN", flags=disspy.DisFlags.messages())  # Create bot
+client = disspy.Client(token="TOKEN", flags=disspy.Flags.messages())  # Create bot
 
 
-# "On typing" event
-@bot.on("typing")
-async def on_typing(user: disspy.DisUser, channel: disspy.DisChannel):
-    print(user.id)
-    await channel.send("You started typing!")
-
-# event()
-@bot.event()
-async def on_typing(user: disspy.DisUser, channel: disspy.DisChannel):  # or async def typing(...): ...
-    print(user.id)
-    await channel.send("You started typing!")
+# On typing event
+@client.event()
+async def typing(info: disspy.TypingInfo):
+    print(info.author.id)
+    await info.channel.send("You started typing!")
 
 
-
-# "On dm typing" event
-@bot.on("dm_typing")
-async def on_dm_typing(user: disspy.DisUser, channel: disspy.DisDmChannel):
-    print(user.id)
-    print(channel.id)
-
-# event()
-@bot.event()
-async def on_dm_typing(user: disspy.DisUser, channel: disspy.DisDmChannel):  # or async def dm_typing(...): ...
-    print(user.id)
-    print(channel.id)
-
-
-bot.run()  # Running bot
+client.run()  # Running bot
