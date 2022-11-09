@@ -33,7 +33,7 @@ requires = """aiohttp>=3.6.0,<4
               colorama""".replace(' ', '').split("\n")
 
 
-__version__ = "0.6.3.1.1"
+__version__ = "0.7"
 
 setup(
     name="disspy",
@@ -47,7 +47,10 @@ setup(
     url="https://github.com/itttgg/dispy",
     packages=['disspy'],
     classifiers = [
-        "Programming Language :: Python :: 3"
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     zip_safe=False,
     python_requires=">=3.8",
