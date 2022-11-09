@@ -48,7 +48,7 @@ from disspy.state import ConnectionState
 from disspy.application import Application
 from disspy.utils import _type_check, _type_of, optional, type_check_obj
 
-__all__: tuple = ("EventType", "Client")
+__all__: tuple = "Client",
 
 # For Type Hints
 Wrapper = Callable
@@ -118,42 +118,6 @@ class _BotLogger:
 
 
 @final
-class EventType:
-    """
-    This class created for simplification adding events to Client.
-    This is class, not an object
-
-    ### Using
-
-    ```
-    @client.on(disspy.EventType.MESSAGEC)
-    async def on_messagec(message):
-        await message.channel.send('Test!')
-    ```
-    """
-
-    MESSAGEC: str = "messagec"
-    MESSAGEU: str = "messageu"
-    MESSAGED: str = "messaged"
-    DMESSAGEC: str = "dmessagec"
-    DMESSAGEU: str = "dmessageu"
-    DMESSAGED: str = "dmessaged"
-    READY: str = "ready"
-    CLOSE: str = "close"
-    REACTION: str = "reaction"
-    REACTIONR: str = "reactionr"
-    TYPING: str = "typing"
-
-    def __values__(self) -> list:
-        return [self.MESSAGEC, self.MESSAGEU, self.MESSAGED, self.DMESSAGEC, self.DMESSAGEU,
-                self.DMESSAGED, self.READY, self.CLOSE, self.REACTION, self.REACTIONR,
-                self.TYPING]
-
-    def __type__(self) -> type:
-        return str
-
-
-@final
 class Client:
     """
     Class for accessing and sending information in Discord API
@@ -193,7 +157,7 @@ class Client:
 
         del test_j, _u  # Delete variables
 
-        self.token: str = str(token)
+        self.token: str = token
 
         if flags is None:
             flags = Flags.default()
@@ -309,7 +273,7 @@ class Client:
         return wrapper
 
     def add_event(
-        self, event_type: TypeOf[EventType], func: Callable
+        self, event_type: str, func: Callable
     ) -> None:
         """
         Add event to bot with function and event type
@@ -319,9 +283,17 @@ class Client:
         :return None:
         """
         # Type checks
-        _type_check(event_type, TypeOf[EventType])
+        class _EventTypeTypeCheck:
+            def __values__(self):
+                return _all_basic_events
+            def __type__(self):
+                return str
+
+        _type_check(event_type, TypeOf[_EventTypeTypeCheck])
         _type_check(func, Callable)
-        _type_of(event_type, EventType)
+        _type_of(event_type, _EventTypeTypeCheck)
+
+        del _EventTypeTypeCheck
         # _END
 
         if event_type in _all_basic_events:

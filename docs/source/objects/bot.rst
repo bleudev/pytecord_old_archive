@@ -32,33 +32,12 @@ Client
 .. note::
     Default is ``None``
 
-@on()
-=====
-
-::
-
-    @on(event_type: TypeOf[EventType]) -> Wrapper
-
-Registering events with event type and function
-
-Example::
-
-    @bot.on("ready")
-    async def on_ready():
-        print("I'm ready!")
-
-Params:
-    ``event_type: str`` -> Key of `EventType`_ 
-
-Returns:
-    ``Wrapper``
-
 add_event()
 ===========
 
 ::
 
-    def add_event(event_type: TypeOf[EventType], func: Callable) -> None
+    def add_event(event_type: str, func: Callable) -> None
 
 Registering events with event type and function
 
@@ -376,11 +355,7 @@ Variables:
 EventType
 ***************
 
-Usage example::
-
-    @bot.on(disspy.EventType.ON_MESSAGEC)
-    async def on_messagec(message: disspy.Message):
-        await message.reply("This is example of usage EventType!")
+All events in disspy
 
 Variables:
     * ``ON_MESSAGEC`` -> On message create
