@@ -116,6 +116,73 @@ class _BotLogger:
             print(_log_msg)
         self.logs.append(_log_msg)
 
+def _try_func(_dict):
+    def _try(key, default=MISSING):
+        try:
+            return _dict[key]
+        except KeyError:
+            return default
+
+    return _try
+
+class _flags:
+    default = 16
+    messages = 55824
+    reactions = 9232
+
+
+class ClientV2:
+    """
+    ### `ClientV2` object
+    
+    Class for building bots in disspy. Bots use for many situations. For example,
+    with this code, you can send message with this code:
+
+    ```
+    from disspy import ClientV2, DisFlags, Message
+
+    client = ClientV2('TOKEN', flags=DisFlags.messages())
+
+    @client.on_message('create')
+    async def on_messagec(message: Message):
+        await message.channel.send('Hello! I'm a bot ;)')
+
+    client.run()
+    ```
+    """
+    def __init__(self, token, **options) -> None:
+        self._token = token
+
+        self._debug = None
+        self._flags = 0
+
+        self._resolve_options(**options)
+
+    def _resolve_options(self, **options) -> None:
+        _try = _try_func(options)
+
+        self._debug = _try('debug', False)
+    
+    def _update_flags(self, flag_value) -> None:
+        self._flags += flag_value
+    
+    def event(self) -> None:
+        def wrapper(func) -> None:
+            ev_type = func.__name__
+            
+            if ev_type in [
+                'messagec',
+                'messageu',
+                'messaged',
+                'dmessagec',
+                'dmessageu',
+                'dmessaged',
+            ]:
+                if self._flags & _flags.messages == 0:
+                    self._update_flags(_flags.messages)
+
+        return wrapper
+
 
 @final
 class Client:
