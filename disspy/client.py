@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 # Typing imports
-from typing import Optional, Union, Callable, final, List, Literal
+from typing import Optional, Callable, final, List, Literal, TypeVar, Coroutine, Any
 
 # Package imports
 from pathlib import Path
@@ -51,7 +51,9 @@ from disspy.utils import _type_check, _type_of, optional, type_check_obj
 __all__: tuple = "Client",
 
 # For Type Hints
-Wrapper = Callable
+RegisterFucntion = Callable[..., None]
+
+Self = TypeVar('Self')
 
 # Basics events
 _all_basic_events = [
@@ -131,10 +133,71 @@ class _flags:
     reactions = 9232
 
 
+class Requester:
+    """
+    ```
+    class Requester(token)
+    ```
+    """
+    def __init__(self: Self, token: str) -> None:
+        self._headers = {
+            'Authorization': f'Bot {token}'
+        }
+
+
+class Connection:
+    """
+    ```
+    class Connection()
+    ```
+    """
+    def __init__(self: Self, requester: Requester) -> None:
+        self._requester = requester
+
+    async def run(self: Self) -> None:
+        pass
+
+
+class Listener:
+    """
+    ```
+    class Listener()
+    ```
+
+    Listener object for `ClientV2` class
+    """
+    def __init__(self: Self) -> None:
+        _basic_events = [
+            'ready',
+            'messagec',
+            'messageu',
+            'messaged',
+        ]
+        
+        self.events = {i: None for i in _basic_events}
+
+    def add_event(
+        self: Self,
+        event: str,
+        executable: Callable[..., Coroutine[Any, Any, Any]]
+        ) -> None:
+        """
+        ```
+        def add_event(event: str, executable: Callable)
+        ```
+
+        Arguments:
+        * `event` - Event name
+        * `executable` - Function for awaiting event
+        """
+        self.events[event] = executable
+        return None
+
+
 class ClientV2:
     """
     ### `ClientV2` object
-    
+
     Class for building bots in disspy. Bots use for many situations. For example,
     with this code, you can send message with this code:
 
@@ -155,6 +218,10 @@ class ClientV2:
 
         self._debug = None
         self._flags = 0
+        self._listener = Listener()
+        self._requester = Requester(token)
+        
+        self._connection = Connection()
 
         self._resolve_options(**options)
 
@@ -174,12 +241,10 @@ class ClientV2:
                 'messagec',
                 'messageu',
                 'messaged',
-                'dmessagec',
-                'dmessageu',
-                'dmessaged',
             ]:
                 if self._flags & _flags.messages == 0:
                     self._update_flags(_flags.messages)
+                self._listener.add_event(ev_type, func)
 
         return wrapper
 

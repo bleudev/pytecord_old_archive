@@ -58,7 +58,7 @@ from disspy.channel import (
     Message,
     RawMessage,
 )
-from disspy.client import Client, ClientV2
+from disspy.client import Client, ClientV2, Listener
 from disspy.http import Flags
 from disspy.embed import Embed, Field, Color
 from disspy.guild import Guild
