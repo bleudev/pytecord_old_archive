@@ -27,7 +27,7 @@ from typing import Optional, Callable, final, List, Literal, TypeVar, Coroutine,
 
 # Package imports
 from pathlib import Path
-from asyncio import run
+from asyncio import run as async_run
 from datetime import datetime
 from time import mktime
 import os
@@ -51,7 +51,7 @@ from disspy.utils import _type_check, _type_of, optional, type_check_obj
 __all__: tuple = "Client",
 
 # For Type Hints
-RegisterFucntion = Callable[..., None]
+RegisterFunction = Callable[..., None]
 
 Self = TypeVar('Self')
 
@@ -140,9 +140,10 @@ class Requester:
     ```
     """
     def __init__(self: Self, token: str) -> None:
-        self._headers = {
+        self.headers = {
             'Authorization': f'Bot {token}'
         }
+        self.token = token
 
 
 class Connection:
@@ -154,7 +155,7 @@ class Connection:
     def __init__(self: Self, requester: Requester) -> None:
         self._requester = requester
 
-    async def run(self: Self) -> None:
+    async def run(self: Self, **kwrgs) -> None:
         pass
 
 
@@ -221,7 +222,7 @@ class ClientV2:
         self._listener = Listener()
         self._requester = Requester(token)
         
-        self._connection = Connection()
+        self._connection = Connection(self._requester)
 
         self._resolve_options(**options)
 
@@ -233,7 +234,7 @@ class ClientV2:
     def _update_flags(self, flag_value) -> None:
         self._flags += flag_value
     
-    def event(self) -> None:
+    def event(self) -> RegisterFunction:
         def wrapper(func) -> None:
             ev_type = func.__name__
             
@@ -247,6 +248,13 @@ class ClientV2:
                 self._listener.add_event(ev_type, func)
 
         return wrapper
+    
+    def run(self, **kwrgs) -> None:
+        coro = self._connection.run(**kwrgs)
+
+        async_run(coro, debug=self._debug)
+        
+        return None
 
 
 @final
@@ -353,7 +361,7 @@ class Client:
     async def _on_close(self):
         pass
 
-    def event(self) -> Wrapper:
+    def event(self) -> RegisterFunction:
         """event
         Add event to bot
 
@@ -436,7 +444,7 @@ class Client:
         else:
             raise errors.BotEventTypeError("Invalid type of event!")
 
-    def on_ready(self) -> Wrapper:
+    def on_ready(self) -> RegisterFunction:
         """on_ready
         Method for changing on_ready() event
 
@@ -450,7 +458,7 @@ class Client:
 
         return wrapper
 
-    def on_message(self, event_type: Literal["create", "update", "delete"]) -> Wrapper:
+    def on_message(self, event_type: Literal["create", "update", "delete"]) -> RegisterFunction:
         """
         Method for changing on_message() events
         -----
@@ -485,7 +493,7 @@ class Client:
 
     def on_dm_message(
         self, event_type: Literal["create", "update", "delete"]
-    ) -> Wrapper:
+    ) -> RegisterFunction:
         """
         Method for changing on_dm_message() events
         -----
@@ -518,7 +526,7 @@ class Client:
 
         return wrapper
 
-    def on_channel(self, channel_id: int) -> Wrapper:
+    def on_channel(self, channel_id: int) -> RegisterFunction:
         """
         On channel event (on_messagec event only in the channel)
         -----
@@ -535,7 +543,7 @@ class Client:
 
         return wrapper
 
-    def command(self, name: Optional[str] = MISSING) -> Wrapper:
+    def command(self, name: Optional[str] = MISSING) -> RegisterFunction:
         """command
         Create command
 
@@ -647,7 +655,7 @@ class Client:
 
         self._logger.log("Running bot")
 
-        run(self._runner())
+        async_run(self._runner())
 
     def _raise_internet_error(self):
         _m = "Please turn on your internet!"
