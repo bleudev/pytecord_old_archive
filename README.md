@@ -39,21 +39,22 @@ on your server, creating mini games in discord, auto moderation in your discord 
 For example, you can reply to message that is sended by any user using this code:
 
 ```python
-from disspy import Client, Message  # Import package
+from disspy import Client, Message  # Import library
 import os
 
-TOKEN = os.environ["TOKEN"]
+TOKEN = os.environ['TOKEN']
 client = Client(TOKEN)  # Create a client
 
-@client.on_message("create")  # On message create
-async def on_messagec(message: Message):  # message - sended message
-    await message.reply("Hello!")  # Reply to a message
+@client.on_message('create')  # On message create
+async def on_messagec(message: Message):
+    await message.reply('Hello!')  # Reply to the message
 
 client.run()  # Run client
 ```
 
 # Download package
-## Download latest version (needs pip)
+
+## Download latest version
 
 ```command
 # Windows
@@ -63,22 +64,23 @@ pip install -U disspy
 python3 -m pip install -U disspy
 ```
 
-## Download dev version (needs git and pip)
+## Download dev version (needs git)
 
 ```command
 # Windows
-git clone https://github.com/itttgg/dispy.git
+git clone https://github.com/pixeldeee/disspy.git
 cd dispy
 pip install -U .
 
 # MacOs / Linux
-git clone https://github.com/itttgg/dispy.git
+git clone https://github.com/pixeldeee/disspy.git
 cd dispy
 python3 -m pip install -U .
 ```
 
 # Links
-<p><a href="https://github.com/itttgg/dispy">https://github.com/itttgg/dispy</a> - GitHub repo</p>
-<p><a href="https://pypi.org/project/disspy">https://pypi.org/project/disspy</a> - Project site on PyPi</p>
-<p><a href="https://disspy.readthedocs.io">https://disspy.readthedocs.io</a> - Site with docs for package</p>
-<p><a href="https://discord.gg/QsE5DSQrsx">https://discord.gg/QsE5DSQrsx</a> - Discord server</p>
+
+[Github repo](https://github.com/pixeldeee/disspy)
+[PyPi](https://pypi.org/project/disspy)
+[Docs](https://disspy.readthedocs.io)
+[Discord](https://discord.gg/QsE5DSQrsx)
