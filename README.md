@@ -1,28 +1,13 @@
 # Dispy
 <p align=center><img src="logo.png" width="430" alt="logo" style="text-align: center"/></p>
 
-<p align=center>
-    <a href="https://pypi.org/project/disspy">
-        <img src="https://img.shields.io/badge/pypi-0.6-blueviolet?style=flat" alt="version"/>
-    </a>
-    <a href="https://pypi.org/project/disspy">
-        <img src="https://img.shields.io/badge/language-python-blueviolet?style=flat" alt="project language"/>
-    </a>
-    <a href="https://pypi.org/project/disspy">
-        <img src="https://img.shields.io/badge/python_versions-3.8_|_3.9_|_3.10-blueviolet?style=flat" alt="python version"/>
-    </a>
-    <a href="https://github.com/PyCQA/pylint">
-        <img src="https://img.shields.io/badge/linting-pylint-blueviolet?style=flat" alt="linting"/></a>
-    <a href="https://github.com/itttgg/dispy/actions/workflows/pylint.yml">
-         <img src="https://img.shields.io/badge/pylink_mark-9.31/10-blueviolet?style=flat" alt="pylint mark"/>
-    </a>
-    <a href='https://disspy.readthedocs.io/en/latest/?badge=latest'>
-        <img src='https://readthedocs.org/projects/disspy/badge/?version=latest' alt='documentation Status'/>
-    </a>
-    <a href="https://github.com/psf/black">
-        <img src="https://img.shields.io/badge/code_style-black-black?style=flat" alt="Code style: black">
-    </a>
-</p>
+[![Version](https://img.shields.io/badge/pypi-0.6-blueviolet?style=flat)](https://pypi.org/project/disspy)
+[![Project language](https://img.shields.io/badge/language-python-blueviolet?style=flat)](https://pypi.org/project/disspy)
+[![Python versions](https://img.shields.io/badge/python_versions-3.8_|_3.9_|_3.10_|_3.11-blueviolet?style=flat)](https://pypi.org/project/disspy)
+[![Linting](https://img.shields.io/badge/linting-pylint-blueviolet?style=flat)](https://github.com/PyCQA/pylint)
+[![PyLint mark](https://img.shields.io/badge/pylink_mark-9.31/10-blueviolet?style=flat)](https://github.com/pixeldeee/disspy/actions/workflows/pylint.yml)
+[![Documenation status](https://readthedocs.org/projects/disspy/badge/?version=latest)](https://disspy.readthedocs.io/en/latest)
+[![Code style: Black](https://img.shields.io/badge/code_style-black-black?style=flat)](https://github.com/psf/black)
 
 # Advantages
 - Package with ``async/await`` support
