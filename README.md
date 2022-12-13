@@ -80,7 +80,7 @@ python3 -m pip install -U .
 
 # Links
 
-[Github repo](https://github.com/pixeldeee/disspy) |
+[Github](https://github.com/pixeldeee/disspy) |
 [PyPi](https://pypi.org/project/disspy) |
 [Docs](https://disspy.readthedocs.io) |
 [Discord](https://discord.gg/QsE5DSQrsx)
