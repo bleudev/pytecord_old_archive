@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import disspy.v2
 
 # Imports
 # Files
@@ -58,7 +59,7 @@ from disspy.channel import (
     Message,
     RawMessage,
 )
-from disspy.client import Client, ClientV2, Listener
+from disspy.client import Client
 from disspy.http import Flags
 from disspy.embed import Embed, Field, Color
 from disspy.guild import Guild
