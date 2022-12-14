@@ -1,8 +1,20 @@
 from asyncio import wait as async_wait
+from asyncio import sleep as async_sleep
+
 from datetime import datetime
-from time import mktime, sleep
+from time import mktime
+
+from disspy.v2.listener import Listener
 
 gateway_version = 10
+
+class _Gateway_Event:
+    def __init__(self, **_dict) -> None:
+        self.op = _dict.get('op', 0)
+        self.data = _dict.get('d', {})
+        self.session = _dict.get('s', 0)
+        self.type = _dict.get('t', 'NONE')
+
 
 class Hook:
     def __init__(self, *, token: str, **options) -> None:
@@ -16,6 +28,7 @@ class Hook:
         self._session = None
         self._ws = None
         self._intents = None
+        self._listener = None
         
     async def _get(self) -> dict:
         try:
@@ -50,12 +63,13 @@ class Hook:
         }
         return await self._send(j)
 
-    async def run(self, _session, **options):
+    async def run(self, _session, listener: Listener, **options):
         '''
         Run the hook
         '''
         self._intents = options.get('intents', 0)
         self._session = _session
+        self._listener = listener
 
         async with self._session.ws_connect(
             f"wss://gateway.discord.gg/?v={gateway_version}&encoding=json"
@@ -78,10 +92,16 @@ class Hook:
         while True:
             j = {"op": 1, "d": None, "t": None}
             await self._send(j)
-            
+
             print('Sending heartbeat:', j)
 
-            await sleep(interval)
+            await async_sleep(interval)
 
     async def _events(self):
-        pass
+        while True:
+            _data = await self._get()
+            event = _Gateway_Event(**_data)
+            print(_data)
+
+            if event.type == 'READY':
+                await self._listener.invoke_event('ready')

@@ -9,7 +9,10 @@ class Connection:
             "Authorization": f"Bot {token}",
             "content-type": "application/json",
         }
+        self._listener = None
     
-    async def run(self, **options):
+    async def run(self, listener, **options):
+        self._listener = listener
+
         async with ClientSession(headers=self._headers) as session:
-            await self._hook.run(session, **options)
+            await self._hook.run(session, self._listener, **options)
