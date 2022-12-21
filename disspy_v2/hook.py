@@ -71,6 +71,7 @@ class Hook:
         self._intents = options.get('intents', 0)
         self._session = _session
         self._listener = listener
+        self._user_id = None
 
         async with self._session.ws_connect(
             f"wss://gateway.discord.gg/?v={gateway_version}&encoding=json"
@@ -105,8 +106,12 @@ class Hook:
             print(_data)
 
             if event.type == 'READY':
+                self._user_id = event.data['user']['id']
+
                 await self._listener.invoke_event('ready')
             if event.type == 'MESSAGE_CREATE':
                 message_data = event.data
-                message = Message(self._session, **message_data)
-                await self._listener.invoke_event('message', message)
+
+                if message_data['author']['id'] != self._user_id:
+                    message = Message(self._session, **message_data)
+                    await self._listener.invoke_event('message', message)
