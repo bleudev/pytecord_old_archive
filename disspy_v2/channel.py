@@ -15,7 +15,6 @@ class _MessageSender:
 
 class Message:
     def __init__(self, session, **data) -> None:
-        print('DATA:', data['channel_id'])
         self._session = session
         self._sender = _MessageSender(session)
         
