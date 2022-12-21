@@ -47,9 +47,7 @@ class Message:
         self.stickers: list[dict] = data.get('stickers', []) # todo: Add support for stickers
         self.position: int | None = data.get('position', None)
 
-        channel_id = data['channel_id']
-        channel_json = self._sender.get(URL+'/channels/'+channel_id, session.headers)
-        print(channel_json)
+        channel_json = self._sender.get(URL+'/channels/'+self.channel_id, session.headers)
         self.channel = Channel(session, **channel_json)
 
 class Channel:
