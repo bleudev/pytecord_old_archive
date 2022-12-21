@@ -8,7 +8,7 @@ class _flags:
     messages = 55824
     reactions = 9232
 
-class ClientV2(IClient, IApp):
+class Client:
     def _resolve_options(self, **options):
         self.debug = options.get('debug', False)
 
