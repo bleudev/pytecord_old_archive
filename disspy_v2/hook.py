@@ -5,6 +5,7 @@ from datetime import datetime
 from time import mktime
 
 from disspy_v2.listener import Listener
+from disspy_v2.channel import Message
 
 gateway_version = 10
 
@@ -27,7 +28,7 @@ class Hook:
         }
         self._session = None
         self._ws = None
-        self._intents = None
+        self._intents = 0
         self._listener = None
         
     async def _get(self) -> dict:
@@ -105,3 +106,7 @@ class Hook:
 
             if event.type == 'READY':
                 await self._listener.invoke_event('ready')
+            if event.type == 'MESSAGE_CREATE':
+                message_data = event.data
+                message = Message(self._session, **message_data)
+                await self._listener.invoke_event('message', message)

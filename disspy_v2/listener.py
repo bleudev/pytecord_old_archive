@@ -12,7 +12,8 @@ class Listener:
     '''
     def __init__(self):
         self.events = {
-            'ready': None
+            'ready': None,
+            'message': None,
         }
     async def invoke_event(self, name: str, *args, **kwrgs):
         '''

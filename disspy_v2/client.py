@@ -17,11 +17,12 @@ class Client:
         self.token = token
         self._conn = Connection(token=token, **options)
         self._listener = Listener()
+        self._intents = 0
 
         self._resolve_options(**options)
 
     def run(self, **options):
-        async_run(self._conn.run(self._listener, **options))
+        async_run(self._conn.run(self._listener, intents=self._intents ,**options))
 
     def command(self, name=None):
         return
@@ -32,6 +33,9 @@ class Client:
     def event(self, name=None):
         def wrapper(func):
             _name = name if name is not None else func.__name__
+
+            if _name == 'message' and self._intents & _flags.messages == 0:
+                self._intents += _flags.messages
 
             self._listener.add_event(_name, func)
         

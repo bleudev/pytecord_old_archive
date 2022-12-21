@@ -3,10 +3,8 @@
 /.vscode
 
 # Cache files and modules
-/.venv
-/__pycache__
-disspy/__pycache__
-examples/__pycache__
+.venv
+__pycache__
 
 # Package builds
 /disspy.egg-info
