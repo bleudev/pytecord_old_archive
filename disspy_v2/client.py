@@ -1,6 +1,5 @@
-from disspy.v2.interfaces import IClient, IApp
-from disspy.v2.connection import Connection
-from disspy.v2.listener import Listener
+from disspy_v2.connection import Connection
+from disspy_v2.listener import Listener
 
 from asyncio import run as async_run
 

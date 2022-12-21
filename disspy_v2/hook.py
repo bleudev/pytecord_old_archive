@@ -4,7 +4,7 @@ from asyncio import sleep as async_sleep
 from datetime import datetime
 from time import mktime
 
-from disspy.v2.listener import Listener
+from disspy_v2.listener import Listener
 
 gateway_version = 10
 
