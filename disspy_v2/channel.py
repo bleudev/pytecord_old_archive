@@ -49,21 +49,25 @@ class Message:
         channel_json = self._sender.get(URL+'/channels/'+self.channel_id, session.headers)
         self.channel = Channel(session, **channel_json)
 
+    async def reply(self, content: str):
+        payload = {
+            'content': content,
+            'message_reference': {
+                'message_id': self.id
+            }
+        }
+        j = await self._sender.post(URL+'/channels/'+self.channel_id+'/messages', payload)
+        return Message(self._session, **j)
+
 class Channel:
     def __init__(self, session, **data) -> None:
         self._session = session
         self._sender = _MessageSender(session)
         self.id = data.get('id', None)
 
-    async def send(self, content, **json) -> Message | None:
+    async def send(self, content) -> Message | None:
         payload = {
             'content': content
         }
-        if json:
-            for i in json.keys():
-                payload.setdefault(i, json[i])
-                
-        if payload['content']:
-            j = await self._sender.post(URL+'/channels/'+self.id+'/messages', payload)
-            return Message(self._session, **j)
-        return None
+        j = await self._sender.post(URL+'/channels/'+self.id+'/messages', payload)
+        return Message(self._session, **j)
