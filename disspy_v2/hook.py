@@ -5,7 +5,7 @@ from datetime import datetime
 from time import mktime
 
 from disspy_v2.listener import Listener
-from disspy_v2.channel import Message
+from disspy_v2.channel import Message, RawMessage
 
 gateway_version = 10
 
@@ -30,19 +30,19 @@ class Hook:
         self._ws = None
         self._intents = 0
         self._listener = None
-        
+        self._user_id = None
+
     async def _get(self) -> dict:
         try:
             j = await self._ws.receive_json()
         except TypeError:
             return
-        
         return j
-    
+
     async def _send(self, data: dict) -> dict:
         await self._ws.send_json(data)
         return data
-    
+
     async def _identify(self) -> dict:
         j = {
             "op": 2,
@@ -71,13 +71,12 @@ class Hook:
         self._intents = options.get('intents', 0)
         self._session = _session
         self._listener = listener
-        self._user_id = None
 
         async with self._session.ws_connect(
             f"wss://gateway.discord.gg/?v={gateway_version}&encoding=json"
         ) as _ws:
             self._ws = _ws
-            
+
             data = await self._get()
             interval = data["d"]["heartbeat_interval"] / 1000
 
@@ -109,9 +108,12 @@ class Hook:
                 self._user_id = event.data['user']['id']
 
                 await self._listener.invoke_event('ready')
-            if event.type == 'MESSAGE_CREATE':
+            if event.type in ['MESSAGE_CREATE', 'MESSAGE_UPDATE']:
                 message_data = event.data
 
                 if message_data['author']['id'] != self._user_id:
                     message = Message(self._session, **message_data)
                     await self._listener.invoke_event('message', message)
+            if event.type == 'MESSAGE_DELETE':
+                raw_message = RawMessage(self._session, **event.data)
+                await self._listener.invoke_event('message_delete', raw_message)

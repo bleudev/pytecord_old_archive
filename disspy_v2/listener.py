@@ -14,6 +14,7 @@ class Listener:
         self.events = {
             'ready': None,
             'message': None,
+            'message_delete': None
         }
     async def invoke_event(self, name: str, *args, **kwrgs):
         '''

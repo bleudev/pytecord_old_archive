@@ -30,13 +30,11 @@ class Client:
     def context_menu(self, name=None):
         return
 
-    def event(self, name=None):
+    def event(self, name: str = None):
         def wrapper(func):
             _name = name if name is not None else func.__name__
 
-            if _name == 'message' and self._intents & _flags.messages == 0:
+            if _name in ['message', 'message_delete'] and self._intents & _flags.messages == 0:
                 self._intents += _flags.messages
-
             self._listener.add_event(_name, func)
-        
         return wrapper

@@ -59,6 +59,16 @@ class Message:
         j = await self._sender.post(URL+'/channels/'+self.channel_id+'/messages', payload)
         return Message(self._session, **j)
 
+
+class RawMessage:
+    def __init__(self, session, **data) -> None:
+        self._session = session
+
+        self.id: int = data.get('id', None)
+        self.channel_id: int = data.get('channel_id', None)
+        self.guild_id: int | None = data.get('guild_id', None)
+
+
 class Channel:
     def __init__(self, session, **data) -> None:
         self._session = session
