@@ -33,12 +33,12 @@ class Client:
         self._resolve_options(**options)
 
     def run(self, **options):
-        async_run(self._conn.run(self._listener, intents=self._intents ,**options))
+        async_run(self._conn.run(self._listener, self._app, intents=self._intents, **options))
 
     def command(self, name=None):
         def wrapper(func):
             callable = func
-            command_json = {}
+            command_json = {'type': 1}
             
             try:
                 callable.__name__
@@ -105,7 +105,7 @@ class Client:
             if not self._validate_slash_command(command_json['name']):
                 raise ValueError(f'All slash command names must followed {SLASH_COMMAND_VALID_REGEX} regex')
 
-            self._app.add_command(Command(command_json))
+            self._app.add_command(Command(command_json), callable)
         return wrapper
 
     def context_menu(self, name=None):

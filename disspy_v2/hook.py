@@ -3,9 +3,11 @@ from asyncio import sleep as async_sleep
 
 from datetime import datetime
 from time import mktime
+from json import dumps
 
 from disspy_v2.listener import Listener
 from disspy_v2.channel import Message, RawMessage
+from disspy_v2.app import AppClient, Context
 
 gateway_version = 10
 
@@ -31,6 +33,7 @@ class Hook:
         self._intents = 0
         self._listener = None
         self._user_id = None
+        self._app_client = None
 
     async def _get(self) -> dict:
         try:
@@ -64,13 +67,14 @@ class Hook:
         }
         return await self._send(j)
 
-    async def run(self, _session, listener: Listener, **options):
+    async def run(self, _session, listener: Listener, app_client: AppClient, **options):
         '''
         Run the hook
         '''
         self._intents = options.get('intents', 0)
         self._session = _session
         self._listener = listener
+        self._app_client = app_client
 
         async with self._session.ws_connect(
             f"wss://gateway.discord.gg/?v={gateway_version}&encoding=json"
@@ -89,6 +93,19 @@ class Hook:
                 ]
             )
 
+    async def _register_app_commands(self, app_id):
+        command_jsons = []
+        for i in self._app_client.commands:
+            command_jsons.append(i.eval())
+        
+        url = f'https://discord.com/api/v10//applications/{app_id}/commands'
+        
+        for c in command_jsons:
+            async with self._session.post(url, data=dumps(c)) as r:
+                j = await r.json()
+                print('POST', j, sep=' | ')
+                        
+
     async def _life(self, interval):
         while True:
             j = {"op": 1, "d": None, "t": None}
@@ -106,6 +123,8 @@ class Hook:
 
             if event.type == 'READY':
                 self._user_id = event.data['user']['id']
+                
+                await self._register_app_commands(event.data['application']['id'])
 
                 await self._listener.invoke_event('ready')
             if event.type in ['MESSAGE_CREATE', 'MESSAGE_UPDATE']:
@@ -117,3 +136,7 @@ class Hook:
             if event.type == 'MESSAGE_DELETE':
                 raw_message = RawMessage(self._session, **event.data)
                 await self._listener.invoke_event('message_delete', raw_message)
+            if event.type == 'INTERACTION_CREATE':
+                ctx = Context(event.data, self.token, self._session)
+                
+                await self._app_client.invoke_command(event.data['data']['name'], event.data['data']['type'], ctx)
