@@ -138,5 +138,14 @@ class Hook:
                 await self._listener.invoke_event('message_delete', raw_message)
             if event.type == 'INTERACTION_CREATE':
                 ctx = Context(event.data, self.token, self._session)
+                option_values = {}
                 
-                await self._app_client.invoke_command(event.data['data']['name'], event.data['data']['type'], ctx)
+                option_jsons = event.data['data']['options']
+                
+                for option_json in option_jsons:
+                    option_values.setdefault(
+                        option_json['name'],
+                        option_json['value']
+                    )
+                
+                await self._app_client.invoke_command(event.data['data']['name'], event.data['data']['type'], ctx, **option_values)

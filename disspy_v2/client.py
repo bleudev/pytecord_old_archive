@@ -95,10 +95,15 @@ class Client:
                     for option in command_json['options']:
                         for option_name, description in json.items():
                             if option['name'] == option_name:
-                                command_json['options'][command_json['options'].index(option)]['description'] = description
+                                option['description'] = description
                 else:
                     for k, v in json.items():
                         command_json.setdefault(k, v)
+    
+            for option in command_json['options']:
+                option: dict = option
+                if option.get('description', None) is None:
+                    option['description'] = 'No description'
 
             print(options)
             print(command_json)
