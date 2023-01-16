@@ -4,7 +4,15 @@ class Command:
     def __init__(self, data: dict) -> None:
         self.data = data
     def __getitem__(self, key: str):
-        return self.data[key]
+        return self.data.get(key, None)
+    def eval(self) -> dict:
+        return self.data
+
+class ContextMenu:
+    def __init__(self, data: dict) -> None:
+        self.data = data
+    def __getitem__(self, key: str):
+        return self.data.get(key, None)
     def eval(self) -> dict:
         return self.data
 
@@ -13,10 +21,10 @@ class AppClient:
         self.commands = []
         self.callbacks = {1: {}, 2: {}, 3: {}}
 
-    def add_command(self, command: Command, callable):
+    def add_command(self, command: Command | ContextMenu, callable):
         self.commands.append(command)
         self.callbacks[command['type']].setdefault(command['name'], callable)
-    
+        
     async def invoke_command(self, name: str, type: int, *args, **kwrgs):
         await self.callbacks[type][name](*args, **kwrgs)
 
@@ -34,17 +42,35 @@ class Context:
 
         self.command = Command(data['data'])
 
-    async def send_message(self, content: str, *, ephemeral: bool = False):
+    async def _respond(self, payload: dict):
         _token, _id = self._interaction.token, self._interaction.id
         _url = f'https://discord.com/api/v10/interactions/{_id}/{_token}/callback'
-        _payload = {
+        await self._session.post(_url, data=dumps(payload))
+
+    async def send_message(self, content: str, *, ephemeral: bool = False):
+        await self._respond({
             'type': 4,
             'data': {
                 'content': str(content),
                 'flags': 1 << 6 if ephemeral else 0
             }
-        }
-        await self._session.post(_url, data=dumps(_payload))
+        })
+
+    async def edit_message(self, content: str):
+        await self._respond({
+            'type': 7,
+            'data': {
+                'content': str(content)
+            }
+        })
+
+    async def defer(self):
+        await self._respond({
+            'type': 6,
+            'data': {
+                'flags': 1 << 6
+            }
+        })
 
 def describe(**options):
     def wrapper(func):

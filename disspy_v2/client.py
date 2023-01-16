@@ -1,11 +1,13 @@
 from disspy_v2.connection import Connection
 from disspy_v2.listener import Listener
-from disspy_v2.app import Command, AppClient
-from disspy_v2.channel import Channel
+from disspy_v2.app import Command, ContextMenu, AppClient
+from disspy_v2.channel import Channel, Message
+from disspy_v2.profiles import User
 
 from asyncio import run as async_run
 from regex import fullmatch
 from inspect import getdoc, signature, _empty
+from typing import Callable
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
 
@@ -19,6 +21,13 @@ class Client:
         self.debug = options.get('debug', False)
     def _validate_slash_command(self, name: str):
         return bool(fullmatch(SLASH_COMMAND_VALID_REGEX, name))
+    def _get_callable(self, func):
+        _c = func
+        try:
+            func.__name__
+        except AttributeError:
+            _c = func[1]
+        return _c
 
     def __init__(self, *, token: str, **options):
         self.debug = None
@@ -37,16 +46,10 @@ class Client:
 
     def command(self, name=None):
         def wrapper(func):
-            callable = func
+            callable = self._get_callable(func)
             command_json = {'type': 1}
-            
-            try:
-                callable.__name__
-            except AttributeError:
-                callable = callable[1]
 
-
-            command_json.setdefault('name', name if name is not None else callable.__name__)
+            command_json.setdefault('name', name if name else callable.__name__)
             
             doc = getdoc(callable).splitlines()[0]
             command_json.setdefault('description', doc if doc else 'No description')
@@ -60,7 +63,7 @@ class Client:
 
             if options:
                 _options_jsons = []
-                
+
                 _option_types = {
                     'SUB_COMMAND': 1,
                     'SUB_COMMAND_GROUP': 2,
@@ -110,11 +113,31 @@ class Client:
             if not self._validate_slash_command(command_json['name']):
                 raise ValueError(f'All slash command names must followed {SLASH_COMMAND_VALID_REGEX} regex')
 
-            self._app.add_command(Command(command_json), callable)
+            command = Command(command_json)
+            self._app.add_command(command, callable)
+            return command
         return wrapper
 
-    def context_menu(self, name=None):
-        return
+    def context_menu(self, name: str = None) -> ContextMenu:
+        def wrapper(func):
+            menu_json = {'type': 0}
+            callable = self._get_callable(func)
+
+            menu_json.setdefault('name', name if name else callable.__name__)
+
+            sig = signature(callable)
+            params = dict(sig.parameters)
+            param_type = params[list(params.keys())[1]].annotation
+            types = {
+                User: 2,
+                Message: 3
+            }
+            menu_json['type'] = types[param_type]
+
+            menu = ContextMenu(menu_json)
+            self._app.add_command(menu, callable)
+            return menu
+        return wrapper
 
     def event(self, name: str = None):
         def wrapper(func):

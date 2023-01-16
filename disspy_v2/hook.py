@@ -8,6 +8,7 @@ from json import dumps
 from disspy_v2.listener import Listener
 from disspy_v2.channel import Message, RawMessage
 from disspy_v2.app import AppClient, Context
+from disspy_v2.profiles import User
 
 gateway_version = 10
 
@@ -138,14 +139,28 @@ class Hook:
                 await self._listener.invoke_event('message_delete', raw_message)
             if event.type == 'INTERACTION_CREATE':
                 ctx = Context(event.data, self.token, self._session)
-                option_values = {}
                 
-                option_jsons = event.data['data']['options']
+                if event.data['data']['type'] == 1:
+                    option_values = {}
+                    
+                    option_jsons = event.data['data']['options']
+                    
+                    for option_json in option_jsons:
+                        option_values.setdefault(
+                            option_json['name'],
+                            option_json['value']
+                        )
                 
-                for option_json in option_jsons:
-                    option_values.setdefault(
-                        option_json['name'],
-                        option_json['value']
-                    )
-                
-                await self._app_client.invoke_command(event.data['data']['name'], event.data['data']['type'], ctx, **option_values)
+                    await self._app_client.invoke_command(event.data['data']['name'], event.data['data']['type'], ctx, **option_values)
+                else:
+                    _data = event.data['data']
+                    _type = _data['type']
+                    resolved = None
+                    target_id = _data['target_id']
+                    if _type == 2: # Users
+                        _resolved_data = _data['resolved']['users'][target_id]
+                        resolved = User(self._session, **_resolved_data)
+                    elif _type == 3: # Message
+                        _resolved_data = _data['resolved']['messages'][target_id]
+                        resolved = Message(self._session, **_resolved_data)
+                    await self._app_client.invoke_command(_data['name'], _type, ctx, resolved)
