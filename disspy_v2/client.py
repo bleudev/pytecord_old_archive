@@ -70,7 +70,7 @@ class Client:
                     str: 3,
                     int: 4,
                     bool: 5,
-                    'USER': 6,
+                    User: 6,
                     Channel: 7,
                     'ROLE': 8,
                     'MENTIONABLE': 9,
