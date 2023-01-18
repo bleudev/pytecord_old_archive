@@ -1,4 +1,5 @@
 from disspy_v2.mainurl import URL
+from disspy_v2 import utils
 
 from requests import get as req_get
 from json import dumps
@@ -73,11 +74,17 @@ class Channel:
     def __init__(self, session, **data) -> None:
         self._session = session
         self._sender = _MessageSender(session)
-        self.id = data.get('id', None)
+        
+        _ = data.get
+        self.id: int = _('id')
+        self.name: str = _('name')
 
-    async def send(self, content) -> Message | None:
+    def __str__(self) -> str:
+        return str(self.name)
+
+    async def send(self, *strings: list[str], sep: str = ' ') -> Message | None:
         payload = {
-            'content': content
+            'content': str(utils.get_content(*strings, sep=sep))
         }
         j = await self._sender.post(URL+'/channels/'+self.id+'/messages', payload)
         return Message(self._session, **j)

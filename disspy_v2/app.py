@@ -1,4 +1,5 @@
 from json import dumps
+from disspy_v2.utils import get_content
 
 class Command:
     def __init__(self, data: dict) -> None:
@@ -47,11 +48,11 @@ class Context:
         _url = f'https://discord.com/api/v10/interactions/{_id}/{_token}/callback'
         await self._session.post(_url, data=dumps(payload))
 
-    async def send_message(self, content: str, *, ephemeral: bool = False):
+    async def send_message(self, *strings: list[str], sep: str = ' ', ephemeral: bool = False):
         await self._respond({
             'type': 4,
             'data': {
-                'content': str(content),
+                'content': str(get_content(*strings, sep=sep)),
                 'flags': 1 << 6 if ephemeral else 0
             }
         })
