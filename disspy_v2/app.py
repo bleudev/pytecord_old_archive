@@ -1,5 +1,22 @@
 from json import dumps
-from disspy_v2.utils import get_content
+from disspy_v2 import utils
+from disspy_v2.enums import InteractionType, InteractionCallbackType
+from disspy_v2.ui import TextInput
+
+class Modal:
+    title: str
+    text_inputs: list[TextInput]
+
+    def eval(self) -> dict:
+        text_inputs_json = []
+        for i in self.text_inputs:
+            text_inputs_json.append(i.eval())
+        
+        return {
+            'custom_id': 'modals_dev',
+            'title': self.title,
+            'components': text_inputs_json
+        }
 
 class Command:
     def __init__(self, data: dict) -> None:
@@ -33,6 +50,7 @@ class _Interaction:
     def __init__(self, data: dict) -> None:
         self.token = data.get('token')
         self.id = data.get('id')
+        self.type = data.get('type')
         self.application_id = data.get('application_id')
 
 class Context:
@@ -52,9 +70,21 @@ class Context:
         await self._respond({
             'type': 4,
             'data': {
-                'content': str(get_content(*strings, sep=sep)),
+                'content': str(utils.get_content(*strings, sep=sep)),
                 'flags': 1 << 6 if ephemeral else 0
             }
+        })
+
+    async def send_modal(self, modal):
+        if self._interaction.type in [
+            InteractionType.ping,
+            InteractionType.modal_submit
+        ]:
+            return # not available in discord API
+
+        await self._respond({
+            'type': InteractionCallbackType.modal,
+            'data': modal.eval()
         })
 
     async def edit_message(self, content: str):
