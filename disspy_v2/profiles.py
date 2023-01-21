@@ -18,6 +18,7 @@ User object in discord API
         _ = data.get
         self._session = session
 
+        self.id: int = _('id')
         self.username: str = _('username')
         self.tag: str = _('discriminator')
         self.fullname: str = f'{self.username}#{self.tag}'
