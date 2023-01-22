@@ -25,7 +25,7 @@ async def modals(ctx: app.Context):
     class MyModal(ui.Modal, title='Feedback', custom_id='feedback'): # note: `custom_id` is not visible in discord
         inputs = [
             ui.TextInput(
-                custom_id='rate', # unique message that not visible in discord
+                custom_id='rate', # unique string that not visible in discord
                 label='Rate our bot from 1 to 9',
                 style=ui.TextInputStyle.short,
                 length=(1,1), # This means that user can input only 1-character message
@@ -33,7 +33,7 @@ async def modals(ctx: app.Context):
                 placeholder='1-9'
             ),
             ui.TextInput(
-                custom_id='additional_feedback', # unique message that not visible in discord
+                custom_id='additional_feedback', # unique string that not visible in discord
                 label='Additional feedback',
                 style=ui.TextInputStyle.paragraph,
                 length=(0, 1000), # This means that user can input 1000 characters maxium, 0 characters minimum
