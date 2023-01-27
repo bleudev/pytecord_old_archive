@@ -10,6 +10,7 @@ from disspy_v2.channel import Message, RawMessage, Channel
 from disspy_v2.app import AppClient, Context
 from disspy_v2.profiles import User
 from disspy_v2.enums import InteractionType, ApplicationCommandType
+from disspy_v2 import utils
 
 gateway_version = 10
 
@@ -33,6 +34,7 @@ class Hook:
         self._session = None
         self._ws = None
         self._intents = 0
+        self._debug = options.get('debug', False)
         self._listener = None
         self._user_id = None
         self._app_client = None
@@ -95,37 +97,44 @@ class Hook:
                 ]
             )
 
+    def _debuging(self, data: dict):
+        if self._debug:
+            mes = utils.get_hook_debug_message(data)
+            print(mes)
+
     async def _register_app_commands(self, app_id):
         command_jsons = []
         for i in self._app_client.commands:
             command_jsons.append(i.eval())
-        
         url = f'https://discord.com/api/v10//applications/{app_id}/commands'
-        
         for c in command_jsons:
             async with self._session.post(url, data=dumps(c)) as r:
                 j = await r.json()
-                print('POST', j, sep=' | ')
-                        
+                if self._debug:
+                    print('POST |', j)
 
     async def _life(self, interval):
         while True:
             j = {"op": 1, "d": None, "t": None}
             await self._send(j)
 
-            print('Sending heartbeat:', j)
+            self._debuging(j)
 
             await async_sleep(interval)
 
     async def _events(self):
         while True:
             _data = await self._get()
-            event = _Gateway_Event(**_data)
-            print(_data)
+            
+            if _data:
+                event = _Gateway_Event(**_data)
+            else:
+                continue
+            self._debuging(_data)
 
             if event.type == 'READY':
                 self._user_id = event.data['user']['id']
-                
+
                 await self._register_app_commands(event.data['application']['id'])
 
                 await self._listener.invoke_event('ready')
@@ -140,7 +149,7 @@ class Hook:
                 await self._listener.invoke_event('message_delete', raw_message)
             if event.type == 'INTERACTION_CREATE':
                 ctx = Context(event.data, self.token, self._session, self)
-                
+
                 if event.data['type'] == InteractionType.application_command:
                     if event.data['data']['type'] == ApplicationCommandType.chat_input:
                         option_values = {}

@@ -85,6 +85,19 @@ class MessageType:
     interaction_premium_upsell = 26
     guild_application_premium_subscription = 32
 
+class GatewayOpcode:
+    dispatch = 0
+    heartbeat = 1
+    identify = 2
+    presence_update = 3
+    voice_state_update = 4
+    resume = 6
+    reconnect = 7
+    request_guild_members = 8
+    invalid_session = 9
+    hello = 10
+    heartbeat_ack = 11
+
 # public
 class TextInputStyle:
     short = 1

@@ -109,8 +109,6 @@ class Client:
                     if option.get('description', None) is None:
                         option['description'] = 'No description'
 
-            print(options)
-            print(command_json)
             if not self._validate_slash_command(command_json['name']):
                 raise ValueError(f'All slash command names must followed {SLASH_COMMAND_VALID_REGEX} regex')
 
