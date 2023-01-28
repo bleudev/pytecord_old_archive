@@ -1,4 +1,4 @@
-from typing import TypedDict, NewType
+from typing import TypedDict, NewType, Literal
 
 from disspy_v2.enums import (
     ApplicationCommandOptionType,
@@ -12,10 +12,15 @@ from disspy_v2.enums import (
     MessageActivityType,
     TeamMemberMembershipState,
     ApplicationFlags,
+    InteractionType,
+    OverwriteType,
+    ChannelFlags,
+    GuildForumSortOrderType,
+    GuildForumLayoutType,
 )
 
 # Fixing bugs :)
-_this = NewType('this', object)
+_this = NewType('this', type)
 
 # Typing
 hashStr = NewType('hashStr', str)
@@ -23,6 +28,7 @@ intColor = NewType('intColor', int)
 localeStr = NewType('localeStr', str)
 bitSet = NewType('bitSet', str)
 unicodeStr = NewType('unicodeStr', str)
+iso8601_timestamp = NewType('iso8601_timestamp', str)
 
 class ApplicationCommandOptionChoicePayload(TypedDict):
     name: str
@@ -162,7 +168,7 @@ class EmbedPayload(TypedDict):
     type: EmbedType | None
     description: str | None
     url: str | None
-    timestamp: str | None
+    timestamp: iso8601_timestamp | None
     color: intColor | None
     footer: EmbedFooterPayload | None
     image: EmbedImagePayload | None
@@ -204,6 +210,10 @@ class TeamPayload(TypedDict):
     name: str
     owner_user_id: int
 
+class InstallParamsPayload(TypedDict):
+    scopes: list[str]
+    permissions: str
+
 class ApplicationPayload(TypedDict):
     id: int
     name: str
@@ -223,19 +233,100 @@ class ApplicationPayload(TypedDict):
     slug: str | None
     cover_image: hashStr | None
     flags: ApplicationFlags | None
-    tags?	array of strings	up to 5 tags describing the content and functionality of the application
-    install_params?	install params object	settings for the application's default in-app authorization link, if enabled
-    custom_install_url?	string	the application's default custom authorization link, if enabled
-    role_connections_verification_url?	string
+    tags: list[str] | None
+    install_params: InstallParamsPayload | None
+    custom_install_url: str | None
+    role_connections_verification_url: str | None
 
 class MessageReferencePayload(TypedDict):
-    pass
+    message_id: int | None
+    channel_id: int | None
+    guild_id: int | None
+    fail_if_not_exists: bool | None
+
+class GuildMemberPayload(TypedDict):
+    user: UserPayload | None
+    nick: str | None
+    avatar: hashStr | None
+    roles: list[RolePayload.id]
+    joined_at: iso8601_timestamp
+    premium_since: iso8601_timestamp | None
+    deaf: bool
+    mute: bool
+    pending: bool | None
+    permissions: str | None
+    communication_disabled_until: iso8601_timestamp | None
 
 class MessageInteractionPayload(TypedDict):
-    pass
+    id: int
+    type: InteractionType
+    name: str
+    user: UserPayload      
+    member: GuildMemberPayload | None
+
+class OverwritePayload(TypedDict):
+    id: int
+    type: OverwriteType
+    allow: str
+    deny: str
+
+class ThreadMetadataPayload(TypedDict):
+    archived: bool
+    auto_archive_duration: Literal[60, 1440, 4320, 10080]
+    archive_timestamp: iso8601_timestamp
+    locked: bool
+    invitable: bool | None
+    create_timestamp: iso8601_timestamp | None
+
+class ThreadMemberPayload(TypedDict):
+    id: int | None
+    user_id: int | None
+    join_timestamp: iso8601_timestamp
+    flags: int
+    member: GuildMemberPayload | None
+
+class ForumTagPayload(TypedDict):
+    id: int
+    name: str
+    moderated: bool
+    emoji_id: int | None
+    emoji_name: str | None
 
 class ChannelPayload(TypedDict):
-    pass
+    id: int
+    type: ChannelType
+    guild_id: int | None
+    position: int | None
+    permission_overwrites: list[OverwritePayload] | None
+    name: str | None
+    topic: str | None
+    nsfw: bool | None
+    last_message_id: int | None
+    bitrate: int | None
+    user_limit: int | None
+    rate_limit_per_user: int | None
+    recipients: list[UserPayload] | None
+    icon: hashStr | None
+    owner_id: int | None
+    application_id: int | None
+    parent_id: int | None
+    last_pin_timestamp: iso8601_timestamp | None
+    rtc_region: str | None
+    video_quality_mode: int | None
+    message_count: int | None
+    member_count: int | None
+    thread_metadata: ThreadMetadataPayload | None
+    member: ThreadMemberPayload | None
+    default_auto_archive_duration: Literal[60, 1440, 4320, 10080] | None
+    permissions: str | None
+    flags: ChannelFlags | None
+    total_message_sent: int | None
+    available_tags: list[ForumTagPayload] | None
+    applied_tags: list[ForumTagPayload.id] | None
+    default_reaction_emoji: ReactionPayload | None
+    default_thread_rate_limit_per_user: int | None
+    default_sort_order: GuildForumSortOrderType | None
+    default_forum_layout: GuildForumLayoutType | None
 
 class MessageComponentPayload(TypedDict):
     pass
@@ -254,8 +345,8 @@ class MessagePayload(TypedDict):
     channel_id: int
     author: UserPayload
     content: str | None
-    timestamp: str
-    edited_timestamp: str | None
+    timestamp: iso8601_timestamp
+    edited_timestamp: iso8601_timestamp | None
     tts: bool
     mention_everyone: bool
     mentions: list[UserPayload] | None

@@ -98,6 +98,44 @@ class GatewayOpcode:
     hello = 10
     heartbeat_ack = 11
 
+class NitroPremiumType:
+    none = 0
+    nitro_classic = 1
+    nitro = 2
+    nitro_basic = 3
+
+class EmbedType:
+    rich = 'rich'
+    image = 'image'
+    video = 'video'
+    gifv = 'gifv'
+    article = 'article'
+    link = 'link'
+
+class MessageActivityType:
+    join = 1
+    spectate = 2
+    listen = 3
+    join_request = 5
+
+class TeamMemberMembershipState:
+    invited = 1
+    accepted = 2
+
+class OverwriteType:
+    role = 0
+    member = 1
+
+class GuildForumSortOrderType:
+    latest_activity = 0
+    creation_date = 1
+
+class GuildForumLayoutType:
+    not_set = 0
+    list_view = 1
+    gallery_view = 2
+
+# Flags
 class MessageFlags:
     crossposted = 1 << 0
     is_crosspost = 1 << 1
@@ -126,30 +164,6 @@ class UserFlags:
     bot_http_interactions = 1 << 19
     active_developer = 1 << 22
 
-class NitroPremiumType:
-    none = 0
-    nitro_classic = 1
-    nitro = 2
-    nitro_basic = 3
-
-class EmbedType:
-    rich = 'rich'
-    image = 'image'
-    video = 'video'
-    gifv = 'gifv'
-    article = 'article'
-    link = 'link'
-
-class MessageActivityType:
-    join = 1
-    spectate = 2
-    listen = 3
-    join_request = 5
-
-class TeamMemberMembershipState:
-    invited = 1
-    accepted = 2
-
 class ApplicationFlags:
     gateway_presence = 1 << 12
     gateway_presence_limited = 1 << 13
@@ -160,6 +174,10 @@ class ApplicationFlags:
     gateway_message_content = 1 << 18
     gateway_message_content_limited = 1 << 19
     application_command_badge = 1 << 23
+
+class ChannelFlags:
+    pinned = 1 << 1
+    require_tag = 1 << 4
 
 # public
 class TextInputStyle:
