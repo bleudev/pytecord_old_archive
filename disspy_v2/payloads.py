@@ -1,6 +1,6 @@
 from typing import TypedDict, NewType
 
-from disspy_v2.enums import ApplicationCommandOptionType, ApplicationCommandType, ChannelType, MessageType
+from disspy_v2.enums import ApplicationCommandOptionType, ApplicationCommandType, ChannelType, MessageType, MessageFlags
 
 # Fixing bugs :)
 _this = NewType('this', object)
@@ -69,6 +69,24 @@ class ApplicationPayload(TypedDict):
 class MessageReferencePayload(TypedDict):
     pass
 
+class MessageInteractionPayload(TypedDict):
+    pass
+
+class ChannelPayload(TypedDict):
+    pass
+
+class MessageComponentPayload(TypedDict):
+    pass
+
+class MessageStickerItemPayload(TypedDict):
+    pass
+
+class StickerPayload(TypedDict):
+    pass
+
+class RoleSubscriptionData(TypedDict):
+    pass
+
 class MessagePayload(TypedDict):
     id: int
     channel_id: int
@@ -92,12 +110,12 @@ class MessagePayload(TypedDict):
     application: ApplicationPayload | None
     application_id: int | None
     message_reference: MessageReferencePayload | None
-    flags?	integer	message flags combined as a bitfield
-    referenced_message?****	?message object	the message associated with the message_reference
-    interaction?	message interaction object	sent if the message is a response to an Interaction
-    thread?	channel object	the thread that was started from this message, includes thread member object
-    components?**	array of message components	sent if the message contains components like buttons, action rows, or other interactive components
-    sticker_items?	array of message sticker item objects	sent if the message contains stickers
-    stickers?	array of sticker objects	Deprecated the stickers sent with the message
-    position?	integer	A generally increasing integer (there may be gaps or duplicates) that represents the approximate position of the message in a thread, it can be used to estimate the relative position of the message in a thread in company with total_message_sent on parent thread
-    role_subscription_data?	role subscription data object
+    flags: MessageFlags
+    referenced_message: _this | None
+    interaction: MessageInteractionPayload | None
+    thread: ChannelPayload | None
+    components: list[MessageComponentPayload] | None
+    sticker_items: list[MessageStickerItemPayload] | None
+    stickers: list[StickerPayload] | None
+    position: int | None
+    role_subscription_data: RoleSubscriptionData | None
