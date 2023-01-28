@@ -1,9 +1,24 @@
 from typing import TypedDict, NewType
 
-from disspy_v2.enums import ApplicationCommandOptionType, ApplicationCommandType, ChannelType, MessageType, MessageFlags
+from disspy_v2.enums import (
+    ApplicationCommandOptionType,
+    ApplicationCommandType,
+    ChannelType,
+    MessageType,
+    MessageFlags,
+    UserFlags,
+    NitroPremiumType,
+)
 
 # Fixing bugs :)
 _this = NewType('this', object)
+
+# Typing
+hashStr = NewType('hashStr', str)
+intColor = NewType('intColor', int)
+localeStr = NewType('localeStr', str)
+bitSet = NewType('bitSet', str)
+unicodeStr = NewType('unicodeStr', str)
 
 class ApplicationCommandOptionChoicePayload(TypedDict):
     name: str
@@ -43,10 +58,44 @@ class ApplicationCommandPayload(TypedDict):
     version: int
 
 class UserPayload(TypedDict):
-    pass
+    id: int
+    username: str
+    discriminator: str
+    avatar: hashStr | None
+    bot: bool | None
+    system: bool | None
+    mfa_enabled: bool | None
+    banner: hashStr | None
+    accent_color: intColor | None
+    locale: localeStr
+    # Needs email Oauth2 scope
+    verified: bool | None
+    email: str | None
+    #
+    flags: UserFlags | None
+    premium_type: NitroPremiumType | None
+    public_flags: UserFlags | None
+
+class RoleTagsPayload(TypedDict):
+    bot_id: int | None
+    integration_id: int | None
+    premium_subscriber: bool | None
+    subscription_listing_id: int | None
+    available_for_purchase: bool | None
+    guild_connections: bool | None
 
 class RolePayload(TypedDict):
-    pass
+    id: int
+    name: str
+    color: intColor
+    hoist: bool
+    icon: hashStr | None
+    unicode_emoji: unicodeStr | None
+    position: int
+    permissions: bitSet
+    managed: bool
+    mentionable: bool
+    tags: RoleTagsPayload | None
 
 class ChannelMentionPayload(TypedDict):
     pass
