@@ -8,6 +8,8 @@ from disspy_v2.enums import (
     MessageFlags,
     UserFlags,
     NitroPremiumType,
+    EmbedType,
+    MessageActivityType
 )
 
 # Fixing bugs :)
@@ -98,19 +100,94 @@ class RolePayload(TypedDict):
     tags: RoleTagsPayload | None
 
 class ChannelMentionPayload(TypedDict):
-    pass
+    id: int
+    guild_id: int
+    type: ChannelType
+    name: str
 
 class AttachmentPayload(TypedDict):
-    pass
+    id: int
+    filename: str
+    description: str | None
+    content_type: str | None
+    size: int
+    url: str
+    proxy_url: str
+    height: int | None
+    width: int | None
+    ephemeral: bool | None
+
+class EmbedFooterPayload(TypedDict):
+    text: str
+    icon_url: str | None
+    proxy_icon_url: str | None
+
+class EmbedImagePayload(TypedDict):
+    url: str
+    proxy_url: str | None
+    height: int | None
+    width: int | None
+
+class EmbedThumbnailPayload(TypedDict):
+    url: str
+    proxy_url: str | None
+    height: int | None
+    width: int | None
+
+class EmbedVideoPayload(TypedDict):
+    url: str | None
+    proxy_url: str | None
+    height: int | None
+    width: int | None
+
+class EmbedProviderPayload(TypedDict):
+    name: str | None
+    url: str | None
+
+class EmbedAuthorPayload(TypedDict):
+    name: str
+    url: str | None
+    icon_url: str | None
+    proxy_icon_url: str | None
+
+class EmbedFieldPayload(TypedDict):
+    name: str
+    value: str
+    inline: bool | None
 
 class EmbedPayload(TypedDict):
-    pass
+    title: str | None
+    type: EmbedType | None
+    description: str | None
+    url: str | None
+    timestamp: str | None
+    color: intColor | None
+    footer: EmbedFooterPayload | None
+    image: EmbedImagePayload | None
+    thumbnail: EmbedThumbnailPayload | None
+    video: EmbedVideoPayload | None
+    provider: EmbedProviderPayload | None
+    author: EmbedAuthorPayload | None
+    fields: list[EmbedFieldPayload] | None
+
+class EmojiPayload(TypedDict):
+    id: int
+    name: str | None
+    roles: list[RolePayload.id] | None
+    user: UserPayload | None
+    require_colons: bool | None
+    managed: bool | None
+    animated: bool | None
+    available: bool | None
 
 class ReactionPayload(TypedDict):
-    pass
+    count: int
+    me: bool
+    emoji: EmojiPayload
 
 class MessageActivityPayload(TypedDict):
-    pass
+    type: MessageActivityType
+    party_id: str | None
 
 class ApplicationPayload(TypedDict):
     pass

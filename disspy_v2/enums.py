@@ -132,6 +132,20 @@ class NitroPremiumType:
     nitro = 2
     nitro_basic = 3
 
+class EmbedType:
+    rich = 'rich'
+    image = 'image'
+    video = 'video'
+    gifv = 'gifv'
+    article = 'article'
+    link = 'link'
+
+class MessageActivityType:
+    join = 1
+    spectate = 2
+    listen = 3
+    join_request = 5
+
 # public
 class TextInputStyle:
     short = 1
