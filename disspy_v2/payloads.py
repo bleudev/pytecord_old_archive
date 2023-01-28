@@ -9,7 +9,9 @@ from disspy_v2.enums import (
     UserFlags,
     NitroPremiumType,
     EmbedType,
-    MessageActivityType
+    MessageActivityType,
+    TeamMemberMembershipState,
+    ApplicationFlags,
 )
 
 # Fixing bugs :)
@@ -189,8 +191,42 @@ class MessageActivityPayload(TypedDict):
     type: MessageActivityType
     party_id: str | None
 
+class TeamMemberPayload(TypedDict):
+    membership_state: TeamMemberMembershipState
+    permissions: list[str]
+    team_id: int
+    user: UserPayload
+
+class TeamPayload(TypedDict):
+    icon: hashStr | None
+    id: int
+    members: list[TeamMemberPayload]
+    name: str
+    owner_user_id: int
+
 class ApplicationPayload(TypedDict):
-    pass
+    id: int
+    name: str
+    icon: hashStr | None
+    description: str
+    rpc_origins: list[str] | None
+    bot_public: bool
+    bot_require_code_grant: bool
+    terms_of_service_url: str | None
+    privacy_policy_url: str | None
+    owner: UserPayload
+    summary: str # Soon will be removed in v11!
+    verify_key: str
+    team: TeamPayload | None
+    guild_id: int | None
+    primary_sku_id: int | None
+    slug: str | None
+    cover_image: hashStr | None
+    flags: ApplicationFlags | None
+    tags?	array of strings	up to 5 tags describing the content and functionality of the application
+    install_params?	install params object	settings for the application's default in-app authorization link, if enabled
+    custom_install_url?	string	the application's default custom authorization link, if enabled
+    role_connections_verification_url?	string
 
 class MessageReferencePayload(TypedDict):
     pass

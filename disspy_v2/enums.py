@@ -146,6 +146,21 @@ class MessageActivityType:
     listen = 3
     join_request = 5
 
+class TeamMemberMembershipState:
+    invited = 1
+    accepted = 2
+
+class ApplicationFlags:
+    gateway_presence = 1 << 12
+    gateway_presence_limited = 1 << 13
+    gateway_guild_members = 1 << 14
+    gateway_guild_members_limited = 1 << 15
+    verification_pending_guild_limit = 1 << 16
+    embedded = 1 << 17
+    gateway_message_content = 1 << 18
+    gateway_message_content_limited = 1 << 19
+    application_command_badge = 1 << 23
+
 # public
 class TextInputStyle:
     short = 1
