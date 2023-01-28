@@ -17,10 +17,15 @@ from disspy_v2.enums import (
     ChannelFlags,
     GuildForumSortOrderType,
     GuildForumLayoutType,
+    VideoQualityMode,
+    ComponentType,
+    ButtonStyle,
+    TextInputStyle
 )
 
 # Fixing bugs :)
 _this = NewType('this', type)
+_MessageComponentPayload = NewType('MessageComponentPayload', type)
 
 # Typing
 hashStr = NewType('hashStr', str)
@@ -312,7 +317,7 @@ class ChannelPayload(TypedDict):
     parent_id: int | None
     last_pin_timestamp: iso8601_timestamp | None
     rtc_region: str | None
-    video_quality_mode: int | None
+    video_quality_mode: VideoQualityMode | None
     message_count: int | None
     member_count: int | None
     thread_metadata: ThreadMetadataPayload | None
@@ -328,8 +333,67 @@ class ChannelPayload(TypedDict):
     default_sort_order: GuildForumSortOrderType | None
     default_forum_layout: GuildForumLayoutType | None
 
+# Message components
+class ActionRowPayload(TypedDict):
+    type: Literal[1]
+    components: list[_MessageComponentPayload]
+
+class ButtonPayload(TypedDict):
+    type: Literal[2]
+    style: ButtonStyle
+    label: str | None
+    emoji: EmojiPayload | None
+    custom_id: str | None
+    url: str | None
+    disabled: bool | None
+
+class SelectOptionPayload(TypedDict):
+    label: str
+    value: str
+    description: str | None
+    emoji: EmojiPayload | None
+    default: bool | None
+
+class SelectMenuPayload(TypedDict):
+    type: Literal[3, 5, 6, 7, 8]
+    custom_id: str
+    options: list[SelectOptionPayload] | None
+    channel_types: list[ChannelType] | None
+    placeholder: str | None
+    min_values: int | None
+    max_values: int | None
+    disabled: bool | None
+
+class TextInputPayload(TypedDict):
+    type: Literal[4]
+    custom_id: str
+    style: TextInputStyle
+    label: str
+    min_length: int | None
+    max_length: int | None
+    required: bool | None
+    value: str | None
+    placeholder: str | None
+#
+
 class MessageComponentPayload(TypedDict):
-    pass
+    type: ComponentType
+    components: list[_this]
+    style: ButtonStyle | TextInputStyle | None
+    label: str | None
+    emoji: EmojiPayload | None
+    custom_id: str | None
+    url: str | None
+    disabled: bool | None
+    options: list[SelectOptionPayload] | None
+    channel_types: list[ChannelType] | None
+    placeholder: str | None
+    min_values: int | None
+    max_values: int | None
+    min_length: int | None
+    max_length: int | None
+    required: bool | None
+    value: str | None
 
 class MessageStickerItemPayload(TypedDict):
     pass

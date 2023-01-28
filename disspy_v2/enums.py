@@ -135,6 +135,17 @@ class GuildForumLayoutType:
     list_view = 1
     gallery_view = 2
 
+class VideoQualityMode:
+    auto = 1
+    full = 2
+
+class ButtonStyle:
+    primary = 1
+    secondary = 2
+    success = 3
+    danger = 4
+    link = 5
+
 # Flags
 class MessageFlags:
     crossposted = 1 << 0
