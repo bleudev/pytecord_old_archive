@@ -28,6 +28,7 @@ from disspy_v2.enums import (
 # Fixing bugs :)
 _this = NewType('this', type)
 _MessageComponentPayload = NewType('MessageComponentPayload', type)
+_StickerPayload = NewType('StickerPayload', type)
 
 # Typing
 hashStr = NewType('hashStr', str)
@@ -403,13 +404,13 @@ class MessageStickerItemPayload(TypedDict):
     format_type: StickerFormatType
 
 class StickerPackPayload(TypedDict):
-    id	snowflake	id of the sticker pack
-    stickers	array of sticker objects	the stickers in the pack
-    name	string	name of the sticker pack
-    sku_id	snowflake	id of the pack's SKU
-    cover_sticker_id?	snowflake	id of a sticker in the pack which is shown as the pack's icon
-    description	string	description of the sticker pack
-    banner_asset_id?	snowflake
+    id: int
+    stickers: list[_StickerPayload]
+    name: str
+    sku_id: int
+    cover_sticker_id: int | None
+    description: str
+    banner_asset_id: int | None
 
 class StickerPayload(TypedDict):
     id: int
