@@ -20,7 +20,9 @@ from disspy_v2.enums import (
     VideoQualityMode,
     ComponentType,
     ButtonStyle,
-    TextInputStyle
+    TextInputStyle,
+    StickerType,
+    StickerFormatType,
 )
 
 # Fixing bugs :)
@@ -396,13 +398,38 @@ class MessageComponentPayload(TypedDict):
     value: str | None
 
 class MessageStickerItemPayload(TypedDict):
-    pass
+    id: int
+    name: str
+    format_type: StickerFormatType
+
+class StickerPackPayload(TypedDict):
+    id	snowflake	id of the sticker pack
+    stickers	array of sticker objects	the stickers in the pack
+    name	string	name of the sticker pack
+    sku_id	snowflake	id of the pack's SKU
+    cover_sticker_id?	snowflake	id of a sticker in the pack which is shown as the pack's icon
+    description	string	description of the sticker pack
+    banner_asset_id?	snowflake
 
 class StickerPayload(TypedDict):
-    pass
+    id: int
+    pack_id: StickerPackPayload.id | None
+    name: str
+    description: str | None
+    tags: str
+    asset: str # Deprecated
+    type: StickerType
+    format_type: StickerFormatType
+    available: bool | None
+    guild_id: int | None
+    user: UserPayload | None
+    sort_value: int | None
 
 class RoleSubscriptionData(TypedDict):
-    pass
+    role_subscription_listing_id: int
+    tier_name: str
+    total_months_subscribed: int
+    is_renewal: bool
 
 class MessagePayload(TypedDict):
     id: int

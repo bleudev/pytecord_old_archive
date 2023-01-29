@@ -146,6 +146,16 @@ class ButtonStyle:
     danger = 4
     link = 5
 
+class StickerType:
+    standard = 1
+    guild = 2
+
+class StickerFormatType:
+    png = 1
+    apng = 2
+    lottie = 3
+    gif = 4
+
 # Flags
 class MessageFlags:
     crossposted = 1 << 0
