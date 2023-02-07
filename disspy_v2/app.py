@@ -1,7 +1,9 @@
 from json import dumps
 from disspy_v2 import utils
-from disspy_v2.enums import InteractionType, InteractionCallbackType
+from disspy_v2.enums import InteractionType, InteractionCallbackType, MessageFlags
 from disspy_v2.ui import Modal
+from disspy_v2.route import Route
+
 from aiohttp.client_exceptions import ContentTypeError
 
 class Command:
@@ -57,8 +59,8 @@ class Context:
 
     async def _respond(self, payload: dict):
         _token, _id = self._interaction.token, self._interaction.id
-        _url = f'https://discord.com/api/v10/interactions/{_id}/{_token}/callback'
-        async with self._session.post(_url, data=dumps(payload)) as r:
+        _url = Route(f'/interactions/{_id}/{_token}/callback')
+        async with self._session.post(str(_url), data=dumps(payload)) as r:
             try:
                 return await r.json()
             except ContentTypeError:
@@ -66,10 +68,10 @@ class Context:
 
     async def send_message(self, *strings: list[str], sep: str = ' ', ephemeral: bool = False):
         await self._respond({
-            'type': 4,
+            'type': InteractionCallbackType.channel_message_with_source,
             'data': {
                 'content': str(utils.get_content(*strings, sep=sep)),
-                'flags': 1 << 6 if ephemeral else 0
+                'flags': MessageFlags.ephemeral if ephemeral else 0
             }
         })
 
@@ -87,7 +89,7 @@ class Context:
 
     async def edit_message(self, content: str):
         await self._respond({
-            'type': 7,
+            'type': InteractionCallbackType.update_message,
             'data': {
                 'content': str(content)
             }
@@ -95,9 +97,9 @@ class Context:
 
     async def defer(self):
         await self._respond({
-            'type': 6,
+            'type': InteractionCallbackType.deferred_channel_message_with_source,
             'data': {
-                'flags': 1 << 6
+                'flags': MessageFlags.ephemeral
             }
         })
 
