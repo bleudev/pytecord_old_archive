@@ -189,7 +189,7 @@ class EmbedPayload(TypedDict):
 class EmojiPayload(TypedDict):
     id: int
     name: str | None
-    roles: list[RolePayload.id] | None
+    roles: list[int] | None
     user: UserPayload | None
     require_colons: bool | None
     managed: bool | None
@@ -256,7 +256,7 @@ class GuildMemberPayload(TypedDict):
     user: UserPayload | None
     nick: str | None
     avatar: hashStr | None
-    roles: list[RolePayload.id]
+    roles: list[int]
     joined_at: iso8601_timestamp
     premium_since: iso8601_timestamp | None
     deaf: bool
@@ -330,7 +330,7 @@ class ChannelPayload(TypedDict):
     flags: ChannelFlags | None
     total_message_sent: int | None
     available_tags: list[ForumTagPayload] | None
-    applied_tags: list[ForumTagPayload.id] | None
+    applied_tags: list[int] | None
     default_reaction_emoji: ReactionPayload | None
     default_thread_rate_limit_per_user: int | None
     default_sort_order: GuildForumSortOrderType | None
@@ -414,7 +414,7 @@ class StickerPackPayload(TypedDict):
 
 class StickerPayload(TypedDict):
     id: int
-    pack_id: StickerPackPayload.id | None
+    pack_id: int | None
     name: str
     description: str | None
     tags: str

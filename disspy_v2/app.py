@@ -4,6 +4,8 @@ from disspy_v2.enums import InteractionType, InteractionCallbackType, MessageFla
 from disspy_v2.ui import Modal
 from disspy_v2.route import Route
 
+from asyncio import get_event_loop
+
 class Command:
     def __init__(self, data: dict) -> None:
         self.data = data
@@ -57,12 +59,9 @@ class Context:
 
     async def _respond(self, payload: dict):
         _token, _id = self._interaction.token, self._interaction.id
-        _url = Route('/interactions/%d/%s/callback', _id, _token, method='POST', token=self._token, payload=payload)
-        async with self._session.post(str(_url), data=dumps(payload)) as r:
-            try:
-                return await r.json()
-            except ContentTypeError:
-                return await r.text()
+        route = Route('/interactions/%s/%s/callback', _id, _token, method='POST', token=self._token, payload=payload)
+        j = await route.async_request(self._session, get_event_loop())
+        return j
 
     async def send_message(self, *strings: list[str], sep: str = ' ', ephemeral: bool = False):
         await self._respond({

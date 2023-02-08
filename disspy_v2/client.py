@@ -80,7 +80,7 @@ class Client:
 
             description = getdoc(callable).splitlines()[0]
             params = dict(signature(callable).parameters)
-            option_tuples = [(k, (v.annotation, v.default)) for k, v in params.items()[1:]]
+            option_tuples = [(k, (v.annotation, v.default)) for k, v in list(params.items())[1:]]
             option_jsons = self._get_options(x) if (x := option_tuples) else []
 
             if option_jsons:

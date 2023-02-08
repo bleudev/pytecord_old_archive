@@ -38,7 +38,7 @@ class Message:
 
         token = utils.get_token_from_auth(session.headers)
         channel_json  = Route(
-            '/channels/%d', self.channel_id,
+            '/channels/%s', self.channel_id,
             method='GET',
             token=token
         ).request()[0]
@@ -55,7 +55,7 @@ class Message:
             }
         }
         route = Route(
-            '/channels/%d/messages', self.channel_id,
+            '/channels/%s/messages', self.channel_id,
             method='POST',
             payload=payload
         )
@@ -88,7 +88,7 @@ class Channel:
             'content': str(utils.get_content(*strings, sep=sep))
         }
         route = Route(
-            '/channels/%d/messages', self.id,
+            '/channels/%s/messages', self.id,
             method='POST',
             payload=payload
         )

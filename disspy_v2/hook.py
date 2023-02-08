@@ -1,4 +1,4 @@
-from asyncio import wait as async_wait
+from asyncio import gather, create_task
 from asyncio import sleep as async_sleep
 
 from datetime import datetime
@@ -90,12 +90,11 @@ class Hook:
 
             await self._identify()
 
-            await async_wait(
-                fs=[
-                    self._life(interval),
-                    self._events(),
-                ]
-            )
+            tasks = [
+                create_task(self._life(interval)),
+                create_task(self._events()),
+            ]
+            await gather(*tasks)
 
     def _debuging(self, data: dict):
         if self._debug:
@@ -155,7 +154,7 @@ class Hook:
                         option_values = {}
                         if event.data['data'].get('options', None):
                             option_jsons = event.data['data']['options']
-                            resolved = event.data['data']['resolved']
+                            resolved = event.data['data'].get('resolved')
                             
                             for option_json in option_jsons:
                                 _type = option_json['type']
