@@ -10,6 +10,7 @@ from disspy_v2.connection import Connection
 from disspy_v2.listener import Listener
 from disspy_v2.profiles import User
 from disspy_v2.enums import ApplicationCommandOptionType, ApplicationCommandType
+from sys import exit as sys_exit
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
 
@@ -44,7 +45,10 @@ class Client:
         self._resolve_options(**options)
 
     def run(self, **options):
-        async_run(self._conn.run(self._listener, self._app, intents=self._intents, **options))
+        try:
+            async_run(self._conn.run(self._listener, self._app, intents=self._intents, **options))
+        except KeyboardInterrupt:
+            sys_exit(1)
 
     def _get_options(self, option_tuples: list[tuple[str, tuple[type, Any]]]) -> list[dict]:
         option_jsons = []
