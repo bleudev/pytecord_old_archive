@@ -44,6 +44,9 @@ class Message:
         ).request()[0]
         self.channel = Channel(session, **channel_json)
 
+    def __str__(self) -> str:
+        return self.content
+
     async def reply(self, content: str):
         payload = {
             'content': content,
