@@ -48,7 +48,7 @@ class Route:
         self.endpoint = endpoint % params
         self.url = BASE + self.endpoint
         self.method = method
-        self.hdrs = utils.auth(token)
+        self.hdrs = utils.auth(token) if token else None
         self.data = payload
 
     def request(self) -> _HTTPRequestResult:
