@@ -39,15 +39,21 @@ class Hook:
         self._user_id = None
         self._app_client = None
 
+    def _debuging(self, data: dict):
+        if self._debug:
+            print(utils.get_hook_debug_message(data))
+
     async def _get(self) -> dict:
         try:
             j = await self._ws.receive_json()
+            self._debuging(j)
+            return j
         except TypeError:
             return
-        return j
 
     async def _send(self, data: dict) -> dict:
         await self._ws.send_json(data)
+        self._debuging(data)
         return data
 
     async def _identify(self) -> dict:
@@ -86,133 +92,118 @@ class Hook:
             self._ws = _ws
 
             data = await self._get()
-            interval = data["d"]["heartbeat_interval"] / 1000
-
             await self._identify()
 
-            tasks = [
-                create_task(self._life(interval)),
-                create_task(self._events()),
-            ]
-            await gather(*tasks)
-
-    def _debuging(self, data: dict):
-        if self._debug:
-            mes = utils.get_hook_debug_message(data)
-            print(mes)
+            await gather(
+                create_task(self._life(data['d']['heartbeat_interval'] / 1000)),
+                create_task(self._events())
+            )
 
     async def _register_app_commands(self, app_id):
-        command_jsons = []
         for i in self._app_client.commands:
-            command_jsons.append(i.eval())
-        url = f'https://discord.com/api/v10//applications/{app_id}/commands'
-        for c in command_jsons:
-            async with self._session.post(url, data=dumps(c)) as r:
-                j = await r.json()
-                if self._debug:
-                    print('POST |', j)
+            await self._session.post(
+                f'https://discord.com/api/v10//applications/{app_id}/commands',
+                json=i.eval()
+            )
 
     async def _life(self, interval):
         while True:
-            j = {"op": 1, "d": None, "t": None}
-            await self._send(j)
-
-            self._debuging(j)
+            await self._send({"op": 1, "d": None, "t": None})
 
             await async_sleep(interval)
 
     async def _events(self):
         while True:
-            _data = await self._get()
-            
-            if _data:
-                event = _Gateway_Event(**_data)
+            if x := await self._get():
+                event = _Gateway_Event(**x)
             else:
                 continue
-            self._debuging(_data)
 
-            if event.type == 'READY':
-                self._user_id = event.data['user']['id']
+            match event.type:
+                case 'READY':
+                    self._user_id = event.data['user']['id']
+                    await self._register_app_commands(event.data['application']['id'])
+                    await self._listener.invoke_event('ready')
+                case 'MESSAGE_CREATE' | 'MESSAGE_UPDATE':
+                    if event.data['author']['id'] != self._user_id:
+                        message = Message(self._session, **event.data)
+                        await self._listener.invoke_event('message', message)
+                case 'MESSAGE_DELETE':
+                    raw_message = RawMessage(self._session, **event.data)
+                    await self._listener.invoke_event('message_delete', raw_message)
+                case 'INTERACTION_CREATE':
+                    ctx = Context(event.data, self.token, self._session, self)
 
-                await self._register_app_commands(event.data['application']['id'])
+                    interaction_type = event.data['type']
 
-                await self._listener.invoke_event('ready')
-            if event.type in ['MESSAGE_CREATE', 'MESSAGE_UPDATE']:
-                message_data = event.data
+                    if interaction_type is InteractionType.application_command:    
+                        command_data = event.data['data']
+                        command_type = command_data['type']
+                        command_name = command_data['name']
 
-                if message_data['author']['id'] != self._user_id:
-                    message = Message(self._session, **message_data)
-                    await self._listener.invoke_event('message', message)
-            if event.type == 'MESSAGE_DELETE':
-                raw_message = RawMessage(self._session, **event.data)
-                await self._listener.invoke_event('message_delete', raw_message)
-            if event.type == 'INTERACTION_CREATE':
-                ctx = Context(event.data, self.token, self._session, self)
+                        if command_type is ApplicationCommandType.chat_input:
+                            option_values = {}
+                            if event.data['data'].get('options', None):
+                                option_jsons = command_data['options']
+                                resolved = command_data.get('resolved')
+                                
+                                for option_json in option_jsons:
+                                    _type = option_json['type']
+                                    if _type in [6, 7]:
+                                        target_id = option_json['value']
+                                        
+                                        resolved_types = {
+                                            6: 'users',
+                                            7: 'channels'
+                                        }
+                                        resolved_data = resolved[resolved_types[_type]][target_id]
 
-                if event.data['type'] == InteractionType.application_command:
-                    if event.data['data']['type'] == ApplicationCommandType.chat_input:
-                        option_values = {}
-                        if event.data['data'].get('options', None):
-                            option_jsons = event.data['data']['options']
-                            resolved = event.data['data'].get('resolved')
-                            
-                            for option_json in option_jsons:
-                                _type = option_json['type']
-                                if _type in [6, 7]:
-                                    target_id = option_json['value']
-                                    
-                                    resolved_types = {
-                                        6: 'users',
-                                        7: 'channels'
-                                    }
-                                    resolved_data = resolved[resolved_types[_type]][target_id]
+                                        _types = {
+                                            6: User,
+                                            7: Channel
+                                        }
+                                        
+                                        option_values.setdefault(
+                                            option_json['name'],
+                                            _types[_type](self._session, **resolved_data)
+                                        )
+                                    else:
+                                        option_values.setdefault(
+                                            option_json['name'],
+                                            option_json['value']
+                                        )
 
-                                    _types = {
-                                        6: User,
-                                        7: Channel
-                                    }
-                                    
-                                    option_values.setdefault(
-                                        option_json['name'],
-                                        _types[_type](self._session, **resolved_data)
-                                    )
-                                else:
-                                    option_values.setdefault(
-                                        option_json['name'],
-                                        option_json['value']
-                                    )
-
-                        if option_values:
-                            await self._app_client.invoke_command(event.data['data']['name'], event.data['data']['type'], ctx, **option_values)
+                            if option_values:
+                                await self._app_client.invoke_command(command_name, command_type, ctx, **option_values)
+                            else:
+                                await self._app_client.invoke_command(command_name, command_type, ctx)
                         else:
-                            await self._app_client.invoke_command(event.data['data']['name'], event.data['data']['type'], ctx)
-                    else:
-                        _data = event.data['data']
-                        _type = _data['type']
-                        resolved = None
-                        target_id = _data['target_id']
-                        if _type == 2: # Users
-                            _resolved_data = _data['resolved']['users'][target_id]
-                            resolved = User(self._session, **_resolved_data)
-                        elif _type == 3: # Message
-                            _resolved_data = _data['resolved']['messages'][target_id]
-                            resolved = Message(self._session, **_resolved_data)
-                        await self._app_client.invoke_command(_data['name'], _type, ctx, resolved)
-                elif event.data['type'] == InteractionType.modal_submit:
-                    _data = event.data['data']
-                    inputs_values = {}
+                            resolved_data = command_data['resolved']
+                            target_id = command_data['target_id']
 
-                    for i in _data['components']:
-                        text_input = i['components'][0]
+                            if command_type is ApplicationCommandType.user:
+                                resolved = User(self._session, **resolved_data['users'][target_id])
+                            elif command_type is ApplicationCommandType.message:
+                                resolved = Message(self._session, **resolved_data['messages'][target_id])
+                            await self._app_client.invoke_command(command_name, command_type, ctx, resolved)
+                    elif interaction_type == InteractionType.modal_submit:
+                        submit_data = event.data['data']
+                        inputs_values = {}
 
-                        if text_input['value']:
-                            inputs_values.setdefault(
-                                text_input['custom_id'],
-                                text_input['value']
-                            )
+                        for i in submit_data['components']:
+                            text_input = i['components'][0]
 
-                    await self._app_client.invoke_modal_submit(
-                        _data['custom_id'],
-                        ctx,
-                        **inputs_values
-                    )
+                            if text_input['value']:
+                                inputs_values.setdefault(
+                                    text_input['custom_id'],
+                                    text_input['value']
+                                )
+
+                        await self._app_client.invoke_modal_submit(
+                            submit_data['custom_id'],
+                            ctx,
+                            **inputs_values
+                        )
+                case _:
+                    if self._debug:
+                        print(f'Unknown {event.type} event type!')
