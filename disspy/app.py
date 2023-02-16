@@ -27,7 +27,7 @@ class ContextMenu:
         return self.data
 
 CT = TypeVar('CT', Command, ContextMenu)
-MT = TypeVar('MT', Modal)
+MT = TypeVar('MT', bound=Modal)
 
 class AppClient:
     def __init__(self) -> None:
