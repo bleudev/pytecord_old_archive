@@ -11,15 +11,7 @@ assignees: ''
 
 Type here
 
-**Ideal solution**
-```python
+**Solution**
+```py
 # Type here your ideal code
 ```
-**Not ideal solution**
-```python
-# Type here your not ideal code
-```
-**Checklist**
-- [ ] 1 step
-- [ ] 2 step
-- [ ] 3 step

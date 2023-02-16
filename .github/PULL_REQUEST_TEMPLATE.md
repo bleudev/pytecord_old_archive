@@ -1,16 +1,13 @@
-**Description of problem**
+## Description of problem
 
 Type here mini description
 
-**For what part of library?**
+## For what part of library?
 
-1. disspy
-2. The documentation
+[ ] disspy
+[ ] The documentation
 
-*Just select your variant*
+## Checklist
 
-**Checklist of changes**
-
-- [x] 1 step
-- [x] 2 step
-- [ ] 3 step
+[ ] 1 step
+[x] 2 step

@@ -11,7 +11,7 @@ assignees: ''
 Type Here
 
 **Your code**
-```python
+```py
 # Your code
 ```
 
