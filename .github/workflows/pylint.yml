@@ -9,6 +9,8 @@ on:
   pull_request:
     paths:
       - '**.py'
+      - '.github/*'
+      - 'requirements.txt'
     branches:
       - master
 
