@@ -4,14 +4,14 @@ on:
   push:
     paths:
       - '**.py'
-      - '.github/*'
+      - '.github/workflows/**'
       - 'requirements.txt'
     branches:
       - master
   pull_request:
     paths:
       - '**.py'
-      - '.github/*'
+      - '.github/workflows/**'
       - 'requirements.txt'
     branches:
       - master
