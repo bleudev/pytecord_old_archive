@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - '**.py'
+      - '.github/*'
+      - 'requirements.txt'
     branches:
       - master
   pull_request:
