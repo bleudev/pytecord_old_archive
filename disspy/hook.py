@@ -15,10 +15,10 @@ gateway_version = 10
 
 @dataclass
 class _GatewayEvent:
-    op: int
-    d: dict = field(default_factory=dict)
-    s: int = 0
-    t: str = 'NONE'
+    op: int # pylint: disable=invalid-name
+    d: dict = field(default_factory=dict) # pylint: disable=invalid-name
+    s: int = 0 # pylint: disable=invalid-name
+    t: str = 'NONE' # pylint: disable=invalid-name
 
 class Hook:
     def __init__(self, *, token: str, **options) -> None:
