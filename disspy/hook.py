@@ -4,7 +4,7 @@ from asyncio import sleep as async_sleep
 from datetime import datetime
 from time import mktime
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from disspy.listener import Listener
 from disspy.channel import Message, RawMessage, Channel
@@ -18,7 +18,7 @@ gateway_version = 10
 @dataclass
 class _GatewayEvent:
     op: int
-    d: dict = {}
+    d: dict = field(default_factory=dict)
     s: int = 0
     t: str = 'NONE'
 
