@@ -1,11 +1,10 @@
-from disspy import utils
-from disspy.enums import InteractionType, InteractionCallbackType, MessageFlags
-from disspy.ui import Modal
-from disspy.route import Route
-
-from typing import Callable, Coroutine, Any, TypeVar, TYPE_CHECKING
-
 from asyncio import get_event_loop
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
+
+from disspy import utils
+from disspy.enums import InteractionCallbackType, InteractionType, MessageFlags
+from disspy.route import Route
+from disspy.ui import Modal
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession

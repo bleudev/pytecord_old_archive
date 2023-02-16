@@ -1,5 +1,6 @@
 from disspy.enums import GatewayOpcode
 
+
 def auth(token: str):
     return {
         'Authorization': f'Bot {token}',

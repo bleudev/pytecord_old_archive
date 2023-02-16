@@ -4,16 +4,15 @@ Json dict payloads like objects in discord API
 
 from typing import Literal, NewType, TypedDict
 
-from disspy.enums import (ApplicationCommandOptionType,
-                             ApplicationCommandType, ApplicationFlags,
-                             ButtonStyle, ChannelFlags, ChannelType,
-                             ComponentType, EmbedType, GuildForumLayoutType,
-                             GuildForumSortOrderType, InteractionType,
-                             MessageActivityType, MessageFlags, MessageType,
-                             NitroPremiumType, OverwriteType,
-                             StickerFormatType, StickerType,
-                             TeamMemberMembershipState, TextInputStyle,
-                             UserFlags, VideoQualityMode)
+from disspy.enums import (ApplicationCommandOptionType, ApplicationCommandType,
+                          ApplicationFlags, ButtonStyle, ChannelFlags,
+                          ChannelType, ComponentType, EmbedType,
+                          GuildForumLayoutType, GuildForumSortOrderType,
+                          InteractionType, MessageActivityType, MessageFlags,
+                          MessageType, NitroPremiumType, OverwriteType,
+                          StickerFormatType, StickerType,
+                          TeamMemberMembershipState, TextInputStyle, UserFlags,
+                          VideoQualityMode)
 
 # Fixing bugs :)
 _this = NewType('this', type)

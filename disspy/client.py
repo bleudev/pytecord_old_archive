@@ -1,16 +1,16 @@
 from asyncio import run as async_run
 from inspect import _empty, getdoc, signature
-from typing import Callable, Coroutine, Any
+from sys import exit as sys_exit
+from typing import Any, Callable, Coroutine
 
 from regex import fullmatch
 
 from disspy.app import AppClient, Command, ContextMenu
 from disspy.channel import Channel, Message
 from disspy.connection import Connection
+from disspy.enums import ApplicationCommandOptionType, ApplicationCommandType
 from disspy.listener import Listener
 from disspy.profiles import User
-from disspy.enums import ApplicationCommandOptionType, ApplicationCommandType
-from sys import exit as sys_exit
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
 

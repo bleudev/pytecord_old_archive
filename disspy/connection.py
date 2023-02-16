@@ -1,5 +1,7 @@
-from disspy.hook import Hook
 from aiohttp import ClientSession
+
+from disspy.hook import Hook
+
 
 class Connection:
     def __init__(self, *, token: str, **options) -> None:

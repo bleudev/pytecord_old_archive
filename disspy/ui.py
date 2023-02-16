@@ -1,5 +1,7 @@
+from typing import Callable, Iterable
+
 from disspy.enums import ComponentType, TextInputStyle
-from typing import Iterable, Callable
+
 
 class TextInput:
     def _check_len(self, value: str | int, min: int, max: int):
