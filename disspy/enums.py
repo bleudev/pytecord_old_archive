@@ -1,11 +1,11 @@
-class InteractionType:
+class InteractionType: # pylint: disable=too-few-public-methods
     ping = 1
     application_command = 2
     message_component = 3
     application_command_autocomplete = 4
     modal_submit = 5
 
-class InteractionCallbackType:
+class InteractionCallbackType: # pylint: disable=too-few-public-methods
     pong = 1
     channel_message_with_source = 4
     deferred_channel_message_with_source = 5
@@ -14,7 +14,7 @@ class InteractionCallbackType:
     application_command_autocomplete_result = 8
     modal = 9
 
-class ComponentType:
+class ComponentType: # pylint: disable=too-few-public-methods
     action_row = 1
     button = 2
     string_select = 3
@@ -24,12 +24,12 @@ class ComponentType:
     mentionable_select = 7
     channel_select = 8
 
-class ApplicationCommandType:
+class ApplicationCommandType: # pylint: disable=too-few-public-methods
     chat_input = 1
     user = 2
     message = 3
 
-class ApplicationCommandOptionType:
+class ApplicationCommandOptionType: # pylint: disable=too-few-public-methods
     sub_command = 1
     sub_command_group = 2
     string = 3
@@ -42,7 +42,7 @@ class ApplicationCommandOptionType:
     number = 10
     attachment = 11
 
-class ChannelType:
+class ChannelType: # pylint: disable=too-few-public-methods
     guild_text = 0
     dm = 1
     guild_voice = 2
@@ -56,7 +56,7 @@ class ChannelType:
     guild_directory = 14
     guild_forum = 15
 
-class MessageType:
+class MessageType: # pylint: disable=too-few-public-methods
     default = 0
     recipient_add = 1
     recipient_remove = 2
@@ -85,7 +85,7 @@ class MessageType:
     interaction_premium_upsell = 26
     guild_application_premium_subscription = 32
 
-class GatewayOpcode:
+class GatewayOpcode: # pylint: disable=too-few-public-methods
     dispatch = 0
     heartbeat = 1
     identify = 2
@@ -98,13 +98,13 @@ class GatewayOpcode:
     hello = 10
     heartbeat_ack = 11
 
-class NitroPremiumType:
+class NitroPremiumType: # pylint: disable=too-few-public-methods
     none = 0
     nitro_classic = 1
     nitro = 2
     nitro_basic = 3
 
-class EmbedType:
+class EmbedType: # pylint: disable=too-few-public-methods
     rich = 'rich'
     image = 'image'
     video = 'video'
@@ -112,52 +112,52 @@ class EmbedType:
     article = 'article'
     link = 'link'
 
-class MessageActivityType:
+class MessageActivityType: # pylint: disable=too-few-public-methods
     join = 1
     spectate = 2
     listen = 3
     join_request = 5
 
-class TeamMemberMembershipState:
+class TeamMemberMembershipState: # pylint: disable=too-few-public-methods
     invited = 1
     accepted = 2
 
-class OverwriteType:
+class OverwriteType: # pylint: disable=too-few-public-methods
     role = 0
     member = 1
 
-class GuildForumSortOrderType:
+class GuildForumSortOrderType: # pylint: disable=too-few-public-methods
     latest_activity = 0
     creation_date = 1
 
-class GuildForumLayoutType:
+class GuildForumLayoutType: # pylint: disable=too-few-public-methods
     not_set = 0
     list_view = 1
     gallery_view = 2
 
-class VideoQualityMode:
+class VideoQualityMode: # pylint: disable=too-few-public-methods
     auto = 1
     full = 2
 
-class ButtonStyle:
+class ButtonStyle: # pylint: disable=too-few-public-methods
     primary = 1
     secondary = 2
     success = 3
     danger = 4
     link = 5
 
-class StickerType:
+class StickerType: # pylint: disable=too-few-public-methods
     standard = 1
     guild = 2
 
-class StickerFormatType:
+class StickerFormatType: # pylint: disable=too-few-public-methods
     png = 1
     apng = 2
     lottie = 3
     gif = 4
 
 # Flags
-class MessageFlags:
+class MessageFlags: # pylint: disable=too-few-public-methods
     crossposted = 1 << 0
     is_crosspost = 1 << 1
     suppress_embeds = 1 << 2
@@ -168,7 +168,7 @@ class MessageFlags:
     loading = 1 << 7
     failed_to_mention_some_roles_in_thread = 1 << 8
 
-class UserFlags:
+class UserFlags: # pylint: disable=too-few-public-methods
     staff = 1 << 0
     partner = 1 << 1
     hypesquad = 1 << 2
@@ -185,7 +185,7 @@ class UserFlags:
     bot_http_interactions = 1 << 19
     active_developer = 1 << 22
 
-class ApplicationFlags:
+class ApplicationFlags: # pylint: disable=too-few-public-methods
     gateway_presence = 1 << 12
     gateway_presence_limited = 1 << 13
     gateway_guild_members = 1 << 14
@@ -196,11 +196,11 @@ class ApplicationFlags:
     gateway_message_content_limited = 1 << 19
     application_command_badge = 1 << 23
 
-class ChannelFlags:
+class ChannelFlags: # pylint: disable=too-few-public-methods
     pinned = 1 << 1
     require_tag = 1 << 4
 
 # public
-class TextInputStyle:
+class TextInputStyle: # pylint: disable=too-few-public-methods
     short = 1
     paragraph = 2
