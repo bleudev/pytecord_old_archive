@@ -1,97 +1,32 @@
-"""
-MIT License
+from disspy_v2.enums import GatewayOpcode
 
-Copyright (c) 2022 itttgg
+def auth(token: str):
+    return {
+        'Authorization': f'Bot {token}',
+        'content-type': 'application/json',
+    }
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+def get_token_from_auth(hdrs: dict):
+    return hdrs['Authorization'].split(' ')[1]
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+def get_content(*args, sep):
+    result = ''
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
-
-from typing import (
-    Protocol,
-    List
-)
-
-class TypedOf(Protocol):
-    def __type__(self) -> type: ...
-    def __values__(self) -> list: ...
-
-def dict_to_tuples(__dict: dict) -> List[tuple]:
-    """dict_to_tuples
-    Dict to lists of tuples in format (key, value)
-
-    Args:
-        __dict (dict): Original dict
-
-    Returns:
-        List[tuple]: List of tuples (key, value)
-    """
-    keys = list(__dict.keys())
-    values = list(__dict.values())
-
-    result = [(key, values[keys.index(key)]) for key in keys]
+    for i in args:
+        result += (str(i) + sep)
+    result = result.removesuffix(sep)
 
     return result
 
-def _type_check(__o: object, __t: type) -> bool:
-    check = isinstance(__o, __t)
+def get_hook_debug_message(data: dict) -> str:
+    t, s, op, d = data.get('t'), data.get('s'), data.get('op'), data.get('d')
+    res = f'S{s if s else 0} '
 
-    if not check:
-        raise TypeError(f'Expected {__t}: Got {type(__o)}')
+    if op == GatewayOpcode.dispatch:
+        res += f'{t}'
+    else:
+        res += f'OP{op}'
 
-    return check
-
-def _type_of(__o: object, __t: TypedOf) -> bool:
-    check = __o in __t().__values__()
-
-    if not check:
-        raise ValueError(f'Expected type of {__t}: Got {__o}')
-
-    return check
-
-NoneType = type(None)
-
-def optional(__t: type) -> tuple:
-    """optional
-    Get tuple with __t and NoneType
-
-    Args:
-        __t (type)
-
-    Returns:
-        tuple: (__t, NoneType)
-    """
-    return (__t, NoneType)
-
-def type_check_obj(vls, typ) -> type:
-    """type_check_obj
-    Get type check object
-
-    Args:
-        vls: __values__
-        typ: __type__
-
-    Returns:
-        type
-    """
-    class _Result:
-        def __values__(self):
-            return vls
-        def __type__(self):
-            return typ
-    return _Result
+    if d:
+        res += f' | {str(d)}'
+    return res
