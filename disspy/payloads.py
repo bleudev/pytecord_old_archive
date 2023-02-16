@@ -1,29 +1,19 @@
-from typing import TypedDict, NewType, Literal
+'''
+Json dict payloads like objects in discord API
+'''
 
-from disspy_v2.enums import (
-    ApplicationCommandOptionType,
-    ApplicationCommandType,
-    ChannelType,
-    MessageType,
-    MessageFlags,
-    UserFlags,
-    NitroPremiumType,
-    EmbedType,
-    MessageActivityType,
-    TeamMemberMembershipState,
-    ApplicationFlags,
-    InteractionType,
-    OverwriteType,
-    ChannelFlags,
-    GuildForumSortOrderType,
-    GuildForumLayoutType,
-    VideoQualityMode,
-    ComponentType,
-    ButtonStyle,
-    TextInputStyle,
-    StickerType,
-    StickerFormatType,
-)
+from typing import Literal, NewType, TypedDict
+
+from disspy_v2.enums import (ApplicationCommandOptionType,
+                             ApplicationCommandType, ApplicationFlags,
+                             ButtonStyle, ChannelFlags, ChannelType,
+                             ComponentType, EmbedType, GuildForumLayoutType,
+                             GuildForumSortOrderType, InteractionType,
+                             MessageActivityType, MessageFlags, MessageType,
+                             NitroPremiumType, OverwriteType,
+                             StickerFormatType, StickerType,
+                             TeamMemberMembershipState, TextInputStyle,
+                             UserFlags, VideoQualityMode)
 
 # Fixing bugs :)
 _this = NewType('this', type)
@@ -31,19 +21,25 @@ _MessageComponentPayload = NewType('MessageComponentPayload', type)
 _StickerPayload = NewType('StickerPayload', type)
 
 # Typing
-hashStr = NewType('hashStr', str)
-intColor = NewType('intColor', int)
-localeStr = NewType('localeStr', str)
-bitSet = NewType('bitSet', str)
-unicodeStr = NewType('unicodeStr', str)
-iso8601_timestamp = NewType('iso8601_timestamp', str)
+HashStr = NewType('HashStr', str)
+IntColor = NewType('IntColor', int)
+LocaleStr = NewType('LocaleStr', str)
+BitSet = NewType('BitSet', str)
+UnicodeStr = NewType('UnicodeStr', str)
+Iso8601Timestamp = NewType('Iso8601_timestamp', str)
 
 class ApplicationCommandOptionChoicePayload(TypedDict):
+    '''
+    Application command option choice payload
+    '''
     name: str
     name_localizations: dict[str, str] | None
     value: str | int | float
 
 class ApplicationCommandOptionPayload(TypedDict):
+    '''
+    Application command option payload
+    '''
     type: ApplicationCommandOptionType
     name: str
     name_localizations: dict[str, str] | None
@@ -60,6 +56,9 @@ class ApplicationCommandOptionPayload(TypedDict):
     autocomplete: bool | None
 
 class ApplicationCommandPayload(TypedDict):
+    '''
+    Application command payload
+    '''
     id: int
     type: ApplicationCommandType | None
     application_id: int
@@ -76,16 +75,19 @@ class ApplicationCommandPayload(TypedDict):
     version: int
 
 class UserPayload(TypedDict):
+    '''
+    User payload
+    '''
     id: int
     username: str
     discriminator: str
-    avatar: hashStr | None
+    avatar: HashStr | None
     bot: bool | None
     system: bool | None
     mfa_enabled: bool | None
-    banner: hashStr | None
-    accent_color: intColor | None
-    locale: localeStr
+    banner: HashStr | None
+    accent_color: IntColor | None
+    locale: LocaleStr
     # Needs email Oauth2 scope
     verified: bool | None
     email: str | None
@@ -95,6 +97,9 @@ class UserPayload(TypedDict):
     public_flags: UserFlags | None
 
 class RoleTagsPayload(TypedDict):
+    '''
+    Role tags payload
+    '''
     bot_id: int | None
     integration_id: int | None
     premium_subscriber: bool | None
@@ -103,25 +108,34 @@ class RoleTagsPayload(TypedDict):
     guild_connections: bool | None
 
 class RolePayload(TypedDict):
+    '''
+    Role payload
+    '''
     id: int
     name: str
-    color: intColor
+    color: IntColor
     hoist: bool
-    icon: hashStr | None
-    unicode_emoji: unicodeStr | None
+    icon: HashStr | None
+    unicode_emoji: UnicodeStr | None
     position: int
-    permissions: bitSet
+    permissions: BitSet
     managed: bool
     mentionable: bool
     tags: RoleTagsPayload | None
 
 class ChannelMentionPayload(TypedDict):
+    '''
+    Channel mention payload
+    '''
     id: int
     guild_id: int
     type: ChannelType
     name: str
 
 class AttachmentPayload(TypedDict):
+    '''
+    Attachment payload
+    '''
     id: int
     filename: str
     description: str | None
@@ -134,50 +148,74 @@ class AttachmentPayload(TypedDict):
     ephemeral: bool | None
 
 class EmbedFooterPayload(TypedDict):
+    '''
+    Message embed footer payload
+    '''
     text: str
     icon_url: str | None
     proxy_icon_url: str | None
 
 class EmbedImagePayload(TypedDict):
+    '''
+    Message embed image payload
+    '''
     url: str
     proxy_url: str | None
     height: int | None
     width: int | None
 
 class EmbedThumbnailPayload(TypedDict):
+    '''
+    Message embed thumbnail payload
+    '''
     url: str
     proxy_url: str | None
     height: int | None
     width: int | None
 
 class EmbedVideoPayload(TypedDict):
+    '''
+    Message embed video payload
+    '''
     url: str | None
     proxy_url: str | None
     height: int | None
     width: int | None
 
 class EmbedProviderPayload(TypedDict):
+    '''
+    Message embed provider payload
+    '''
     name: str | None
     url: str | None
 
 class EmbedAuthorPayload(TypedDict):
+    '''
+    Message embed author payload
+    '''
     name: str
     url: str | None
     icon_url: str | None
     proxy_icon_url: str | None
 
 class EmbedFieldPayload(TypedDict):
+    '''
+    Message embed field payload
+    '''
     name: str
     value: str
     inline: bool | None
 
 class EmbedPayload(TypedDict):
+    '''
+    Message embed payload
+    '''
     title: str | None
     type: EmbedType | None
     description: str | None
     url: str | None
-    timestamp: iso8601_timestamp | None
-    color: intColor | None
+    timestamp: Iso8601Timestamp | None
+    color: IntColor | None
     footer: EmbedFooterPayload | None
     image: EmbedImagePayload | None
     thumbnail: EmbedThumbnailPayload | None
@@ -187,6 +225,9 @@ class EmbedPayload(TypedDict):
     fields: list[EmbedFieldPayload] | None
 
 class EmojiPayload(TypedDict):
+    '''
+    Emoji payload
+    '''
     id: int
     name: str | None
     roles: list[int] | None
@@ -197,35 +238,53 @@ class EmojiPayload(TypedDict):
     available: bool | None
 
 class ReactionPayload(TypedDict):
+    '''
+    Message reaction payload
+    '''
     count: int
     me: bool
     emoji: EmojiPayload
 
 class MessageActivityPayload(TypedDict):
+    '''
+    Message activity payload
+    '''
     type: MessageActivityType
     party_id: str | None
 
 class TeamMemberPayload(TypedDict):
+    '''
+    Application team member payload
+    '''
     membership_state: TeamMemberMembershipState
     permissions: list[str]
     team_id: int
     user: UserPayload
 
 class TeamPayload(TypedDict):
-    icon: hashStr | None
+    '''
+    Application team payload
+    '''
+    icon: HashStr | None
     id: int
     members: list[TeamMemberPayload]
     name: str
     owner_user_id: int
 
 class InstallParamsPayload(TypedDict):
+    '''
+    Application install params payload
+    '''
     scopes: list[str]
     permissions: str
 
 class ApplicationPayload(TypedDict):
+    '''
+    Application payload
+    '''
     id: int
     name: str
-    icon: hashStr | None
+    icon: HashStr | None
     description: str
     rpc_origins: list[str] | None
     bot_public: bool
@@ -239,7 +298,7 @@ class ApplicationPayload(TypedDict):
     guild_id: int | None
     primary_sku_id: int | None
     slug: str | None
-    cover_image: hashStr | None
+    cover_image: HashStr | None
     flags: ApplicationFlags | None
     tags: list[str] | None
     install_params: InstallParamsPayload | None
@@ -247,53 +306,74 @@ class ApplicationPayload(TypedDict):
     role_connections_verification_url: str | None
 
 class MessageReferencePayload(TypedDict):
+    '''
+    Message reference payload
+    '''
     message_id: int | None
     channel_id: int | None
     guild_id: int | None
     fail_if_not_exists: bool | None
 
 class GuildMemberPayload(TypedDict):
+    '''
+    Guild member payload
+    '''
     user: UserPayload | None
     nick: str | None
-    avatar: hashStr | None
+    avatar: HashStr | None
     roles: list[int]
-    joined_at: iso8601_timestamp
-    premium_since: iso8601_timestamp | None
+    joined_at: Iso8601Timestamp
+    premium_since: Iso8601Timestamp | None
     deaf: bool
     mute: bool
     pending: bool | None
     permissions: str | None
-    communication_disabled_until: iso8601_timestamp | None
+    communication_disabled_until: Iso8601Timestamp | None
 
 class MessageInteractionPayload(TypedDict):
+    '''
+    Message interaction payload
+    '''
     id: int
     type: InteractionType
     name: str
-    user: UserPayload      
+    user: UserPayload
     member: GuildMemberPayload | None
 
 class OverwritePayload(TypedDict):
+    '''
+    Channel overwrite payload
+    '''
     id: int
     type: OverwriteType
     allow: str
     deny: str
 
 class ThreadMetadataPayload(TypedDict):
+    '''
+    Thread (channel with 10-12 type) metadata payload
+    '''
     archived: bool
     auto_archive_duration: Literal[60, 1440, 4320, 10080]
-    archive_timestamp: iso8601_timestamp
+    archive_timestamp: Iso8601Timestamp
     locked: bool
     invitable: bool | None
-    create_timestamp: iso8601_timestamp | None
+    create_timestamp: Iso8601Timestamp | None
 
 class ThreadMemberPayload(TypedDict):
+    '''
+    Thread (channel with 10-12 type) member payload
+    '''
     id: int | None
     user_id: int | None
-    join_timestamp: iso8601_timestamp
+    join_timestamp: Iso8601Timestamp
     flags: int
     member: GuildMemberPayload | None
 
 class ForumTagPayload(TypedDict):
+    '''
+    Forum (channel with 15 type) tag payload
+    '''
     id: int
     name: str
     moderated: bool
@@ -301,6 +381,9 @@ class ForumTagPayload(TypedDict):
     emoji_name: str | None
 
 class ChannelPayload(TypedDict):
+    '''
+    Channel payload
+    '''
     id: int
     type: ChannelType
     guild_id: int | None
@@ -314,11 +397,11 @@ class ChannelPayload(TypedDict):
     user_limit: int | None
     rate_limit_per_user: int | None
     recipients: list[UserPayload] | None
-    icon: hashStr | None
+    icon: HashStr | None
     owner_id: int | None
     application_id: int | None
     parent_id: int | None
-    last_pin_timestamp: iso8601_timestamp | None
+    last_pin_timestamp: Iso8601Timestamp | None
     rtc_region: str | None
     video_quality_mode: VideoQualityMode | None
     message_count: int | None
@@ -338,10 +421,16 @@ class ChannelPayload(TypedDict):
 
 # Message components
 class ActionRowPayload(TypedDict):
+    '''
+    Action row component payload
+    '''
     type: Literal[1]
     components: list[_MessageComponentPayload]
 
 class ButtonPayload(TypedDict):
+    '''
+    Button component payload
+    '''
     type: Literal[2]
     style: ButtonStyle
     label: str | None
@@ -351,6 +440,9 @@ class ButtonPayload(TypedDict):
     disabled: bool | None
 
 class SelectOptionPayload(TypedDict):
+    '''
+    Select menu option payload
+    '''
     label: str
     value: str
     description: str | None
@@ -358,6 +450,9 @@ class SelectOptionPayload(TypedDict):
     default: bool | None
 
 class SelectMenuPayload(TypedDict):
+    '''
+    Select menu component payload
+    '''
     type: Literal[3, 5, 6, 7, 8]
     custom_id: str
     options: list[SelectOptionPayload] | None
@@ -368,6 +463,9 @@ class SelectMenuPayload(TypedDict):
     disabled: bool | None
 
 class TextInputPayload(TypedDict):
+    '''
+    Text input component payload
+    '''
     type: Literal[4]
     custom_id: str
     style: TextInputStyle
@@ -377,9 +475,12 @@ class TextInputPayload(TypedDict):
     required: bool | None
     value: str | None
     placeholder: str | None
-#
+# # # # # #
 
 class MessageComponentPayload(TypedDict):
+    '''
+    Message component payload
+    '''
     type: ComponentType
     components: list[_this]
     style: ButtonStyle | TextInputStyle | None
@@ -399,11 +500,17 @@ class MessageComponentPayload(TypedDict):
     value: str | None
 
 class MessageStickerItemPayload(TypedDict):
+    '''
+    Message sticker item payload
+    '''
     id: int
     name: str
     format_type: StickerFormatType
 
 class StickerPackPayload(TypedDict):
+    '''
+    Message sticker pack payload
+    '''
     id: int
     stickers: list[_StickerPayload]
     name: str
@@ -413,6 +520,9 @@ class StickerPackPayload(TypedDict):
     banner_asset_id: int | None
 
 class StickerPayload(TypedDict):
+    '''
+    Message sticker payload
+    '''
     id: int
     pack_id: int | None
     name: str
@@ -427,18 +537,24 @@ class StickerPayload(TypedDict):
     sort_value: int | None
 
 class RoleSubscriptionData(TypedDict):
+    '''
+    Role subscription data in message
+    '''
     role_subscription_listing_id: int
     tier_name: str
     total_months_subscribed: int
     is_renewal: bool
 
 class MessagePayload(TypedDict):
+    '''
+    Channel message payload
+    '''
     id: int
     channel_id: int
     author: UserPayload
     content: str | None
-    timestamp: iso8601_timestamp
-    edited_timestamp: iso8601_timestamp | None
+    timestamp: Iso8601Timestamp
+    edited_timestamp: Iso8601Timestamp | None
     tts: bool
     mention_everyone: bool
     mentions: list[UserPayload] | None
