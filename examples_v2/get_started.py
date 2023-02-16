@@ -8,10 +8,10 @@ Enjoy!
 """
 
 # For get started import library
-import disspy_v2
+import disspy
 
 # Also you can import any things using `from`
-from disspy_v2 import Client
+from disspy import Client
 
 # Let's create client!
 # 1 step: Copy token from Discord Developer Portal

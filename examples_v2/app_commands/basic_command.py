@@ -8,14 +8,14 @@ Enjoy!
 """
 
 # Import client
-from disspy_v2 import Client
+from disspy import Client
 
 # Create a client
 # note: You should replace 'token' to your token 
 client = Client(token='token')
 
 # Import application commands module
-from disspy_v2 import app
+from disspy import app
 
 # Create a command!
 # Docstring is description of command (visible in discord)

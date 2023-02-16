@@ -1,4 +1,4 @@
-from disspy_v2.enums import ComponentType, TextInputStyle
+from disspy.enums import ComponentType, TextInputStyle
 from typing import Iterable, Callable
 
 class TextInput:

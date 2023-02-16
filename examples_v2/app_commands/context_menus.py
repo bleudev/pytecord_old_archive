@@ -8,14 +8,14 @@ Enjoy!
 """
 
 # For start - create a client
-from disspy_v2 import Client
+from disspy import Client
 client = Client(token='token')
 
 # import commands module:
-from disspy_v2 import app
+from disspy import app
 
 # Import messages:
-from disspy_v2 import Message
+from disspy import Message
 
 # note: context menus is divided for 2 types: User and Message
 
@@ -27,7 +27,7 @@ async def message_context_menu(ctx: app.Context, message: Message):
     await ctx.send_message('Content:', message.content, '\n', 'Id:', message.id, ephemeral=True)
 
 # Import users:
-from disspy_v2 import User
+from disspy import User
 
 # This is example user context menu
 # 'user: User' is showing that command is user context menu

@@ -6,12 +6,12 @@ from time import mktime
 
 from dataclasses import dataclass
 
-from disspy_v2.listener import Listener
-from disspy_v2.channel import Message, RawMessage, Channel
-from disspy_v2.app import AppClient, Context
-from disspy_v2.profiles import User
-from disspy_v2.enums import InteractionType, ApplicationCommandType
-from disspy_v2 import utils
+from disspy.listener import Listener
+from disspy.channel import Message, RawMessage, Channel
+from disspy.app import AppClient, Context
+from disspy.profiles import User
+from disspy.enums import InteractionType, ApplicationCommandType
+from disspy import utils
 
 gateway_version = 10
 

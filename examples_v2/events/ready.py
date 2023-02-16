@@ -7,7 +7,7 @@ Enjoy!
 """
 
 # Create a client
-from disspy_v2 import Client
+from disspy import Client
 client = Client(token='token') # Replace with your token
 
 # For using events you can use `event` decorator

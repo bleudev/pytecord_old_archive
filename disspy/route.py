@@ -21,7 +21,7 @@ from requests import post as POST
 from requests import put as PUT
 from requests.exceptions import JSONDecodeError
 
-from disspy_v2 import utils
+from disspy import utils
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop

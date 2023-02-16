@@ -4,7 +4,7 @@ Json dict payloads like objects in discord API
 
 from typing import Literal, NewType, TypedDict
 
-from disspy_v2.enums import (ApplicationCommandOptionType,
+from disspy.enums import (ApplicationCommandOptionType,
                              ApplicationCommandType, ApplicationFlags,
                              ButtonStyle, ChannelFlags, ChannelType,
                              ComponentType, EmbedType, GuildForumLayoutType,

@@ -7,14 +7,14 @@ Enjoy!
 """
 
 # Create a client
-from disspy_v2 import Client
+from disspy import Client
 client = Client(token='token')
 
 # Create a command
-from disspy_v2 import app
+from disspy import app
 
 # note: also you must import ui module
-from disspy_v2 import ui
+from disspy import ui
 
 @client.command()
 async def modals(ctx: app.Context):

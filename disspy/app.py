@@ -1,7 +1,7 @@
-from disspy_v2 import utils
-from disspy_v2.enums import InteractionType, InteractionCallbackType, MessageFlags
-from disspy_v2.ui import Modal
-from disspy_v2.route import Route
+from disspy import utils
+from disspy.enums import InteractionType, InteractionCallbackType, MessageFlags
+from disspy.ui import Modal
+from disspy.route import Route
 
 from typing import Callable, Coroutine, Any, TypeVar, TYPE_CHECKING
 

@@ -1,4 +1,4 @@
-from disspy_v2.hook import Hook
+from disspy.hook import Hook
 from aiohttp import ClientSession
 
 class Connection:

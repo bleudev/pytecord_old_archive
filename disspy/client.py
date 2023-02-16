@@ -4,12 +4,12 @@ from typing import Callable, Coroutine, Any
 
 from regex import fullmatch
 
-from disspy_v2.app import AppClient, Command, ContextMenu
-from disspy_v2.channel import Channel, Message
-from disspy_v2.connection import Connection
-from disspy_v2.listener import Listener
-from disspy_v2.profiles import User
-from disspy_v2.enums import ApplicationCommandOptionType, ApplicationCommandType
+from disspy.app import AppClient, Command, ContextMenu
+from disspy.channel import Channel, Message
+from disspy.connection import Connection
+from disspy.listener import Listener
+from disspy.profiles import User
+from disspy.enums import ApplicationCommandOptionType, ApplicationCommandType
 from sys import exit as sys_exit
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'

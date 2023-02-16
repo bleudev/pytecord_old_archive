@@ -1,4 +1,4 @@
-from disspy_v2.enums import GatewayOpcode
+from disspy.enums import GatewayOpcode
 
 def auth(token: str):
     return {

@@ -1,8 +1,8 @@
 from asyncio import get_event_loop
 
-from disspy_v2 import utils
-from disspy_v2.route import Route
-from disspy_v2.payloads import MessagePayload
+from disspyport utils
+from disspyute import Route
+from disspyyloads import MessagePayload
 
 class Message:
     def __init__(self, session, **data: MessagePayload) -> None:
