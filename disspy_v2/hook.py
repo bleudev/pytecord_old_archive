@@ -3,7 +3,8 @@ from asyncio import sleep as async_sleep
 
 from datetime import datetime
 from time import mktime
-from json import dumps
+
+from dataclasses import dataclass
 
 from disspy_v2.listener import Listener
 from disspy_v2.channel import Message, RawMessage, Channel
@@ -14,13 +15,12 @@ from disspy_v2 import utils
 
 gateway_version = 10
 
-class _Gateway_Event:
-    def __init__(self, **_dict) -> None:
-        self.op = _dict.get('op', 0)
-        self.data = _dict.get('d', {})
-        self.session = _dict.get('s', 0)
-        self.type = _dict.get('t', 'NONE')
-
+@dataclass
+class _GatewayEvent:
+    op: int
+    d: dict = {}
+    s: int = 0
+    t: str = 'NONE'
 
 class Hook:
     def __init__(self, *, token: str, **options) -> None:
@@ -115,35 +115,35 @@ class Hook:
     async def _events(self):
         while True:
             if x := await self._get():
-                event = _Gateway_Event(**x)
+                event = _GatewayEvent(**x)
             else:
                 continue
 
-            match event.type:
+            match event.t:
                 case 'READY':
-                    self._user_id = event.data['user']['id']
-                    await self._register_app_commands(event.data['application']['id'])
+                    self._user_id = event.d['user']['id']
+                    await self._register_app_commands(event.d['application']['id'])
                     await self._listener.invoke_event('ready')
                 case 'MESSAGE_CREATE' | 'MESSAGE_UPDATE':
-                    if event.data['author']['id'] != self._user_id:
-                        message = Message(self._session, **event.data)
+                    if event.d['author']['id'] != self._user_id:
+                        message = Message(self._session, **event.d)
                         await self._listener.invoke_event('message', message)
                 case 'MESSAGE_DELETE':
-                    raw_message = RawMessage(self._session, **event.data)
+                    raw_message = RawMessage(self._session, **event.d)
                     await self._listener.invoke_event('message_delete', raw_message)
                 case 'INTERACTION_CREATE':
-                    ctx = Context(event.data, self.token, self._session, self)
+                    ctx = Context(event.d, self.token, self._session, self)
 
-                    interaction_type = event.data['type']
+                    interaction_type = event.d['type']
 
                     if interaction_type is InteractionType.application_command:    
-                        command_data = event.data['data']
+                        command_data = event.d['data']
                         command_type = command_data['type']
                         command_name = command_data['name']
 
                         if command_type is ApplicationCommandType.chat_input:
                             option_values = {}
-                            if event.data['data'].get('options', None):
+                            if event.d['data'].get('options', None):
                                 option_jsons = command_data['options']
                                 resolved = command_data.get('resolved')
                                 
@@ -187,7 +187,7 @@ class Hook:
                                 resolved = Message(self._session, **resolved_data['messages'][target_id])
                             await self._app_client.invoke_command(command_name, command_type, ctx, resolved)
                     elif interaction_type == InteractionType.modal_submit:
-                        submit_data = event.data['data']
+                        submit_data = event.d['data']
                         inputs_values = {}
 
                         for i in submit_data['components']:
@@ -206,4 +206,4 @@ class Hook:
                         )
                 case _:
                     if self._debug:
-                        print(f'Unknown {event.type} event type!')
+                        print(f'Unknown {event.t} event type!')
