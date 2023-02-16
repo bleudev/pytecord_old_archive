@@ -62,28 +62,25 @@ class Modal:
     title: str
     custom_id: str
     inputs: list[TextInput]
-    
+
     def __init_subclass__(cls, *, custom_id: str, title: str) -> None:
         cls.custom_id = custom_id
         cls.title = title
 
     def eval(self) -> dict:
-        inputs_json = []
-        for i in self.inputs:
-            inputs_json.append(i.eval())
         rows_json = []
-        for i in inputs_json:
+        for i in self.inputs:
             rows_json.append({
                 'type': ComponentType.action_row,
-                'components': [i]
-            })    
-        
-        return {
-            'custom_id': self.custom_id,
-            'title': self.title,
-            'components': rows_json
-        }
-    
+                'components': [i.eval()]
+            })
+
+        return dict(
+            custom_id=self.custom_id,
+            title=self.title,
+            components=rows_json
+        )
+
     async def submit(self, ctx, **inputs):
         '''
         Modal submit event

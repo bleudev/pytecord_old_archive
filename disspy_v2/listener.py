@@ -2,10 +2,6 @@
 All: Listener
 '''
 
-__all__ = (
-    'Listener',
-)
-
 class Listener:
     '''
     bot listener

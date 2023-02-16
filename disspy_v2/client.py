@@ -1,13 +1,16 @@
+from asyncio import run as async_run
+from inspect import _empty, getdoc, signature
+from typing import Callable, Coroutine, Any
+
+from regex import fullmatch
+
+from disspy_v2.app import AppClient, Command, ContextMenu
+from disspy_v2.channel import Channel, Message
 from disspy_v2.connection import Connection
 from disspy_v2.listener import Listener
-from disspy_v2.app import Command, ContextMenu, AppClient
-from disspy_v2.channel import Channel, Message
 from disspy_v2.profiles import User
-
-from asyncio import run as async_run
-from regex import fullmatch
-from inspect import getdoc, signature, _empty
-from typing import Callable
+from disspy_v2.enums import ApplicationCommandOptionType, ApplicationCommandType
+from sys import exit as sys_exit
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
 
@@ -42,104 +45,102 @@ class Client:
         self._resolve_options(**options)
 
     def run(self, **options):
-        async_run(self._conn.run(self._listener, self._app, intents=self._intents, **options))
+        try:
+            async_run(self._conn.run(self._listener, self._app, intents=self._intents, **options))
+        except KeyboardInterrupt:
+            sys_exit(1)
 
-    def command(self, name=None):
-        def wrapper(func):
+    def _get_options(self, option_tuples: list[tuple[str, tuple[type, Any]]]) -> list[dict]:
+        option_jsons = []
+        option_types = {
+            'SUB_COMMAND': ApplicationCommandOptionType.sub_command,
+            'SUB_COMMAND_GROUP': ApplicationCommandOptionType.sub_command_group,
+            str: ApplicationCommandOptionType.string,
+            int: ApplicationCommandOptionType.integer,
+            bool: ApplicationCommandOptionType.boolean,
+            User: ApplicationCommandOptionType.user,
+            Channel: ApplicationCommandOptionType.channel,
+            'ROLE': ApplicationCommandOptionType.role,
+            'MENTIONABLE': ApplicationCommandOptionType.mentionable,
+            float: ApplicationCommandOptionType.number,
+            'ATTACHMENT': ApplicationCommandOptionType.attachment,
+        }
+        for n, (t, d) in option_tuples:
+            option_jsons.append(dict(
+                name=n,
+                type=option_types[t],
+                required=(d == _empty),
+            ))
+        return option_jsons
+
+    def command(self) -> Callable[..., Command]:
+        def wrapper(func: Callable[..., Coroutine[Any, Any, Any]]) -> Command:
             callable = self._get_callable(func)
-            command_json = {'type': 1}
 
-            command_json.setdefault('name', name if name else callable.__name__)
-            
-            doc = getdoc(callable).splitlines()[0]
-            command_json.setdefault('description', doc if doc else 'No description')
-            
-            sig = signature(callable)
-            params = dict(sig.parameters)
-            options = []
+            command_json = dict(
+                type=ApplicationCommandType.chat_input,
+                name=callable.__name__,
+            )
 
-            for k, v in list(params.items())[1:]:
-                options.append((k, (v.annotation, v.default)))
+            description = getdoc(callable).splitlines()[0]
+            params = dict(signature(callable).parameters)
+            option_tuples = [(k, (v.annotation, v.default)) for k, v in list(params.items())[1:]]
+            option_jsons = self._get_options(x) if (x := option_tuples) else []
 
-            if options:
-                _options_jsons = []
+            if option_jsons:
+                for i in option_jsons:
+                    i['description'] = 'No description'
 
-                _option_types = {
-                    'SUB_COMMAND': 1,
-                    'SUB_COMMAND_GROUP': 2,
-                    str: 3,
-                    int: 4,
-                    bool: 5,
-                    User: 6,
-                    Channel: 7,
-                    'ROLE': 8,
-                    'MENTIONABLE': 9,
-                    float: 10,
-                    'ATTACHMENT': 11,
-                }
-                
-                for _name, (_type, _default) in options:
-                    _json = {
-                        'name': _name,
-                        'type': _option_types[_type],
-                        'required': True
-                    }
-                    if _default is not _empty:
-                        _json['required'] = False
+            command_json.update(
+                name=callable.__name__,
+                description=x if (x := description) else 'No description',
+                options=option_jsons,
+            )
 
-                    _options_jsons.append(_json)
-                
-                command_json.setdefault('options', _options_jsons)
-            
             if isinstance(func, tuple):
                 json, callable, string = func
-                
                 if string == 'describe':
-                    for option in command_json['options']:
-                        for option_name, description in json.items():
-                            if option['name'] == option_name:
-                                option['description'] = description
+                    if command_json.get('options'):
+                        for option in command_json.get('options'):
+                            for name, description in json.items():
+                                if option['name'] == name:
+                                    option['description'] = description
                 else:
                     for k, v in json.items():
-                        command_json.setdefault(k, v)
-
-            if command_json.get('options', None):
-                for option in command_json['options']:
-                    option: dict = option
-                    if option.get('description', None) is None:
-                        option['description'] = 'No description'
+                        command_json[k] = v
 
             if not self._validate_slash_command(command_json['name']):
-                raise ValueError(f'All slash command names must followed {SLASH_COMMAND_VALID_REGEX} regex')
+                raise ValueError(
+                    f'All slash command names must followed {SLASH_COMMAND_VALID_REGEX} regex'
+                )
 
             command = Command(command_json)
             self._app.add_command(command, callable)
             return command
         return wrapper
 
-    def context_menu(self, name: str = None) -> ContextMenu:
-        def wrapper(func):
-            menu_json = {'type': 0}
-            callable = self._get_callable(func)
+    def _get_menu_type(self, func: Callable[..., Coroutine[Any, Any, Any]]):
+        params = dict(signature(func).parameters)
+        param_type = params[list(params.keys())[1]].annotation
+        types = {
+            User: ApplicationCommandType.user,
+            Message: ApplicationCommandType.message,
+        }
+        return types[param_type]
 
-            menu_json.setdefault('name', name if name else callable.__name__)
-
-            sig = signature(callable)
-            params = dict(sig.parameters)
-            param_type = params[list(params.keys())[1]].annotation
-            types = {
-                User: 2,
-                Message: 3
-            }
-            menu_json['type'] = types[param_type]
-
+    def context_menu(self) -> Callable[..., ContextMenu]:
+        def wrapper(func: Callable[..., Coroutine[Any, Any, Any]]) -> ContextMenu:
+            menu_json = dict(
+                name=func.__name__,
+                type=self._get_menu_type(func)
+            )
             menu = ContextMenu(menu_json)
-            self._app.add_command(menu, callable)
+            self._app.add_command(menu, func)
             return menu
         return wrapper
 
-    def event(self, name: str = None):
-        def wrapper(func):
+    def event(self, name: str = None) -> Callable[..., None]:
+        def wrapper(func) -> None:
             _name = name if name is not None else func.__name__
 
             if _name in ['message', 'message_delete'] and self._intents & _flags.messages == 0:

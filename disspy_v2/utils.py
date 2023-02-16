@@ -1,5 +1,14 @@
 from disspy_v2.enums import GatewayOpcode
 
+def auth(token: str):
+    return {
+        'Authorization': f'Bot {token}',
+        'content-type': 'application/json',
+    }
+
+def get_token_from_auth(hdrs: dict):
+    return hdrs['Authorization'].split(' ')[1]
+
 def get_content(*args, sep):
     result = ''
 

@@ -1,8 +1,14 @@
-from json import dumps
 from disspy_v2 import utils
-from disspy_v2.enums import InteractionType, InteractionCallbackType
+from disspy_v2.enums import InteractionType, InteractionCallbackType, MessageFlags
 from disspy_v2.ui import Modal
-from aiohttp.client_exceptions import ContentTypeError
+from disspy_v2.route import Route
+
+from typing import Callable, Coroutine, Any, TypeVar, TYPE_CHECKING
+
+from asyncio import get_event_loop
+
+if TYPE_CHECKING:
+    from aiohttp import ClientSession
 
 class Command:
     def __init__(self, data: dict) -> None:
@@ -20,18 +26,23 @@ class ContextMenu:
     def eval(self) -> dict:
         return self.data
 
+CT = TypeVar('CT', Command, ContextMenu)
+MT = TypeVar('MT', Modal)
+
 class AppClient:
     def __init__(self) -> None:
         self.commands = []
         self.callbacks = {1: {}, 2: {}, 3: {}}
         self.component_callbacks = {'modals': {}}
 
-    def add_command(self, command: Command | ContextMenu, callable):
+    def add_command(self, command: CT, callback: Callable[..., Coroutine[Any, Any, Any]]) -> CT:
         self.commands.append(command)
-        self.callbacks[command['type']].setdefault(command['name'], callable)
+        self.callbacks[command['type']].setdefault(command['name'], callback)
+        return command
 
-    def add_modal(self, modal: Modal):
+    def add_modal(self, modal: MT) -> MT:
         self.component_callbacks['modals'].setdefault(modal.custom_id, modal.submit)
+        return modal
 
     async def invoke_command(self, name: str, type: int, *args, **kwrgs):
         await self.callbacks[type][name](*args, **kwrgs)
@@ -40,64 +51,61 @@ class AppClient:
         await self.component_callbacks['modals'][custom_id](*args, **kwargs)
 
 class _Interaction:
-    def __init__(self, data: dict) -> None:
+    def __init__(self, data: dict, token: str, session: 'ClientSession') -> None:
         self.token = data.get('token')
         self.id = data.get('id')
         self.type = data.get('type')
         self.application_id = data.get('application_id')
 
-class Context:
-    def __init__(self, data: dict, token: str, session, hook) -> None:
         self._token = token
-        self._interaction = _Interaction(data)
+        self._session = session
+
+    async def respond(self, payload: dict):
+        route = Route(
+            '/interactions/%s/%s/callback', self.id, self.token,
+            method='POST',
+            token=self._token,
+            payload=payload
+        )
+        return await route.async_request(self._session, get_event_loop())
+
+
+class Context:
+    def __init__(self, data: dict, token: str, session: 'ClientSession', hook) -> None:
+        self._token = token
+        self.interaction = _Interaction(data, token, session)
         self._session = session
         self._hook = hook
 
         self.command = Command(data['data'])
 
-    async def _respond(self, payload: dict):
-        _token, _id = self._interaction.token, self._interaction.id
-        _url = f'https://discord.com/api/v10/interactions/{_id}/{_token}/callback'
-        async with self._session.post(_url, data=dumps(payload)) as r:
-            try:
-                return await r.json()
-            except ContentTypeError:
-                return await r.text()
-
     async def send_message(self, *strings: list[str], sep: str = ' ', ephemeral: bool = False):
-        await self._respond({
-            'type': 4,
+        await self.interaction.respond({
+            'type': InteractionCallbackType.channel_message_with_source,
             'data': {
                 'content': str(utils.get_content(*strings, sep=sep)),
-                'flags': 1 << 6 if ephemeral else 0
+                'flags': MessageFlags.ephemeral if ephemeral else 0
             }
         })
 
     async def send_modal(self, modal: Modal):
-        if self._interaction.type in [
+        if self.interaction.type in [
             InteractionType.ping,
             InteractionType.modal_submit
         ]:
             return # not available in discord API
-        j = await self._respond({
+        j = await self.interaction.respond({
             'type': InteractionCallbackType.modal,
             'data': modal.eval()
         })
         self._hook._app_client.add_modal(modal)
 
-    async def edit_message(self, content: str):
-        await self._respond({
-            'type': 7,
+    async def edit_message(self, *strings: list[str], sep: str = ' ', ephemeral: bool = False):
+        await self.interaction.respond({
+            'type': InteractionCallbackType.update_message,
             'data': {
-                'content': str(content)
-            }
-        })
-
-    async def defer(self):
-        await self._respond({
-            'type': 6,
-            'data': {
-                'flags': 1 << 6
+                'content': str(utils.get_content(*strings, sep=sep)),
+                'flags': MessageFlags.ephemeral if ephemeral else 0
             }
         })
 
