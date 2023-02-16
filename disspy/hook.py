@@ -11,7 +11,7 @@ from disspy.enums import ApplicationCommandType, InteractionType
 from disspy.listener import Listener
 from disspy.profiles import User
 
-gateway_version = 10
+gateway_version = 10 # pylint: disable=invalid-name
 
 @dataclass
 class _GatewayEvent:
@@ -112,7 +112,7 @@ class Hook:
 
     async def _events(self):
         while True:
-            if x := await self._get():
+            if x := await self._get(): # pylint: disable=invalid-name
                 event = _GatewayEvent(**x)
             else:
                 continue
