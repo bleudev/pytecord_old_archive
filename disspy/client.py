@@ -25,24 +25,33 @@ class Client:
     '''
     Discord client.
     
-    Magic operations
+    ### Magic operations
     
     += -> Add the event to the client
-
+    
     ```
     async def ready(): ...
     client += ready
     ```
-    
+
     -= -> Remove the event from the client
     
     ```
-    @client.event()
+    @client.event
     async def ready(): ...
+    client -= ready # or 'ready'
+    ```
+
+    Calling -> Run the bot
     
-    client -= ready
-    # or
-    client -= 'ready'
+    ```
+    client() # equals to client.run()
+    ```
+
+    repr() -> Get client data (for example, commands)
+    
+    ```
+    print(client) # Prints data about client
     ```
     '''
     def _resolve_options(self, **options):
@@ -75,6 +84,15 @@ class Client:
         except KeyboardInterrupt:
             sys_exit(1)
 
+    def __call__(self, **options: dict[str, Any]) -> None:
+        self.run(**options)
+
+    def __repr__(self) -> str:
+        events = [a for a, b in self._listener.events.items() if b is not None]
+        commands = [i['name'] for i in self._app.commands]
+
+        return f'Client(debug={self.debug}, events={events}, commands={commands})'
+
     def _get_options(self, option_tuples: list[tuple[str, tuple[type, Any]]]) -> list[dict]:
         option_jsons = []
         option_types = {
@@ -94,7 +112,7 @@ class Client:
             option_jsons.append({
                 'name': n,
                 'type': option_types[t],
-                'required': (d == _empty),
+                'required': d == _empty,
             })
         return option_jsons
 
@@ -123,7 +141,7 @@ class Client:
             }
 
             description = x.splitlines()[0] if (x := getdoc(callable)) else None # pylint: disable=invalid-name
-            
+
             params = dict(signature(callable).parameters)
             option_tuples = [(k, (v.annotation, v.default)) for k, v in list(params.items())[1:]]
             option_jsons = self._get_options(x) if (x := option_tuples) else [] # pylint: disable=invalid-name

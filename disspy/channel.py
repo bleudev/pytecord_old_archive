@@ -6,6 +6,23 @@ from disspy.route import Route
 
 
 class Message:
+    '''
+    Channel message object
+    
+    ### Magic operations
+    str() -> Message content
+    
+    ```
+    str(message)
+    ```
+    
+    in -> Check what message contains in channel
+
+    ```
+    if message in channel:
+        print('This message in this channel!')
+    ``` 
+    '''
     def __init__(self, session, **data: MessagePayload) -> None:
         self._session = session
         # Json paramenters
@@ -74,6 +91,23 @@ class RawMessage:
 
 
 class Channel:
+    '''
+    Channel object.
+    
+    ### Magic operations
+    str() -> Name of channel
+    
+    ```
+    str(channel)
+    ```
+    
+    in -> Check what message contains in channel
+    
+    ```
+    if message in channel:
+        print('This message in this channel!')
+    ```
+    '''
     def __init__(self, session, **data) -> None:
         self._session = session
 
@@ -83,6 +117,9 @@ class Channel:
 
     def __str__(self) -> str:
         return str(self.name)
+
+    def __contains__(self, value: Message) -> bool:
+        return self.id == value.channel_id
 
     async def send(self, *strings: list[str], sep: str = ' ') -> Message | None:
         payload = {
