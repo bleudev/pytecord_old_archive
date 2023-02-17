@@ -21,3 +21,8 @@ html_theme_options = {
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
