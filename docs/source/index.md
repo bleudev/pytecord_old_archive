@@ -9,4 +9,6 @@ hidden:
 index
 ```
 
+## Introduction
+
 Hello, world
