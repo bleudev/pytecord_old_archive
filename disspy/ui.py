@@ -1,6 +1,9 @@
-from typing import Callable, Iterable, Generic, TypeVar
+from typing import TYPE_CHECKING, Callable, Generic, Iterable, TypeVar
 
 from disspy.enums import ComponentType, TextInputStyle
+
+if TYPE_CHECKING:
+    from disspy.app import Context
 
 T = TypeVar('T', bound=str)
 
@@ -102,8 +105,19 @@ class Modal:
             'components': rows_json
         }
 
-    async def submit(self, ctx, **inputs):
+    async def submit(self, ctx: 'Context', **inputs: dict[str, str]):
         '''
-        Modal submit event
+        Modal submit event.
+        This event is executing when user click to 'Submit' button.
+
+        ```
+        # In your modal object
+        async def submit(self, ctx: Context, **inputs):
+            hello = inputs['hello'] # 'hello' is a custom id
+            await ctx.send_message('Your value:', hello)
+        # the code below is equivalent to the code above
+        async def submit(self, ctx: Context, hello: str):
+            await ctx.send_message('Your value': hello)
+        ```
         '''
         raise NotImplementedError('You must implement this method!')
