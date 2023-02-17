@@ -15,7 +15,7 @@ html_theme = 'furo'
 html_theme_options = {
     "source_repository": "https://github.com/pixeldeee/disspy",
     "source_branch": "main",
-    "source_directory": "docs/",
+    "source_directory": "docs/source",
     "repository_branch": "master"
 }
 
