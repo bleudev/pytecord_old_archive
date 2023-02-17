@@ -15,9 +15,9 @@ from disspy.enums import (ApplicationCommandOptionType, ApplicationCommandType,
                           VideoQualityMode)
 
 # Fixing bugs :)
-_this = NewType('this', type)
-_MessageComponentPayload = NewType('MessageComponentPayload', type)
-_StickerPayload = NewType('StickerPayload', type)
+_this = NewType('_this', type)
+_MessageComponentPayload = NewType('_MessageComponentPayload', type)
+_StickerPayload = NewType('_StickerPayload', type)
 
 # Typing
 HashStr = NewType('HashStr', str)
@@ -25,7 +25,7 @@ IntColor = NewType('IntColor', int)
 LocaleStr = NewType('LocaleStr', str)
 BitSet = NewType('BitSet', str)
 UnicodeStr = NewType('UnicodeStr', str)
-Iso8601Timestamp = NewType('Iso8601_timestamp', str)
+Iso8601Timestamp = NewType('Iso8601Timestamp', str)
 
 class ApplicationCommandOptionChoicePayload(TypedDict):
     '''

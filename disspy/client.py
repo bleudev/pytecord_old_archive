@@ -122,7 +122,8 @@ class Client:
                 'name': callable.__name__,
             }
 
-            description = getdoc(callable).splitlines()[0]
+            description = x.splitlines()[0] if (x := getdoc(callable)) else None # pylint: disable=invalid-name
+            
             params = dict(signature(callable).parameters)
             option_tuples = [(k, (v.annotation, v.default)) for k, v in list(params.items())[1:]]
             option_jsons = self._get_options(x) if (x := option_tuples) else [] # pylint: disable=invalid-name

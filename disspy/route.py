@@ -45,7 +45,7 @@ class Route:
         token: Optional[str] = '',
         payload: Optional[dict] = {}
     ) -> None:
-        self.endpoint = endpoint % params
+        self.endpoint = (endpoint % params) if endpoint and params else endpoint
         self.url = BASE + self.endpoint
         self.method = method
         self.hdrs = utils.auth(token) if token else None

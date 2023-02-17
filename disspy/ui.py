@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, Generic, Iterable, TypeVar
+from typing import TYPE_CHECKING, Callable, Generic, Iterable, TypeVar, TypeAlias
 
 from disspy.enums import ComponentType, TextInputStyle
 
@@ -7,20 +7,22 @@ if TYPE_CHECKING:
 
 T = TypeVar('T', bound=str)
 
+TextInputStyleKO: TypeAlias = int
+
 class TextInput(Generic[T]):
-    def _check_len(self, value: str | int, min: int, max: int): # pylint: disable=redefined-builtin
+    def _check_len(self, value: str | int, min: int, max: int) -> bool: # pylint: disable=redefined-builtin
         if isinstance(value, str):
             return len(value) <= max and min <= len(value)
         elif isinstance(value, int):
             return value <= max and min <= value
-    def _check_for(self, value: Iterable, min: int, max: int): # pylint: disable=redefined-builtin
+    def _check_for(self, value: Iterable, min: int, max: int) -> bool: # pylint: disable=redefined-builtin
         for i in value:
             b = self._check_len(i, min, max)
             if not b:
                 return False
         return True
     def _check_return(
-        self, value: str | Iterable, l: tuple[int, int],
+        self, value: str | int | Iterable, l: tuple[int, int],
         func: Callable[[str | int | Iterable, int, int], bool]):
         min, max = l # pylint: disable=redefined-builtin
 
@@ -37,15 +39,15 @@ class TextInput(Generic[T]):
     def __init__(self,
                  custom_id: str,
                  label: str,
-                 style: TextInputStyle = TextInputStyle.short,
-                 length: tuple[int, int] = (None, None), # (min, max)
+                 style: TextInputStyleKO = TextInputStyle.short,
+                 length: tuple[int, int] = (0, 4000), # (min, max)
                  required: bool = False,
-                 value: T = None,
-                 placeholder: str = None) -> None:
+                 value: T | None = None,
+                 placeholder: str | None = None) -> None:
         self.custom_id = custom_id
         self.label = self._check_return(label, (1, 45), self._check_len)
         self.style = style if style in list(range(1, 3)) else TextInputStyle.short
-        self.length = self._check_return(length, (1, 4000), self._check_for)
+        self.length = self._check_return(length, (0, 4000), self._check_for)
         self.required = required
         self.value = self._check_return(value, (1, 4000), self._check_len)
         self.placeholder = self._check_return(placeholder, (1, 100), self._check_len)
