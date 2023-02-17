@@ -1,7 +1,7 @@
 from asyncio import run as async_run
 from inspect import _empty, getdoc, signature
 from sys import exit as sys_exit
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable, Coroutine, Self
 
 from regex import fullmatch
 
@@ -20,6 +20,29 @@ class _flags:
     reactions = 9232
 
 class Client:
+    '''
+    Discord client.
+    
+    Magic operations
+    
+    += -> Add the event to the client
+
+    ```
+    async def ready(): ...
+    client += ready
+    ```
+    
+    -= -> Remove the event from the client
+    
+    ```
+    @client.event()
+    async def ready(): ...
+    
+    client -= ready
+    # or
+    client -= 'ready'
+    ```
+    '''
     def _resolve_options(self, **options):
         self.debug = options.get('debug', False)
     def _validate_slash_command(self, name: str):
@@ -154,11 +177,30 @@ class Client:
             return menu
         return wrapper
 
+    def add_event(self, callback: Callable[..., Coroutine[Any, Any, Any]]) -> None:
+        match callback.__name__:
+            case 'message' | 'message_delete':
+                self._intents += _flags.messages if self._intents & _flags.messages == 0 else 0
+
+        self._listener.add_event(callback.__name__, callback)
+
     def event(self) -> Callable[..., None]:
         def wrapper(func: Callable[..., Coroutine[Any, Any, Any]]) -> None:
-            match func.__name__:
-                case 'message' | 'message_delete':
-                    self._intents += _flags.messages if self._intents & _flags.messages == 0 else 0
-
-            self._listener.add_event(func.__name__, func)
+            self.add_event(func)
         return wrapper
+
+    def __iadd__(self, other: Callable[..., Coroutine[Any, Any, Any]]) -> Self:
+        self.add_event(other)
+        return self
+
+    def remove_event(self, callback_or_name: Callable[..., Coroutine[Any, Any, Any]] | str) -> None:
+        name = callback_or_name if isinstance(callback_or_name, str) else callback_or_name.__name__
+
+        match name:
+            case 'message' | 'message_delete':
+                self._intents -= self._intents & _flags.messages
+        self._listener.remove_event(name)
+
+    def __isub__(self, other: Callable[..., Coroutine[Any, Any, Any]] | str) -> Self:
+        self.remove_event(other)
+        return self

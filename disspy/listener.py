@@ -26,3 +26,9 @@ class Listener:
         Add event method
         '''
         self.events[name] = func
+
+    def remove_event(self, name):
+        '''
+        Remove event method
+        '''
+        self.events[name] = None

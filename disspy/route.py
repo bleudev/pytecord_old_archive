@@ -69,12 +69,19 @@ class Route:
         }
         func = funcs[self.method]
 
-        resp: 'Response' = func(
-            url=self.url,
-            json=self.data,
-            headers=self.hdrs,
-            timeout=2,
-        )
+        if self.data:
+            resp: 'Response' = func(
+                url=self.url,
+                json=self.data,
+                headers=self.hdrs,
+                timeout=2
+            )
+        else:
+            resp: 'Response' = func(
+                url=self.url,
+                headers=self.hdrs,
+                timeout=2
+            )
 
         try:
             return resp.json(), resp.status_code
@@ -121,5 +128,4 @@ class Route:
         ~session~: The aiohttp client session
         ~loop~: The current asyncio event loop
         '''
-        tasks = [loop.create_task(self._async_request_task(session))]
-        await gather(*tasks)
+        return await gather(loop.create_task(self._async_request_task(session)))

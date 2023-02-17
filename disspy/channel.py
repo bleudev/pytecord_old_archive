@@ -93,5 +93,6 @@ class Channel:
             method='POST',
             payload=payload
         )
-        j = await route.async_request(self._session, get_event_loop())
-        return Message(self._session, **j)
+        t = await route.async_request(self._session, get_event_loop())
+        j = t[0]
+        return Message(self._session, **j[0])
