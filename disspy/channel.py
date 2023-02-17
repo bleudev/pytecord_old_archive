@@ -10,24 +10,59 @@ class Message:
     Channel message object
     
     ### Magic operations
-    str() -> Message content
+    str() ? Message content
     
     ```
     str(message)
     ```
     
-    in -> Check what message contains in channel
+    int() ? Message id
+    
+    ```
+    int(message)
+    ```
+
+    in ? Check what message contains in channel
 
     ```
     if message in channel:
         print('This message in this channel!')
-    ``` 
+    ```
+    
+    == ? This message is equals with other message
+    
+    ```
+    print('Equals!' if message1 == message2 else 'Not equals!')
+    ```
+    
+    != ? This message is not equals with other message
+    
+    ```
+    print('Not equals!' if message1 != message2 else 'Equals!')
+    ```
+    
+    < ? Message life time (how long the message has been sent) less that other message life time
+    (ID1 > ID2)
+
+    > ? Message life time more that other message life time (ID1 < ID2)
+
+    <= ? Message life time less or equals that other message life time (ID1 >= ID2)
+
+    >= ? Message life time more or equals that other message life time (ID1 <= ID2)
+    
+    ```
+    # message1.id = 1; message2.id = 2 (Channel messages (order matters): message1, message2)
+    print(message1 < message2) # False
+    print(message1 > message2) # True
+    print(message1 <= message2) # False
+    print(message1 >= message2) # True
+    ```
     '''
     def __init__(self, session, **data: MessagePayload) -> None:
         self._session = session
         # Json paramenters
         _ = data.get
-        self.id: int = _('id')
+        self.id: int = int(_('id'))
         self.channel_id: int = _('channel_id')
         self.author = _('author', None) # todo: Add support for users
         self.content = _('content', None)
@@ -64,6 +99,27 @@ class Message:
 
     def __str__(self) -> str:
         return self.content
+
+    def __int__(self) -> int:
+        return self.id
+
+    def __eq__(self, __o: 'Message') -> bool: # ==
+        return self.id == __o.id
+
+    def __ne__(self, __o: 'Message') -> bool: # !=
+        return self.id != __o.id
+
+    def __lt__(self, other: 'Message') -> bool: # <
+        return self.id > other.id
+
+    def __gt__(self, other: 'Message') -> bool: # >
+        return self.id < other.id
+    
+    def __le__(self, other: 'Message'): # <=
+        return self.id >= other.id
+
+    def __ge__(self, other: 'Message'): # >=
+        return self.id <= other.id
 
     async def reply(self, content: str):
         payload = {
