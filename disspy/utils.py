@@ -1,16 +1,29 @@
+'''
+Utils for simpler developerment disspy
+'''
+
 from disspy.enums import GatewayOpcode
 
 
 def auth(token: str):
+    '''
+    Auth the user with token
+    '''
     return {
         'Authorization': f'Bot {token}',
         'content-type': 'application/json',
     }
 
 def get_token_from_auth(hdrs: dict):
+    '''
+    Get token from auth headers
+    '''
     return hdrs['Authorization'].split(' ')[1]
 
 def get_content(*args, sep):
+    '''
+    Get content for message
+    '''
     result = ''
 
     for i in args:
@@ -20,14 +33,15 @@ def get_content(*args, sep):
     return result
 
 def get_hook_debug_message(data: dict) -> str:
-    t, s, op, d = data.get('t'), data.get('s'), data.get('op'), data.get('d')
-    res = f'S{s if s else 0} '
+    '''
+    Get webhook debuging message
+    '''
+    res = f"S{data.get('s', '')} "
 
-    if op == GatewayOpcode.dispatch:
-        res += f'{t}'
+    if data.get('op') == GatewayOpcode.dispatch:
+        res += data.get('t', '')
     else:
-        res += f'OP{op}'
+        res += f"OP{data.get('op', 0)}"
 
-    if d:
-        res += f' | {str(d)}'
+    res += f" | {str(data.get('d', {}))}"
     return res

@@ -65,27 +65,42 @@ class Client:
             float: ApplicationCommandOptionType.number,
             'ATTACHMENT': ApplicationCommandOptionType.attachment,
         }
-        for n, (t, d) in option_tuples:
-            option_jsons.append(dict(
-                name=n,
-                type=option_types[t],
-                required=(d == _empty),
-            ))
+        for n, (t, d) in option_tuples: # pylint: disable=invalid-name
+            option_jsons.append({
+                'name': n,
+                'type': option_types[t],
+                'required': (d == _empty),
+            })
         return option_jsons
 
     def command(self) -> Callable[..., Command]:
+        """
+        Create an `app command`
+        
+        ```
+        @client.command()
+        @app.describe(
+            first='First argument'
+        )
+        async def test(ctx: Context, first: str):
+            await ctx.send_message(first)
+        ```
+
+        Returns:
+            Callable[..., Command]: Wrapper
+        """
         def wrapper(func: Callable[..., Coroutine[Any, Any, Any]]) -> Command:
             callable = self._get_callable(func)
 
-            command_json = dict(
-                type=ApplicationCommandType.chat_input,
-                name=callable.__name__,
-            )
+            command_json = {
+                'type': ApplicationCommandType.chat_input,
+                'name': callable.__name__,
+            }
 
             description = getdoc(callable).splitlines()[0]
             params = dict(signature(callable).parameters)
             option_tuples = [(k, (v.annotation, v.default)) for k, v in list(params.items())[1:]]
-            option_jsons = self._get_options(x) if (x := option_tuples) else []
+            option_jsons = self._get_options(x) if (x := option_tuples) else [] # pylint: disable=invalid-name
 
             if option_jsons:
                 for i in option_jsons:
@@ -93,7 +108,7 @@ class Client:
 
             command_json.update(
                 name=callable.__name__,
-                description=x if (x := description) else 'No description',
+                description=x if (x := description) else 'No description', # pylint: disable=invalid-name
                 options=option_jsons,
             )
 
@@ -106,7 +121,7 @@ class Client:
                                 if option['name'] == name:
                                     option['description'] = description
                 else:
-                    for k, v in json.items():
+                    for k, v in json.items(): # pylint: disable=invalid-name
                         command_json[k] = v
 
             if not self._validate_slash_command(command_json['name']):
@@ -139,11 +154,11 @@ class Client:
             return menu
         return wrapper
 
-    def event(self, name: str = None) -> Callable[..., None]:
-        def wrapper(func) -> None:
-            _name = name if name is not None else func.__name__
+    def event(self) -> Callable[..., None]:
+        def wrapper(func: Callable[..., Coroutine[Any, Any, Any]]) -> None:
+            match func.__name__:
+                case 'message' | 'message_delete':
+                    self._intents += _flags.messages if self._intents & _flags.messages == 0 else 0
 
-            if _name in ['message', 'message_delete'] and self._intents & _flags.messages == 0:
-                self._intents += _flags.messages
-            self._listener.add_event(_name, func)
+            self._listener.add_event(func.__name__, func)
         return wrapper

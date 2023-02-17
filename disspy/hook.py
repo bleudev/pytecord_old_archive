@@ -1,3 +1,7 @@
+'''
+Webhook for connection to Discord Gateway
+'''
+
 from asyncio import create_task, gather
 from asyncio import sleep as async_sleep
 from dataclasses import dataclass, field
@@ -21,6 +25,9 @@ class _GatewayEvent:
     t: str = 'NONE' # pylint: disable=invalid-name
 
 class Hook:
+    '''
+    Webhook for connection to Discord Gateway
+    '''
     def __init__(self, *, token: str, **options) -> None:
         self.token = token
         self.status = 'online'
@@ -134,22 +141,22 @@ class Hook:
 
                     interaction_type = event.d['type']
 
-                    if interaction_type is InteractionType.application_command:    
-                        command_data = event.d['data']
-                        command_type = command_data['type']
-                        command_name = command_data['name']
+                    if interaction_type is InteractionType.application_command:
+                        command_data: dict = event.d['data']
+                        command_type: int = command_data['type']
+                        command_name: str = command_data['name']
 
                         if command_type is ApplicationCommandType.chat_input:
                             option_values = {}
-                            if event.d['data'].get('options', None):
+                            if command_data.get('options', None):
                                 option_jsons = command_data['options']
                                 resolved = command_data.get('resolved')
-                                
+
                                 for option_json in option_jsons:
                                     _type = option_json['type']
                                     if _type in [6, 7]:
                                         target_id = option_json['value']
-                                        
+
                                         resolved_types = {
                                             6: 'users',
                                             7: 'channels'
@@ -160,7 +167,7 @@ class Hook:
                                             6: User,
                                             7: Channel
                                         }
-                                        
+
                                         option_values.setdefault(
                                             option_json['name'],
                                             _types[_type](self._session, **resolved_data)
@@ -172,9 +179,13 @@ class Hook:
                                         )
 
                             if option_values:
-                                await self._app_client.invoke_command(command_name, command_type, ctx, **option_values)
+                                await self._app_client.invoke_command(
+                                    command_name, command_type,
+                                    ctx, **option_values)
                             else:
-                                await self._app_client.invoke_command(command_name, command_type, ctx)
+                                await self._app_client.invoke_command(
+                                    command_name, command_type,
+                                    ctx)
                         else:
                             resolved_data = command_data['resolved']
                             target_id = command_data['target_id']
@@ -182,8 +193,11 @@ class Hook:
                             if command_type is ApplicationCommandType.user:
                                 resolved = User(self._session, **resolved_data['users'][target_id])
                             elif command_type is ApplicationCommandType.message:
-                                resolved = Message(self._session, **resolved_data['messages'][target_id])
-                            await self._app_client.invoke_command(command_name, command_type, ctx, resolved)
+                                resolved = Message(
+                                    self._session, **resolved_data['messages'][target_id])
+                            await self._app_client.invoke_command(
+                                command_name, command_type,
+                                ctx, resolved)
                     elif interaction_type == InteractionType.modal_submit:
                         submit_data = event.d['data']
                         inputs_values = {}
