@@ -1,16 +1,19 @@
+myst_enable_extensions = [
+    "colon_fence",
+    "deflist",
+]
+myst_heading_anchors = 3
+
 extensions = []
 html_logo = "l.png"
 html_favicon = 'favicon.ico'
-html_theme = 'sphinx_book_theme'
-templates_path = ["_templates"]
+html_theme = 'furo'
+html_static_path = ["_static"]
+project = 'disspy'
 
 html_theme_options = {
-    "logo_only": True,
-    "repository_url": "https://github.com/itttgg/dispy",
-    "repository_branch": "master",
-    "use_repository_button": True,
-    "use_download_button": False,
-    "use_fullscreen_button": True,
-    "use_issues_button": True,
-    "use_edit_page_button": True
+    "source_repository": "https://github.com/pixeldeee/disspy",
+    "source_branch": "main",
+    "source_directory": "docs/",
+    "repository_branch": "master"
 }
