@@ -13,7 +13,6 @@ Discord is a social network. He has guilds, channels, users and other objects. A
 
 Disspy is very easy library. For example, with this code you can receive and respond to messages that is sending in discord channel.
 
-:::{example}
 ```py
 import disspy
 
@@ -25,8 +24,9 @@ async def message(message: disspy.Message):
 
 client()
 ```
-:::
 
 *Really? Really simple code!*
 
+:::{tip}
 If you want to write some code and if you want to learn disspy, open 'Objects' folder.
+:::
