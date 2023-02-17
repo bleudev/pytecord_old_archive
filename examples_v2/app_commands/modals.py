@@ -21,7 +21,7 @@ async def modals(ctx: app.Context):
     """
     An example modal in disspy!
     """
-    # You have to inherit ui.Modal class to create a modal 
+    # You have to inherit ui.Modal class to create a modal
     class MyModal(ui.Modal, title='Feedback', custom_id='feedback'): # note: `custom_id` is not visible in discord
         inputs = [
             ui.TextInput(
@@ -41,14 +41,14 @@ async def modals(ctx: app.Context):
                 placeholder='Please add /ban command!! :)'
             )
         ]
-        async def submit(self, ctx: app.Context, rate: str, additional_feedback: str = ''): # Calls then user will click 
+        async def submit(self, ctx: app.Context, rate: str, additional_feedback: str = ''): # Calls then user will click
             await ctx.send_message('Thank you for your feedback!',
                                    'Your message:',
                                    f'Rate: {rate}',
                                    f'Additional feedback: {additional_feedback}',
                                    sep='\n',
                                    ephemeral=True)
-    
+
     await ctx.send_modal(MyModal()) # Send this modal
 
 # Run the client

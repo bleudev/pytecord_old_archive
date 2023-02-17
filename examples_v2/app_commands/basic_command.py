@@ -11,7 +11,7 @@ Enjoy!
 from disspy import Client
 
 # Create a client
-# note: You should replace 'token' to your token 
+# note: You should replace 'token' to your token
 client = Client(token='token')
 
 # Import application commands module
