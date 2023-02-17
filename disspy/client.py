@@ -1,7 +1,7 @@
 from asyncio import run as async_run
 from inspect import _empty, getdoc, signature
 from sys import exit as sys_exit
-from typing import Any, Callable, Coroutine, Self
+from typing import Any, Callable, Coroutine, Self, TypeVar
 
 from regex import fullmatch
 
@@ -13,6 +13,8 @@ from disspy.listener import Listener
 from disspy.profiles import User
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
+
+CT = TypeVar( 'CT', bound=Callable[..., Coroutine[Any, Any, Any]] ) 
 
 class _flags:
     default = 16
@@ -184,10 +186,9 @@ class Client:
 
         self._listener.add_event(callback.__name__, callback)
 
-    def event(self) -> Callable[..., None]:
-        def wrapper(func: Callable[..., Coroutine[Any, Any, Any]]) -> None:
-            self.add_event(func)
-        return wrapper
+    def event(self, func: CT) -> CT:
+        self.add_event(func)
+        return func
 
     def __iadd__(self, other: Callable[..., Coroutine[Any, Any, Any]]) -> Self:
         self.add_event(other)

@@ -11,7 +11,7 @@ from disspy import Client
 client = Client(token='token') # Replace with your token
 
 # For using events you can use `event` decorator
-@client.event()
+@client.event
 async def ready():
     print("Hello, i'm ready :3") # Print message on console
 

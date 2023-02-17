@@ -30,7 +30,7 @@ client = Client(token=TOKEN)
 # async def ready()
 #           ^^^^^^^
 # this means that event is `ready` event
-@client.event()
+@client.event
 async def ready():
     print('Hi')
 # This code wil print 'Hi' in console when client becomes ready
