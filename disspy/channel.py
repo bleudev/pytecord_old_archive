@@ -133,7 +133,7 @@ class Message:
             method='POST',
             payload=payload
         )
-        j = await route.async_request(self._session, get_event_loop())
+        j, _ = await route.async_request(self._session, get_event_loop())
         return Message(self._session, **j)
 
 
@@ -151,31 +151,62 @@ class Channel:
     Channel object.
     
     ### Magic operations
-    str() -> Name of channel
+    str() ? Name of channel
     
     ```
     str(channel)
     ```
     
-    in -> Check what message contains in channel
+    int() ? Channel id
+    
+    ```
+    int(channel)
+    ```
+    
+    in ? Check what message contains in channel
     
     ```
     if message in channel:
         print('This message in this channel!')
+    ```
+    
+    & or [key] ? Fetch the message
+
+    ```
+    fetched_message = channel & 1076055795042615298
+    # or
+    fetched_message = channel[1076055795042615298]
     ```
     '''
     def __init__(self, session, **data) -> None:
         self._session = session
 
         _ = data.get
-        self.id: int = _('id')
+        self.id: int = int(_('id'))
         self.name: str = _('name')
+
+    def fetch(self, message_to_fetch_id: int) -> 'Message':
+        data, _ = Route(
+            '/channels/%s/messages/%s', self.id, str(message_to_fetch_id),
+            method='GET',
+            token=utils.get_token_from_auth(self._session.headers)
+        ).request()
+        return Message(self._session, **data)
 
     def __str__(self) -> str:
         return str(self.name)
+    
+    def __int__(self) -> int:
+        return self.id
 
     def __contains__(self, value: Message) -> bool:
         return self.id == value.channel_id
+
+    def __and__(self, other: int) -> 'Message':
+        return self.fetch(other)
+    
+    def __getitem__(self, key: int) -> 'Message':
+        return self.fetch(key)
 
     async def send(self, *strings: list[str], sep: str = ' ') -> Message | None:
         payload = {
@@ -186,6 +217,5 @@ class Channel:
             method='POST',
             payload=payload
         )
-        t = await route.async_request(self._session, get_event_loop())
-        j = t[0]
-        return Message(self._session, **j[0])
+        j, _ = await route.async_request(self._session, get_event_loop())
+        return Message(self._session, **j)

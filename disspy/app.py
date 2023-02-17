@@ -66,7 +66,8 @@ class _Interaction:
             token=self._token,
             payload=payload
         )
-        return await route.async_request(self._session, get_event_loop())
+        j, _ = await route.async_request(self._session, get_event_loop())
+        return j
 
 
 class Context:

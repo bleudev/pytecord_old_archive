@@ -9,7 +9,7 @@ All:
 '''
 
 from asyncio import gather
-from typing import TYPE_CHECKING, Iterable, Literal, NamedTuple, Optional
+from typing import TYPE_CHECKING, Iterable, Literal, TypeAlias, Optional
 
 from aiohttp.client_exceptions import ContentTypeError
 from requests import delete as DELETE
@@ -32,9 +32,7 @@ if TYPE_CHECKING:
 API_VERSION = 10
 BASE = f'https://discord.com/api/v{API_VERSION}'
 
-class _HTTPRequestResult(NamedTuple):
-    data: dict | None
-    status: int
+_HTTPRequestResult: TypeAlias = tuple[dict | str, int]
 
 class Route:
     def __init__(
@@ -107,10 +105,12 @@ class Route:
             timeout=2,
         ) as resp:
             try:
-                return await resp.json(), resp.status
+                j = await resp.json()
+                return j, resp.status
             except ContentTypeError:
                 try:
-                    return await resp.text(), resp.status
+                    j = await resp.text()
+                    return j, resp.status
                 except ContentTypeError:
                     return None, resp.status
 
@@ -128,4 +128,5 @@ class Route:
         ~session~: The aiohttp client session
         ~loop~: The current asyncio event loop
         '''
-        return await gather(loop.create_task(self._async_request_task(session)))
+        t, = await gather(loop.create_task(self._async_request_task(session)))
+        return t
