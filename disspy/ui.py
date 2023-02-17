@@ -1,34 +1,35 @@
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Generic, TypeVar
 
 from disspy.enums import ComponentType, TextInputStyle
 
+T = TypeVar('T', bound=str)
 
-class TextInput:
-    def _check_len(self, value: str | int, min: int, max: int):
+class TextInput(Generic[T]):
+    def _check_len(self, value: str | int, min: int, max: int): # pylint: disable=redefined-builtin
         if isinstance(value, str):
             return len(value) <= max and min <= len(value)
         elif isinstance(value, int):
             return value <= max and min <= value
-    def _check_for(self, value: Iterable, min: int, max: int):
+    def _check_for(self, value: Iterable, min: int, max: int): # pylint: disable=redefined-builtin
         for i in value:
             b = self._check_len(i, min, max)
             if not b:
                 return False
         return True
-    def _check_return(self, value: str | Iterable, l: tuple[int, int], func: Callable[[str | Iterable, int, int], bool]):
+    def _check_return(
+        self, value: str | Iterable, l: tuple[int, int],
+        func: Callable[[str | int | Iterable, int, int], bool]):
+        min, max = l # pylint: disable=redefined-builtin
+
         if value is None:
             return value
-        
-        b: bool = func(value, l[0], l[1])
-        
-        if b:
+
+        if func(value, min, max):
             return value
         else:
-            raise ValueError('This string %s is too long or fewer! Maximun is %d, minimun is %d' % (
-                value,
-                l[0],
-                l[1]
-            ))
+            raise ValueError(
+                f'This literal {value} is too long or fewer! Maximun is {max}, minimun is {min}'
+            )
 
     def __init__(self,
                  custom_id: str,
@@ -36,7 +37,7 @@ class TextInput:
                  style: TextInputStyle = TextInputStyle.short,
                  length: tuple[int, int] = (None, None), # (min, max)
                  required: bool = False,
-                 value: str = None,
+                 value: T = None,
                  placeholder: str = None) -> None:
         self.custom_id = custom_id
         self.label = self._check_return(label, (1, 45), self._check_len)
@@ -61,6 +62,24 @@ class TextInput:
 
 
 class Modal:
+    '''
+    Object for sending guis in discord
+    
+    ```
+    class MyModal(Modal, custom_id='mymodal', title='My modal title'):
+        inputs = [
+            TextInput(
+                custom_id='hello',
+                label='Hello',
+                style=TextInputStyle.short,
+                length=(1,10),
+                required=True,
+                value='Hello', # Default value
+                placeholder='Please type any text...'
+            )
+        ]
+    ```
+    '''
     title: str
     custom_id: str
     inputs: list[TextInput]
@@ -77,11 +96,11 @@ class Modal:
                 'components': [i.eval()]
             })
 
-        return dict(
-            custom_id=self.custom_id,
-            title=self.title,
-            components=rows_json
-        )
+        return {
+            'custom_id': self.custom_id,
+            'title': self.title,
+            'components': rows_json
+        }
 
     async def submit(self, ctx, **inputs):
         '''
