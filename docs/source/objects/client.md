@@ -6,6 +6,7 @@ Basic client
 ```
 
 ```{eval-rst}
-.. class disspy.Client(*, token: str, **options)
-    Basic client
+.. autoclass disspy.Client
+    :show-inheritance:
+    :members: parse
 ```

@@ -1,4 +1,7 @@
-extensions = ["myst_parser"]
+extensions = [
+    "myst_parser",
+    "sphinx.ext.autodoc"
+]
 
 myst_enable_extensions = [
     'colon_fence',
