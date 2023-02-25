@@ -3,3 +3,4 @@ requests
 asyncio
 colorama
 regex
+typing_extensions
