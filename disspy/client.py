@@ -16,6 +16,10 @@ SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
 
 CT = TypeVar( 'CT', bound=Callable[..., Coroutine[Any, Any, Any]] ) 
 
+__all__ = (
+    'Client',
+)
+
 class _flags:
     default = 16
     messages = 55824
@@ -26,31 +30,25 @@ class Client:
     Discord client.
     
     ### Magic operations
-    
-    += -> Add the event to the client
+    ---
+
+    `+=` -> Add the event to the client
+
+    `-=` -> Remove the event from the client
+
+    `call` -> Run the bot
+
+    `repr()` -> Get client data (for example, commands)
     
     ```
     async def ready(): ...
+    
     client += ready
-    ```
 
-    -= -> Remove the event from the client
-    
-    ```
-    @client.event
-    async def ready(): ...
     client -= ready # or 'ready'
-    ```
 
-    Calling -> Run the bot
-    
-    ```
-    client() # equals to client.run()
-    ```
+    client() # equals with client.run()
 
-    repr() -> Get client data (for example, commands)
-    
-    ```
     print(client) # Prints data about client
     ```
     '''
@@ -198,12 +196,13 @@ class Client:
             return menu
         return wrapper
 
-    def add_event(self, callback: Callable[..., Coroutine[Any, Any, Any]]) -> None:
+    def add_event(self, callback: CT) -> CT:
         match callback.__name__:
             case 'message' | 'message_delete':
                 self._intents += _flags.messages if self._intents & _flags.messages == 0 else 0
 
         self._listener.add_event(callback.__name__, callback)
+        return callback
 
     def event(self, func: CT) -> CT:
         self.add_event(func)

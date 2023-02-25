@@ -9,6 +9,11 @@ from disspy.ui import Modal
 if TYPE_CHECKING:
     from aiohttp import ClientSession
 
+__all__ = (
+    'Context',
+    'Modal',
+)
+
 class Command:
     def __init__(self, data: dict) -> None:
         self.data = data

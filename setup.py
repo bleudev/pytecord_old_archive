@@ -27,32 +27,27 @@ from setuptools import setup
 with open('README.md', 'r', encoding='utf-8') as mdf:
     long_description = mdf.read()
 
-requires = """aiohttp>=3.6.0,<4
-              requests
-              asyncio
-              colorama""".replace(' ', '').split("\n")
-
+with open('requirements.txt', 'r', encoding='utf-8') as rqf:
+    install_requires = rqf.readlines()
 
 __version__ = "0.7"
 
 setup(
-    name="disspy",
+    name='disspy',
     version=__version__,
-    author="itttgg",
-    author_email="aitiiigg1@gmail.com",
-    description="Dispy - package for creating bots in discord written in Python",
-    download_url=f"https://github.com/itttgg/dispy/tree/{__version__}",
+    author='pixeldeee',
+    author_email='aitiiigg1@gmail.com',
+    description='Disspy - library for creating bots in discord written in Python',
+    download_url=f'https://github.com/pixeldeee/disspy/releases/tag/{__version__}',
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/itttgg/dispy",
+    long_description_content_type='text/markdown',
+    url='https://github.com/pixeldeee/disspy',
     packages=['disspy'],
     classifiers = [
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.11',
     ],
     zip_safe=False,
-    python_requires=">=3.8",
-    install_requires=requires
+    python_requires=">=3.11",
+    install_requires=install_requires
 )

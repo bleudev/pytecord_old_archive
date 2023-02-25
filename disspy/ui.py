@@ -9,6 +9,11 @@ T = TypeVar('T', bound=str)
 
 TextInputStyleKO: TypeAlias = int
 
+__all__ = (
+    'TextInput',
+    'Modal',
+)
+
 class TextInput(Generic[T]):
     def _check_len(self, value: str | int, min: int, max: int) -> bool: # pylint: disable=redefined-builtin
         if isinstance(value, str):
