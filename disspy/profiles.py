@@ -1,5 +1,12 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from disspy.payloads import UserPayload, GuildMemberPayload
+    from aiohttp import ClientSession
+
 __all__ = (
     'User',
+    'Member',
 )
 
 class User:
@@ -18,7 +25,7 @@ class User:
     int(user) # 907966263270207519
     ```
     '''
-    def __init__(self, session, **data) -> None:
+    def __init__(self, session: 'ClientSession', **data: 'UserPayload') -> None:
         _ = data.get
         self._session = session
 
@@ -36,3 +43,37 @@ class User:
         return self.fullname
     def __int__(self) -> int:
         return self.id
+
+class Member:
+    '''
+    Standart guild member in discord API
+    
+    ### Magic operations
+    ---
+    
+    ...
+    '''
+    def __init__(self, session: 'ClientSession', user: User | None,**data: 'GuildMemberPayload') -> None:
+        _ = data.get
+        
+        if not user:
+            user = _('user')
+
+        self.user: User | None = User(session, **user) if isinstance(user, dict) else user
+        self.nick: str | None = nick if (nick := _('nick')) else self.user.username
+        self.avatar: str | None = _('avatar')
+        self.roles: list[str] = _('roles', [])
+        self.joined_at: str = _('joined_at')
+        self.premium_since: str | None = _('premium_since')
+        self.deaf: bool = _('deaf', False)
+        self.mute: bool = _('mute', False)
+        self.pending: bool | None = _('pending', False)
+        self.permissions: str | None = _('permissions', '0')
+        self.communication_disabled_until: str | None = _('communication_disabled_until')
+
+    def __str__(self) -> str:
+        return self.nick
+    def __int__(self) -> int:
+        if self.user:
+            return self.user.id
+        return 0

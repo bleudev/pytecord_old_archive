@@ -7,13 +7,18 @@ from asyncio import sleep as async_sleep
 from dataclasses import dataclass, field
 from datetime import datetime
 from time import mktime
+from typing import TYPE_CHECKING, Any, TypeVar
+
+if TYPE_CHECKING:
+    from aiohttp import ClientSession
 
 from disspy import utils
 from disspy.app import AppClient, Context
 from disspy.channel import Channel, Message, RawMessage
-from disspy.enums import ApplicationCommandType, InteractionType
+from disspy.enums import ApplicationCommandType, ApplicationCommandOptionType, InteractionType
 from disspy.listener import Listener
-from disspy.profiles import User
+from disspy.profiles import User, Member
+from disspy.role import Role
 
 gateway_version = 10 # pylint: disable=invalid-name
 
@@ -23,6 +28,82 @@ class _GatewayEvent:
     d: dict = field(default_factory=dict) # pylint: disable=invalid-name
     s: int = 0 # pylint: disable=invalid-name
     t: str = 'NONE' # pylint: disable=invalid-name
+
+OV = TypeVar('OV', str, float, int, bool, Member, Channel, Role)
+
+class _OptionSerializator:
+    def __new__(cls, option: dict[str, Any], resolved: list[dict[str, Any]] | None, session: 'ClientSession') -> tuple[str, OV]:
+        name = option['name']
+        type = option['type']
+        value = None
+        
+        non_resolving_types = (
+            ApplicationCommandOptionType.string,
+            ApplicationCommandOptionType.integer,
+            ApplicationCommandOptionType.boolean,
+            ApplicationCommandOptionType.number
+        )
+        resolving_types = {
+            ApplicationCommandOptionType.user: 'members*',
+            ApplicationCommandOptionType.channel: 'channels',
+            ApplicationCommandOptionType.role: 'roles',
+            ApplicationCommandOptionType.mentionable: 'members | roles*'
+        } # * - needs additional checks
+        
+        resolving_python_types = {
+            ApplicationCommandOptionType.user: Member,
+            ApplicationCommandOptionType.channel: Channel,
+            ApplicationCommandOptionType.role: Role,
+            ApplicationCommandOptionType.mentionable: Member | Role
+        }
+
+        if type in non_resolving_types:
+            value = option['value']
+        else:
+            target_id = option['value']
+            if type in (
+                ApplicationCommandOptionType.user, ApplicationCommandOptionType.mentionable
+            ):
+                def _members() -> 'Member':
+                    member_data = resolved['members'][target_id]
+                    user_data = resolved['users'][target_id]
+
+                    user = User(session, **user_data)
+                    return Member(session, user, **member_data)
+
+                if type is ApplicationCommandOptionType.mentionable:
+                    roles, members = resolved.get('roles', []), resolved.get('members', [])
+
+                    if roles and not members: members = [0 for i in range(len(roles))] # pylint: disable=multiple-statements
+                    elif members and not roles: roles = [0 for i in range(len(members))] # pylint: disable=multiple-statements
+
+                    result_type = None
+                    for role_id, member_id in zip(roles, members):
+                        if role_id == target_id:
+                            result_type = 'roles'
+                            break
+                        if member_id == target_id:
+                            result_type = 'members'
+                            break
+
+                    if result_type == 'roles':
+                        data = resolved[result_type][target_id]
+                        value = Role(session, **data)
+                    elif result_type == 'members':
+                        value = _members()
+
+                elif type is ApplicationCommandOptionType.user:
+                    value = _members()
+                            
+                    
+            else:
+                resolved_type_name = resolving_types[type] # For example, 'channels'
+                resolved_python_type: Member | Channel | Role = resolving_python_types[type] # For example, Channel
+                data = resolved[resolved_type_name][target_id]
+                
+                value = resolved_python_type(session, **data)
+
+        return name, value
 
 class Hook:
     '''
@@ -48,7 +129,7 @@ class Hook:
         if self._debug:
             print(utils.get_hook_debug_message(data))
 
-    async def _get(self) -> dict:
+    async def _get(self) -> dict | None:
         try:
             j = await self._ws.receive_json()
             self._debuging(j)
@@ -153,30 +234,8 @@ class Hook:
                                 resolved = command_data.get('resolved')
 
                                 for option_json in option_jsons:
-                                    _type = option_json['type']
-                                    if _type in [6, 7]:
-                                        target_id = option_json['value']
-
-                                        resolved_types = {
-                                            6: 'users',
-                                            7: 'channels'
-                                        }
-                                        resolved_data = resolved[resolved_types[_type]][target_id]
-
-                                        _types = {
-                                            6: User,
-                                            7: Channel
-                                        }
-
-                                        option_values.setdefault(
-                                            option_json['name'],
-                                            _types[_type](self._session, **resolved_data)
-                                        )
-                                    else:
-                                        option_values.setdefault(
-                                            option_json['name'],
-                                            option_json['value']
-                                        )
+                                    __name, __serialized = _OptionSerializator(option_json, resolved, self._session)
+                                    option_values[__name] = __serialized
 
                             if option_values:
                                 await self._app_client.invoke_command(
@@ -217,5 +276,5 @@ class Hook:
                             **inputs_values
                         )
                 case _:
-                    if self._debug:
+                    if self._debug and event.t:
                         print(f'Unknown {event.t} event type!')

@@ -1,7 +1,7 @@
 from asyncio import run as async_run
 from inspect import _empty, getdoc, signature
 from sys import exit as sys_exit
-from typing import Any, Callable, Coroutine, Self, TypeVar
+from typing import Any, Callable, Coroutine, Self, TypeVar, TypeAlias
 
 from regex import fullmatch
 
@@ -10,15 +10,19 @@ from disspy.channel import Channel, Message
 from disspy.connection import Connection
 from disspy.enums import ApplicationCommandOptionType, ApplicationCommandType
 from disspy.listener import Listener
-from disspy.profiles import User
+from disspy.profiles import Member
+from disspy.role import Role
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
 
 CT = TypeVar( 'CT', bound=Callable[..., Coroutine[Any, Any, Any]] ) 
 
 __all__ = (
+    'Mentionable',
     'Client',
 )
+
+Mentionable: TypeAlias = Member | Role
 
 class _flags:
     default = 16
@@ -99,10 +103,10 @@ class Client:
             str: ApplicationCommandOptionType.string,
             int: ApplicationCommandOptionType.integer,
             bool: ApplicationCommandOptionType.boolean,
-            User: ApplicationCommandOptionType.user,
+            Member: ApplicationCommandOptionType.user,
             Channel: ApplicationCommandOptionType.channel,
-            'ROLE': ApplicationCommandOptionType.role,
-            'MENTIONABLE': ApplicationCommandOptionType.mentionable,
+            Role: ApplicationCommandOptionType.role,
+            Mentionable: ApplicationCommandOptionType.mentionable,
             float: ApplicationCommandOptionType.number,
             'ATTACHMENT': ApplicationCommandOptionType.attachment,
         }
@@ -114,12 +118,12 @@ class Client:
             })
         return option_jsons
 
-    def command(self) -> Callable[..., Command]:
+    def command(self, __f: Callable[..., Coroutine[Any, Any, Any]]) -> Command:
         """
-        Create an `app command`
-        
+        Create an app command
+
         ```
-        @client.command()
+        @client.command
         @app.describe(
             first='First argument'
         )
@@ -128,53 +132,51 @@ class Client:
         ```
 
         Returns:
-            Callable[..., Command]: Wrapper
+            Command: Created command
         """
-        def wrapper(func: Callable[..., Coroutine[Any, Any, Any]]) -> Command:
-            callable = self._get_callable(func)
+        callable = self._get_callable(__f)
 
-            command_json = {
-                'type': ApplicationCommandType.chat_input,
-                'name': callable.__name__,
-            }
+        command_json = {
+            'type': ApplicationCommandType.chat_input,
+            'name': callable.__name__,
+        }
 
-            description = x.splitlines()[0] if (x := getdoc(callable)) else None # pylint: disable=invalid-name
+        description = x.splitlines()[0] if (x := getdoc(callable)) else None # pylint: disable=invalid-name
 
-            params = dict(signature(callable).parameters)
-            option_tuples = [(k, (v.annotation, v.default)) for k, v in list(params.items())[1:]]
-            option_jsons = self._get_options(x) if (x := option_tuples) else [] # pylint: disable=invalid-name
+        params = dict(signature(callable).parameters)
+        option_tuples = [(k, (v.annotation, v.default)) for k, v in list(params.items())[1:]]
+        option_jsons = self._get_options(x) if (x := option_tuples) else [] # pylint: disable=invalid-name
 
-            if option_jsons:
-                for i in option_jsons:
-                    i['description'] = 'No description'
+        if option_jsons:
+            for i in option_jsons:
+                i['description'] = 'No description'
 
-            command_json.update(
-                name=callable.__name__,
-                description=x if (x := description) else 'No description', # pylint: disable=invalid-name
-                options=option_jsons,
-            )
+        command_json.update(
+            name=callable.__name__,
+            description=x if (x := description) else 'No description', # pylint: disable=invalid-name
+            options=option_jsons,
+        )
 
-            if isinstance(func, tuple):
-                json, callable, string = func
-                if string == 'describe':
+        if isinstance(__f, tuple):
+            json, callable, string = __f
+            match string:
+                case 'describe':
                     if command_json.get('options'):
                         for option in command_json.get('options'):
                             for name, description in json.items():
                                 if option['name'] == name:
                                     option['description'] = description
-                else:
-                    for k, v in json.items(): # pylint: disable=invalid-name
-                        command_json[k] = v
+                case _:
+                    command_json.update(**json)
 
-            if not self._validate_slash_command(command_json['name']):
-                raise ValueError(
-                    f'All slash command names must followed {SLASH_COMMAND_VALID_REGEX} regex'
-                )
+        if not self._validate_slash_command(command_json['name']):
+            raise ValueError(
+                f'All slash command names must followed {SLASH_COMMAND_VALID_REGEX} regex'
+            )
 
-            command = Command(command_json)
-            self._app.add_command(command, callable)
-            return command
-        return wrapper
+        command = Command(command_json)
+        self._app.add_command(command, callable)
+        return command
 
     def _get_menu_type(self, func: Callable[..., Coroutine[Any, Any, Any]]):
         params = dict(signature(func).parameters)

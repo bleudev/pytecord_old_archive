@@ -34,6 +34,7 @@ from disspy.app import *
 from disspy.channel import *
 from disspy.client import *
 from disspy.profiles import *
+from disspy.role import *
 from disspy.ui import *
 
 # Info
