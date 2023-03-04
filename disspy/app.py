@@ -1,12 +1,14 @@
 from asyncio import get_event_loop
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar, 
 
 from disspy import utils
 from disspy.enums import InteractionCallbackType, InteractionType, MessageFlags
 from disspy.route import Route
 from disspy.ui import Modal
 
+
 if TYPE_CHECKING:
+    from disspy.annotations import Strable, Subclass
     from aiohttp import ClientSession
 
 __all__ = (
@@ -84,16 +86,41 @@ class Context:
 
         self.command = Command(data['data'])
 
-    async def send_message(self, *strings: list[str], sep: str = ' ', ephemeral: bool = False):
+    async def send_message(
+            self,
+            *strings: list['Strable'],
+            sep: str = ' ',
+            tts: bool = False,
+            ephemeral: bool = False
+        ):
         await self.interaction.respond({
             'type': InteractionCallbackType.channel_message_with_source,
-            'data': {
-                'content': str(utils.get_content(*strings, sep=sep)),
-                'flags': MessageFlags.ephemeral if ephemeral else 0
-            }
+            'data': utils.message_payload(
+                *strings,
+                sep=sep,
+                ephemeral=ephemeral,
+                tts=tts
+            )
         })
 
-    async def send_modal(self, modal: Modal):
+    async def edit_message(
+            self,
+            *strings: list['Strable'],
+            sep: str = ' ',
+            tts: bool = False,
+            ephemeral: bool = False
+        ):
+        await self.interaction.respond({
+            'type': InteractionCallbackType.update_message,
+            'data': utils.message_payload(
+                *strings,
+                sep=sep,
+                ephemeral=ephemeral,
+                tts=tts
+            )
+        })
+
+    async def send_modal(self, modal: 'Subclass[Modal]'):
         if self.interaction.type in [
             InteractionType.ping,
             InteractionType.modal_submit
@@ -104,15 +131,6 @@ class Context:
             'data': modal.eval()
         })
         self._hook._app_client.add_modal(modal)
-
-    async def edit_message(self, *strings: list[str], sep: str = ' ', ephemeral: bool = False):
-        await self.interaction.respond({
-            'type': InteractionCallbackType.update_message,
-            'data': {
-                'content': str(utils.get_content(*strings, sep=sep)),
-                'flags': MessageFlags.ephemeral if ephemeral else 0
-            }
-        })
 
 def describe(**options):
     def wrapper(func):

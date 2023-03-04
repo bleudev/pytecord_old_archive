@@ -4,8 +4,11 @@ from disspy import utils
 from disspy.payloads import MessagePayload
 from disspy.route import Route
 
-from typing import overload
-from typing_extensions import deprecated
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from disspy.annotations import Strable
 
 __all__ = (
     'Message',
@@ -112,26 +115,7 @@ class Message:
     def __ge__(self, other: 'Message'): # >=
         return self.id <= other.id
 
-    @deprecated('Use new_reply() instead. This function will be removed after 1 March 2023. After that new_reply() will be renamed to reply()!')
-    async def reply(self, content: str):
-        '''
-        Reply to a message
-        '''
-        payload = {
-            'content': content,
-            'message_reference': {
-                'message_id': self.id
-            }
-        }
-        route = Route(
-            '/channels/%s/messages', self.channel_id,
-            method='POST',
-            payload=payload
-        )
-        j, _ = await route.async_request(self._session, get_event_loop())
-        return Message(self._session, **j)
-
-    async def new_reply(self, *strings, sep: str = ' '):
+    async def reply(self, *strings: 'list[Strable]', sep: str = ' '):
         '''
         Reply to a message
         '''
@@ -198,7 +182,7 @@ class Channel:
         return Message(self._session, **data)
 
     def __str__(self) -> str:
-        return str(self.name)
+        return self.name
 
     def __int__(self) -> int:
         return self.id
@@ -209,7 +193,7 @@ class Channel:
     def __getitem__(self, key: int) -> 'Message':
         return self.fetch(key)
 
-    async def send(self, *strings: list[str], sep: str = ' ', tts: bool = False) -> Message | None:
+    async def send(self, *strings: 'list[Strable]', sep: str = ' ', tts: bool = False) -> Message | None:
         route = Route(
             '/channels/%s/messages', self.id,
             method='POST',
