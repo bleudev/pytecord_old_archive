@@ -2,7 +2,7 @@
 Webhook for connection to Discord Gateway
 '''
 
-from asyncio import create_task, gather
+from asyncio import create_task, gather, get_event_loop
 from asyncio import sleep as async_sleep
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from aiohttp import ClientSession
 
 from disspy import utils
+from disspy.route import Route
 from disspy.app import AppClient, Context
 from disspy.channel import Channel, Message, RawMessage
 from disspy.enums import ApplicationCommandType, ApplicationCommandOptionType, InteractionType
@@ -94,13 +95,11 @@ class _OptionSerializator:
 
                 elif type is ApplicationCommandOptionType.user:
                     value = _members()
-                            
-                    
             else:
                 resolved_type_name = resolving_types[type] # For example, 'channels'
                 resolved_python_type: Member | Channel | Role = resolving_python_types[type] # For example, Channel
                 data = resolved[resolved_type_name][target_id]
-                
+
                 value = resolved_python_type(session, **data)
 
         return name, value
@@ -186,11 +185,67 @@ class Hook:
             )
 
     async def _register_app_commands(self, app_id):
-        for i in self._app_client.commands:
-            await self._session.post(
-                f'https://discord.com/api/v10//applications/{app_id}/commands',
-                json=i.eval()
+        def _name_print(l: list[dict]):
+            return [i['name'] for i in l]
+        
+        route = Route(
+            '/applications/%s/commands', app_id,
+            method='GET',
+            token=self.token
+        )
+        server_app_commands, _ = route.request()
+        code_app_commands = [i.eval() for i in self._app_client.commands]
+        
+        print(f'{server_app_commands=}\n\n{code_app_commands=}')
+        
+        # server_app_commands=[{'description': 'Clear the messages in channel', 'id': '1076244001272889384', 'application_id': '965666270500495390',
+        # 'version': '1076247271341047818', 'default_permission': True, 'dm_permission': True, 'default_member_permissions': '8',
+        # 'options': [{'type': 4, 'name': 'amount', 'description': 'Amount of messages to delete'}], 'type': 1, 'nsfw': False, 'name': 'clear'},
+        # {'description': "Remove 'крутой' role and add 'жоски' role", 'id': '1079321809129848903', 'application_id': '965666270500495390', 'version': '1079321809129848904',
+        # 'default_permission': True, 'dm_permission': True, 'default_member_permissions': None, 'options': [{'description': '…', 'type': 6, 'name': 'member', 'required': True}],
+        # 'type': 1, 'nsfw': False, 'name': 'don'},
+        # {'description': 'No description', 'id': '1081340498662400151', 'application_id': '965666270500495390', 'version': '1081340498662400152',
+        # 'default_permission': True, 'dm_permission': True, 'default_member_permissions': None, 'options': [{'type': 9, 'required': True, 'name': 'mentionable',
+        # 'description': 'User or role'}], 'type': 1, 'nsfw': False, 'name': 'test_app_command'}]
+        # 
+        # code_app_commands=[{'type': 1, 'name': 'test_app_command', 'description': 'No description', 'options': [{'name': 'mentionable', 'type': 9, 'required': True,
+        # 'description': 'User or role'}]}]
+        equals_commands = [] # to PATCH
+        excess_commands = [] # to DELETE
+        new_commands = [] # to POST
+
+        for code in code_app_commands:
+            for server in server_app_commands:
+                if code['name'] == server['name']:
+                    code['id'] = server['id']
+                    equals_commands.append(code)
+                else:
+                    if (code not in new_commands) and (code not in equals_commands):
+                        new_commands.append(code)
+                    if (server not in excess_commands) and (server not in equals_commands):
+                        excess_commands.append(server)
+        print(f'{equals_commands=}\n\n{excess_commands=}\n\n{new_commands=}')
+        
+        for eq in equals_commands:
+            route = Route(
+                '/applications/%s/commands/%s', app_id, eq['id'],
+                method='PATCH',
+                payload=eq
             )
+            await route.async_request(self._session, get_event_loop())
+        for ex in excess_commands:
+            route = Route(
+                '/applications/%s/commands/%s', app_id, ex['id'],
+                method='DELETE'
+            )
+            await route.async_request(self._session, get_event_loop())
+        for nw in new_commands:
+            route = Route(
+                '/applications/%s/commands', app_id,
+                method='POST',
+                payload=nw
+            )
+            await route.async_request(self._session, get_event_loop())
 
     async def _life(self, interval):
         while True:

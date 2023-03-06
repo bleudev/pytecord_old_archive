@@ -1,8 +1,8 @@
 from asyncio import get_event_loop
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar, 
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
 
 from disspy import utils
-from disspy.enums import InteractionCallbackType, InteractionType, MessageFlags
+from disspy.enums import InteractionCallbackType, InteractionType
 from disspy.route import Route
 from disspy.ui import Modal
 

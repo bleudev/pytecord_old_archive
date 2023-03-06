@@ -187,13 +187,13 @@ class Channel:
     def __int__(self) -> int:
         return self.id
 
-    def __contains__(self, value: Message) -> bool:
+    def __contains__(self, value: 'Message') -> bool:
         return self.id == value.channel_id
 
     def __getitem__(self, key: int) -> 'Message':
         return self.fetch(key)
 
-    async def send(self, *strings: 'list[Strable]', sep: str = ' ', tts: bool = False) -> Message | None:
+    async def send(self, *strings: 'list[Strable]', sep: str = ' ', tts: bool = False) -> 'Message | None':
         route = Route(
             '/channels/%s/messages', self.id,
             method='POST',
