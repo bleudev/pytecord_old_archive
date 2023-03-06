@@ -195,21 +195,7 @@ class Hook:
         )
         server_app_commands, _ = route.request()
         code_app_commands = [i.eval() for i in self._app_client.commands]
-        
-        print(f'{server_app_commands=}\n\n{code_app_commands=}')
-        
-        # server_app_commands=[{'description': 'Clear the messages in channel', 'id': '1076244001272889384', 'application_id': '965666270500495390',
-        # 'version': '1076247271341047818', 'default_permission': True, 'dm_permission': True, 'default_member_permissions': '8',
-        # 'options': [{'type': 4, 'name': 'amount', 'description': 'Amount of messages to delete'}], 'type': 1, 'nsfw': False, 'name': 'clear'},
-        # {'description': "Remove 'крутой' role and add 'жоски' role", 'id': '1079321809129848903', 'application_id': '965666270500495390', 'version': '1079321809129848904',
-        # 'default_permission': True, 'dm_permission': True, 'default_member_permissions': None, 'options': [{'description': '…', 'type': 6, 'name': 'member', 'required': True}],
-        # 'type': 1, 'nsfw': False, 'name': 'don'},
-        # {'description': 'No description', 'id': '1081340498662400151', 'application_id': '965666270500495390', 'version': '1081340498662400152',
-        # 'default_permission': True, 'dm_permission': True, 'default_member_permissions': None, 'options': [{'type': 9, 'required': True, 'name': 'mentionable',
-        # 'description': 'User or role'}], 'type': 1, 'nsfw': False, 'name': 'test_app_command'}]
-        # 
-        # code_app_commands=[{'type': 1, 'name': 'test_app_command', 'description': 'No description', 'options': [{'name': 'mentionable', 'type': 9, 'required': True,
-        # 'description': 'User or role'}]}]
+
         equals_commands = [] # to PATCH
         excess_commands = [] # to DELETE
         new_commands = [] # to POST
@@ -224,7 +210,6 @@ class Hook:
                         new_commands.append(code)
                     if (server not in excess_commands) and (server not in equals_commands):
                         excess_commands.append(server)
-        print(f'{equals_commands=}\n\n{excess_commands=}\n\n{new_commands=}')
         
         for eq in equals_commands:
             route = Route(
