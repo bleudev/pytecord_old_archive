@@ -11,6 +11,21 @@ __all__ = (
 )
 
 class Attachment(Generic[CT]):
+    '''
+    Attachment (File) object
+    
+    ### Magic operations
+    ---
+    
+    `int()` -> Attachment id
+
+    `str()` -> Attachment url
+     
+    ```
+    int(attachment)
+    str(attachment)
+    ```
+    '''
     def __init__(self, *_, **data: 'AttachmentPayload') -> None:
         _ = data.get
 
@@ -24,7 +39,7 @@ class Attachment(Generic[CT]):
         self.height: int | None = _('height')
         self.width: int | None = _('width')
         self.ephemeral: bool = _('ephemeral', False)
-    
+
     def __int__(self) -> int:
         return self.id
     def __str__(self) -> str:

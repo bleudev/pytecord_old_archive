@@ -35,6 +35,7 @@ class Client:
     Discord client.
     
     ### Magic operations
+    ---
 
     `+=` -> Add the event to the client
 
@@ -46,7 +47,6 @@ class Client:
     
     ```
     async def ready(): ...
-    
     client += ready
 
     client -= ready # or 'ready'
