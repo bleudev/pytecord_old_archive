@@ -185,9 +185,6 @@ class Hook:
             )
 
     async def _register_app_commands(self, app_id):
-        def _name_print(l: list[dict]):
-            return [i['name'] for i in l]
-        
         route = Route(
             '/applications/%s/commands', app_id,
             method='GET',
@@ -196,41 +193,52 @@ class Hook:
         server_app_commands, _ = route.request()
         code_app_commands = [i.eval() for i in self._app_client.commands]
 
-        equals_commands = [] # to PATCH
-        excess_commands = [] # to DELETE
-        new_commands = [] # to POST
+        async def _async_request(__r: Route) -> Any:
+            return await __r.async_request(self._session, get_event_loop())
 
-        for code in code_app_commands:
-            for server in server_app_commands:
-                if code['name'] == server['name']:
-                    code['id'] = server['id']
-                    equals_commands.append(code)
-                else:
-                    if (code not in new_commands) and (code not in equals_commands):
-                        new_commands.append(code)
-                    if (server not in excess_commands) and (server not in equals_commands):
-                        excess_commands.append(server)
-        
-        for eq in equals_commands:
-            route = Route(
-                '/applications/%s/commands/%s', app_id, eq['id'],
-                method='PATCH',
-                payload=eq
-            )
-            await route.async_request(self._session, get_event_loop())
-        for ex in excess_commands:
-            route = Route(
-                '/applications/%s/commands/%s', app_id, ex['id'],
-                method='DELETE'
-            )
-            await route.async_request(self._session, get_event_loop())
-        for nw in new_commands:
-            route = Route(
-                '/applications/%s/commands', app_id,
-                method='POST',
-                payload=nw
-            )
-            await route.async_request(self._session, get_event_loop())
+        if code_app_commands:
+            equals_commands = [] # to PATCH
+            excess_commands = [] # to DELETE
+            new_commands = [] # to POST
+
+            for code in code_app_commands:
+                for server in server_app_commands:
+                    if code['name'] == server['name']:
+                        code['id'] = server['id']
+                        equals_commands.append(code)
+                    else:
+                        if (code not in new_commands) and (code not in equals_commands):
+                            new_commands.append(code)
+                        if (server not in excess_commands) and (server not in equals_commands):
+                            excess_commands.append(server)
+
+            for eq in equals_commands:
+                route = Route(
+                    '/applications/%s/commands/%s', app_id, eq['id'],
+                    method='PATCH',
+                    payload=eq
+                )
+                await _async_request(route)
+            for ex in excess_commands:
+                route = Route(
+                    '/applications/%s/commands/%s', app_id, ex['id'],
+                    method='DELETE'
+                )
+                await _async_request(route)
+            for nw in new_commands:
+                route = Route(
+                    '/applications/%s/commands', app_id,
+                    method='POST',
+                    payload=nw
+                )
+                await _async_request(route)
+        else:
+            for i in server_app_commands:
+                route = Route(
+                    '/applications/%s/commands/%s', app_id, i['id'],
+                    method='DELETE'
+                )
+                await _async_request(route)
 
     async def _life(self, interval):
         while True:
