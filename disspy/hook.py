@@ -13,13 +13,15 @@ if TYPE_CHECKING:
     from aiohttp import ClientSession
 
 from disspy import utils
-from disspy.route import Route
 from disspy.app import AppClient, Context
 from disspy.channel import Channel, Message, RawMessage
-from disspy.enums import ApplicationCommandType, ApplicationCommandOptionType, InteractionType
+from disspy.enums import (ApplicationCommandOptionType, ApplicationCommandType,
+                          InteractionType)
+from disspy.files import Attachment
 from disspy.listener import Listener
-from disspy.profiles import User, Member
+from disspy.profiles import Member, User
 from disspy.role import Role
+from disspy.route import Route
 
 gateway_version = 10 # pylint: disable=invalid-name
 
@@ -48,14 +50,16 @@ class _OptionSerializator:
             ApplicationCommandOptionType.user: 'members*',
             ApplicationCommandOptionType.channel: 'channels',
             ApplicationCommandOptionType.role: 'roles',
-            ApplicationCommandOptionType.mentionable: 'members | roles*'
+            ApplicationCommandOptionType.mentionable: 'members | roles*',
+            ApplicationCommandOptionType.attachment: 'attachments'
         } # * - needs additional checks
         
         resolving_python_types = {
             ApplicationCommandOptionType.user: Member,
             ApplicationCommandOptionType.channel: Channel,
             ApplicationCommandOptionType.role: Role,
-            ApplicationCommandOptionType.mentionable: Member | Role
+            ApplicationCommandOptionType.mentionable: Member | Role,
+            ApplicationCommandOptionType.attachment: Attachment
         }
 
         if type in non_resolving_types:

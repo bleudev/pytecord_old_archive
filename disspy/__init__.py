@@ -36,6 +36,7 @@ from disspy.client import *
 from disspy.profiles import *
 from disspy.role import *
 from disspy.ui import *
+from disspy.files import *
 
 # Info
 __version__: str = '1.0-alpha-1'

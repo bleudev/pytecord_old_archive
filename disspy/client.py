@@ -12,6 +12,7 @@ from disspy.enums import ApplicationCommandOptionType, ApplicationCommandType
 from disspy.listener import Listener
 from disspy.profiles import Member
 from disspy.role import Role
+from disspy.files import Attachment
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
 
@@ -34,7 +35,6 @@ class Client:
     Discord client.
     
     ### Magic operations
-    ---
 
     `+=` -> Add the event to the client
 
@@ -108,7 +108,7 @@ class Client:
             Role: ApplicationCommandOptionType.role,
             Mentionable: ApplicationCommandOptionType.mentionable,
             float: ApplicationCommandOptionType.number,
-            'ATTACHMENT': ApplicationCommandOptionType.attachment,
+            Attachment: ApplicationCommandOptionType.attachment,
         }
         for n, (t, d) in option_tuples: # pylint: disable=invalid-name
             option_jsons.append({
