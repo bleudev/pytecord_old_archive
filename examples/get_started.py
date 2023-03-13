@@ -8,10 +8,10 @@ Enjoy!
 """
 
 # For get started import library
-import disspy
+import pytecord
 
 # Also you can import any things using `from`
-from disspy import Client
+from pytecord import Client
 
 # Let's create client!
 # 1 step: Copy token from Discord Developer Portal

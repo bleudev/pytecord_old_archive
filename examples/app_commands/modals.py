@@ -7,14 +7,14 @@ Enjoy!
 """
 
 # Create a client
-from disspy import Client
+from pytecord import Client
 client = Client(token='token')
 
 # Create a command
-from disspy import app
+from pytecord import app
 
 # note: also you must import ui module
-from disspy import ui
+from pytecord import ui
 
 @client.command()
 async def modals(ctx: app.Context):

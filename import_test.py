@@ -2,6 +2,6 @@
 Test import
 """
 
-import disspy
+import pytecord
 
 print("Success: %s" % "import disspy")

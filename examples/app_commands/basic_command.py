@@ -8,14 +8,14 @@ Enjoy!
 """
 
 # Import client
-from disspy import Client
+from pytecord import Client
 
 # Create a client
 # note: You should replace 'token' to your token
 client = Client(token='token')
 
 # Import application commands module
-from disspy import app
+from pytecord import app
 
 # Create a command!
 # Docstring is description of command (visible in discord)

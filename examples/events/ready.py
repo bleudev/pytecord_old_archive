@@ -7,7 +7,7 @@ Enjoy!
 """
 
 # Create a client
-from disspy import Client
+from pytecord import Client
 client = Client(token='token') # Replace with your token
 
 # For using events you can use `event` decorator
