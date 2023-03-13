@@ -1,5 +1,10 @@
 # Dispy
-<p align=center><img src="logo.png" width="430" alt="logo" style="text-align: center"/></p>
+<p align=center>
+    <img src="logo.png" width="200" alt="logo" style="text-align: center"/>
+</p>
+<p align=center>
+    <img src="name.png" width="430" alt="logo" style="text-align: center"/>
+</p>
 
 [![Version](https://img.shields.io/badge/pypi-0.8-2C6CA6)](https://pypi.org/project/disspy)
 [![Project language](https://img.shields.io/badge/language-python-2C6CA6)](https://pypi.org/project/disspy)
