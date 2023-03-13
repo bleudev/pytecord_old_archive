@@ -1,7 +1,7 @@
 """
 `basic_command.py`
 
-In this file you will learn to create basic command in disspy!
+In this file you will learn to create basic command in pytecord!
 This is so easy ;)
 
 Enjoy!
@@ -24,7 +24,7 @@ from pytecord import app
 @client.command() # You may add `name` kwarg with your name. Else name will be function name
 async def basic_command(ctx: app.Context):
     """
-    This is a basic command in disspy!
+    This is a basic command in pytecord!
     """
     await ctx.send_message('Hello, world!')
 

@@ -7,7 +7,7 @@
 __pycache__
 
 # Package builds
-/disspy.egg-info
+/pytecord.egg-info
 /dist
 /sdist
 /build

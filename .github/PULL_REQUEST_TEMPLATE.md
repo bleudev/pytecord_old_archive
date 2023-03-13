@@ -4,7 +4,7 @@ Type here mini description
 
 ## For what part of library?
 
-[ ] disspy
+[ ] pytecord
 [ ] The documentation
 
 ## Checklist

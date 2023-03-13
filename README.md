@@ -6,11 +6,11 @@
     <img src="name.png" width="430" alt="logo" style="text-align: center"/>
 </p>
 
-[![Version](https://img.shields.io/badge/pypi-0.8-2C6CA6)](https://pypi.org/project/disspy)
-[![Project language](https://img.shields.io/badge/language-python-2C6CA6)](https://pypi.org/project/disspy)
-[![Python versions](https://img.shields.io/badge/python_versions-3.8_|_3.9_|_3.10_|_3.11-2C6CA6)](https://pypi.org/project/disspy)
-[![PyLint mark](https://img.shields.io/badge/pylink_mark-9.31/10-2C6CA6)](https://github.com/pixeldeee/disspy/actions/workflows/pylint.yml)
-[![Documenation status](https://readthedocs.org/projects/disspy/badge/?version=latest)](https://disspy.readthedocs.io/en/latest)
+[![Version](https://img.shields.io/badge/pypi-0.8-2C6CA6)](https://pypi.org/project/pytecord)
+[![Project language](https://img.shields.io/badge/language-python-2C6CA6)](https://pypi.org/project/pytecord)
+[![Python versions](https://img.shields.io/badge/python_versions-3.11-2C6CA6)](https://pypi.org/project/pytecord)
+[![PyLint mark](https://img.shields.io/badge/pylink_mark-9.31/10-2C6CA6)](https://github.com/pixeldeee/pytecord/actions/workflows/pylint.yml)
+[![Documenation status](https://readthedocs.org/projects/pytecord/badge/?version=latest)](https://pytecord.readthedocs.io/en/latest)
 [![Code style: Black](https://img.shields.io/badge/code_style-black-black)](https://github.com/psf/black)
 
 # Advantages
@@ -28,7 +28,7 @@ on your server, creating mini games in discord, auto moderation in your discord 
 For example, you can reply to message that is sended by any user using this code:
 
 ```python
-from disspy import Client, Message  # Import library
+from pytecord import Client, Message  # Import library
 import os
 
 TOKEN = os.environ['TOKEN']
@@ -47,29 +47,29 @@ client.run()  # Run client
 
 ```command
 # Windows
-pip install -U disspy
+pip install -U pytecord
 
 # MacOS / Linux
-python3 -m pip install -U disspy
+python3 -m pip install -U pytecord
 ```
 
 ## Download dev version (needs git)
 
 ```command
 # Windows
-git clone https://github.com/pixeldeee/disspy.git
+git clone https://github.com/pixeldeee/pytecord.git
 cd dispy
 pip install -U .
 
 # MacOs / Linux
-git clone https://github.com/pixeldeee/disspy.git
+git clone https://github.com/pixeldeee/pytecord.git
 cd dispy
 python3 -m pip install -U .
 ```
 
 # Links
 
-[Github](https://github.com/pixeldeee/disspy) |
-[PyPi](https://pypi.org/project/disspy) |
-[Docs](https://disspy.readthedocs.io) |
+[Github](https://github.com/pixeldeee/pytecord) |
+[PyPi](https://pypi.org/project/pytecord) |
+[Docs](https://pytecord.readthedocs.io) |
 [Discord](https://discord.gg/QsE5DSQrsx)

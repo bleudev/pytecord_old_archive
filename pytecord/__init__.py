@@ -27,7 +27,7 @@ More examples: https://github.com/pixeldeee/pytecord/tree/master/examples
 
 PyPi: https://pypi.org/project/pytecord
 
-Docs: https://disspy.readthedocs.io/en/latest
+Docs: https://pytecord.readthedocs.io/en/latest
 '''
 
 from pytecord.app import *

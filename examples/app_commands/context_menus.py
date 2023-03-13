@@ -1,7 +1,7 @@
 """
 `context_menus.py`
 
-In this file you will learn to create context menu in disspy!
+In this file you will learn to create context menu in pytecord!
 This is easier that commands ;)
 
 Enjoy!

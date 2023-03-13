@@ -1,7 +1,7 @@
 """
 `modals.py`
 
-In this file you will learn to create a modals in disspy!
+In this file you will learn to create a modals in pytecord!
 
 Enjoy!
 """
@@ -19,7 +19,7 @@ from pytecord import ui
 @client.command()
 async def modals(ctx: app.Context):
     """
-    An example modal in disspy!
+    An example modal in pytecord!
     """
     # You have to inherit ui.Modal class to create a modal
     class MyModal(ui.Modal, title='Feedback', custom_id='feedback'): # note: `custom_id` is not visible in discord

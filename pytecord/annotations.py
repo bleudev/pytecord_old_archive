@@ -31,7 +31,7 @@ class Startswith(str, Generic[ST]):
     
     Using:
     ```
-    Startswith['I like disspy'] # F. e., 'I like disspy very much!'
+    Startswith['I like pytecord'] # F. e., 'I like pytecord very much!'
     ```
     '''
     ... # pylint: disable=unnecessary-ellipsis

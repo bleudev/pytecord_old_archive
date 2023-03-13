@@ -15,12 +15,12 @@ Discord is a social network. He has guilds, channels, users and other objects. A
 Disspy is very easy library. For example, with this code you can receive and respond to messages that is sending in discord channel.
 
 ```py
-import disspy
+import pytecord
 
-client = disspy.Client(token='token') # Replace with your token
+client = pytecord.Client(token='token') # Replace with your token
 
 @client.event
-async def message(message: disspy.Message):
+async def message(message: pytecord.Message):
    await message.channel.send('Hello, world')
 
 client()
@@ -29,5 +29,5 @@ client()
 *Really? Really simple code!*
 
 :::{tip}
-If you want to write some code and if you want to learn disspy, open 'Objects' folder.
+If you want to write some code and if you want to learn pytecord, open 'Objects' folder.
 :::

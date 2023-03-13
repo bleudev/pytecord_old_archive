@@ -5,7 +5,7 @@ py -3 setup.py sdist
 
 twine upload dist\*
 
-rd /s /q disspy.egg-info
+rd /s /q pytecord.egg-info
 rd /s /q dist
 rd /s /q build
 

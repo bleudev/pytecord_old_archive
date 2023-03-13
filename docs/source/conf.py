@@ -10,13 +10,13 @@ myst_enable_extensions = [
 ]
 myst_heading_anchors = 2
 
-project = 'disspy'
+project = 'pytecord'
 html_logo = "l.png"
 html_favicon = 'favicon.ico'
 html_theme = 'furo'
 
 html_theme_options = {
-    "source_repository": "https://github.com/pixeldeee/disspy",
+    "source_repository": "https://github.com/pixeldeee/pytecord",
     "source_branch": "master",
     "source_directory": "docs/source",
     "repository_branch": "master"

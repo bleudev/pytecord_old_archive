@@ -1,6 +1,6 @@
 # Client
 
-*class disspy.Client(\*, token: str, \*\*options)*
+*class pytecord.Client(\*, token: str, \*\*options)*
 
 Basic client
 

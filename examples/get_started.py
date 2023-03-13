@@ -1,7 +1,7 @@
 """
 `get_started.py`
 
-This is a file for learn how to get started in disspy
+This is a file for learn how to get started in pytecord
 
 Just read this file :)
 Enjoy!
@@ -25,7 +25,7 @@ TOKEN = environ['token']
 client = Client(token=TOKEN)
 
 # 3 step: Append events
-# You can set name of the event using `name` argument or disspy will take function name
+# You can set name of the event using `name` argument or pytecord will take function name
 #
 # async def ready()
 #           ^^^^^^^
@@ -40,5 +40,5 @@ async def ready():
 client.run()
 
 # Success!
-# Now you know how start in disspy
+# Now you know how start in pytecord
 # This is the end of file

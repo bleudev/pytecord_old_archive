@@ -1,5 +1,5 @@
 '''
-Utils for simpler developerment disspy
+Utils for simpler developerment pytecord
 '''
 
 from pytecord.enums import GatewayOpcode, MessageFlags

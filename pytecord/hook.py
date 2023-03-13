@@ -153,8 +153,8 @@ class Hook:
                 "intents": self._intents,
                 "properties": {
                     "$os": "linux",
-                    "$browser": "disspy",
-                    "$device": "disspy"
+                    "$browser": "pytecord",
+                    "$device": "pytecord"
                 },
                 "presence": {
                     "since": mktime(datetime.now().timetuple()) * 1000,
