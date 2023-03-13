@@ -2,7 +2,7 @@ from asyncio import get_event_loop
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
 
 from disspy import utils
-from disspy.enums import InteractionCallbackType, InteractionType
+from disspy.enums import InteractionCallbackType, InteractionType, Permissions
 from disspy.route import Route
 from disspy.ui import Modal
 
@@ -126,7 +126,7 @@ class Context:
             InteractionType.modal_submit
         ]:
             return # not available in discord API
-        j = await self.interaction.respond({
+        await self.interaction.respond({
             'type': InteractionCallbackType.modal,
             'data': modal.eval()
         })
@@ -138,4 +138,59 @@ def describe(**options):
             return options, func[1], 'describe'
         except TypeError:
             return options, func, 'describe'
+    return wrapper
+
+def perms(**permissions: dict[str, bool]):
+    def wrapper(func):
+        result = 0
+        
+        # permission_dict = {
+        #     'create_instant_invite': Permissions.create_instant_invite,
+        #     'kick_members': Permissions.kick_members,
+        #     'ban_members': Permissions.ban_members,
+        #     'administrator': Permissions.administrator,
+        #     'manage_channels': Permissions.manage_channels,
+        #     'manage_guild': Permissions.manage_guild,
+        #     'add_reactions': Permissions.add_reactions,
+        #     'view_audit_log': Permissions.view_audit_log,
+        #     'priority_speaker': Permissions.priority_speaker,
+        #     'stream': Permissions.stream,
+        #     'view_channel': Permissions.view_channel,
+        #     'send_messages':
+        #     'send_tts_messages':
+        #     'manage_messages':
+        #     'embed_links':
+        #     'attach_files':
+        #     'read_message_history':
+        #     'mention_everyone':
+        #     'use_external_emojis':
+        #     'view_guild_insights':
+        #     'connect':
+        #     'speak':
+        #     'mute_members':
+        #     'deafen_members':
+        #     'move_members':
+        #     'use_vad':
+        #     'change_nickname':
+        #     'manage_nicknames':
+        #     'manage_roles':
+        #     'manage_webhooks':
+        #     'manage_emojis_and_stickers':
+        #     'use_application_commands':
+        #     'request_to_speak':
+        #     'manage_events':
+        #     'manage_threads':
+        #     'create_public_threads':
+        #     'create_private_threads':
+        #     'use_external_stickers':
+        #     'send_messages_in_threads':
+        #     'use_embedded_activities':
+        #     'moderate_members':
+        # }
+        
+        json_dict = {'default_member_permissions': result}
+        try:
+            return result, func[1], ''
+        except TypeError:
+            return result, func, ''
     return wrapper

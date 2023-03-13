@@ -10,7 +10,8 @@ from disspy.channel import Channel, Message
 from disspy.connection import Connection
 from disspy.enums import ApplicationCommandOptionType, ApplicationCommandType
 from disspy.listener import Listener
-from disspy.profiles import Member
+from disspy.profiles import Member, User
+
 from disspy.role import Role
 from disspy.files import Attachment
 
