@@ -6,6 +6,8 @@ from pytecord.enums import InteractionCallbackType, InteractionType, Permissions
 from pytecord.route import Route
 from pytecord.ui import Modal
 
+from functools import wraps
+
 
 if TYPE_CHECKING:
     from pytecord.annotations import Strable, Subclass
@@ -142,55 +144,63 @@ def describe(**options):
 
 def perms(**permissions: dict[str, bool]):
     def wrapper(func):
-        result = 0
+        rperms = 0
         
-        # permission_dict = {
-        #     'create_instant_invite': Permissions.create_instant_invite,
-        #     'kick_members': Permissions.kick_members,
-        #     'ban_members': Permissions.ban_members,
-        #     'administrator': Permissions.administrator,
-        #     'manage_channels': Permissions.manage_channels,
-        #     'manage_guild': Permissions.manage_guild,
-        #     'add_reactions': Permissions.add_reactions,
-        #     'view_audit_log': Permissions.view_audit_log,
-        #     'priority_speaker': Permissions.priority_speaker,
-        #     'stream': Permissions.stream,
-        #     'view_channel': Permissions.view_channel,
-        #     'send_messages':
-        #     'send_tts_messages':
-        #     'manage_messages':
-        #     'embed_links':
-        #     'attach_files':
-        #     'read_message_history':
-        #     'mention_everyone':
-        #     'use_external_emojis':
-        #     'view_guild_insights':
-        #     'connect':
-        #     'speak':
-        #     'mute_members':
-        #     'deafen_members':
-        #     'move_members':
-        #     'use_vad':
-        #     'change_nickname':
-        #     'manage_nicknames':
-        #     'manage_roles':
-        #     'manage_webhooks':
-        #     'manage_emojis_and_stickers':
-        #     'use_application_commands':
-        #     'request_to_speak':
-        #     'manage_events':
-        #     'manage_threads':
-        #     'create_public_threads':
-        #     'create_private_threads':
-        #     'use_external_stickers':
-        #     'send_messages_in_threads':
-        #     'use_embedded_activities':
-        #     'moderate_members':
-        # }
+        permission_dict = {
+            'create_instant_invite': Permissions.create_instant_invite,
+            'kick_members': Permissions.kick_members,
+            'ban_members': Permissions.ban_members,
+            'administrator': Permissions.administrator,
+            'manage_channels': Permissions.manage_channels,
+            'manage_guild': Permissions.manage_guild,
+            'add_reactions': Permissions.add_reactions,
+            'view_audit_log': Permissions.view_audit_log,
+            'priority_speaker': Permissions.priority_speaker,
+            'stream': Permissions.stream,
+            'view_channel': Permissions.view_channel,
+            'send_messages': Permissions.send_messages,
+            'send_tts_messages': Permissions.send_tts_messages,
+            'manage_messages': Permissions.manage_messages,
+            'embed_links': Permissions.embed_links,
+            'attach_files': Permissions.attach_files,
+            'read_message_history': Permissions.read_message_history,
+            'mention_everyone': Permissions.mention_everyone,
+            'use_external_emojis': Permissions.use_external_emojis,
+            'view_guild_insights': Permissions.view_guild_insights,
+            'connect': Permissions.connect,
+            'speak': Permissions.speak,
+            'mute_members': Permissions.mute_members,
+            'deafen_members': Permissions.deafen_members,
+            'move_members': Permissions.move_members,
+            'use_vad': Permissions.use_vad,
+            'change_nickname': Permissions.change_nickname,
+            'manage_nicknames': Permissions.manage_nicknames,
+            'manage_roles': Permissions.manage_roles,
+            'manage_webhooks': Permissions.manage_webhooks,
+            'manage_emojis_and_stickers': Permissions.manage_emojis_and_stickers,
+            'use_application_commands': Permissions.use_application_commands,
+            'request_to_speak': Permissions.request_to_speak,
+            'manage_events': Permissions.manage_events,
+            'manage_threads': Permissions.manage_threads,
+            'create_public_threads': Permissions.create_public_threads,
+            'create_private_threads': Permissions.create_private_threads,
+            'use_external_stickers': Permissions.use_external_stickers,
+            'send_messages_in_threads': Permissions.send_messages_in_threads,
+            'use_embedded_activities': Permissions.use_embedded_activities,
+            'moderate_members': Permissions.moderate_members
+        }
+
+        for name, value in permissions.items():
+            if value is True:
+                try:
+                    rperms += permission_dict[name]
+                except KeyError:
+                    continue
+
+        result = {'default_member_permissions': rperms}
         
-        json_dict = {'default_member_permissions': result}
         try:
-            return result, func[1], ''
+            return result, func[1], 'perms'
         except TypeError:
-            return result, func, ''
+            return result, func, 'perms'
     return wrapper
