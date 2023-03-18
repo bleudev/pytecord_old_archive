@@ -201,7 +201,30 @@ class Client:
                 'default_member_permissions': self._get_perms(*perms)
             }
 
-            description = x.splitlines()[0] if (x := getdoc(callable)) else None # pylint: disable=invalid-name
+            # ===
+            doc = getdoc(callable)
+
+            param_index = doc.find('Params:')
+            if param_index != -1:
+                end_index = doc.find('---', param_index+1)
+                if end_index != -1:
+                    params_string = doc[param_index:end_index]
+                else:
+                    params_string = doc[param_index:]
+
+            params_string = params_string.removeprefix('Params:').strip()
+            params_string = params_string.replace('    ', '')
+            params_descrp = params_string.splitlines()
+            params_dict = {}
+
+            for i in params_descrp: # name:description
+                name, description = i.split(':', 1)
+                params_dict[name] = description
+
+            print(f'{params_dict=}')
+            # ===
+
+            description = doc.splitlines()[0] if doc else None # pylint: disable=invalid-name
 
             params = dict(signature(callable).parameters)
             option_tuples = [(k, (v.annotation, v.default)) for k, v in list(params.items())[1:]]
@@ -210,6 +233,11 @@ class Client:
             if option_jsons:
                 for i in option_jsons:
                     i['description'] = 'No description'
+
+                for option in option_jsons:
+                    for name, description in params_dict.items():
+                        if option['name'] == name:
+                            option['description'] = description
 
             command_json.update(
                 name=callable.__name__,
