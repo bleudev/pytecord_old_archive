@@ -1,4 +1,4 @@
-# Dispy
+# Pytecord
 <p align=center>
     <img src="logo.png" width="200" alt="logo" style="text-align: center"/>
 </p>
@@ -17,11 +17,10 @@
 - Package with ``async/await`` support
 - Wrappers and decorators support
 - Simple code with syntax sugar
-- Minimal python version is 3.8
 - Readable library code
 
 # Getting started
-Dispy is package for creating bots in Discord. This package use discord API and discord Gateway
+Pytecord is package for creating bots in Discord. This package use discord API and discord Gateway
 for handle events or, for example, sending messages. Bot use for different goals; handle information
 on your server, creating mini games in discord, auto moderation in your discord server and other.
 
@@ -58,12 +57,12 @@ python3 -m pip install -U pytecord
 ```command
 # Windows
 git clone https://github.com/pixeldeee/pytecord.git
-cd dispy
+cd pytecord
 pip install -U .
 
 # MacOs / Linux
 git clone https://github.com/pixeldeee/pytecord.git
-cd dispy
+cd pytecord
 python3 -m pip install -U .
 ```
 
