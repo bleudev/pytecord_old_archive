@@ -31,13 +31,13 @@ from pytecord import Client, Message  # Import library
 import os
 
 TOKEN = os.environ['TOKEN']
-client = Client(TOKEN)  # Create a client
+client = Client(token=TOKEN)  # Create a client
 
-@client.on_message('create')  # On message create
-async def on_messagec(message: Message):
+@client.event
+async def message(message: Message): # Message create event
     await message.reply('Hello!')  # Reply to the message
 
-client.run()  # Run client
+client()  # Run client
 ```
 
 # Download package
