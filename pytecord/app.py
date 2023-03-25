@@ -2,15 +2,16 @@ from asyncio import get_event_loop
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
 
 from pytecord import utils
-from pytecord.enums import InteractionCallbackType, InteractionType, Permissions
+from pytecord.enums import InteractionCallbackType, InteractionType
 from pytecord.route import Route
 from pytecord.ui import Modal
 
-from functools import wraps
 
 
 if TYPE_CHECKING:
     from pytecord.annotations import Strable, Subclass
+    from pytecord.payloads import InteractionPayload
+    from pytecord.hook import Hook
     from aiohttp import ClientSession
 
 __all__ = (
@@ -80,7 +81,7 @@ class _Interaction:
 
 
 class Context:
-    def __init__(self, data: dict, token: str, session: 'ClientSession', hook) -> None:
+    def __init__(self, data: 'InteractionPayload', token: str, session: 'ClientSession', hook: 'Hook') -> None:
         self._token = token
         self.interaction = _Interaction(data, token, session)
         self._session = session

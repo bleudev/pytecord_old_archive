@@ -2,7 +2,7 @@
 Json dict payloads like objects in discord API
 '''
 
-from typing import Literal, NewType, TypedDict
+from typing import Literal, NewType, TypedDict, Any
 
 from pytecord.enums import (ApplicationCommandOptionType, ApplicationCommandType,
                           ApplicationFlags, ButtonStyle, ChannelFlags,
@@ -13,6 +13,7 @@ from pytecord.enums import (ApplicationCommandOptionType, ApplicationCommandType
                           StickerFormatType, StickerType,
                           TeamMemberMembershipState, TextInputStyle, UserFlags,
                           VideoQualityMode)
+from pytecord.annotations import Snowflake, Value
 
 # Fixing bugs :)
 _this = NewType('_this', type)
@@ -58,10 +59,10 @@ class ApplicationCommandPayload(TypedDict):
     '''
     Application command payload
     '''
-    id: int
+    id: Snowflake
     type: ApplicationCommandType | None
-    application_id: int
-    guild_id: int | None
+    application_id: Snowflake
+    guild_id: Snowflake | None
     name: str
     name_localizations: dict[str, str] | None
     description: str | None
@@ -77,7 +78,7 @@ class UserPayload(TypedDict):
     '''
     User payload
     '''
-    id: int
+    id: Snowflake
     username: str
     discriminator: str
     avatar: HashStr | None
@@ -99,10 +100,10 @@ class RoleTagsPayload(TypedDict):
     '''
     Role tags payload
     '''
-    bot_id: int | None
-    integration_id: int | None
+    bot_id: Snowflake | None
+    integration_id: Snowflake | None
     premium_subscriber: bool | None
-    subscription_listing_id: int | None
+    subscription_listing_id: Snowflake | None
     available_for_purchase: bool | None
     guild_connections: bool | None
 
@@ -110,7 +111,7 @@ class RolePayload(TypedDict):
     '''
     Role payload
     '''
-    id: int
+    id: Snowflake
     name: str
     color: IntColor
     hoist: bool
@@ -126,8 +127,8 @@ class ChannelMentionPayload(TypedDict):
     '''
     Channel mention payload
     '''
-    id: int
-    guild_id: int
+    id: Snowflake
+    guild_id: Snowflake
     type: ChannelType
     name: str
 
@@ -135,7 +136,7 @@ class AttachmentPayload(TypedDict):
     '''
     Attachment payload
     '''
-    id: int
+    id: Snowflake
     filename: str
     description: str | None
     content_type: str | None
@@ -227,7 +228,7 @@ class EmojiPayload(TypedDict):
     '''
     Emoji payload
     '''
-    id: int
+    id: Snowflake
     name: str | None
     roles: list[int] | None
     user: UserPayload | None
@@ -249,7 +250,7 @@ class MessageActivityPayload(TypedDict):
     Message activity payload
     '''
     type: MessageActivityType
-    party_id: str | None
+    party_id: Snowflake | None
 
 class TeamMemberPayload(TypedDict):
     '''
@@ -257,7 +258,7 @@ class TeamMemberPayload(TypedDict):
     '''
     membership_state: TeamMemberMembershipState
     permissions: list[str]
-    team_id: int
+    team_id: Snowflake
     user: UserPayload
 
 class TeamPayload(TypedDict):
@@ -265,10 +266,10 @@ class TeamPayload(TypedDict):
     Application team payload
     '''
     icon: HashStr | None
-    id: int
+    id: Snowflake
     members: list[TeamMemberPayload]
     name: str
-    owner_user_id: int
+    owner_user_id: Snowflake
 
 class InstallParamsPayload(TypedDict):
     '''
@@ -281,7 +282,7 @@ class ApplicationPayload(TypedDict):
     '''
     Application payload
     '''
-    id: int
+    id: Snowflake
     name: str
     icon: HashStr | None
     description: str
@@ -294,8 +295,8 @@ class ApplicationPayload(TypedDict):
     summary: str # Soon will be removed in v11!
     verify_key: str
     team: TeamPayload | None
-    guild_id: int | None
-    primary_sku_id: int | None
+    guild_id: Snowflake | None
+    primary_sku_id: Snowflake | None
     slug: str | None
     cover_image: HashStr | None
     flags: ApplicationFlags | None
@@ -308,9 +309,9 @@ class MessageReferencePayload(TypedDict):
     '''
     Message reference payload
     '''
-    message_id: int | None
-    channel_id: int | None
-    guild_id: int | None
+    message_id: Snowflake | None
+    channel_id: Snowflake | None
+    guild_id: Snowflake | None
     fail_if_not_exists: bool | None
 
 class GuildMemberPayload(TypedDict):
@@ -333,7 +334,7 @@ class MessageInteractionPayload(TypedDict):
     '''
     Message interaction payload
     '''
-    id: int
+    id: Snowflake
     type: InteractionType
     name: str
     user: UserPayload
@@ -343,7 +344,7 @@ class OverwritePayload(TypedDict):
     '''
     Channel overwrite payload
     '''
-    id: int
+    id: Snowflake
     type: OverwriteType
     allow: str
     deny: str
@@ -363,8 +364,8 @@ class ThreadMemberPayload(TypedDict):
     '''
     Thread (channel with 10-12 type) member payload
     '''
-    id: int | None
-    user_id: int | None
+    id: Snowflake | None
+    user_id: Snowflake | None
     join_timestamp: Iso8601Timestamp
     flags: int
     member: GuildMemberPayload | None
@@ -373,33 +374,33 @@ class ForumTagPayload(TypedDict):
     '''
     Forum (channel with 15 type) tag payload
     '''
-    id: int
+    id: Snowflake
     name: str
     moderated: bool
-    emoji_id: int | None
+    emoji_id: Snowflake | None
     emoji_name: str | None
 
 class ChannelPayload(TypedDict):
     '''
     Channel payload
     '''
-    id: int
+    id: Snowflake
     type: ChannelType
-    guild_id: int | None
+    guild_id: Snowflake | None
     position: int | None
     permission_overwrites: list[OverwritePayload] | None
     name: str | None
     topic: str | None
     nsfw: bool | None
-    last_message_id: int | None
+    last_message_id: Snowflake | None
     bitrate: int | None
     user_limit: int | None
     rate_limit_per_user: int | None
     recipients: list[UserPayload] | None
     icon: HashStr | None
-    owner_id: int | None
-    application_id: int | None
-    parent_id: int | None
+    owner_id: Snowflake | None
+    application_id: Snowflake | None
+    parent_id: Snowflake | None
     last_pin_timestamp: Iso8601Timestamp | None
     rtc_region: str | None
     video_quality_mode: VideoQualityMode | None
@@ -502,7 +503,7 @@ class MessageStickerItemPayload(TypedDict):
     '''
     Message sticker item payload
     '''
-    id: int
+    id: Snowflake
     name: str
     format_type: StickerFormatType
 
@@ -510,20 +511,20 @@ class StickerPackPayload(TypedDict):
     '''
     Message sticker pack payload
     '''
-    id: int
+    id: Snowflake
     stickers: list[_StickerPayload]
     name: str
-    sku_id: int
-    cover_sticker_id: int | None
+    sku_id: Snowflake
+    cover_sticker_id: Snowflake | None
     description: str
-    banner_asset_id: int | None
+    banner_asset_id: Snowflake | None
 
 class StickerPayload(TypedDict):
     '''
     Message sticker payload
     '''
-    id: int
-    pack_id: int | None
+    id: Snowflake
+    pack_id: Snowflake | None
     name: str
     description: str | None
     tags: str
@@ -531,7 +532,7 @@ class StickerPayload(TypedDict):
     type: StickerType
     format_type: StickerFormatType
     available: bool | None
-    guild_id: int | None
+    guild_id: Snowflake | None
     user: UserPayload | None
     sort_value: int | None
 
@@ -539,7 +540,7 @@ class RoleSubscriptionData(TypedDict):
     '''
     Role subscription data in message
     '''
-    role_subscription_listing_id: int
+    role_subscription_listing_id: Snowflake
     tier_name: str
     total_months_subscribed: int
     is_renewal: bool
@@ -548,8 +549,8 @@ class MessagePayload(TypedDict):
     '''
     Channel message payload
     '''
-    id: int
-    channel_id: int
+    id: Snowflake
+    channel_id: Snowflake
     author: UserPayload
     content: str | None
     timestamp: Iso8601Timestamp
@@ -564,11 +565,11 @@ class MessagePayload(TypedDict):
     reactions: list[ReactionPayload] | None
     nonce: int | str | None
     pinned: bool
-    webhook_id: int | None
+    webhook_id: Snowflake | None
     type: MessageType
     activity: MessageActivityPayload | None
     application: ApplicationPayload | None
-    application_id: int | None
+    application_id: Snowflake | None
     message_reference: MessageReferencePayload | None
     flags: MessageFlags
     referenced_message: _this | None
@@ -579,3 +580,42 @@ class MessagePayload(TypedDict):
     stickers: list[StickerPayload] | None
     position: int | None
     role_subscription_data: RoleSubscriptionData | None
+
+class InteractionDataOptionPayload(ApplicationCommandOptionPayload, TypedDict):
+    '''
+    Interaction Data Option Payload (can be partial)
+    
+    Extends: ApplicationCommandOptionPayload
+    '''
+    value: str | int | float | bool | None
+
+class InteractionDataPayload(TypedDict):
+    '''
+    Interaction data payload
+    '''
+    id: Snowflake
+    name: str
+    type: ApplicationCommandType
+    resolved: dict[Value['users', 'members', 'roles', 'channels', 'attachments'], Any] | None
+    options: list[InteractionDataOptionPayload] | None
+    guild_id: Snowflake | None
+    target_id: Snowflake | None
+
+class InteractionPayload(TypedDict):
+    '''
+    Interaction payload
+    '''
+    id: Snowflake
+    application_id: Snowflake
+    type: InteractionType
+    data: InteractionDataPayload | None
+    guild_id: Snowflake | None
+    channel_id: Snowflake | None
+    member: GuildMemberPayload | None
+    user: UserPayload | None
+    token: str
+    version: int
+    message: MessagePayload | None
+    app_permissions: str | None
+    locale: str | None
+    guild_locale: str | None
