@@ -4,10 +4,13 @@ Utils for simpler developerment pytecord
 
 from pytecord.enums import GatewayOpcode, MessageFlags
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 if TYPE_CHECKING:
     from pytecord.annotations import Strable
+
+KT = TypeVar('KT')
+VT = TypeVar('VT')
 
 def auth(token: str):
     '''

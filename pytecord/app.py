@@ -5,12 +5,12 @@ from pytecord import utils
 from pytecord.enums import InteractionCallbackType, InteractionType
 from pytecord.route import Route
 from pytecord.ui import Modal
-
-
+from pytecord.profiles import Member, User
+from pytecord.channel import Channel, Message
 
 if TYPE_CHECKING:
-    from pytecord.annotations import Strable, Subclass
-    from pytecord.payloads import InteractionPayload
+    from pytecord.annotations import Strable, Subclass, Snowflake
+    from pytecord.payloads import InteractionPayload, InteractionDataPayload, ApplicationCommandPayload, InteractionDataOptionPayload, ApplicationCommandOptionPayload
     from pytecord.hook import Hook
     from aiohttp import ClientSession
 
@@ -19,13 +19,53 @@ __all__ = (
     'Modal',
 )
 
+class Choice: ...
+
+class Option:
+    def __init__(self, data: 'InteractionDataOptionPayload | ApplicationCommandOptionPayload') -> None:
+        _ = data.get
+
+        type: int
+        name: str
+        name_localizations: dict[str, str] | None
+        description: str
+        description_localizations: dict[str, str] | None
+        required: bool | None
+        choices: list[Choice] | None
+        options: list[Option] | None
+        channel_types: list[int] | None
+        min_value: int | float | None
+        max_value: int | float | None
+        min_length: int | None
+        max_length: int | None
+        autocomplete: bool | None
+
 class Command:
-    def __init__(self, data: dict) -> None:
-        self.data = data
-    def __getitem__(self, key: str):
-        return self.data.get(key, None)
+    def __init__(self, data: 'InteractionDataPayload | ApplicationCommandPayload') -> None:
+        self._data = data
+
+        _ = data.get
+
+        self.id: Snowflake = int( _('id') )
+        self.type: int | None = _('type')
+        self.application_id: Snowflake | None = int( _('application_id') )
+        self.guild_id: Snowflake | None = int( _('guild_id') )
+        self.name: str = _('name')
+        self.name_localizations: dict[str, str] | None = _('name_localizations')
+        self.description: str | None = _('description')
+        self.description_localizations: dict[str, str] | None = _('description_localizations')
+        self.default_member_permissions: str | None = _('default_member_permissions')
+        self.dm_permission: bool | None = _('dm_permission')
+        self.default_permission: bool | None = _('default_permission')
+        self.nsfw: bool | None = _('nsfw')
+        self.version: int | None = _('version')
+        self.resolved: dict[str, dict[str, Any]] | None = _('resolved')
+        self.target_id: Snowflake | None = int( _('target_id') )
+
+        self.options: list[Option] | None = [Option(i) for i in _('options')]
+
     def eval(self) -> dict:
-        return self.data
+        return self._data
 
 class ContextMenu:
     def __init__(self, data: dict) -> None:
@@ -86,8 +126,25 @@ class Context:
         self.interaction = _Interaction(data, token, session)
         self._session = session
         self._hook = hook
+        
+        _ = data.get
 
-        self.command = Command(data['data'])
+        self.id: Snowflake = int( _('id') )
+        self.application_id: Snowflake = int( _('application_id') )
+        self.type: int = _('type')
+        self.guild_id: Snowflake | None = int( _('guild_id') )
+        self.channel_id: Snowflake | None = int( _('channel_id') )
+        self.member: Member | None = Member(session, **_('member'))
+        self.user: User | None = User(session, **_('user'))
+        self.token: str = _('token')
+        self.version: int = _('version')
+        self.message: Message | None = Message(session, **_('message'))
+        self.app_permissions: str | None = _('app_permissions')
+        self.locale: str | None = _('locale')
+        self.guild_locale: str | None = _('guild_locale')
+
+        self.command = Command(_('data'))
+
 
     async def send_message(
             self,
