@@ -2,7 +2,7 @@ from asyncio import get_event_loop
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
 
 from pytecord import utils
-from pytecord.enums import InteractionCallbackType, InteractionType
+from pytecord.enums import InteractionCallbackType, InteractionType, ApplicationCommandType
 from pytecord.route import Route
 from pytecord.ui import Modal
 from pytecord.profiles import Member, User
@@ -78,19 +78,41 @@ class Command:
 
         self.options: list[Option] | None = [Option(i) for i in _('options', [])]
 
+    def __getitem__(self, key: str):
+        return self._data.get(key, None)
+
     def eval(self) -> dict:
         return self._data
 
 class ContextMenu:
-    def __init__(self, data: dict) -> None:
-        self.data = data
-    def __getitem__(self, key: str):
-        return self.data.get(key, None)
-    def eval(self) -> dict:
-        return self.data
+    def __init__(self, data: 'InteractionDataPayload | ApplicationCommandPayload') -> None:
+        self._data = data
+        
+        _ = data.get
 
-CT = TypeVar('CT', Command, ContextMenu)
-MT = TypeVar('MT', bound=Modal)
+        self.id: Snowflake = int( _('id') )
+        self.type: int | None = _('type')
+        self.application_id: Snowflake | None = int( _('application_id') )
+        self.guild_id: Snowflake | None = int( _('guild_id') )
+        self.name: str = _('name')
+        self.name_localizations: dict[str, str] | None = _('name_localizations')
+        self.default_member_permissions: str | None = _('default_member_permissions')
+        self.dm_permission: bool | None = _('dm_permission')
+        self.default_permission: bool | None = _('default_permission')
+        self.nsfw: bool | None = _('nsfw')
+        self.version: int | None = _('version')
+        self.resolved: dict[str, dict[str, Any]] | None = _('resolved')
+        self.target_id: Snowflake | None = int( _('target_id') )
+
+    def __getitem__(self, key: str):
+        return self._data.get(key, None)
+
+    def eval(self) -> dict:
+        return self._data
+
+if TYPE_CHECKING:
+    CT = TypeVar('CT', Command, ContextMenu)
+    MT = TypeVar('MT', bound=Modal)
 
 class AppClient:
     def __init__(self) -> None:
@@ -98,12 +120,12 @@ class AppClient:
         self.callbacks = {1: {}, 2: {}, 3: {}}
         self.component_callbacks = {'modals': {}}
 
-    def add_command(self, command: CT, callback: Callable[..., Coroutine[Any, Any, Any]]) -> CT:
+    def add_command(self, command: 'CT', callback: Callable[..., Coroutine[Any, Any, Any]]) -> 'CT':
         self.commands.append(command)
         self.callbacks[command['type']].setdefault(command['name'], callback)
         return command
 
-    def add_modal(self, modal: MT) -> MT:
+    def add_modal(self, modal: 'MT') -> 'MT':
         self.component_callbacks['modals'].setdefault(modal.custom_id, modal.submit)
         return modal
 
@@ -114,7 +136,9 @@ class AppClient:
         await self.component_callbacks['modals'][custom_id](*args, **kwargs)
 
 class Context:
-    def __init__(self, data: 'InteractionPayload', token: str, session: 'ClientSession', hook: 'Hook') -> None:
+    def __init__(
+        self, data: 'InteractionPayload', token: str, session: 'ClientSession', hook: 'Hook'
+    ) -> None:
         self._bot_token = token
         self._session = session
         self._hook = hook
@@ -136,7 +160,13 @@ class Context:
         self.guild_locale: str | None = _('guild_locale')
 
         self.data: dict[str, Any] = _('data')
-        self.command: Command | ContextMenu = ...
+
+        _types = {
+            ApplicationCommandType.chat_input: Command,
+            ApplicationCommandType.message: ContextMenu,
+            ApplicationCommandType.user: ContextMenu
+        }
+        self.command: Command | ContextMenu = _types[self.data.get('type', 1)](self.data)
 
     async def __respond_to_an_interaction(self, payload: dict):
         route = Route(

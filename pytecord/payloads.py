@@ -67,7 +67,7 @@ class ApplicationCommandPayload(TypedDict):
     name_localizations: dict[str, str] | None
     description: str | None
     description_localizations: dict[str, str] | None
-    options: list[ApplicationCommandOptionPayload] | None
+    options: list[ApplicationCommandOptionPayload] | None # Not avaiable in ContextMenu
     default_member_permissions: str | None
     dm_permission: bool | None
     default_permission: bool | None
