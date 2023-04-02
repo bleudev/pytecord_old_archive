@@ -2,18 +2,18 @@
 Json dict payloads like objects in discord API
 '''
 
-from typing import Literal, NewType, TypedDict, Any
+from typing import Any, Literal, NewType, TypedDict
 
-from pytecord.enums import (ApplicationCommandOptionType, ApplicationCommandType,
-                          ApplicationFlags, ButtonStyle, ChannelFlags,
-                          ChannelType, ComponentType, EmbedType,
-                          GuildForumLayoutType, GuildForumSortOrderType,
-                          InteractionType, MessageActivityType, MessageFlags,
-                          MessageType, NitroPremiumType, OverwriteType,
-                          StickerFormatType, StickerType,
-                          TeamMemberMembershipState, TextInputStyle, UserFlags,
-                          VideoQualityMode)
 from pytecord.annotations import Snowflake, Value
+from pytecord.enums import (ApplicationCommandOptionType,
+                            ApplicationCommandType, ApplicationFlags,
+                            ButtonStyle, ChannelFlags, ChannelType,
+                            ComponentType, EmbedType, GuildForumLayoutType,
+                            GuildForumSortOrderType, InteractionType,
+                            MessageActivityType, MessageFlags, MessageType,
+                            NitroPremiumType, OverwriteType, StickerFormatType,
+                            StickerType, TeamMemberMembershipState,
+                            TextInputStyle, UserFlags, VideoQualityMode)
 
 # Fixing bugs :)
 _this = NewType('_this', type)

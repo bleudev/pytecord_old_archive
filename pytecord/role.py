@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pytecord.payloads import RoleTagsPayload, RolePayload
     from aiohttp import ClientSession
+
+    from pytecord.payloads import RolePayload, RoleTagsPayload
 
 __all__ = (
     'RoleTags',

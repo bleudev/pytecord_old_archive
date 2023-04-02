@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Callable, Generic, Iterable, TypeVar, TypeAlias
+from typing import (TYPE_CHECKING, Callable, Generic, Iterable, TypeAlias,
+                    TypeVar)
 
 from pytecord.enums import ComponentType, TextInputStyle
 

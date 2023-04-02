@@ -9,7 +9,7 @@ All:
 '''
 
 from asyncio import gather
-from typing import TYPE_CHECKING, Iterable, Literal, TypeAlias, Optional
+from typing import TYPE_CHECKING, Iterable, Literal, Optional, TypeAlias
 
 from aiohttp.client_exceptions import ContentTypeError
 from requests import delete as DELETE

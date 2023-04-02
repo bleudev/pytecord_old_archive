@@ -1,11 +1,9 @@
 from asyncio import get_event_loop
+from typing import TYPE_CHECKING
 
 from pytecord import utils
 from pytecord.payloads import MessagePayload
 from pytecord.route import Route
-
-from typing import TYPE_CHECKING
-
 
 if TYPE_CHECKING:
     from pytecord.annotations import Strable

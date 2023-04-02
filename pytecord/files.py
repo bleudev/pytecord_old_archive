@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, TypeVar, Generic
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 if TYPE_CHECKING:
-    from pytecord.annotations import Snowflake, Filename, Url, ProxyUrl
+    from pytecord.annotations import Filename, ProxyUrl, Snowflake, Url
     from pytecord.payloads import AttachmentPayload
 
 CT = TypeVar('CT', str, None)

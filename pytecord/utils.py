@@ -2,9 +2,9 @@
 Utils for simpler developerment pytecord
 '''
 
-from pytecord.enums import GatewayOpcode, MessageFlags
-
 from typing import TYPE_CHECKING, Any, TypeVar
+
+from pytecord.enums import GatewayOpcode, MessageFlags
 
 if TYPE_CHECKING:
     from pytecord.annotations import Strable

@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 from pytecord import utils
 from pytecord.app import AppClient, Context
 from pytecord.channel import Channel, Message, RawMessage
-from pytecord.enums import (ApplicationCommandOptionType, ApplicationCommandType,
-                          InteractionType)
+from pytecord.enums import (ApplicationCommandOptionType,
+                            ApplicationCommandType, InteractionType)
 from pytecord.files import Attachment
 from pytecord.listener import Listener
 from pytecord.profiles import Member, User

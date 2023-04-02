@@ -2,24 +2,23 @@ from asyncio import get_event_loop
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
 
 from pytecord import utils
-from pytecord.enums import InteractionCallbackType, InteractionType, ApplicationCommandType
+from pytecord.channel import Channel, Message
+from pytecord.enums import (ApplicationCommandType, InteractionCallbackType,
+                            InteractionType)
+from pytecord.profiles import Member, User
 from pytecord.route import Route
 from pytecord.ui import Modal
-from pytecord.profiles import Member, User
-from pytecord.channel import Channel, Message
 
 if TYPE_CHECKING:
-    from pytecord.annotations import Strable, Subclass, Snowflake
-    from pytecord.payloads import (
-        InteractionPayload,
-        InteractionDataPayload,
-        ApplicationCommandPayload,
-        InteractionDataOptionPayload,
-        ApplicationCommandOptionPayload,
-        ApplicationCommandOptionChoicePayload
-    )
-    from pytecord.hook import Hook
     from aiohttp import ClientSession
+
+    from pytecord.annotations import Snowflake, Strable, Subclass
+    from pytecord.hook import Hook
+    from pytecord.payloads import (ApplicationCommandOptionChoicePayload,
+                                   ApplicationCommandOptionPayload,
+                                   ApplicationCommandPayload,
+                                   InteractionDataOptionPayload,
+                                   InteractionDataPayload, InteractionPayload)
 
 __all__ = (
     'Context',
