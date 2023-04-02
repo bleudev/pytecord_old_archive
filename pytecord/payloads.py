@@ -13,7 +13,9 @@ from pytecord.enums import (ApplicationCommandOptionType,
                             MessageActivityType, MessageFlags, MessageType,
                             NitroPremiumType, OverwriteType, StickerFormatType,
                             StickerType, TeamMemberMembershipState,
-                            TextInputStyle, UserFlags, VideoQualityMode)
+                            TextInputStyle, UserFlags, VideoQualityMode,
+                            GuildAfkTimeoutType, GuildVerificationLevelType, GuildFeatures,
+                            SystemChannelFlags, GuildPremiumTier, GuildNSFWLevel)
 
 # Fixing bugs :)
 _this = NewType('_this', type)
@@ -313,6 +315,22 @@ class MessageReferencePayload(TypedDict):
     channel_id: Snowflake | None
     guild_id: Snowflake | None
     fail_if_not_exists: bool | None
+
+class WelcomeScreenChannelPayload(TypedDict):
+    '''
+    Welcome screen channel payload
+    '''
+    channel_id: Snowflake
+    description: str
+    emoji_id: Snowflake | None
+    emoji_name: str | None
+
+class WelcomeScreenPayload(TypedDict):
+    '''
+    Welcome screen payload
+    '''
+    description: str | None
+    welcome_channels: list[WelcomeScreenChannelPayload]
 
 class GuildMemberPayload(TypedDict):
     '''
@@ -619,3 +637,49 @@ class InteractionPayload(TypedDict):
     app_permissions: str | None
     locale: str | None
     guild_locale: str | None
+
+class GuildPayload(TypedDict):
+    '''
+    Guild payload
+    '''
+    id: Snowflake
+    name: str
+    icon: HashStr | None
+    icon_hash: HashStr | None
+    splash: HashStr | None
+    discovery_splash: HashStr | None
+    owner: bool | None
+    owner_id: Snowflake
+    permissions: BitSet | None
+    region: str | None # deprecated
+    afk_channel_id: Snowflake | None
+    afk_timeout: GuildAfkTimeoutType | int
+    widget_enabled: bool | None
+    widget_channel_id: Snowflake | None
+    verification_level: GuildVerificationLevelType | int
+    default_message_notifications: int
+    explicit_content_filter: int
+    roles: list[RolePayload]
+    emojis: list[EmojiPayload]
+    features: list[GuildFeatures] | list[str]
+    mfa_level: int
+    application_id: Snowflake | None
+    system_channel_id: Snowflake | None
+    system_channel_flags: SystemChannelFlags | int
+    rules_channel_id: Snowflake | None
+    max_presences: int | None
+    max_members: int | None
+    vanity_url_code: str | None
+    description: str | None
+    banner: HashStr | None
+    premium_tier: GuildPremiumTier | int
+    premium_subscription_count: int | None
+    preferred_locale: str
+    public_updates_channel_id: Snowflake | None
+    max_video_channel_users: int | None
+    approximate_member_count: int | None
+    approximate_presence_count: int | None
+    welcome_screen: WelcomeScreenPayload | None
+    nsfw_level: GuildNSFWLevel | int | None
+    stickers: list[StickerPayload] | None
+    premium_progress_bar_enabled: bool

@@ -156,6 +156,60 @@ class StickerFormatType: # pylint: disable=too-few-public-methods
     lottie = 3
     gif = 4
 
+class GuildNSFWLevel:
+    default = 0
+    explicit = 1
+    safe = 2
+    age_restricted = 3
+
+class GuildAfkTimeoutType:
+    minute = 60
+    m5 = 300
+    m15 = 900
+    m30 = 1800
+    hour = 3600
+    
+class GuildVerificationLevelType:
+    none = 0
+    low = 1
+    medium = 2
+    high = 3
+    very_high = 4
+
+class GuildFeatures:
+    animated_banner = 'animated_banner'
+    animated_icon = 'animated_icon'
+    application_command_permissions_v2 = 'application_command_permissions_v2'
+    auto_moderation = 'auto_moderation'
+    banner = 'banner'
+    community = 'community'
+    creator_monetizable_provisional = 'creator_monetizable_provisional'
+    creator_store_page = 'creator_store_page'
+    developer_support_server = 'developer_support_server'
+    discoverable = 'discoverable'
+    featurable = 'featurable'
+    invites_disabled = 'invites_disabled'
+    invite_splash = 'invite_splash'
+    member_verification_gate_enabled = 'member_verification_gate_enabled'
+    more_stickers = 'more_stickers'
+    news = 'news'
+    partnered = 'partnered'
+    preview_enabled = 'preview_enabled'
+    role_icons = 'role_icons'
+    role_subscriptions_available_for_purchase = 'role_subscriptions_available_for_purchase'
+    role_subscriptions_enabled = 'role_subscriptions_enabled'
+    ticketed_events_enabled = 'ticketed_events_enabled'
+    vanity_url = 'vanity_url'
+    verified = 'verified'
+    vip_regions = 'vip_regions'
+    welcome_screen_enabled = 'welcome_screen_enabled'
+
+class GuildPremiumTier:
+    none = 0
+    tier_1 = 1
+    tier_2 = 2
+    tier_3 = 3
+
 # Flags
 class MessageFlags: # pylint: disable=too-few-public-methods
     crossposted = 1 << 0
@@ -199,6 +253,14 @@ class ApplicationFlags: # pylint: disable=too-few-public-methods
 class ChannelFlags: # pylint: disable=too-few-public-methods
     pinned = 1 << 1
     require_tag = 1 << 4
+
+class SystemChannelFlags:
+    suppress_join_notifications = 1 << 0
+    suppress_premium_subscriptions = 1 << 1
+    suppress_guild_reminder_notifications = 1 << 2
+    suppress_join_notification_replies = 1 << 3
+    suppress_role_subscription_purchase_notifications = 1 << 4
+    suppress_role_subscription_purchase_notification_replies = 1 << 5
 
 # Bit sets flags
 class Permissions:
