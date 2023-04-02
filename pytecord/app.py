@@ -113,34 +113,12 @@ class AppClient:
     async def invoke_modal_submit(self, custom_id: str, *args, **kwargs):
         await self.component_callbacks['modals'][custom_id](*args, **kwargs)
 
-class _Interaction:
-    def __init__(self, data: dict, token: str, session: 'ClientSession') -> None:
-        self.token = data.get('token')
-        self.id = data.get('id')
-        self.type = data.get('type')
-        self.application_id = data.get('application_id')
-
-        self._token = token
-        self._session = session
-
-    async def respond(self, payload: dict):
-        route = Route(
-            '/interactions/%s/%s/callback', self.id, self.token,
-            method='POST',
-            token=self._token,
-            payload=payload
-        )
-        j, _ = await route.async_request(self._session, get_event_loop())
-        return j
-
-
 class Context:
     def __init__(self, data: 'InteractionPayload', token: str, session: 'ClientSession', hook: 'Hook') -> None:
-        self._token = token
-        self.interaction = _Interaction(data, token, session)
+        self._bot_token = token
         self._session = session
         self._hook = hook
-        
+
         _ = data.get
 
         self.id: Snowflake = int( _('id') )
@@ -157,8 +135,18 @@ class Context:
         self.locale: str | None = _('locale')
         self.guild_locale: str | None = _('guild_locale')
 
-        self.command = Command(_('data'))
+        self.data: dict[str, Any] = _('data')
+        self.command: Command | ContextMenu = ...
 
+    async def __respond_to_an_interaction(self, payload: dict):
+        route = Route(
+            '/interactions/%s/%s/callback', self.id, self.token,
+            method='POST',
+            token=self._bot_token,
+            payload=payload
+        )
+        j, _ = await route.async_request(self._session, get_event_loop())
+        return j
 
     async def send_message(
             self,
@@ -167,7 +155,7 @@ class Context:
             tts: bool = False,
             ephemeral: bool = False
         ):
-        await self.interaction.respond({
+        await self.__respond_to_an_interaction({
             'type': InteractionCallbackType.channel_message_with_source,
             'data': utils.message_payload(
                 *strings,
@@ -184,7 +172,7 @@ class Context:
             tts: bool = False,
             ephemeral: bool = False
         ):
-        await self.interaction.respond({
+        await self.__respond_to_an_interaction({
             'type': InteractionCallbackType.update_message,
             'data': utils.message_payload(
                 *strings,
@@ -200,7 +188,7 @@ class Context:
             InteractionType.modal_submit
         ]:
             return # not available in discord API
-        await self.interaction.respond({
+        await self.__respond_to_an_interaction({
             'type': InteractionCallbackType.modal,
             'data': modal.eval()
         })
