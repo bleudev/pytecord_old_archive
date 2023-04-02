@@ -10,7 +10,14 @@ from pytecord.channel import Channel, Message
 
 if TYPE_CHECKING:
     from pytecord.annotations import Strable, Subclass, Snowflake
-    from pytecord.payloads import InteractionPayload, InteractionDataPayload, ApplicationCommandPayload, InteractionDataOptionPayload, ApplicationCommandOptionPayload
+    from pytecord.payloads import (
+        InteractionPayload,
+        InteractionDataPayload,
+        ApplicationCommandPayload,
+        InteractionDataOptionPayload,
+        ApplicationCommandOptionPayload,
+        ApplicationCommandOptionChoicePayload
+    )
     from pytecord.hook import Hook
     from aiohttp import ClientSession
 
@@ -19,26 +26,33 @@ __all__ = (
     'Modal',
 )
 
-class Choice: ...
+class Choice:
+    def __init__(self, data: 'ApplicationCommandOptionChoicePayload'):
+        _ = data.get
+
+        self.name: str = _('name')
+        self.name_localizations: dict[str, str] | None = _('name_localizations')
+        self.value: str | int | float = _('value')
 
 class Option:
     def __init__(self, data: 'InteractionDataOptionPayload | ApplicationCommandOptionPayload') -> None:
         _ = data.get
 
-        type: int
-        name: str
-        name_localizations: dict[str, str] | None
-        description: str
-        description_localizations: dict[str, str] | None
-        required: bool | None
-        choices: list[Choice] | None
-        options: list[Option] | None
-        channel_types: list[int] | None
-        min_value: int | float | None
-        max_value: int | float | None
-        min_length: int | None
-        max_length: int | None
-        autocomplete: bool | None
+        self.type: int = _('type')
+        self.name: str = _('name')
+        self.name_localizations: dict[str, str] | None = _('name_localizations')
+        self.description: str = _('description')
+        self.description_localizations: dict[str, str] | None = _('description_localizations')
+        self.required: bool | None = _('required')
+        self.choices: list[Choice] | None = [Choice(i) for i in _('choices', [])]
+        self.options: list[Option] | None = [Option(i) for i in _('options', [])]
+        self.channel_types: list[int] | None = _('channel_types')
+        self.min_value: int | float | None = _('min_value')
+        self.max_value: int | float | None = _('max_value')
+        self.min_length: int | None = _('min_length')
+        self.max_length: int | None = _('max_length')
+        self.autocomplete: bool | None = _('autocomplete')
+        self.value: str | int | float | bool | None = _('value')
 
 class Command:
     def __init__(self, data: 'InteractionDataPayload | ApplicationCommandPayload') -> None:
@@ -62,7 +76,7 @@ class Command:
         self.resolved: dict[str, dict[str, Any]] | None = _('resolved')
         self.target_id: Snowflake | None = int( _('target_id') )
 
-        self.options: list[Option] | None = [Option(i) for i in _('options')]
+        self.options: list[Option] | None = [Option(i) for i in _('options', [])]
 
     def eval(self) -> dict:
         return self._data
@@ -134,11 +148,11 @@ class Context:
         self.type: int = _('type')
         self.guild_id: Snowflake | None = int( _('guild_id') )
         self.channel_id: Snowflake | None = int( _('channel_id') )
-        self.member: Member | None = Member(session, **_('member'))
-        self.user: User | None = User(session, **_('user'))
+        self.member: Member | None = Member(session, **_('member', {}))
+        self.user: User | None = User(session, **_('user', {}))
         self.token: str = _('token')
         self.version: int = _('version')
-        self.message: Message | None = Message(session, **_('message'))
+        self.message: Message | None = Message(session, **_('message', {}))
         self.app_permissions: str | None = _('app_permissions')
         self.locale: str | None = _('locale')
         self.guild_locale: str | None = _('guild_locale')
