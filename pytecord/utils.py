@@ -2,12 +2,16 @@
 Utils for simpler developerment pytecord
 '''
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Literal
 
 from pytecord.enums import GatewayOpcode, MessageFlags
+from pytecord.profiles import User
+from pytecord.channel import Channel
+from pytecord.route import Route
 
 if TYPE_CHECKING:
-    from pytecord.annotations import Strable
+    from aiohttp import ClientSession
+    from pytecord.annotations import Strable, Snowflake
 
 KT = TypeVar('KT')
 VT = TypeVar('VT')
@@ -58,3 +62,27 @@ def message_payload(*strings: list['Strable'], sep: str = ' ', ephemeral: bool =
         'allowed_mentions': allowed_mentions,
         'flags': flags,
     }
+
+def get(__type: Literal['channel', 'user'], __id: 'Snowflake', __token: str, __session: 'ClientSession') -> Channel | User:
+    endpoint = '/'
+
+    match __type:
+        case 'channel':
+            endpoint += 'channels'
+        case 'user':
+            endpoint += 'users'
+    endpoint += f'/{__id}'
+
+    data, _ = Route(endpoint, method='GET', token=__token).request()
+
+    types = {
+        'channel': Channel,
+        'user': User
+    }
+    return types.get(__type)(__session, **data)
+
+def get_channel(__id: 'Snowflake', __token: str, __session: 'ClientSession') -> Channel:
+    return get('channel', __id, __token, __session)
+
+def get_user(__id: 'Snowflake', __token: str, __session: 'ClientSession') -> User:
+    return get('user', __id, __token, __session)

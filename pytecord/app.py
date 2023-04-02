@@ -1,5 +1,5 @@
 from asyncio import get_event_loop
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar, Literal
 
 from pytecord import utils
 from pytecord.channel import Channel, Message
@@ -8,6 +8,7 @@ from pytecord.enums import (ApplicationCommandType, InteractionCallbackType,
 from pytecord.profiles import Member, User
 from pytecord.route import Route
 from pytecord.ui import Modal
+from pytecord.logger import warning
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
@@ -60,7 +61,7 @@ class Command:
         _ = data.get
 
         self.id: Snowflake = int( _('id') )
-        self.type: int | None = _('type')
+        self.type: Literal[1] | None = _('type')
         self.application_id: Snowflake | None = int( _('application_id') )
         self.guild_id: Snowflake | None = int( _('guild_id') )
         self.name: str = _('name')
@@ -167,6 +168,13 @@ class Context:
         }
         self.command: Command | ContextMenu = _types[self.data.get('type', 1)](self.data)
 
+    @property
+    def channel(self) -> Channel:
+        '''
+        Channel where command was used
+        '''
+        return utils.get_channel(self.channel_id, self._bot_token, self._session)
+
     async def __respond_to_an_interaction(self, payload: dict):
         route = Route(
             '/interactions/%s/%s/callback', self.id, self.token,
@@ -179,7 +187,7 @@ class Context:
 
     async def send_message(
             self,
-            *strings: list['Strable'],
+            *strings: 'list[Strable]',
             sep: str = ' ',
             tts: bool = False,
             ephemeral: bool = False
@@ -212,11 +220,12 @@ class Context:
         })
 
     async def send_modal(self, modal: 'Subclass[Modal]'):
-        if self.interaction.type in [
+        if self.type in [
             InteractionType.ping,
             InteractionType.modal_submit
         ]:
-            return # not available in discord API
+            warning('Modals cannot send if interaction type is PING or MODAL_SUBMIT!')
+
         await self.__respond_to_an_interaction({
             'type': InteractionCallbackType.modal,
             'data': modal.eval()
