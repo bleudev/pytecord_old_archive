@@ -1,5 +1,3 @@
-from aiohttp import ClientSession
-
 from pytecord.hook import Hook
 
 
@@ -15,6 +13,4 @@ class Connection:
     
     async def run(self, listener, app_client, **options):
         self._listener = listener
-
-        async with ClientSession(headers=self._headers) as session:
-            await self._hook.run(session, self._listener, app_client, **options)
+        await self._hook.run(options['session'], self._listener, app_client, **options)

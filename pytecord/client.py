@@ -4,6 +4,7 @@ from sys import exit as sys_exit
 from typing import Any, Callable, Coroutine, Self, TypeAlias, TypeVar
 
 from regex import fullmatch
+from aiohttp import ClientSession
 
 from pytecord.app import AppClient, Command, ContextMenu
 from pytecord.channel import Channel, Message
@@ -15,6 +16,8 @@ from pytecord.listener import Listener
 from pytecord.logger import warning
 from pytecord.profiles import Member, User
 from pytecord.role import Role
+
+from pytecord import utils
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
 
@@ -79,12 +82,25 @@ class Client:
         self._app = AppClient()
 
         self._intents = 0
+        self._session = None
 
         self._resolve_options(**options)
 
     def run(self, **options):
+        async_run(self._runner(**options))
+
+    async def _runner(self, **options):
+        headers = {
+            "Authorization": f"Bot {self.token}",
+            "content-type": "application/json",
+        }
         try:
-            async_run(self._conn.run(self._listener, self._app, intents=self._intents, **options))
+            async with ClientSession(headers=self._headers) as session:
+                self._session = session
+                options['intents'] = self._intents
+                options['session'] = session
+                
+                await self._conn.run(self._listener, self._app, **options)
         except KeyboardInterrupt:
             sys_exit(1)
 
@@ -314,3 +330,9 @@ class Client:
     def __isub__(self, other: Callable[..., Coroutine[Any, Any, Any]] | str) -> Self:
         self.remove_event(other)
         return self
+
+    def get_channel(self, id: int) -> Channel:
+        return utils.get_channel(id, self.token, self._session)
+
+    def get_user(self, id: int) -> User:
+        return utils.get_user(id, self.token, self._session)
