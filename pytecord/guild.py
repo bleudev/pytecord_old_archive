@@ -6,12 +6,12 @@ if TYPE_CHECKING:
     from pytecord.payloads import GuildPayload, WelcomeScreenPayload, WelcomeScreenChannelPayload
 
 __all__ = (
-    'WelcomeScreenChannel',
+    'WelcomeChannel',
     'WelcomeScreen',
     'Guild',
 )
 
-class WelcomeScreenChannel:
+class WelcomeChannel:
     def __init__(self, data: 'WelcomeScreenChannelPayload') -> None:
         _ = data.get
 
@@ -25,7 +25,7 @@ class WelcomeScreen:
         _ = data.get
 
         self.description: str | None = _('description')
-        self.welcome_channels: list[WelcomeScreenChannel] = [WelcomeScreenChannel(i) for i in _('welcome_channels')]
+        self.welcome_channels: list[WelcomeChannel] = [WelcomeChannel(i) for i in _('welcome_channels')]
 
         self._session = session
 
