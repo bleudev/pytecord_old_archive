@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pytecord.role import Role
 
@@ -25,9 +25,18 @@ class WelcomeScreen:
         _ = data.get
 
         self.description: str | None = _('description')
-        self.welcome_channels: list[WelcomeChannel] = [WelcomeChannel(i) for i in _('welcome_channels')]
+        self._channels: list[dict[str, Any]] = _('welcome_channels')
 
         self._session = session
+
+    @property
+    def channels(self) -> tuple[WelcomeChannel, ...]:
+        '''
+        Welcome screen channels
+
+        Type: `tuple[WelcomeChannel, ...]`
+        '''
+        return (WelcomeChannel(i) for i in self._channels)
 
 class Guild:
     def __init__(self, session, data: 'GuildPayload') -> None:
@@ -49,7 +58,6 @@ class Guild:
         self.verification_level: int = _('verification_level')
         self.default_message_notifications: int = _('default_message_notifications')
         self.explicit_content_filter: int = _('explicit_content_filter')
-        self.roles: list[Role] = [Role(session, **i) for i in _('roles')]
         # emojis: list[Emoji] TODO: Add emoji support
         self.features: list[str] = _('features')
         self.mfa_level: int = _('mfa_level')
@@ -73,3 +81,24 @@ class Guild:
         self.nsfw_level: int | None = _('nsfw_level')
         # stickers: list[Sticker] | None TODO: Add sticker support
         self.premium_progress_bar_enabled: bool = _('premium_progress_bar_enabled')
+
+        self._roles: list[dict[str, Any]] = _('roles')
+        self._session = session
+
+    @property
+    def roles(self) -> tuple[Role, ...]:
+        '''
+        Guild roles
+        
+        Type: `tuple[Role, ...]`
+        '''
+        return (Role(self._session, **i) for i in self._roles)
+
+    def __str__(self) -> str:
+        return self.name
+    
+    def __int__(self) -> int:
+        return self.id
+    
+    def __repr__(self) -> str:
+        return f'Guild(name={self.name}, id={self.id}, owner={self.owner_id})'
