@@ -37,6 +37,7 @@ from pytecord.profiles import *
 from pytecord.role import *
 from pytecord.ui import *
 from pytecord.files import *
+from pytecord.guild import *
 
 # Info
 __version__: str = '1.0-alpha-1'
