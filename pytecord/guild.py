@@ -39,6 +39,23 @@ class WelcomeScreen:
         return (WelcomeChannel(i) for i in self._channels)
 
 class Guild:
+    '''
+    ## Guild object
+    
+    ### Magic operations
+
+    ---
+    
+    `str()` -> Name of guild
+    
+    `int()` -> Guild id
+    
+    `repr()` -> Get repr string
+    
+    `==` -> Guilds are equal
+
+    `!=` -> Guilds aren't equal
+    '''
     def __init__(self, session, data: 'GuildPayload') -> None:
         _ = data.get
 
@@ -96,9 +113,15 @@ class Guild:
 
     def __str__(self) -> str:
         return self.name
-    
+
     def __int__(self) -> int:
         return self.id
-    
+
     def __repr__(self) -> str:
         return f'Guild(name={self.name}, id={self.id}, owner={self.owner_id})'
+
+    def __eq__(self, __value: 'Guild') -> bool:
+        return self.id == __value.id
+
+    def __ne__(self, __value: 'Guild') -> bool:
+        return self.id != __value.id
