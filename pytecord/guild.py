@@ -22,6 +22,31 @@ class WelcomeChannel:
         self.emoji_name: str | None = _('emoji_name')
 
 class WelcomeScreen:
+    '''
+    # Guild welcome screen object
+
+    ### Magic operations
+
+    ---
+
+    `str()` -> Description of welcome screen
+    
+    `==` -> Welcome screens are equal
+    
+    `!=` -> Welcome screens aren't equal
+    
+    `in` -> Checks that WelcomeChannel in WelcomeScreen
+    
+    ```
+    print(str(screen))
+
+    print(screen1 == screen2)
+    print(screen1 != screen2)
+
+    if screen_channel in screen:
+        print('Contains!')
+    ```
+    '''
     def __init__(self, session, data: 'WelcomeScreenPayload') -> None:
         _ = data.get
 
@@ -38,6 +63,22 @@ class WelcomeScreen:
         Type: `tuple[WelcomeChannel, ...]`
         '''
         return (WelcomeChannel(i) for i in self._channels)
+
+    def __str__(self) -> str:
+        return self.description
+
+    def __eq__(self, __value: 'WelcomeScreen') -> bool:
+        return self.description == __value.description and self._channels == __value._channels
+
+    def __ne__(self, __value: 'WelcomeScreen') -> bool:
+        return self.description != __value.description or self._channels != __value._channels
+
+    def __contains__(self, value: 'WelcomeChannel') -> bool:
+        for i in self._channels:
+            if int( i.get('channel_id') ) == value.channel_id:
+                return True
+
+        return False
 
 class Guild:
     '''
@@ -56,6 +97,16 @@ class Guild:
     `==` -> Guilds are equal
 
     `!=` -> Guilds aren't equal
+    
+    ```
+    print(str(guild))
+    print(int(guild))
+    
+    print(repr(guild)) # or print(guild)
+    
+    print(guild1 == guild2)
+    print(guild1 != guild2)
+    ```
     '''
     def __init__(self, session, token: str, data: 'GuildPayload') -> None:
         _ = data.get
