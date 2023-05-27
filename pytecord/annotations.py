@@ -1,4 +1,4 @@
-from typing import Protocol, Generic, TypeVar, TypeAlias, Any
+from typing import Protocol, Generic, TypeVar, TypeAlias, Any, Coroutine, Callable
 
 __all__ = (
     'Strable',
@@ -54,3 +54,10 @@ Snowflake: TypeAlias = int | str # f. e., 1234567890987654321
 Filename: TypeAlias = str
 Url: TypeAlias = Startswith['http']
 ProxyUrl: TypeAlias = Url
+
+StrKeysDict: TypeAlias = dict[str, Any]
+DiscordApiDict: TypeAlias = dict[str, Any]
+DiscordGatewayDict: TypeAlias = dict[str, Any]
+
+AnyCoroutine: TypeAlias = Coroutine[Any, Any, Any]
+AsyncFunction: TypeAlias = Callable[..., AnyCoroutine]

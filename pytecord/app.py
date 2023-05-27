@@ -13,13 +13,16 @@ from pytecord.logger import warning
 if TYPE_CHECKING:
     from aiohttp import ClientSession
 
-    from pytecord.annotations import Snowflake, Strable, Subclass
+    from pytecord.annotations import Snowflake, Strable, Subclass, StrKeysDict, AsyncFunction
     from pytecord.hook import Hook
     from pytecord.payloads import (ApplicationCommandOptionChoicePayload,
                                    ApplicationCommandOptionPayload,
                                    ApplicationCommandPayload,
                                    InteractionDataOptionPayload,
                                    InteractionDataPayload, InteractionPayload)
+
+from abc import ABC as Interface
+from abc import abstractmethod as amethod
 
 __all__ = (
     'Context',
@@ -54,6 +57,30 @@ class Option:
         self.autocomplete: bool | None = _('autocomplete')
         self.value: str | int | float | bool | None = _('value')
 
+class AppCommand(Interface): # Abstract class
+    id: int
+    type: int
+    application_id: Snowflake | None
+    guild_id: Snowflake | None
+    name: str
+    name_localizations: 'StrKeysDict | None'
+    description: str | None
+    description_localizations: 'StrKeysDict | None'
+    default_member_permissions: str | None
+    dm_permission: bool | None
+    default_permission: bool | None
+    nsfw: bool | None
+    version: int | None
+    resolved: dict[str, dict[str, Any]] | None
+    target_id: Snowflake | None
+    options: list[Option] | None
+
+    @amethod # abstract method
+    def __getitem__(self, key: str) -> Any: ...
+    
+    @amethod
+    def eval(self) -> dict: ...
+
 class Command:
     def __init__(self, data: 'InteractionDataPayload | ApplicationCommandPayload') -> None:
         self._data = data
@@ -78,7 +105,7 @@ class Command:
 
         self.options: list[Option] | None = [Option(i) for i in _('options', [])]
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         return self._data.get(key, None)
 
     def eval(self) -> dict:
@@ -116,9 +143,9 @@ if TYPE_CHECKING:
 
 class AppClient:
     def __init__(self) -> None:
-        self.commands = []
-        self.callbacks = {1: {}, 2: {}, 3: {}}
-        self.component_callbacks = {'modals': {}}
+        self.commands: list[AppCommand | Command | ContextMenu] = []
+        self.callbacks: 'dict[Literal[1, 2, 3], dict[str, AsyncFunction]]' = {1: {}, 2: {}, 3: {}}
+        self.component_callbacks: 'dict[Literal["modals"], dict[str, AsyncFunction]]' = {'modals': {}}
 
     def add_command(self, command: 'CT', callback: Callable[..., Coroutine[Any, Any, Any]]) -> 'CT':
         self.commands.append(command)

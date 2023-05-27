@@ -1,11 +1,13 @@
 from asyncio import run as async_run
 from inspect import _empty, getdoc, signature
 from sys import exit as sys_exit
-from typing import Any, Callable, Coroutine, Self, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Self, TypeAlias, TypeVar
 
-from regex import fullmatch
 from aiohttp import ClientSession
+from regex import fullmatch
 
+from pytecord import utils
+from pytecord.annotations import AnyCoroutine
 from pytecord.app import AppClient, Command, ContextMenu
 from pytecord.channel import Channel, Message
 from pytecord.connection import Connection
@@ -17,11 +19,13 @@ from pytecord.logger import warning
 from pytecord.profiles import Member, User
 from pytecord.role import Role
 
-from pytecord import utils
+if TYPE_CHECKING:
+    from pytecord.annotations import AsyncFunction, Snowflake, StrKeysDict
 
 SLASH_COMMAND_VALID_REGEX = r'^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$'
 
-CT = TypeVar( 'CT', bound=Callable[..., Coroutine[Any, Any, Any]] ) 
+
+CT = TypeVar('CT', bound=Callable[..., AnyCoroutine])
 
 __all__ = (
     'Mentionable',
@@ -65,7 +69,7 @@ class Client:
         self.debug = options.get('debug', False)
     def _validate_slash_command(self, name: str):
         return bool(fullmatch(SLASH_COMMAND_VALID_REGEX, name))
-    def _get_callable(self, func):
+    def _get_callable(self, func: 'AsyncFunction | tuple'):
         _c = func
         try:
             func.__name__
@@ -73,7 +77,7 @@ class Client:
             _c = func[1]
         return _c
 
-    def __init__(self, *, token: str, **options):
+    def __init__(self, token: 'Snowflake', **options: 'StrKeysDict'):
         self.debug = None
 
         self.token = token
@@ -86,30 +90,35 @@ class Client:
 
         self._resolve_options(**options)
 
-    def run(self, **options):
+    def run(self, **options: 'StrKeysDict'):
+        '''
+        Run the client
+        
+        Params:
+            **options: Run options
+        '''
         async_run(self._runner(**options))
 
-    async def _runner(self, **options):
+    async def _runner(self, **options: 'StrKeysDict'):
         headers = {
             "Authorization": f"Bot {self.token}",
             "content-type": "application/json",
         }
         try:
-            async with ClientSession(headers=self._headers) as session:
+            async with ClientSession(headers=headers) as session:
                 self._session = session
                 options['intents'] = self._intents
                 options['session'] = session
-                
                 await self._conn.run(self._listener, self._app, **options)
         except KeyboardInterrupt:
             sys_exit(1)
 
-    def __call__(self, **options: dict[str, Any]) -> None:
+    def __call__(self, **options: 'StrKeysDict') -> None:
         self.run(**options)
 
     def __repr__(self) -> str:
         events = [a for a, b in self._listener.events.items() if b is not None]
-        commands = [i['name'] for i in self._app.commands]
+        commands = [i.name for i in self._app.commands]
 
         return f'Client(debug={self.debug}, events={events}, commands={commands})'
 
@@ -207,7 +216,7 @@ class Client:
         Returns:
             Command: Created command
         """
-        def wr(__f: Callable[..., Coroutine[Any, Any, Any]]):
+        def wrapper(__f: 'AsyncFunction'):
             callable = self._get_callable(__f)
 
             command_json = {
@@ -235,8 +244,6 @@ class Client:
             for i in params_descrp: # name:description
                 name, description = i.split(':', 1)
                 params_dict[name] = description
-
-            print(f'{params_dict=}')
             # ===
 
             description = doc.splitlines()[0] if doc else None # pylint: disable=invalid-name
@@ -276,14 +283,12 @@ class Client:
                 raise ValueError(
                     f'All slash command names must followed {SLASH_COMMAND_VALID_REGEX} regex'
                 )
-
-            print(command_json)
             command = Command(command_json)
             self._app.add_command(command, callable)
             return command
-        return wr
+        return wrapper
 
-    def _get_menu_type(self, func: Callable[..., Coroutine[Any, Any, Any]]):
+    def _get_menu_type(self, func: 'AsyncFunction'):
         params = dict(signature(func).parameters)
         param_type = params[list(params.keys())[1]].annotation
         types = {
@@ -293,17 +298,38 @@ class Client:
         return types[param_type]
 
     def context_menu(self) -> Callable[..., ContextMenu]:
-        def wrapper(func: Callable[..., Coroutine[Any, Any, Any]]) -> ContextMenu:
-            menu_json = dict(
-                name=func.__name__,
-                type=self._get_menu_type(func)
-            )
+        '''
+        Add the context menu to client
+        
+        Second parameter type is a type of context menu
+        
+        Example:
+        ```
+        # Message context menu
+        @client.context_menu()
+        async def test(ctx: Context, message: Message):
+            await message.reply('You selected this message!')
+            
+        # User context menu
+        @client.context_menu()
+        async def test(ctx: Context, user: User):
+            print(str(user)) # User name
+        ```
+        '''
+        def wrapper(func: 'AsyncFunction') -> ContextMenu:
+            menu_json = {
+                'name': func.__name__,
+                'type': self._get_menu_type(func)
+            }
             menu = ContextMenu(menu_json)
             self._app.add_command(menu, func)
             return menu
         return wrapper
 
     def add_event(self, callback: CT) -> CT:
+        '''
+        Add the event to client
+        '''
         match callback.__name__:
             case 'message' | 'message_delete':
                 self._intents += _flags.messages if self._intents & _flags.messages == 0 else 0
@@ -312,14 +338,23 @@ class Client:
         return callback
 
     def event(self, func: CT) -> CT:
+        '''
+        Add the event to client (decorator editon)
+        '''
         self.add_event(func)
         return func
 
-    def __iadd__(self, other: Callable[..., Coroutine[Any, Any, Any]]) -> Self:
+    def __iadd__(self, other: 'AsyncFunction') -> Self:
         self.add_event(other)
         return self
 
-    def remove_event(self, callback_or_name: Callable[..., Coroutine[Any, Any, Any]] | str) -> None:
+    def remove_event(self, callback_or_name: 'AsyncFunction | str') -> None:
+        '''
+        Remove the event
+        
+        Params:
+            callback_or_name: Callback or name (lol)
+        '''
         name = callback_or_name if isinstance(callback_or_name, str) else callback_or_name.__name__
 
         match name:
@@ -327,12 +362,18 @@ class Client:
                 self._intents -= self._intents & _flags.messages
         self._listener.remove_event(name)
 
-    def __isub__(self, other: Callable[..., Coroutine[Any, Any, Any]] | str) -> Self:
+    def __isub__(self, other: 'AsyncFunction | str') -> Self:
         self.remove_event(other)
         return self
 
     def get_channel(self, id: int) -> Channel:
+        '''
+        Get the channel by id
+        '''
         return utils.get_channel(id, self.token, self._session)
 
     def get_user(self, id: int) -> User:
+        '''
+        Get the user by id
+        '''
         return utils.get_user(id, self.token, self._session)
