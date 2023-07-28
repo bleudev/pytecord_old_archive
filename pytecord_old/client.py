@@ -77,7 +77,7 @@ class Client:
             _c = func[1]
         return _c
 
-    def __init__(self, token: 'Snowflake', **options: 'StrKeysDict'):
+    def __init__(self, token: 'Snowflake', activity: 'Activity', **options: 'StrKeysDict'):
         self.debug = None
 
         self.token = token
