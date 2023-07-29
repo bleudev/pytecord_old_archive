@@ -1,18 +1,9 @@
-"""
-`ready.py`
+import pytecord
 
-In this file you will learn to use `ready` event
+client = pytecord.Client('YOUR_TOKEN')
 
-Enjoy!
-"""
-
-# Create a client
-from pytecord import Client
-client = Client(token='token') # Replace with your token
-
-# For using events you can use `event` decorator
-@client.event
+@client.listen('ready')
 async def ready():
-    print("Hello, i'm ready :3") # Print message on console
+    print("Hello, i'm bot!")
 
 client.run()
