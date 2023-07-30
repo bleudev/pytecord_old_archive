@@ -1,11 +1,16 @@
 from pytecord.interfaces import BaseDataStreamListener
 
-from typing import Callable, Coroutine, Any
+from typing import Callable, Coroutine, Any, TYPE_CHECKING
 from aiohttp import ClientSession
 from datetime import datetime
 from time import mktime
 from asyncio import gather, create_task
 from asyncio import sleep as asleep
+from pytecord.config import GATEWAY_VERSION
+from pytecord.utils import rget
+
+if TYPE_CHECKING:
+    from pytecord.guild import Guild, GuildChannel
 
 class ApiRequest:
     ...
@@ -63,7 +68,6 @@ class DataStream:
     def __init__(
             self,
             listener: BaseDataStreamListener,
-            gateway_version: int,
             headers: dict,
             token: str,
             intents: int = 0,
@@ -73,7 +77,7 @@ class DataStream:
         ) -> None:
         self.listener = listener
         self._ws = None
-        self.gateway_version = gateway_version
+        self.gateway_version = GATEWAY_VERSION
         self.headers = headers
 
         self.running = False
@@ -154,7 +158,7 @@ class BaseWebhook:
         self.headers = {'Authorization': f'Bot {self.token}',}
 
         self.listener = DataStreamListener()
-        self.stream = DataStream(self.listener, 10, self.headers, self.token)
+        self.stream = DataStream(self.listener, self.headers, self.token)
         self.api_connector = ApiConnector(10)
 
     def add_event(self, event_type:str, function: Callable):
@@ -162,3 +166,15 @@ class BaseWebhook:
 
     async def run(self):
         await self.stream.run()
+    
+    def get_guild(self, id: int) -> 'Guild':
+        from pytecord.guild import Guild
+
+        data = rget('guild', id, self.token).json()
+        return Guild(data, self.token) 
+
+    def get_channel(self, id: int) -> 'GuildChannel':
+        from pytecord.guild import GuildChannel
+
+        data = rget('channel', id, self.token).json()
+        return GuildChannel(data, self.token) 
