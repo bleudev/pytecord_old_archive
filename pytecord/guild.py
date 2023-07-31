@@ -15,10 +15,10 @@ class Guild(Object):
         self.owner_id = data.get('owner_id')
         self.permissions  = data.get('permissions')
         self.region  = data.get('region ')
-        self.afk_channel_id = int(data.get('afk_channel_id'))
+        self.afk_channel_id = int(x) if (x := data.get('afk_channel_id')) else None
         self.afk_timeout = data.get('afk_timeout')
         self.widget_enabled = data.get('widget_enabled')
-        self.widget_channel_id = int(data.get('widget_channel_id'))
+        self.widget_channel_id = int(x) if (x := data.get('widget_channel_id')) else None
         self.verification_level = data.get('verification_level')
         self.default_message_notifications = data.get('default_message_notifications')
         self.explicit_content_filter = data.get('explicit_content_filter')
@@ -26,10 +26,10 @@ class Guild(Object):
         self.emojis = data.get('emojis')
         self.features = data.get('features')
         self.mfa_level = data.get('mfa_level')
-        self.application_id = int(data.get('application_id'))
-        self.system_channel_id = int(data.get('system_channel_id'))
+        self.application_id = int(x) if (x := data.get('application_id')) else None
+        self.system_channel_id = int(x) if (x := data.get('application_id')) else None
         self.system_channel_flags = data.get('system_channel_flags')
-        self.rules_channel_id = int(data.get('rules_channel_id'))
+        self.rules_channel_id = int(x) if (x := data.get('rules_channel_id')) else None
         self.max_presences = data.get('max_presences')
         self.max_members = data.get('max_members')
         self.vanity_url_code = data.get('vanity_url_code')
@@ -47,7 +47,7 @@ class Guild(Object):
         self.nsfw_level = data.get('nsfw_level')
         self.stickers = data.get('stickers')
         self.premium_progress_bar_enabled = data.get('premium_progress_bar_enabled')
-        self.safety_alerts_channel_id = int(data.get('safety_alerts_channel_id'))
+        self.safety_alerts_channel_id = int(x) if (x := data.get('safety_alerts_channel_id')) else None
 
         self.__token = token
         self.__data = data
@@ -94,16 +94,16 @@ class GuildChannel(Object):
         self.name = data.get('name')
         self.topic = data.get('topic')
         self.nsfw = data.get('nsfw')
-        self.last_message_id = int(data.get('last_message_id'))
+        self.last_message_id = int(x) if (x := data.get('last_message_id')) else None
         self.bitrate = data.get('bitrate')
         self.user_limit = data.get('user_limit')
         self.rate_limit_per_user = data.get('rate_limit_per_user')
         self.recipients = data.get('recipients')
         self.icon = data.get('icon')
-        self.owner_id = int(data.get('owner_id'))
-        self.application_id = data.get('application_id')
+        self.owner_id = int(x) if (x := data.get('owner_id')) else None
+        self.application_id = int(x) if (x := data.get('application_id')) else None
         self.managed = data.get('managed')
-        self.parent_id = int(data.get('parent_id'))
+        self.parent_id = int(x) if (x := data.get('parent_id')) else None
         self.last_pin_timestamp = data.get('last_pin_timestamp')
         self.rtc_region = data.get('rtc_region')
         self.video_quality_mode = data.get('video_quality_mode')
@@ -122,14 +122,16 @@ class GuildChannel(Object):
         self.default_sort_order = data.get('default_sort_order')
         self.default_forum_layout = data.get('default_forum_layout')
 
-        self.__guild_id = int(data.get('guild_id'))
+        self.__guild_id = int(x) if (x := data.get('guild_id')) else None
         self.__token = token
         self.__data = data
     
     @property
-    def guild(self) -> Guild:
-        data = rget('guild', self.__guild_id, self.__token).json()
-        return Guild(data, self.__token)
+    def guild(self) -> Guild | None:
+        if self.__guild_id:
+            data = rget('guild', self.__guild_id, self.__token).json()
+            return Guild(data, self.__token)
+        return None
     
     def __int__(self) -> int:
         """
@@ -181,11 +183,11 @@ class Message:
         self.reactions = data.get('reactions')
         self.nonce = data.get('nonce')
         self.pinned = data.get('pinned')
-        self.webhook_id = int(data.get('webhook_id'))
+        self.webhook_id = int(x) if (x := data.get('webhook_id')) else None 
         self.type = data.get('type')
         self.activity = data.get('activity')
         self.application = data.get('application')
-        self.application_id = int(data.get('application_id'))
+        self.application_id = int(x) if (x := data.get('application_id')) else None 
         self.message_reference = data.get('message_reference')
         self.flags = data.get('flags')
         self.referenced_message = data.get('referenced_message')

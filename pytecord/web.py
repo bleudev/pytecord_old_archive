@@ -70,6 +70,7 @@ class DataStream:
             listener: BaseDataStreamListener,
             headers: dict,
             token: str,
+            debug: bool,
             intents: int = 0,
             afk: bool = False,
             status: str = 'online',
@@ -79,6 +80,7 @@ class DataStream:
         self._ws = None
         self.gateway_version = GATEWAY_VERSION
         self.headers = headers
+        self.debug = debug
 
         self.running = False
 
@@ -132,10 +134,14 @@ class DataStream:
                 ...
             else:
                 continue
+            if self.debug:
+                print(f'DEBUG op:{data.op} s:{data.s} t:{data.t} d:{data.d}')
             await self.listener.listen(data)
 
-    async def run(self):
+    async def run(self, intents: int = None):
         self.running = True
+        if intents:
+            self.intents = intents
 
         async with ClientSession(headers=self.headers) as session:
             async with session.ws_connect(
@@ -153,19 +159,20 @@ class DataStream:
 
 
 class BaseWebhook:
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: str, debug: bool) -> None:
         self.token = token
+        self.debug = debug
         self.headers = {'Authorization': f'Bot {self.token}',}
 
         self.listener = DataStreamListener()
-        self.stream = DataStream(self.listener, self.headers, self.token)
+        self.stream = DataStream(self.listener, self.headers, self.token, self.debug)
         self.api_connector = ApiConnector(10)
 
     def add_event(self, event_type:str, function: Callable):
         self.listener.events[event_type] = function
 
-    async def run(self):
-        await self.stream.run()
+    async def run(self, intents: int = 0):
+        await self.stream.run(intents)
     
     def get_guild(self, id: int) -> 'Guild':
         from pytecord.guild import Guild
