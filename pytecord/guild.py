@@ -199,6 +199,11 @@ class Message:
         self.position = data.get('position')
         self.role_subscription_data = data.get('role_subscription_data')
 
+        # Extra fields for message create
+        self.guild_id = int(x) if (x := data.get('guild_id')) else None
+        self.member = data.get('member')
+        self.mentions = data.get('mentions')
+
         self.__channel_id = data.get('channel_id')
         self.__token = token
         self.__data = data
@@ -240,3 +245,24 @@ class Message:
         ```
         """
         return self.__data
+
+class MessageDeleteEvent:
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.id = int(data.get('id'))
+
+        self.__channel_id = int(data.get('channel_id'))
+        self.__guild_id = int(x) if (x := data.get('guild_id')) else None
+        self.__token = token
+    
+    @property
+    def channel(self) -> GuildChannel:
+        data = rget('channel', self.__channel_id, self.__token).json()
+        return GuildChannel(data, self.__token)
+    
+    @property
+    def guild(self) -> Guild:
+        data = rget('guild', self.__guild_id, self.__token).json()
+        return Guild(data, self.__token)
+
+    def __int__(self) -> int:
+        return self.id
