@@ -1,7 +1,7 @@
 from typing import Any
 
 from pytecord.interfaces import Object
-from pytecord.utils import rget
+from pytecord.utils import rget, rfetch
 
 class Guild(Object):
     def __init__(self, data: dict[str, Any], token: str):
@@ -154,6 +154,17 @@ class GuildChannel(Object):
         ```
         """
         return self.name
+
+    def __getitem__(self, key: int):
+        """
+        Fetch a message
+
+        ```
+        >>> channel = GuildChannel()
+        >>> message = channel[955886808095399996]
+        ```
+        """
+        return self.fetch(key)
     
     def eval(self) -> dict[str, Any]:
         """
@@ -165,6 +176,18 @@ class GuildChannel(Object):
         ```
         """
         return self.__data
+    
+    def fetch(self, id: int) -> 'Message':
+        """
+        Fetch a message
+
+        ```
+        >>> channel = GuildChannel()
+        >>> message = channel.fetch(955886808095399996)
+        ```
+        """
+        data = rfetch('channel', 'message', self.id, id, self.__token).json()
+        return Message(data, self.__token)
 
 class Message:
     def __init__(self, data: dict[str, Any], token: str) -> None:

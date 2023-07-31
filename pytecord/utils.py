@@ -11,3 +11,8 @@ def rget(what_to_get: Literal['channel', 'guild', 'user'], id: int, token: str =
     if token:
         headers = get_headers(token)
     return get(f'https://discord.com/api/v{API_VERSION}/{what_to_get}s/{id}', headers=headers)
+
+def rfetch(where_get: Literal['channel'], what_to_fetch: Literal['message'], first_id: int, second_id: int, token: str = None, headers: dict[str, Any] = None):
+    if token:
+        headers = get_headers(token)
+    return get(f'https://discord.com/api/v{API_VERSION}/{where_get}s/{first_id}/{what_to_fetch}s/{second_id}', headers=headers)
