@@ -1,5 +1,6 @@
 from requests import get, post
 from aiohttp import ClientSession
+import json
 
 from typing import Literal, Any
 
@@ -10,11 +11,18 @@ class MessagePayload:
         self.json = {
             'content': content
         }
+    
+    def make_reply(self, message_id: int) -> None:
+        self.json['message_reference'] = {
+            'message_id': message_id
+        }
+
     def eval(self) -> dict[str, Any]:
-        return self.json
+        return json.dumps(self.json)
+
 
 def get_headers(token: str):
-    return {'Authorization': f'Bot {token}'}
+    return {'Authorization': f'Bot {token}', 'Content-Type': 'application/json'}
 
 def rget(endpoint: str, token: str = None, headers: dict[str, Any] = None):
     if token:

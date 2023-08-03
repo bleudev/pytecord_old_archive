@@ -19,7 +19,7 @@ class Client:
     
     @property
     def user(self) -> User:
-        return User(self.webhook.get_user(self.__user_id))
+        return User(self.webhook.get_user(self.__user_id), self.token)
     
     def listen(self):
         def decorator(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):

@@ -105,7 +105,7 @@ class GuildChannel(Object):
         self.bitrate = data.get('bitrate')
         self.user_limit = data.get('user_limit')
         self.rate_limit_per_user = data.get('rate_limit_per_user')
-        self.recipients = [User(i) for i in x] if (x := data.get('recipients')) else None
+        self.recipients = [User(i, token) for i in x] if (x := data.get('recipients')) else None
         self.icon = data.get('icon')
         self.owner_id = int(x) if (x := data.get('owner_id')) else None
         self.application_id = int(x) if (x := data.get('application_id')) else None
@@ -210,7 +210,7 @@ class Message:
         self.edited_timestamp = data.get('edited_timestamp')
         self.tts = data.get('tts')
         self.mention_everyone = data.get('mention_everyone')
-        self.mentions = [User(i) for i in x] if (x := data.get('mentions')) else None
+        self.mentions = [User(i, token) for i in x] if (x := data.get('mentions')) else None
         self.mention_roles = data.get('mention_roles')
         self.mention_channels = data.get('mention_channels')
         self.attachments = data.get('attachments')
@@ -279,6 +279,12 @@ class Message:
         ```
         """
         return self.__data
+    
+    async def reply(self, content: str) -> 'Message':
+        payload = MessagePayload(content)
+        payload.make_reply(self.id)
+        data = await apost(f'/channels/{self.__channel_id}/messages', self.__token, data=payload.eval())
+        return Message(data, self.__token)
 
 class MessageDeleteEvent:
     def __init__(self, data: dict[str, Any], token: str) -> None:

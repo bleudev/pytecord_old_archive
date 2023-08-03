@@ -7,7 +7,7 @@ from time import mktime
 from asyncio import gather, create_task
 from asyncio import sleep as asleep
 from .config import GATEWAY_VERSION
-from .utils import rget
+from .utils import get_headers, rget
 
 if TYPE_CHECKING:
     from .guild import Guild, GuildChannel
@@ -136,7 +136,7 @@ class DataStream:
             else:
                 continue
             if self.debug:
-                print(f'DEBUG op:{data.op} s:{data.s} t:{data.t} d:{data.d}')
+                print(f'DEBUG op:{data.op} s:{data.s} t:{data.t} d:{data.d}', end='\n' * 2)
             await self.listener.listen(data)
 
     async def run(self, intents: int = None):
@@ -163,7 +163,7 @@ class BaseWebhook:
     def __init__(self, token: str, debug: bool) -> None:
         self.token = token
         self.debug = debug
-        self.headers = {'Authorization': f'Bot {self.token}',}
+        self.headers = get_headers(token)
 
         self.listener = DataStreamListener()
         self.stream = DataStream(self.listener, self.headers, self.token, self.debug)
