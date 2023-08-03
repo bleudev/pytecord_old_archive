@@ -1,10 +1,11 @@
-from requests import get, post
-from aiohttp import ClientSession
 import json
+from typing import Any, Literal
 
-from typing import Literal, Any
+from aiohttp import ClientSession
+from requests import get, post
 
 from .config import API_VERSION
+
 
 class MessagePayload:
     def __init__(self, content: str) -> None:

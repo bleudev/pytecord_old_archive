@@ -1,5 +1,7 @@
-from .interfaces import Object
 from typing import Any
+
+from .interfaces import Object
+
 
 class User(Object):
     def __init__(self, data: dict[str, Any], token: str) -> None:

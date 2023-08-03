@@ -1,7 +1,6 @@
 from abc import ABC as AbstractClass
 from abc import abstractmethod as abstract_method
-
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from pytecord.web import GatewayOutput

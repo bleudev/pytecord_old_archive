@@ -1,28 +1,18 @@
-from .interfaces import BaseDataStreamListener
-
-from typing import Callable, Coroutine, Any, TYPE_CHECKING
-from aiohttp import ClientSession
+from asyncio import create_task, gather
+from asyncio import sleep as asleep
 from datetime import datetime
 from time import mktime
-from asyncio import gather, create_task
-from asyncio import sleep as asleep
+from typing import TYPE_CHECKING, Any, Callable, Coroutine
+
+from aiohttp import ClientSession
+
 from .config import GATEWAY_VERSION
+from .interfaces import BaseDataStreamListener
 from .utils import get_headers, rget
 
 if TYPE_CHECKING:
     from .guild import Guild, GuildChannel
     from .user import User
-
-class ApiRequest:
-    ...
-
-
-class ApiConnector:
-    def __init__(self, api_version: int) -> None:
-        self.base_url = f'https://discord.com/api/v{api_version}'
-
-    def try_request(self, request: ApiRequest):
-        ...
 
 
 class GatewayRequest:
@@ -167,7 +157,6 @@ class BaseWebhook:
 
         self.listener = DataStreamListener()
         self.stream = DataStream(self.listener, self.headers, self.token, self.debug)
-        self.api_connector = ApiConnector(10)
 
     def add_event(self, event_type:str, function: Callable):
         self.listener.events[event_type] = function

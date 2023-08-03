@@ -1,11 +1,10 @@
-from .web import BaseWebhook
 from asyncio import run as arun
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Literal
 
-from typing import TYPE_CHECKING, Literal, Callable, Coroutine, Any
-
-from .guild import Message, Guild, GuildChannel, MessageDeleteEvent
 from .enums import GatewayIntents
+from .guild import Guild, GuildChannel, Message, MessageDeleteEvent
 from .user import User
+from .web import BaseWebhook
 
 if TYPE_CHECKING:
     from .web import GatewayOutput
