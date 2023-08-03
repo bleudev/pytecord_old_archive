@@ -1,18 +1,31 @@
 from requests import get, post
+from aiohttp import ClientSession
 
 from typing import Literal, Any
 
-from pytecord.config import API_VERSION
+from .config import API_VERSION
+
+class MessagePayload:
+    def __init__(self, content: str) -> None:
+        self.json = {
+            'content': content
+        }
+    def eval(self) -> dict[str, Any]:
+        return self.json
 
 def get_headers(token: str):
     return {'Authorization': f'Bot {token}'}
 
-def rget(what_to_get: Literal['channel', 'guild', 'user'], id: int, token: str = None, headers: dict[str, Any] = None):
+def rget(endpoint: str, token: str = None, headers: dict[str, Any] = None):
     if token:
         headers = get_headers(token)
-    return get(f'https://discord.com/api/v{API_VERSION}/{what_to_get}s/{id}', headers=headers)
+    return get(f'https://discord.com/api/v{API_VERSION}{endpoint}', headers=headers)
 
-def rfetch(where_get: Literal['channel'], what_to_fetch: Literal['message'], first_id: int, second_id: int, token: str = None, headers: dict[str, Any] = None):
+async def apost(endpoint: str, token: str = None, headers: dict[str, Any] = None, data: dict[str, Any] = None):
     if token:
         headers = get_headers(token)
-    return get(f'https://discord.com/api/v{API_VERSION}/{where_get}s/{first_id}/{what_to_fetch}s/{second_id}', headers=headers)
+    async with ClientSession(headers=headers) as s:
+        async with s.post(f'https://discord.com/api/v{API_VERSION}{endpoint}', data=data) as r:
+            if r.status == 200:
+                return  await r.json()
+            raise Exception(await r.json())

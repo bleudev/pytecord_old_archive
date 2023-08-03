@@ -1,4 +1,4 @@
-from pytecord.interfaces import BaseDataStreamListener
+from .interfaces import BaseDataStreamListener
 
 from typing import Callable, Coroutine, Any, TYPE_CHECKING
 from aiohttp import ClientSession
@@ -6,11 +6,12 @@ from datetime import datetime
 from time import mktime
 from asyncio import gather, create_task
 from asyncio import sleep as asleep
-from pytecord.config import GATEWAY_VERSION
-from pytecord.utils import rget
+from .config import GATEWAY_VERSION
+from .utils import rget
 
 if TYPE_CHECKING:
-    from pytecord.guild import Guild, GuildChannel
+    from .guild import Guild, GuildChannel
+    from .user import User
 
 class ApiRequest:
     ...
@@ -175,13 +176,19 @@ class BaseWebhook:
         await self.stream.run(intents)
     
     def get_guild(self, id: int) -> 'Guild':
-        from pytecord.guild import Guild
+        from .guild import Guild
 
-        data = rget('guild', id, self.token).json()
+        data = rget(f'/guilds/{id}', self.token).json()
         return Guild(data, self.token) 
 
     def get_channel(self, id: int) -> 'GuildChannel':
-        from pytecord.guild import GuildChannel
+        from .guild import GuildChannel
 
-        data = rget('channel', id, self.token).json()
-        return GuildChannel(data, self.token) 
+        data = rget(f'/channels/{id}', self.token).json()
+        return GuildChannel(data, self.token)
+    
+    def get_user(self, id: int) -> 'User':
+        from .user import User
+
+        data = rget(f'/users/{id}', self.token).json()
+        return User(data, self.token)

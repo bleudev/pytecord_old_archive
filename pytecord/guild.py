@@ -1,7 +1,9 @@
 from typing import Any
 
-from pytecord.interfaces import Object
-from pytecord.utils import rget, rfetch
+from .user import User
+
+from .interfaces import Object
+from .utils import rget, apost, MessagePayload
 
 class Guild(Object):
     def __init__(self, data: dict[str, Any], token: str):
@@ -11,8 +13,7 @@ class Guild(Object):
         self.icon_hash = data.get('icon_hash')
         self.splash = data.get('splash')
         self.discovery_splash = data.get('discovery_splash')
-        self.owner  = data.get('owner')
-        self.owner_id = data.get('owner_id')
+        self.is_owner  = data.get('owner')
         self.permissions  = data.get('permissions')
         self.region  = data.get('region ')
         self.afk_channel_id = int(x) if (x := data.get('afk_channel_id')) else None
@@ -49,8 +50,14 @@ class Guild(Object):
         self.premium_progress_bar_enabled = data.get('premium_progress_bar_enabled')
         self.safety_alerts_channel_id = int(x) if (x := data.get('safety_alerts_channel_id')) else None
 
+        self.__owner_id = data.get('owner_id')
         self.__token = token
         self.__data = data
+    
+    @property
+    def owner(self) -> User:
+        data = rget(f'/users/{self.__owner_id}', self.__token).json()
+        return User(data, self.__token)
     
     def __int__(self) -> int:
         """
@@ -98,7 +105,7 @@ class GuildChannel(Object):
         self.bitrate = data.get('bitrate')
         self.user_limit = data.get('user_limit')
         self.rate_limit_per_user = data.get('rate_limit_per_user')
-        self.recipients = data.get('recipients')
+        self.recipients = [User(i) for i in x] if (x := data.get('recipients')) else None
         self.icon = data.get('icon')
         self.owner_id = int(x) if (x := data.get('owner_id')) else None
         self.application_id = int(x) if (x := data.get('application_id')) else None
@@ -129,7 +136,7 @@ class GuildChannel(Object):
     @property
     def guild(self) -> Guild | None:
         if self.__guild_id:
-            data = rget('guild', self.__guild_id, self.__token).json()
+            data = rget(f'/guilds/{self.__guild_id}', self.__token).json()
             return Guild(data, self.__token)
         return None
     
@@ -186,19 +193,24 @@ class GuildChannel(Object):
         >>> message = channel.fetch(955886808095399996)
         ```
         """
-        data = rfetch('channel', 'message', self.id, id, self.__token).json()
+        data = rget(f'/channels/{self.id}/messages/{id}', self.__token).json()
+        return Message(data, self.__token)
+    
+    async def send(self, content: str) -> 'Message':
+        payload = MessagePayload(content)
+        data = await apost(f'/channels/{self.id}/messages', self.__token, data=payload.eval())
         return Message(data, self.__token)
 
 class Message:
     def __init__(self, data: dict[str, Any], token: str) -> None:
         self.id = int(data.get('id'))
-        self.author = data.get('author')
+        self.author = User(data.get('author'), token)
         self.content = data.get('content')
         self.timestamp = data.get('timestamp')
         self.edited_timestamp = data.get('edited_timestamp')
         self.tts = data.get('tts')
         self.mention_everyone = data.get('mention_everyone')
-        self.mentions = data.get('mentions')
+        self.mentions = [User(i) for i in x] if (x := data.get('mentions')) else None
         self.mention_roles = data.get('mention_roles')
         self.mention_channels = data.get('mention_channels')
         self.attachments = data.get('attachments')
@@ -225,7 +237,6 @@ class Message:
         # Extra fields for message create
         self.guild_id = int(x) if (x := data.get('guild_id')) else None
         self.member = data.get('member')
-        self.mentions = data.get('mentions')
 
         self.__channel_id = data.get('channel_id')
         self.__token = token
@@ -233,7 +244,7 @@ class Message:
 
     @property
     def channel(self) -> GuildChannel:
-        data = rget('channel', self.__channel_id, self.__token).json()
+        data = rget(f'/channels/{self.__channel_id}', self.__token).json()
         return GuildChannel(data, self.__token)
     
     def __int__(self) -> int:
@@ -279,12 +290,12 @@ class MessageDeleteEvent:
     
     @property
     def channel(self) -> GuildChannel:
-        data = rget('channel', self.__channel_id, self.__token).json()
+        data = rget(f'/channels/{self.__channel_id}', self.__token).json()
         return GuildChannel(data, self.__token)
     
     @property
     def guild(self) -> Guild:
-        data = rget('guild', self.__guild_id, self.__token).json()
+        data = rget(f'/guilds/{self.__guild_id}', self.__token).json()
         return Guild(data, self.__token)
 
     def __int__(self) -> int:
