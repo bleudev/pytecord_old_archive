@@ -2,28 +2,29 @@ from typing import Any
 
 from .interfaces import Object
 from .user import User
+from .role import Role
 from .utils import MessagePayload, apost, rget
-
+from .annotations import hash_str
 
 class Guild(Object):
     def __init__(self, data: dict[str, Any], token: str):
-        self.id = int(data.get('id'))
-        self.name = data.get('name')
-        self.icon = data.get('icon')
-        self.icon_hash = data.get('icon_hash')
-        self.splash = data.get('splash')
-        self.discovery_splash = data.get('discovery_splash')
-        self.is_owner  = data.get('owner')
-        self.permissions  = data.get('permissions')
-        self.region  = data.get('region ')
-        self.afk_channel_id = int(x) if (x := data.get('afk_channel_id')) else None
-        self.afk_timeout = data.get('afk_timeout')
-        self.widget_enabled = data.get('widget_enabled')
-        self.widget_channel_id = int(x) if (x := data.get('widget_channel_id')) else None
-        self.verification_level = data.get('verification_level')
-        self.default_message_notifications = data.get('default_message_notifications')
-        self.explicit_content_filter = data.get('explicit_content_filter')
-        self.roles = data.get('roles')
+        self.id: int = int(data.get('id'))
+        self.name: str = data.get('name')
+        self.icon: hash_str | None = data.get('icon')
+        self.icon_hash: hash_str | None = data.get('icon_hash')
+        self.splash: hash_str | None = data.get('splash')
+        self.discovery_splash: hash_str | None = data.get('discovery_splash')
+        self.is_owner: bool | None = data.get('owner')
+        self.permissions: str | None = data.get('permissions')
+        self.region: str | None = data.get('region') # deprecated
+        self.afk_channel_id: int | None = int(x) if (x := data.get('afk_channel_id')) else None
+        self.afk_timeout: int = data.get('afk_timeout')
+        self.widget_enabled: bool | None = data.get('widget_enabled')
+        self.widget_channel_id: int | None = int(x) if (x := data.get('widget_channel_id')) else None
+        self.verification_level: int = data.get('verification_level')
+        self.default_message_notifications: int = data.get('default_message_notifications')
+        self.explicit_content_filter: int = data.get('explicit_content_filter')
+        self.roles: list[Role] = [Role(i) for i in data.get('roles')]
         self.emojis = data.get('emojis')
         self.features = data.get('features')
         self.mfa_level = data.get('mfa_level')

@@ -2,7 +2,7 @@ import json
 from typing import Any, Literal
 
 from aiohttp import ClientSession
-from requests import get, post
+from requests import get
 
 from .config import API_VERSION
 
