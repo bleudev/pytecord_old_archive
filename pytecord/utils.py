@@ -20,6 +20,12 @@ class MessagePayload:
         self.json['message_reference'] = {
             'message_id': message_id
         }
+    
+    def __setitem__(self, key: str, value: Any):
+        self.json[key] = value
+    
+    def __getitem__(self, key: str):
+        return self.json[key]
 
     def eval(self) -> dict[str, Any]:
         return json.dumps(self.json)
@@ -38,7 +44,7 @@ async def apost(endpoint: str, token: str = None, headers: dict[str, Any] = None
         headers = get_headers(token)
     async with ClientSession(headers=headers) as s:
         async with s.post(f'https://discord.com/api/v{API_VERSION}{endpoint}', data=data) as r:
-            if r.status == 200:
+            if str(r.status).startswith('2'):
                 return  await r.json()
             raise Exception(await r.json())
 
@@ -53,7 +59,7 @@ def get_snowflake(__snowflake: str, __default: Any = None) -> int | Any:
     return int(x) if (x := __snowflake) else __default
 
 def get_list_of_types(__type: T, __list: list[Any], *args, __default: Any = None) -> list[T]:
-    return [__type(i, *args, **kwargs) for i in __list] if __list else __default
+    return [__type(i, *args) for i in __list] if __list else __default
 
 def check_module(module: str):
     try:

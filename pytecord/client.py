@@ -1,6 +1,8 @@
 from asyncio import run as arun
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, Literal
+from inspect import getdoc
 
+from .commands import ApllicationCommand
 from .enums import GatewayIntents
 from .guild import Guild, GuildChannel, Message, MessageDeleteEvent
 from .user import User
@@ -27,6 +29,7 @@ class Client:
                 case 'ready':
                     async def func(data: 'GatewayOutput'):
                         self.__user_id = data.d['user']['id']
+                        await self.webhook.register_app_commands(data)
                         await func_to_decorate()
                 case 'message_create' | 'message_update':
                     self.__intents += GatewayIntents.GUILD_MESSAGES
@@ -49,6 +52,16 @@ class Client:
 
         return decorator
     
+    def command(self):
+        def wrapper(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):
+            name = func_to_decorate.__name__
+            description = getdoc(func_to_decorate).splitlines()[0]
+
+            command = ApllicationCommand(name, description if description else '...')
+
+            self.webhook.add_command(command, func_to_decorate)
+        return wrapper
+    
     def get_guild(self, id: int) -> Guild:
         return self.webhook.get_guild(id)
     
@@ -56,6 +69,11 @@ class Client:
         return self.webhook.get_channel(id)
 
     def run(self):
+        if not self.webhook.listener.events.get('READY'):
+            async def func(data: 'GatewayOutput'):
+                self.__user_id = data.d['user']['id']
+                await self.webhook.register_app_commands(data)
+            self.webhook.add_event('READY', func)
         try:
             arun(self.webhook.run(self.__intents))
         except KeyboardInterrupt:

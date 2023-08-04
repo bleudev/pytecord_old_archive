@@ -6,9 +6,10 @@ from typing import TYPE_CHECKING, Any, Callable, Coroutine, Literal
 
 from aiohttp import ClientSession
 
+from .commands import ApllicationCommand, Interaction
 from .config import GATEWAY_VERSION
 from .interfaces import BaseDataStreamListener
-from .utils import get_headers, rget, check_module
+from .utils import apost, get_headers, rget, check_module
 
 if TYPE_CHECKING:
     from .guild import Guild, GuildChannel
@@ -97,7 +98,7 @@ class DataStream:
                 if data.d is not None:
                     x += f'{colorama.Fore.BLUE}d:{data.d} '
                 if data.t is not None:
-                    x += f'{colorama.Fore.MAGENTA}t:{data.t}'
+                    x += f'{colorama.Fore.MAGENTA}t:{data.t}{colorama.Fore.RESET}'
             else:
                 x = f'DEBUG {type.upper()} '
                 if data.op:
@@ -184,12 +185,37 @@ class BaseWebhook:
         self.token = token
         self.debug = debug
         self.headers = get_headers(token)
+        self.commands: dict[ApllicationCommand, Callable] = {}
 
         self.listener = DataStreamListener()
         self.stream = DataStream(self.listener, self.headers, self.token, self.debug)
 
-    def add_event(self, event_type:str, function: Callable):
+    def add_event(self, event_type: str, function: Callable):
         self.listener.events[event_type] = function
+
+    def add_command(self, command: ApllicationCommand, function: Callable):
+        self.commands[command] = function
+    
+    async def register_app_commands(self, data: GatewayOutput):
+        app_id = data.d['application']['id']
+
+        for command, func in self.commands.items():
+            if self.debug:
+                print(f'DEBUG POST /applications/.../commands with {command.eval()}')
+            await apost(f'/applications/{app_id}/commands', self.token, data=command.eval())
+        
+        async def interaction_create(data: GatewayOutput):
+            name = data.d['data']['name']
+
+            command = None
+            for i in self.commands:
+                if i.name == name:
+                    command = i
+
+            interaction = Interaction(data.d, self.token)
+            await self.commands[command](interaction)
+
+        self.add_event('INTERACTION_CREATE', interaction_create)
 
     async def run(self, intents: int = 0):
         await self.stream.run(intents)
