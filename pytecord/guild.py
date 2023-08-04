@@ -1,14 +1,35 @@
-from typing import Any
+from typing import Any, Literal
 
 from .interfaces import Object
 from .user import User
 from .role import Role
-from .utils import MessagePayload, apost, rget
-from .annotations import hash_str
+from .reaction import Emoji, Sticker
+from .utils import MessagePayload, get_snowflake, apost, rget
+from .annotations import hash_str, permissions_set
+
+
+class WelcomeScreenChannel:
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.description: str = data.get('description')
+        self.emoji_id: int | None = get_snowflake('emoji_id')
+        self.emoji_name: str | None = data.get('emoji_name')
+
+        self.__channel_id = int(data.get('channel_id'))
+        self.__token = token
+    
+    @property
+    def channel(self) -> 'GuildChannel':
+        data = rget(f'/channels/{self.__channel_id}', self.__token).json()
+        return GuildChannel(data, self.__token)
+
+class WelcomeScreen:
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.description: str | None = data.get('description')
+        self.channels: list[WelcomeScreenChannel] = [WelcomeScreenChannel(i, token) for i in data.get('welcome_channels')]
 
 class Guild(Object):
     def __init__(self, data: dict[str, Any], token: str):
-        self.id: int = int(data.get('id'))
+        self.id: int = get_snowflake(data.get('id'))
         self.name: str = data.get('name')
         self.icon: hash_str | None = data.get('icon')
         self.icon_hash: hash_str | None = data.get('icon_hash')
@@ -17,39 +38,39 @@ class Guild(Object):
         self.is_owner: bool | None = data.get('owner')
         self.permissions: str | None = data.get('permissions')
         self.region: str | None = data.get('region') # deprecated
-        self.afk_channel_id: int | None = int(x) if (x := data.get('afk_channel_id')) else None
+        self.afk_channel_id: int | None = get_snowflake(data.get('afk_channel_id'))
         self.afk_timeout: int = data.get('afk_timeout')
         self.widget_enabled: bool | None = data.get('widget_enabled')
-        self.widget_channel_id: int | None = int(x) if (x := data.get('widget_channel_id')) else None
+        self.widget_channel_id: int | None = get_snowflake(x := data.get('widget_channel_id'))
         self.verification_level: int = data.get('verification_level')
         self.default_message_notifications: int = data.get('default_message_notifications')
         self.explicit_content_filter: int = data.get('explicit_content_filter')
-        self.roles: list[Role] = [Role(i) for i in data.get('roles')]
-        self.emojis = data.get('emojis')
-        self.features = data.get('features')
-        self.mfa_level = data.get('mfa_level')
-        self.application_id = int(x) if (x := data.get('application_id')) else None
-        self.system_channel_id = int(x) if (x := data.get('application_id')) else None
-        self.system_channel_flags = data.get('system_channel_flags')
-        self.rules_channel_id = int(x) if (x := data.get('rules_channel_id')) else None
-        self.max_presences = data.get('max_presences')
-        self.max_members = data.get('max_members')
-        self.vanity_url_code = data.get('vanity_url_code')
-        self.description = data.get('description')
-        self.banner = data.get('banner')
-        self.premium_tier = data.get('premium_tier')
-        self.premium_subscription_count = data.get('premium_subscription_count')
-        self.preferred_locale = data.get('preferred_locale')
-        self.public_updates_channel_id = int(data.get('public_updates_channel_id'))
-        self.max_video_channel_users = data.get('max_video_channel_users')
-        self.max_stage_video_channel_users = data.get('max_stage_video_channel_users')
-        self.approximate_member_count = data.get('approximate_member_count')
-        self.approximate_presence_count = data.get('approximate_presence_count')
-        self.welcome_screen = data.get('welcome_screen')
-        self.nsfw_level = data.get('nsfw_level')
-        self.stickers = data.get('stickers')
-        self.premium_progress_bar_enabled = data.get('premium_progress_bar_enabled')
-        self.safety_alerts_channel_id = int(x) if (x := data.get('safety_alerts_channel_id')) else None
+        self.roles: list[Role] = [Role(i) for i in data.get('roles', [])]
+        self.emojis: list[Emoji] = [Emoji(i) for i in data.get('emojis', [])]
+        self.features: list[str] = data.get('features')
+        self.mfa_level: int = data.get('mfa_level')
+        self.application_id: int | None = get_snowflake('application_id')
+        self.system_channel_id: int | None = get_snowflake('system_channel_id')
+        self.system_channel_flags: int = data.get('system_channel_flags')
+        self.rules_channel_id: int | None = get_snowflake('rules_channel_id')
+        self.max_presences: int | None = data.get('max_presences')
+        self.max_members: int | None = data.get('max_members')
+        self.vanity_url_code: str | None = data.get('vanity_url_code')
+        self.description: str | None = data.get('description')
+        self.banner: hash_str | None = data.get('banner')
+        self.premium_tier:  int = data.get('premium_tier')
+        self.premium_subscription_count: int | None = data.get('premium_subscription_count')
+        self.preferred_locale: str = data.get('preferred_locale')
+        self.public_updates_channel_id: int | None = int(data.get('public_updates_channel_id'))
+        self.max_video_channel_users: int | None = data.get('max_video_channel_users')
+        self.max_stage_video_channel_users: int | None = data.get('max_stage_video_channel_users')
+        self.approximate_member_count: int | None = data.get('approximate_member_count')
+        self.approximate_presence_count: int | None = data.get('approximate_presence_count')
+        self.welcome_screen: WelcomeScreen | None = WelcomeScreen(x, token) if (x := data.get('welcome_screen')) else None
+        self.nsfw_level: int = data.get('nsfw_level')
+        self.stickers: list[Sticker] = [Sticker(i, token) for i in x] if (x := data.get('stickers')) else None
+        self.premium_progress_bar_enabled: bool = data.get('premium_progress_bar_enabled')
+        self.safety_alerts_channel_id: int | None = get_snowflake('safety_alerts_channel_id')
 
         self.__owner_id = data.get('owner_id')
         self.__token = token
@@ -93,25 +114,40 @@ class Guild(Object):
         """
         return self.__data
 
+class Overwrite:
+    def __init__(self, data: dict[str, Any]) -> None:
+        self.id = get_snowflake('id')
+        self.type: Literal[0, 1] = data.get('type')
+        self.str_type: Literal['role', 'member'] = 'role' if self.type == 0 else 'member'
+        self.allow: permissions_set = data.get('allow')
+        self.deny: permissions_set = data.get('deny')
+    
+    def __int__(self) -> int:
+        """
+        Returns a role or member id (see .type and .str_type)
+        """
+        return self.id
+
+
 class GuildChannel(Object):
     def __init__(self, data: dict[str, Any], token: str):
-        self.id = int(data.get('id'))
-        self.type = data.get('type')
-        self.position = data.get('position')
-        self.permission_overwrites = data.get('permission_overwrites')
+        self.id: int = get_snowflake('id')
+        self.type: int = data.get('type')
+        self.position: int | None = data.get('position')
+        self.permission_overwrites: list[Overwrite] = [Overwrite(i) for i in data.get('permission_overwrites', [])]
         self.name = data.get('name')
         self.topic = data.get('topic')
         self.nsfw = data.get('nsfw')
-        self.last_message_id = int(x) if (x := data.get('last_message_id')) else None
+        self.last_message_id = get_snowflake('last_message_id')
         self.bitrate = data.get('bitrate')
         self.user_limit = data.get('user_limit')
         self.rate_limit_per_user = data.get('rate_limit_per_user')
         self.recipients = [User(i, token) for i in x] if (x := data.get('recipients')) else None
         self.icon = data.get('icon')
-        self.owner_id = int(x) if (x := data.get('owner_id')) else None
-        self.application_id = int(x) if (x := data.get('application_id')) else None
+        self.owner_id = get_snowflake('owner_id')
+        self.application_id = get_snowflake('application_id')
         self.managed = data.get('managed')
-        self.parent_id = int(x) if (x := data.get('parent_id')) else None
+        self.parent_id = get_snowflake('parent_id')
         self.last_pin_timestamp = data.get('last_pin_timestamp')
         self.rtc_region = data.get('rtc_region')
         self.video_quality_mode = data.get('video_quality_mode')
@@ -130,7 +166,7 @@ class GuildChannel(Object):
         self.default_sort_order = data.get('default_sort_order')
         self.default_forum_layout = data.get('default_forum_layout')
 
-        self.__guild_id = int(x) if (x := data.get('guild_id')) else None
+        self.__guild_id = get_snowflake('guild_id')
         self.__token = token
         self.__data = data
     
@@ -204,7 +240,7 @@ class GuildChannel(Object):
 
 class Message:
     def __init__(self, data: dict[str, Any], token: str) -> None:
-        self.id = int(data.get('id'))
+        self.id = get_snowflake('id')
         self.author = User(data.get('author'), token)
         self.content = data.get('content')
         self.timestamp = data.get('timestamp')
@@ -219,11 +255,11 @@ class Message:
         self.reactions = data.get('reactions')
         self.nonce = data.get('nonce')
         self.pinned = data.get('pinned')
-        self.webhook_id = int(x) if (x := data.get('webhook_id')) else None 
+        self.webhook_id = get_snowflake('webhook_id')
         self.type = data.get('type')
         self.activity = data.get('activity')
         self.application = data.get('application')
-        self.application_id = int(x) if (x := data.get('application_id')) else None 
+        self.application_id = get_snowflake('application_id')
         self.message_reference = data.get('message_reference')
         self.flags = data.get('flags')
         self.referenced_message = data.get('referenced_message')
@@ -236,7 +272,7 @@ class Message:
         self.role_subscription_data = data.get('role_subscription_data')
 
         # Extra fields for message create
-        self.guild_id = int(x) if (x := data.get('guild_id')) else None
+        self.guild_id = get_snowflake('guild_id')
         self.member = data.get('member')
 
         self.__channel_id = data.get('channel_id')
@@ -289,10 +325,10 @@ class Message:
 
 class MessageDeleteEvent:
     def __init__(self, data: dict[str, Any], token: str) -> None:
-        self.id = int(data.get('id'))
+        self.id = get_snowflake('id')
 
         self.__channel_id = int(data.get('channel_id'))
-        self.__guild_id = int(x) if (x := data.get('guild_id')) else None
+        self.__guild_id = get_snowflake('guild_id')
         self.__token = token
     
     @property

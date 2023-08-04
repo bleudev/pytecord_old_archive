@@ -2,13 +2,13 @@ from asyncio import create_task, gather
 from asyncio import sleep as asleep
 from datetime import datetime
 from time import mktime
-from typing import TYPE_CHECKING, Any, Callable, Coroutine
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Literal
 
 from aiohttp import ClientSession
 
 from .config import GATEWAY_VERSION
 from .interfaces import BaseDataStreamListener
-from .utils import get_headers, rget
+from .utils import get_headers, rget, check_module
 
 if TYPE_CHECKING:
     from .guild import Guild, GuildChannel
@@ -81,17 +81,49 @@ class DataStream:
         self.afk = afk
         self.status = status
         self.activities = activities
+    
+    def __debug(self, data: GatewayRequest | GatewayOutput | None, type: Literal['send', 'receive']):
+        if self.debug and data:
+            have_colorama = check_module('colorama')
+            if have_colorama:
+                import colorama
+                colorama.init()
+    
+                x = f'{colorama.Fore.YELLOW}DEBUG {type.upper()} '
+                if data.op is not None:
+                    x += f'{colorama.Fore.GREEN}op:{data.op} '
+                if data.s is not None:
+                    x += f'{colorama.Fore.RED}s:{data.s} '
+                if data.d is not None:
+                    x += f'{colorama.Fore.BLUE}d:{data.d} '
+                if data.t is not None:
+                    x += f'{colorama.Fore.MAGENTA}t:{data.t}'
+            else:
+                x = f'DEBUG {type.upper()} '
+                if data.op:
+                    x += f'op:{data.op} '
+                if data.s:
+                    x += f's:{data.s} '
+                if data.d:
+                    x += f'd:{data.d} '
+                if data.t:
+                    x += f't:{data.t}'
+            print(x, end='\n' * 2)
 
     async def receive_response(self) -> GatewayOutput | None:
         try:
             j = await self._ws.receive_json()
-            return GatewayOutput(data=j) if j else None
+            data = GatewayOutput(data=j) if j else None
+            self.__debug(data, 'receive')
+            return data
         except TypeError:
             return None
     
-    async def send_request(self, data: GatewayRequest) -> dict:
+    async def send_request(self, data: GatewayRequest) -> GatewayRequest:
         await self._ws.send_json(data.eval())
-        return GatewayRequest(data)
+        request = GatewayRequest(data=data)
+        self.__debug(request, 'send')
+        return request
     
     async def identify(self):
         await self.send_request(GatewayRequest(
@@ -125,8 +157,6 @@ class DataStream:
                 ...
             else:
                 continue
-            if self.debug:
-                print(f'DEBUG op:{data.op} s:{data.s} t:{data.t} d:{data.d}', end='\n' * 2)
             await self.listener.listen(data)
 
     async def run(self, intents: int = None):

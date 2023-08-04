@@ -2,10 +2,11 @@ from typing import Any
 
 from .interfaces import Object
 from .annotations import hash_str
+from .utils import get_snowflake
 
 class User(Object):
     def __init__(self, data: dict[str, Any], token: str) -> None:
-        self.id: int = int(data.get('id'))
+        self.id: int = get_snowflake('id')
         self.username: str = data.get('username')
         self.discriminator: str | None = data.get('discriminator')
         self.global_name: str | None = data.get('global_name')

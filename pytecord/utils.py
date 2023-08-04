@@ -1,11 +1,12 @@
 import json
-from typing import Any, Literal
+from typing import Any
 
 from aiohttp import ClientSession
 from requests import get
 
 from .config import API_VERSION
 
+# API/GATEWAY
 
 class MessagePayload:
     def __init__(self, content: str) -> None:
@@ -38,3 +39,20 @@ async def apost(endpoint: str, token: str = None, headers: dict[str, Any] = None
             if r.status == 200:
                 return  await r.json()
             raise Exception(await r.json())
+
+# OTHER
+
+def get_snowflake(__snowflake: str, __default: Any = None) -> int | Any:
+    """
+    Get snowflake from string. `__snowflake` argument is string,
+    `__default` is a default which is using in situations when
+    `bool(__snowflake)` is `False`
+    """
+    return int(x) if (x := __snowflake) else __default
+
+def check_module(module: str):
+    try:
+        __import__(module)
+    except ImportError:
+        return False
+    return True
