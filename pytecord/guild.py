@@ -4,7 +4,7 @@ from .interfaces import Object
 from .user import User
 from .role import Role
 from .reaction import Emoji, Sticker
-from .utils import MessagePayload, get_snowflake, apost, rget
+from .utils import MessagePayload, get_snowflake, get_list_of_types, apost, rget
 from .annotations import hash_str, permissions_set
 
 
@@ -25,7 +25,7 @@ class WelcomeScreenChannel:
 class WelcomeScreen:
     def __init__(self, data: dict[str, Any], token: str) -> None:
         self.description: str | None = data.get('description')
-        self.channels: list[WelcomeScreenChannel] = [WelcomeScreenChannel(i, token) for i in data.get('welcome_channels')]
+        self.channels: list[WelcomeScreenChannel] = get_list_of_types(WelcomeScreenChannel, data.get('welcome_channels'), token)
 
 class Guild(Object):
     def __init__(self, data: dict[str, Any], token: str):
@@ -45,8 +45,8 @@ class Guild(Object):
         self.verification_level: int = data.get('verification_level')
         self.default_message_notifications: int = data.get('default_message_notifications')
         self.explicit_content_filter: int = data.get('explicit_content_filter')
-        self.roles: list[Role] = [Role(i) for i in data.get('roles', [])]
-        self.emojis: list[Emoji] = [Emoji(i) for i in data.get('emojis', [])]
+        self.roles: list[Role] = get_list_of_types(Role, data.get('roles', []))
+        self.emojis: list[Emoji] = get_list_of_types(Emoji, data.get('emojis', []))
         self.features: list[str] = data.get('features')
         self.mfa_level: int = data.get('mfa_level')
         self.application_id: int | None = get_snowflake('application_id')
@@ -68,7 +68,7 @@ class Guild(Object):
         self.approximate_presence_count: int | None = data.get('approximate_presence_count')
         self.welcome_screen: WelcomeScreen | None = WelcomeScreen(x, token) if (x := data.get('welcome_screen')) else None
         self.nsfw_level: int = data.get('nsfw_level')
-        self.stickers: list[Sticker] = [Sticker(i, token) for i in x] if (x := data.get('stickers')) else None
+        self.stickers: list[Sticker] = get_list_of_types(Sticker, data.get('stickers'), token)
         self.premium_progress_bar_enabled: bool = data.get('premium_progress_bar_enabled')
         self.safety_alerts_channel_id: int | None = get_snowflake('safety_alerts_channel_id')
 
@@ -134,7 +134,7 @@ class GuildChannel(Object):
         self.id: int = get_snowflake('id')
         self.type: int = data.get('type')
         self.position: int | None = data.get('position')
-        self.permission_overwrites: list[Overwrite] = [Overwrite(i) for i in data.get('permission_overwrites', [])]
+        self.permission_overwrites: list[Overwrite] = get_list_of_types(Overwrite, data.get('permission_overwrites', []))
         self.name = data.get('name')
         self.topic = data.get('topic')
         self.nsfw = data.get('nsfw')
@@ -142,7 +142,7 @@ class GuildChannel(Object):
         self.bitrate = data.get('bitrate')
         self.user_limit = data.get('user_limit')
         self.rate_limit_per_user = data.get('rate_limit_per_user')
-        self.recipients = [User(i, token) for i in x] if (x := data.get('recipients')) else None
+        self.recipients = get_list_of_types(User, data.get('recipients'), token)
         self.icon = data.get('icon')
         self.owner_id = get_snowflake('owner_id')
         self.application_id = get_snowflake('application_id')
@@ -247,7 +247,7 @@ class Message:
         self.edited_timestamp = data.get('edited_timestamp')
         self.tts = data.get('tts')
         self.mention_everyone = data.get('mention_everyone')
-        self.mentions = [User(i, token) for i in x] if (x := data.get('mentions')) else None
+        self.mentions = get_list_of_types(User, data.get('mentions'), token)
         self.mention_roles = data.get('mention_roles')
         self.mention_channels = data.get('mention_channels')
         self.attachments = data.get('attachments')

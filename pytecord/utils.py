@@ -1,10 +1,12 @@
 import json
-from typing import Any
+from typing import Any, TypeVar
 
 from aiohttp import ClientSession
 from requests import get
 
 from .config import API_VERSION
+
+T = TypeVar('T')
 
 # API/GATEWAY
 
@@ -49,6 +51,9 @@ def get_snowflake(__snowflake: str, __default: Any = None) -> int | Any:
     `bool(__snowflake)` is `False`
     """
     return int(x) if (x := __snowflake) else __default
+
+def get_list_of_types(__type: T, __list: list[Any], *args, __default: Any = None) -> list[T]:
+    return [__type(i, *args, **kwargs) for i in __list] if __list else __default
 
 def check_module(module: str):
     try:

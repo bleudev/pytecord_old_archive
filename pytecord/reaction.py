@@ -1,13 +1,13 @@
 from typing import Any
 from .role import Role
 from .user import User
-from .utils import get_snowflake
+from .utils import get_snowflake, get_list_of_types
 
 class Emoji:
     def __init__(self, data: dict[str, Any], token: str) -> None:
         self.id: int = get_snowflake('id')
         self.name: str | None = data.get('name')
-        self.roles: list[Role] | None = [Role(i) for i in x] if (x := data.get('roles')) else None
+        self.roles: list[Role] | None = get_list_of_types(Role, data.get('roles'))
         self.user: User = User(data.get('user'), token)
         self.require_colons: bool | None = data.get('require_colons')
         self.managed: bool | None = data.get('managed')
