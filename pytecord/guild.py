@@ -27,6 +27,57 @@ class WelcomeScreen:
         self.description: str | None = data.get('description')
         self.channels: list[WelcomeScreenChannel] = get_list_of_types(WelcomeScreenChannel, data.get('welcome_channels'), token)
 
+
+class VerificationLevel:
+    def __init__(self, integer: int) -> None:
+        self.none: bool = integer == 0
+        self.low: bool = integer == 1
+        self.medium: bool = integer == 2
+        self.high: bool = integer == 3
+        self.very_high: bool = integer == 4
+
+        self.__integer = integer
+    
+    def __int__(self) -> int:
+        return self.__integer
+
+
+class DefaultMessageNotificationLevel:
+    def __init__(self, integer: int) -> None:
+        self.all_messages = integer == 0
+        self.only_mentions = integer == 1
+
+        self.__integer = integer
+    
+    def __int__(self) -> int:
+        return self.__integer
+
+
+class ExplicitContentFilterLevel:
+    def __init__(self, integer: int) -> None:
+        self.disables = integer == 0
+        self.members_without_roles = integer == 1
+        self.all_members = integer == 2
+
+        self.__integer = integer
+    
+    def __int__(self) -> int:
+        return self.__integer
+
+
+class NSFWLevel:
+    def __init__(self, integer: int) -> None:
+        self.default = integer == 0
+        self.explicit = integer == 1
+        self.safe = integer == 2
+        self.age_restricted = integer == 3
+
+        self.__integer = integer
+    
+    def __int__(self) -> int:
+        return self.__integer
+
+
 class Guild(Object):
     def __init__(self, data: dict[str, Any], token: str):
         self.id: int = get_snowflake(data.get('id'))
@@ -42,13 +93,13 @@ class Guild(Object):
         self.afk_timeout: int = data.get('afk_timeout')
         self.widget_enabled: bool | None = data.get('widget_enabled')
         self.widget_channel_id: int | None = get_snowflake(x := data.get('widget_channel_id'))
-        self.verification_level: int = data.get('verification_level')
-        self.default_message_notifications: int = data.get('default_message_notifications')
-        self.explicit_content_filter: int = data.get('explicit_content_filter')
+        self.verification_level: VerificationLevel = VerificationLevel(data.get('verification_level'))
+        self.default_message_notifications: DefaultMessageNotificationLevel = DefaultMessageNotificationLevel(data.get('default_message_notifications'))
+        self.explicit_content_filter: ExplicitContentFilterLevel = ExplicitContentFilterLevel(data.get('explicit_content_filter'))
         self.roles: list[Role] = get_list_of_types(Role, data.get('roles', []))
         self.emojis: list[Emoji] = get_list_of_types(Emoji, data.get('emojis', []))
         self.features: list[str] = data.get('features')
-        self.mfa_level: int = data.get('mfa_level')
+        self.mfa_enabled: bool = data.get('mfa_level') == 1
         self.application_id: int | None = get_snowflake('application_id')
         self.system_channel_id: int | None = get_snowflake('system_channel_id')
         self.system_channel_flags: int = data.get('system_channel_flags')
@@ -67,7 +118,7 @@ class Guild(Object):
         self.approximate_member_count: int | None = data.get('approximate_member_count')
         self.approximate_presence_count: int | None = data.get('approximate_presence_count')
         self.welcome_screen: WelcomeScreen | None = WelcomeScreen(x, token) if (x := data.get('welcome_screen')) else None
-        self.nsfw_level: int = data.get('nsfw_level')
+        self.nsfw_level: NSFWLevel = NSFWLevel(data.get('nsfw_level'))
         self.stickers: list[Sticker] = get_list_of_types(Sticker, data.get('stickers'), token)
         self.premium_progress_bar_enabled: bool = data.get('premium_progress_bar_enabled')
         self.safety_alerts_channel_id: int | None = get_snowflake('safety_alerts_channel_id')
