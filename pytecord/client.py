@@ -1,11 +1,12 @@
 from asyncio import run as arun
+from inspect import getdoc, signature, _empty
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, Literal
-from inspect import getdoc
 
-from .commands import ApllicationCommand
-from .enums import GatewayIntents
+from .commands import AppllicationCommand, AppllicationCommandOption
+from .enums import ApplicationCommandType, GatewayIntents
 from .guild import Guild, GuildChannel, Message, MessageDeleteEvent
 from .user import User
+from .utils import get_option_type
 from .web import BaseWebhook
 
 if TYPE_CHECKING:
@@ -56,8 +57,16 @@ class Client:
         def wrapper(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):
             name = func_to_decorate.__name__
             description = getdoc(func_to_decorate).splitlines()[0]
+            options = []
 
-            command = ApllicationCommand(name, description if description else '...')
+            params = dict(signature(func_to_decorate).parameters)
+            for op_name, param in list(params.items())[1:]:
+                type = get_option_type(param.annotation)
+                required = param.default == _empty
+                options.append(AppllicationCommandOption(type=type, name=op_name, required=required))
+
+
+            command = AppllicationCommand(name, description if description else '...', options, ApplicationCommandType.CHAT_INPUT)
 
             self.webhook.add_command(command, func_to_decorate)
         return wrapper

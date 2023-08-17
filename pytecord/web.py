@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING, Any, Callable, Coroutine, Literal
 
 from aiohttp import ClientSession
 
-from .commands import ApllicationCommand, Interaction
+from .commands import AppllicationCommand, Interaction
 from .config import GATEWAY_VERSION
 from .interfaces import BaseDataStreamListener
-from .utils import apost, get_headers, rget, check_module
+from .utils import apost, adelete, get_headers, rget, check_module
 
 if TYPE_CHECKING:
     from .guild import Guild, GuildChannel
@@ -185,7 +185,7 @@ class BaseWebhook:
         self.token = token
         self.debug = debug
         self.headers = get_headers(token)
-        self.commands: dict[ApllicationCommand, Callable] = {}
+        self.commands: dict[int, dict[AppllicationCommand, Callable]] = {1: {}, 2: {}, 3: {}}
 
         self.listener = DataStreamListener()
         self.stream = DataStream(self.listener, self.headers, self.token, self.debug)
@@ -193,27 +193,57 @@ class BaseWebhook:
     def add_event(self, event_type: str, function: Callable):
         self.listener.events[event_type] = function
 
-    def add_command(self, command: ApllicationCommand, function: Callable):
-        self.commands[command] = function
+    def add_command(self, command: AppllicationCommand, function: Callable):
+        self.commands[command.type][command] = function
     
     async def register_app_commands(self, data: GatewayOutput):
         app_id = data.d['application']['id']
 
-        for command, func in self.commands.items():
-            if self.debug:
-                print(f'DEBUG POST /applications/.../commands with {command.eval()}')
-            await apost(f'/applications/{app_id}/commands', self.token, data=command.eval())
+        for type in range(1, 3):
+            for command, func in self.commands[type].items():
+                if self.debug:
+                    print(f'DEBUG POST /applications/.../commands with {command.eval()}')
+                await apost(f'/applications/{app_id}/commands', self.token, data=command.eval())
+        
+        commands = rget(f'/applications/{app_id}/commands', self.token).json()
+
+        names = {1: [], 2: [], 3: []}
+        for i in range(1, 3):
+            for code_command in self.commands[i]:
+                names[i].append(code_command.name)
+        
+        commands_by_types = {1: [], 2: [], 3: []}
+
+        for command in commands:
+            commands_by_types[command['type']].append(command)
+
+        for i in range(1, 3):
+            for server_command in commands_by_types[i]:
+                if server_command['name'] not in names[i]:
+                    if self.debug:
+                        print(f'DEBUG DELETE /applications/.../commands/{server_command["id"]}')
+                    await adelete(f'/applications/{app_id}/commands/{server_command["id"]}', self.token)
+                
         
         async def interaction_create(data: GatewayOutput):
             name = data.d['data']['name']
+            type = data.d['data']['type']
 
             command = None
-            for i in self.commands:
+            for i in self.commands[type]:
                 if i.name == name:
                     command = i
 
             interaction = Interaction(data.d, self.token)
-            await self.commands[command](interaction)
+
+            if data.d['data'].get('options'):
+                options = {}
+                for i in data.d['data']['options']:
+                    options[i['name']] = i['value']
+                
+                await self.commands[type][command](interaction, **options)
+            else:
+                await self.commands[type][command](interaction)
 
         self.add_event('INTERACTION_CREATE', interaction_create)
 
