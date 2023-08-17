@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, Literal
 
 from .interfaces import Object
 from .annotations import hash_str
-from .utils import get_snowflake
+from .utils import get_snowflake, rget
 
 class User(Object):
     def __init__(self, data: dict[str, Any], token: str) -> None:
@@ -48,3 +48,30 @@ class User(Object):
         ```
         """
         return self.id
+
+
+class GuildMember(Object):
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.user: User | None = User(x, token) if (x := data.get('user')) else None
+        self.nick: str | None = data.get('nick')
+        self.avatar: str | None = data.get('avatar')
+        self.roles: int = data.get('roles')
+        self.joined_at: str = data.get('joined_at')
+        self.premium_since: str | None = data.get('premium_since')
+        self.deaf: bool = data.get('deaf')
+        self.mute: bool = data.get('mute')
+        self.flags: int = data.get('flags')
+        self.pending: bool | None = data.get('pending')
+        self.permissions: str | None = data.get('permissions')
+        self.communication_disabled_until: str | None = data.get('communication_disabled_until')
+
+        self.__data = data
+    
+    def __int__(self) -> int | Literal[0]:
+        return self.user.id if self.user else 0
+    
+    def eval(self) -> dict[str, Any]:
+        return self.__data
+    
+    def __str__(self) -> str | Literal['']:
+        return self.nick if self.nick else ''

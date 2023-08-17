@@ -11,23 +11,6 @@ class BaseDataStreamListener(AbstractClass):
 
 class Object(AbstractClass):
     @abstract_method
-    def __int__(self) -> int:
-        """
-        Returns an object id
-
-        ```
-        >>> obj = Object()
-        >>> int(obj)
-        ```
-        """
-
+    def __int__(self) -> int: ...
     @abstract_method
-    def eval(self) -> dict[str, Any]:
-        """
-        Returns a dict representation of object
-
-        ```
-        >>> obj = Object()
-        >>> obj.eval()
-        ```
-        """
+    def eval(self) -> dict[str, Any]: ...

@@ -1,7 +1,7 @@
 from typing import Any, Literal
 
 from .interfaces import Object
-from .user import User
+from .user import User, GuildMember
 from .role import Role
 from .reaction import Emoji, Sticker
 from .utils import MessagePayload, get_snowflake, get_list_of_types, apost, rget
@@ -78,6 +78,21 @@ class NSFWLevel:
         return self.__integer
 
 
+class GuildPreview(Object):
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.id: int = get_snowflake(data.get('id'))
+        self.name: str = data.get('name')
+        self.icon: str = data.get('icon')
+        self.splash: str = data.get('splash')
+        self.discovery_splash: str = data.get('discovery_splash')
+        self.emojis: list[Emoji] = get_list_of_types(Emoji, data.get('emojis'), token)
+        self.features: list[str] = data.get('features')
+        self.approximate_member_count: int = data.get('approximate_member_count')
+        self.approximate_presence_count: int = data.get('approximate_presence_count')
+        self.description: str | None = data.get('description')
+        self.stickers: list[Sticker] = get_list_of_types(Sticker, data.get('stickers'), token)
+
+
 class Guild(Object):
     def __init__(self, data: dict[str, Any], token: str):
         self.id: int = get_snowflake(data.get('id'))
@@ -96,8 +111,6 @@ class Guild(Object):
         self.verification_level: VerificationLevel = VerificationLevel(data.get('verification_level'))
         self.default_message_notifications: DefaultMessageNotificationLevel = DefaultMessageNotificationLevel(data.get('default_message_notifications'))
         self.explicit_content_filter: ExplicitContentFilterLevel = ExplicitContentFilterLevel(data.get('explicit_content_filter'))
-        self.roles: list[Role] = get_list_of_types(Role, data.get('roles', []))
-        self.emojis: list[Emoji] = get_list_of_types(Emoji, data.get('emojis', []))
         self.features: list[str] = data.get('features')
         self.mfa_enabled: bool = data.get('mfa_level') == 1
         self.application_id: int | None = get_snowflake('application_id')
@@ -119,7 +132,6 @@ class Guild(Object):
         self.approximate_presence_count: int | None = data.get('approximate_presence_count')
         self.welcome_screen: WelcomeScreen | None = WelcomeScreen(x, token) if (x := data.get('welcome_screen')) else None
         self.nsfw_level: NSFWLevel = NSFWLevel(data.get('nsfw_level'))
-        self.stickers: list[Sticker] = get_list_of_types(Sticker, data.get('stickers'), token)
         self.premium_progress_bar_enabled: bool = data.get('premium_progress_bar_enabled')
         self.safety_alerts_channel_id: int | None = get_snowflake('safety_alerts_channel_id')
 
@@ -131,39 +143,59 @@ class Guild(Object):
     def owner(self) -> User:
         data = rget(f'/users/{self.__owner_id}', self.__token).json()
         return User(data, self.__token)
-    
-    def __int__(self) -> int:
-        """
-        Returns a guild id
 
-        ```
-        >>> guild = Guild()
-        >>> int(guild)
-        ```
-        """
+    @property
+    def channels(self) -> 'list[GuildChannel]':
+        data = rget(f'/guilds/{self.id}/channels', self.__token).json()
+        return get_list_of_types(GuildChannel, data, self.__token)
+
+    @property
+    def emojis(self) -> list[Emoji]:
+        data = rget(f'/guilds/{self.id}/emojis', self.__token).json()
+        return get_list_of_types(Emoji, data, self.__token)
+
+    @property
+    def roles(self) -> list[Role]:
+        data = rget(f'/guilds/{self.id}/roles', self.__token).json()
+        return get_list_of_types(Role, data)
+
+    @property
+    def stickers(self) -> list[Sticker]:
+        data = rget(f'/guilds/{self.id}/stickers', self.__token).json()
+        return get_list_of_types(Sticker, data, self.__token)
+    
+    @property
+    def preview(self) -> GuildPreview:
+        data = rget(f'/guilds/{self.id}/preview', self.__token).json()
+        return GuildPreview(data, self.__token)
+
+    def __int__(self) -> int:
         return self.id
     
     def __str__(self) -> str:
-        """
-        Returns a guild name
-
-        ```
-        >>> guild = Guild()
-        >>> str(guild)
-        ```
-        """
         return self.name
     
     def eval(self) -> dict[str, Any]:
-        """
-        Returns a dict representation of guild
-
-        ```
-        >>> guild = Guild()
-        >>> guild.eval()
-        ```
-        """
         return self.__data
+    
+    def search(self, query: str, limit: int = 1) -> list[GuildMember] | GuildMember | None:
+        """
+        Returns a list of guild member objects whose username or nickname starts with a provided string
+
+        https://discord.com/developers/docs/resources/guild#search-guild-members
+        """
+        payload = {
+            'query': query,
+            'limit': limit
+        }
+        data = rget(f'/guilds/{self.id}/members/search', self.__token, payload)
+
+        result = get_list_of_types(GuildMember, data, self.__token, __default=[])
+        if limit == 1 and len(result) == 1:
+            result = result[0]
+        elif len(result) == 0:
+            result = None
+        return result
 
 class Overwrite:
     def __init__(self, data: dict[str, Any]) -> None:
@@ -174,9 +206,6 @@ class Overwrite:
         self.deny: permissions_set = data.get('deny')
     
     def __int__(self) -> int:
-        """
-        Returns a role or member id (see .type and .str_type)
-        """
         return self.id
 
 
@@ -229,47 +258,15 @@ class GuildChannel(Object):
         return None
     
     def __int__(self) -> int:
-        """
-        Returns a channel id
-
-        ```
-        >>> channel = GuildChannel()
-        >>> int(channel)
-        ```
-        """
         return self.id
 
     def __str__(self) -> str:
-        """
-        Returns a channel name
-
-        ```
-        >>> channel = GuildChannel()
-        >>> str(channel)
-        ```
-        """
         return self.name
 
-    def __getitem__(self, key: int):
-        """
-        Fetch a message
-
-        ```
-        >>> channel = GuildChannel()
-        >>> message = channel[955886808095399996]
-        ```
-        """
+    def __getitem__(self, key: int)
         return self.fetch(key)
     
     def eval(self) -> dict[str, Any]:
-        """
-        Returns a dict representation of channel
-
-        ```
-        >>> channel = GuildChannel()
-        >>> channel.eval()
-        ```
-        """
         return self.__data
     
     def fetch(self, id: int) -> 'Message':
@@ -336,36 +333,12 @@ class Message:
         return GuildChannel(data, self.__token)
     
     def __int__(self) -> int:
-        """
-        Returns a message id
-
-        ```
-        >>> message = Message()
-        >>> int(message)
-        ```
-        """
         return self.id
 
     def __str__(self) -> str:
-        """
-        Returns a message content
-
-        ```
-        >>> message = Message()
-        >>> str(message)
-        ```
-        """
         return self.content
     
     def eval(self) -> dict[str, Any]:
-        """
-        Returns a dict representation of channel
-
-        ```
-        >>> message = Message()
-        >>> message.eval()
-        ```
-        """
         return self.__data
     
     async def reply(self, content: str) -> 'Message':

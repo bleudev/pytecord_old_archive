@@ -42,11 +42,11 @@ class MessagePayload:
 def get_headers(token: str):
     return {'Authorization': f'Bot {token}', 'content-Type': 'application/json'}
 
-def rget(endpoint: str, token: str = None, headers: dict[str, Any] = None):
+def rget(endpoint: str, token: str = None, payload: dict[str, Any] = None, headers: dict[str, Any] = None):
     if token:
         headers = get_headers(token)
     
-    resp = get(f'https://discord.com/api/v{API_VERSION}{endpoint}', headers=headers)
+    resp = get(f'https://discord.com/api/v{API_VERSION}{endpoint}', headers=headers, json=payload)
 
     if str(resp.status_code).startswith('2'):
         return resp
