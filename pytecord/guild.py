@@ -93,6 +93,64 @@ class GuildPreview(Object):
         self.stickers: list[Sticker] = get_list_of_types(Sticker, data.get('stickers'), token)
 
 
+class PromptOption:
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.id: int = get_snowflake(data.get('id'))
+        self.channel_ids: list[int] = get_list_of_types(int, data.get('channel_ids', []))
+        self.role_ids: list[int] = get_list_of_types(int, data.get('role_ids', []))
+        self.emoji: list[Emoji] = get_list_of_types(Emoji, data.get('emoji'), token)
+        self.title: str = data.get('title')
+        self.description: str = data.get('description')
+
+
+class Prompt:
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.id: int = get_snowflake(data.get('id'))
+        self.type: int = data.get('type')
+        self.options: list[PromptOption] = get_list_of_types(PromptOption, data.get('options', []), token)
+        self.title: str = data.get('title')
+        self.single_select: bool = data.get('single_select')
+        self.required: bool = data.get('required')
+        self.in_onboarding: bool = data.get('in_onboarding')
+
+
+class GuildOnboarding:
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.guild_id: int = get_snowflake(data.get('guild_id'))
+        self.prompts: list[Prompt] = get_list_of_types(Prompt, data.get('prompts', []), token)
+        self.default_channel_ids: list[int] = get_list_of_types(int, data.get('default_channel_ids'))
+        self.enabled: bool = data.get('enabled')
+        self.mode: int = data.get('mode')
+
+
+class PartialChannel(Object):
+    def __init__(self, data: dict[str, Any]) -> None:
+        self.id: int = get_snowflake(data.get('id'))
+        self.name: str = data.get('name')
+        self.position: int = data.get('position')
+
+        self.__data = data
+    
+    def __int__(self) -> int:
+        return self.id
+    
+    def __str__(self) -> str:
+        return self.name
+    
+    def eval(self) -> dict[str, Any]:
+        return self.__data
+
+
+class Widget:
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.id: int = get_snowflake(data.get('id'))
+        self.name: str = data.get('name')
+        self.instant_invite: str = data.get('instant_invite')
+        self.channels: list[PartialChannel] = get_list_of_types(PartialChannel, data.get('channels'))
+        self.members: list[User] = get_list_of_types(User, data.get('members'), token)
+        self.presence_count: int = data.get('presence_count')
+
+
 class Guild(Object):
     def __init__(self, data: dict[str, Any], token: str):
         self.id: int = get_snowflake(data.get('id'))
@@ -130,7 +188,6 @@ class Guild(Object):
         self.max_stage_video_channel_users: int | None = data.get('max_stage_video_channel_users')
         self.approximate_member_count: int | None = data.get('approximate_member_count')
         self.approximate_presence_count: int | None = data.get('approximate_presence_count')
-        self.welcome_screen: WelcomeScreen | None = WelcomeScreen(x, token) if (x := data.get('welcome_screen')) else None
         self.nsfw_level: NSFWLevel = NSFWLevel(data.get('nsfw_level'))
         self.premium_progress_bar_enabled: bool = data.get('premium_progress_bar_enabled')
         self.safety_alerts_channel_id: int | None = get_snowflake('safety_alerts_channel_id')
@@ -163,11 +220,31 @@ class Guild(Object):
     def stickers(self) -> list[Sticker]:
         data = rget(f'/guilds/{self.id}/stickers', self.__token).json()
         return get_list_of_types(Sticker, data, self.__token)
-    
+
+    @property
+    def welcome_screen(self) -> WelcomeScreen | None:
+        try:
+            data = rget(f'/guilds/{self.id}/welcome-screen', self.__token)
+        except:
+            return
+        return WelcomeScreen(data, self.__token)
     @property
     def preview(self) -> GuildPreview:
         data = rget(f'/guilds/{self.id}/preview', self.__token).json()
         return GuildPreview(data, self.__token)
+    
+    @property
+    def onboarding(self) -> GuildOnboarding:
+        data = rget(f'/guilds/{self.id}/onboarding', self.__token).json()
+        return GuildOnboarding(data, self.__token)
+    
+    @property
+    def widget(self) -> Widget | None:
+        try:
+            data = rget(f'/guilds/{self.id}/widget.json', self.__token).json()
+        except:
+            return
+        return Widget(data, self.__token)
 
     def __int__(self) -> int:
         return self.id
