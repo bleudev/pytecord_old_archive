@@ -6,7 +6,7 @@ from .commands import AppllicationCommand, AppllicationCommandOption
 from .enums import ApplicationCommandType, GatewayIntents
 from .guild import Guild, GuildChannel, Message, MessageDeleteEvent
 from .user import User
-from .utils import get_option_type
+from .utils import get_option_type, rget
 from .web import BaseWebhook
 
 if TYPE_CHECKING:
@@ -17,21 +17,24 @@ class Client:
         self.webhook = BaseWebhook(token, debug)
         self.token = token
         self.__intents = GatewayIntents.GUILD_INTEGRATIONS
-        self.__user_id = None
     
     @property
     def user(self) -> User:
-        return User(self.webhook.get_user(self.__user_id), self.token)
+        return self.webhook.get_current_user()
     
+    @property
+    def guilds(self) -> list[Guild]:
+        return self.webhook.get_current_user_guilds()
+
     def listen(self):
         def decorator(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):
             event_name = func_to_decorate.__name__
             match event_name:
                 case 'ready':
                     async def func(data: 'GatewayOutput'):
-                        self.__user_id = data.d['user']['id']
                         await self.webhook.register_app_commands(data)
                         await func_to_decorate()
+
                 case 'message_create' | 'message_update':
                     self.__intents += GatewayIntents.GUILD_MESSAGES
                     self.__intents += GatewayIntents.MESSAGE_CONTENT
@@ -40,6 +43,7 @@ class Client:
                         if not data.d['author'].get('bot', False):
                             message = Message(data.d, self.token)
                             await func_to_decorate(message)
+
                 case 'message_delete':
                     self.__intents += GatewayIntents.GUILD_MESSAGES
                     self.__intents += GatewayIntents.DIRECT_MESSAGES

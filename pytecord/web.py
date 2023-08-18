@@ -255,6 +255,14 @@ class BaseWebhook:
 
         data = rget(f'/guilds/{id}', self.token).json()
         return Guild(data, self.token) 
+    
+    def get_current_user_guilds(self) -> 'list[Guild]':
+        data = rget('/users/@me/guilds', self.token).json()
+
+        result = []
+        for partial_guild in data:
+            result.append(self.get_guild(partial_guild['id']))
+        return result
 
     def get_channel(self, id: int) -> 'GuildChannel':
         from .guild import GuildChannel
@@ -266,4 +274,10 @@ class BaseWebhook:
         from .user import User
 
         data = rget(f'/users/{id}', self.token).json()
+        return User(data, self.token)
+    
+    def get_current_user(self) -> 'User':
+        from .user import User
+
+        data = rget('/users/@me', self.token).json()
         return User(data, self.token)
