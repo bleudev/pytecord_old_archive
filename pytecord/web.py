@@ -167,7 +167,7 @@ class DataStream:
 
         async with ClientSession(headers=self.headers) as session:
             async with session.ws_connect(
-                f"wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json"
+                f'wss://gateway.discord.gg/?v={self.gateway_version}&encoding=json'
             ) as ws:
                 self._ws = ws
 
@@ -220,35 +220,40 @@ class BaseWebhook:
         for i in range(1, 3):
             for server_command in commands_by_types[i]:
                 if server_command['name'] not in names[i]:
+                    id_to_delete = server_command['id']
                     if self.debug:
-                        print(f'DEBUG DELETE /applications/.../commands/{server_command["id"]}')
-                    await adelete(f'/applications/{app_id}/commands/{server_command["id"]}', self.token)
-                
+                        print(f'DEBUG DELETE /applications/.../commands/{id_to_delete}')
+                    await adelete(f'/applications/{app_id}/commands/{id_to_delete}', self.token)
         
         async def interaction_create(data: GatewayOutput):
-            name = data.d['data']['name']
-            type = data.d['data']['type']
+            command_data = data.d['data']
+            
+            command_type = command_data['type']
+            command_name = command_data['name']
+            command_options = command_data.get('options')
 
-            command = None
-            for i in self.commands[type]:
-                if i.name == name:
-                    command = i
+            selected_command = None
+            for i in self.commands[command_type]:
+                if i.name == command_name:
+                    selected_command = i
 
             interaction = Interaction(data.d, self.token)
 
-            if data.d['data'].get('options'):
+            if command_options:
                 options = {}
-                for i in data.d['data']['options']:
+                for i in command_options:
                     options[i['name']] = i['value']
                 
-                await self.commands[type][command](interaction, **options)
+                await self.commands[command_type][selected_command](interaction, **options)
             else:
-                await self.commands[type][command](interaction)
+                await self.commands[command_type][selected_command](interaction)
 
         self.add_event('INTERACTION_CREATE', interaction_create)
 
     async def run(self, intents: int = 0):
         await self.stream.run(intents)
+    
+    # API methods
     
     def get_guild(self, id: int) -> 'Guild':
         from .guild import Guild

@@ -198,53 +198,93 @@ class Guild(Object):
     
     @property
     def owner(self) -> User:
+        """
+        This property returns the user object of the guild owner.
+        """
         data = rget(f'/users/{self.__owner_id}', self.__token).json()
         return User(data, self.__token)
 
     @property
     def channels(self) -> 'list[GuildChannel]':
+        """
+        This property returns a list of all guild channels.
+        """
         data = rget(f'/guilds/{self.id}/channels', self.__token).json()
         return get_list_of_types(GuildChannel, data, self.__token)
 
     @property
     def emojis(self) -> list[Emoji]:
+        """
+        This property returns a list of all emojis in the guild.
+        """
         data = rget(f'/guilds/{self.id}/emojis', self.__token).json()
         return get_list_of_types(Emoji, data, self.__token)
 
     @property
     def roles(self) -> list[Role]:
+        """
+        This property returns a list of all roles in the guild.
+        """
         data = rget(f'/guilds/{self.id}/roles', self.__token).json()
         return get_list_of_types(Role, data)
 
     @property
     def stickers(self) -> list[Sticker]:
+        """
+        This property returns a list of all stickers in the guild.
+        """
         data = rget(f'/guilds/{self.id}/stickers', self.__token).json()
         return get_list_of_types(Sticker, data, self.__token)
 
     @property
     def welcome_screen(self) -> WelcomeScreen | None:
+        """
+        This property returns the welcome screen configuration for the guild, if available.
+        """
         try:
             data = rget(f'/guilds/{self.id}/welcome-screen', self.__token)
         except:
             return
         return WelcomeScreen(data, self.__token)
+
     @property
     def preview(self) -> GuildPreview:
+        """
+        This property returns a preview object for the guild, providing some basic information.
+        """
         data = rget(f'/guilds/{self.id}/preview', self.__token).json()
         return GuildPreview(data, self.__token)
     
     @property
     def onboarding(self) -> GuildOnboarding:
+        """
+        This property returns the onboarding configuration for the guild, if available.
+        """
         data = rget(f'/guilds/{self.id}/onboarding', self.__token).json()
         return GuildOnboarding(data, self.__token)
     
     @property
     def widget(self) -> Widget | None:
+        """
+        This property returns the widget configuration for the guild, if available.
+        """
         try:
             data = rget(f'/guilds/{self.id}/widget.json', self.__token).json()
         except:
             return
         return Widget(data, self.__token)
+    
+    @property
+    def member(self) -> GuildMember | None:
+        """
+        This property returns the guild member object for bot, if bot is in guild.
+        """
+        try:
+            data = rget(f'/users/@me/guilds/{self.id}/member', self.__token)
+        except:
+            return
+        return GuildMember(data, self.__token)
+        
 
     def __int__(self) -> int:
         return self.id
@@ -257,9 +297,13 @@ class Guild(Object):
     
     def search(self, query: str, limit: int = 1) -> list[GuildMember] | GuildMember | None:
         """
-        Returns a list of guild member objects whose username or nickname starts with a provided string
+        The search function is a method that allows you to search for guild members on a Discord server. It takes a query string as input, which is used to search for members whose username or nickname starts with the provided string. The limit parameter limits the maximum number of search results (by default, it's set to 1).
 
-        https://discord.com/developers/docs/resources/guild#search-guild-members
+        The function sends a request to the Discord API, using the provided authentication token, to perform the search. The search results are then processed and returned as a list of GuildMember objects. If the limit is set to 1 and only one result is found, the function returns that result as a single GuildMember object. If no results are found, it returns None.
+
+        You can find more information about the function in the Discord API documentation.
+
+        Link: https://discord.com/developers/docs/resources/guild#search-guild-members
         """
         payload = {
             'query': query,
