@@ -23,6 +23,22 @@ class TimerLoop:
 
                 await self.callable()
 
+    def run(self):
+        create_task(self.__thread())
+
+
+class At:
+    def __init__(self, callable: Callable, hours: int = 0, minutes: int = 0) -> None:
+        self.callable = callable
+        self.time = hours, minutes
+    
+    async def __thread(self):
+        while True:
+            date_and_time = datetime.now()
+            current_time = date_and_time.hour, date_and_time.minute
+
+            if current_time == self.time:
+                await self.callable()
 
     def run(self):
         create_task(self.__thread())

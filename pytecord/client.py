@@ -9,7 +9,7 @@ from .user import User
 from .utils import get_option_type, rget
 from .web import BaseWebhook
 from .presence import Presence
-from .timer import TimerLoop
+from .timer import TimerLoop, At
 
 if TYPE_CHECKING:
     from .web import GatewayOutput
@@ -18,7 +18,8 @@ class Client:
     def __init__(self, token: str, debug: bool = False) -> None:
         self.webhook = BaseWebhook(token, debug)
         self.token = token
-        self.timers: list[TimerLoop] = []
+        self.__timers: list[TimerLoop] = []
+        self.__ats: list[At] = []
         self.__intents = GatewayIntents.GUILD_INTEGRATIONS
         self.__presence = None
     
@@ -50,7 +51,7 @@ class Client:
             match event_name:
                 case 'ready':
                     async def func(data: 'GatewayOutput'):
-                        for i in self.timers:
+                        for i in self.__timers:
                             i.run()
                         await self.webhook.register_app_commands(data)
                         await func_to_decorate()
@@ -80,7 +81,13 @@ class Client:
     def timer(self, *, days: int = 0, hours: int = 0, minutes: int = 0, seconds: int = 0):
         def wrapper(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):
             timer = TimerLoop(func_to_decorate, days, hours, minutes, seconds)
-            self.timers.append(timer)
+            self.__timers.append(timer)
+        return wrapper
+    
+    def at(self, hours: int = 0, minutes: int = 0):
+        def wrapper(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):
+            at = At(func_to_decorate, hours, minutes)
+            self.__ats.append(at)
         return wrapper
     
     def command(self):
@@ -110,7 +117,7 @@ class Client:
     def run(self):
         if not self.webhook.listener.events.get('READY'):
             async def func(data: 'GatewayOutput'):
-                for i in self.timers:
+                for i in self.__timers:
                     i.run()
                 await self.webhook.register_app_commands(data)
             self.webhook.add_event('READY', func)
