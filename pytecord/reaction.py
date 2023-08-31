@@ -5,7 +5,7 @@ from .utils import get_snowflake, get_list_of_types
 
 class Emoji:
     def __init__(self, data: dict[str, Any], token: str) -> None:
-        self.id: int = get_snowflake('id')
+        self.id: int = get_snowflake(data.get('id'))
         self.name: str | None = data.get('name')
         self.roles: list[Role] | None = get_list_of_types(Role, data.get('roles'))
         self.user: User = User(data.get('user'), token)
@@ -17,8 +17,8 @@ class Emoji:
 
 class Sticker:
     def __init__(self, data: dict[str, Any], token: str) -> None:
-        self.id: int = get_snowflake('id')
-        self.pack_id = get_snowflake('pack_id') 
+        self.id: int = get_snowflake(data.get('id'))
+        self.pack_id = get_snowflake(data.get('pack_id')) 
         self.name: str = data.get('name')
         self.description: str | None = data.get('description')
         self.tags: str = data.get('tags')
@@ -26,6 +26,6 @@ class Sticker:
         self.type: int = data.get('type')
         self.format_type: int = data.get('format_type')
         self.available: bool | None = data.get('available')
-        self.guild_id: int | None = get_snowflake('guild_id')
+        self.guild_id: int | None = get_snowflake(data.get('guild_id'))
         self.user: User | None = User(x, token) if (x := data.get('user')) else None
         self.sort_value: int | None = data.get('sort_value')

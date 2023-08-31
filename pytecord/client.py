@@ -43,6 +43,10 @@ class Client:
     def listen(self):
         def decorator(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):
             event_name = func_to_decorate.__name__
+
+            if event_name == 'message':
+                event_name = 'message_create'
+
             match event_name:
                 case 'ready':
                     async def func(data: 'GatewayOutput'):
@@ -68,7 +72,7 @@ class Client:
                         await func_to_decorate(event)
                 case _:
                     raise ValueError('Invalid event name: %s' % event_name)
-            
+
             self.webhook.add_event(event_name.upper(), func)
 
         return decorator

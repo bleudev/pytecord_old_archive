@@ -1,8 +1,8 @@
-import pytecord
+from pytecord import Client
 
-client = pytecord.Client('YOUR_TOKEN')
+client = Client('YOUR_TOKEN')
 
-@client.listen('ready')
+@client.listen()
 async def ready():
     print("Hello, i'm bot!")
 

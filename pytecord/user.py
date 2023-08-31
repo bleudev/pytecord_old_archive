@@ -6,7 +6,7 @@ from .utils import get_snowflake, rget
 
 class User(Object):
     def __init__(self, data: dict[str, Any], token: str) -> None:
-        self.id: int = get_snowflake('id')
+        self.id: int = get_snowflake(data.get('id'))
         self.username: str = data.get('username')
         self.discriminator: str | None = data.get('discriminator')
         self.global_name: str | None = data.get('global_name')
@@ -30,8 +30,18 @@ class User(Object):
     def eval(self) -> dict[str, Any]:
         return self.__data
     
+    @property
+    def mention(self) -> str:
+        return f'<@{self.id}>'
+    
     def __int__(self) -> int:
         return self.id
+    
+    def __str__(self) -> str:
+        return self.mention
+    
+    def __repr__(self) -> str:
+        return self.mention
     
 
 class GuildMember(Object):

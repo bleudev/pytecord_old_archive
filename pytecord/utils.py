@@ -21,7 +21,7 @@ class DiscordException(Exception):
 class MessagePayload:
     def __init__(self, content: str) -> None:
         self.json = {
-            'content': content
+            'content': str(content)
         }
     
     def make_reply(self, message_id: int) -> None:

@@ -5,10 +5,10 @@ from .utils import get_snowflake
 
 class RoleTags:
     def __init__(self, data: dict[str, Any]) -> None:
-        self.bot_id: int | None = get_snowflake('bot_id')
-        self.integration_id: int | None = get_snowflake('integration_id') 
+        self.bot_id: int | None = get_snowflake(data.get('bot_id'))
+        self.integration_id: int | None = get_snowflake(data.get('integration_id')) 
         self.premium_subscriber: bool = 'premium_subscriber' in list(data.keys())
-        self.subscription_listing_id: int | None = get_snowflake('subscription_listing_id') 
+        self.subscription_listing_id: int | None = get_snowflake(data.get('subscription_listing_id')) 
         self.available_for_purchase: bool = 'available_for_purchase' in list(data.keys())
         self.guild_connections: bool = 'guild_connections' in list(data.keys())
 
