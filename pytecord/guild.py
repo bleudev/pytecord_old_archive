@@ -384,7 +384,7 @@ class GuildChannel(Object):
     def __str__(self) -> str:
         return self.name
 
-    def __getitem__(self, key: int)
+    def __getitem__(self, key: int):
         return self.fetch(key)
     
     def eval(self) -> dict[str, Any]:

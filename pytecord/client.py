@@ -8,6 +8,8 @@ from .guild import Guild, GuildChannel, Message, MessageDeleteEvent
 from .user import User
 from .utils import get_option_type, rget
 from .web import BaseWebhook
+from .presence import Presence
+from .timer import TimerLoop
 
 if TYPE_CHECKING:
     from .web import GatewayOutput
@@ -16,7 +18,9 @@ class Client:
     def __init__(self, token: str, debug: bool = False) -> None:
         self.webhook = BaseWebhook(token, debug)
         self.token = token
+        self.timers: list[TimerLoop] = []
         self.__intents = GatewayIntents.GUILD_INTEGRATIONS
+        self.__presence = None
     
     @property
     def user(self) -> User:
@@ -25,6 +29,16 @@ class Client:
     @property
     def guilds(self) -> list[Guild]:
         return self.webhook.get_current_user_guilds()
+    
+    @property
+    def presence(self) -> Presence:
+        return self.__presence
+    
+    @presence.setter
+    def presence(self, new: Presence) -> Presence:
+        self.__presence = new
+        self.__presence.register(self.webhook)
+        return self.__presence
 
     def listen(self):
         def decorator(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):
@@ -32,6 +46,8 @@ class Client:
             match event_name:
                 case 'ready':
                     async def func(data: 'GatewayOutput'):
+                        for i in self.timers:
+                            i.run()
                         await self.webhook.register_app_commands(data)
                         await func_to_decorate()
 
@@ -56,6 +72,12 @@ class Client:
             self.webhook.add_event(event_name.upper(), func)
 
         return decorator
+    
+    def timer(self, *, days: int = 0, hours: int = 0, minutes: int = 0, seconds: int = 0):
+        def wrapper(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):
+            timer = TimerLoop(func_to_decorate, days, hours, minutes, seconds)
+            self.timers.append(timer)
+        return wrapper
     
     def command(self):
         def wrapper(func_to_decorate: Callable[..., Coroutine[Any, Any, Any]]):
@@ -84,10 +106,12 @@ class Client:
     def run(self):
         if not self.webhook.listener.events.get('READY'):
             async def func(data: 'GatewayOutput'):
-                self.__user_id = data.d['user']['id']
+                for i in self.timers:
+                    i.run()
                 await self.webhook.register_app_commands(data)
             self.webhook.add_event('READY', func)
         try:
+            self.__presence = Presence([])
             arun(self.webhook.run(self.__intents))
         except KeyboardInterrupt:
             exit(0)

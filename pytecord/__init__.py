@@ -4,3 +4,4 @@ from .role import Role
 from .reaction import Emoji, Sticker
 from .user import User, GuildMember
 from .commands import Interaction
+from .presence import Presence, Activity
