@@ -6,7 +6,7 @@ from .role import Role
 from .reaction import Emoji, Sticker
 from .utils import MessagePayload, get_snowflake, get_list_of_types, apost, rget
 from .annotations import hash_str, permissions_set
-
+from .timestamp import Timestamp
 
 class WelcomeScreenChannel:
     def __init__(self, data: dict[str, Any], token: str) -> None:
@@ -349,7 +349,7 @@ class GuildChannel(Object):
         self.application_id = get_snowflake(data.get('application_id'))
         self.managed = data.get('managed')
         self.parent_id = get_snowflake(data.get('parent_id'))
-        self.last_pin_timestamp = data.get('last_pin_timestamp')
+        self.last_pin_timestamp: Timestamp = Timestamp.from_iso(data.get('last_pin_timestamp'))
         self.rtc_region = data.get('rtc_region')
         self.video_quality_mode = data.get('video_quality_mode')
         self.message_count = data.get('message_count')
@@ -412,8 +412,8 @@ class Message:
         self.id = get_snowflake(data.get('id'))
         self.author = User(data.get('author'), token)
         self.content = data.get('content')
-        self.timestamp = data.get('timestamp')
-        self.edited_timestamp = data.get('edited_timestamp')
+        self.timestamp: Timestamp = Timestamp.from_iso(data.get('timestamp'))
+        self.edited_timestamp: Timestamp = Timestamp.from_iso(data.get('edited_timestamp'))
         self.tts = data.get('tts')
         self.mention_everyone = data.get('mention_everyone')
         self.mentions = get_list_of_types(User, data.get('mentions'), token)
