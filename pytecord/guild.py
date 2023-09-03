@@ -1,9 +1,9 @@
 from typing import Any, Literal
 
 from .interfaces import Object
-from .user import User, GuildMember
+from .user import User, GuildMember, ThreadMember
 from .role import Role
-from .reaction import Emoji, Sticker
+from .reaction import DefaultReaction, Emoji, Sticker
 from .utils import MessagePayload, get_snowflake, get_list_of_types, apost, rget
 from .annotations import hash_str, permissions_set
 from .timestamp import Timestamp
@@ -330,42 +330,63 @@ class Overwrite:
         return self.id
 
 
+class ThreadMetadata:
+    def __init__(self, data: dict[str, Any]) -> None:
+        self.archived: bool = data.get('archived')
+        self.auto_archive_duration: int = data.get('auto_archive_duration')
+        self.archive_timestamp: Timestamp = Timestamp.from_iso(data.get('archive_timestamp'))
+        self.locked: bool = data.get('locked')
+        self.invitable: bool | None = data.get('invitable')
+        self.create_timestamp: Timestamp | None = Timestamp.from_iso(data.get('create_timestamp'))
+
+
+class Tag:
+    def __init__(self, data: dict[str, Any]) -> None:
+        self.id: int = get_snowflake(data.get('id'))
+        self.name: str = data.get('name')
+        self.moderated: bool = data.get('moderated')
+        self.emoji_id: int | None = get_snowflake(data.get('emoji_id'))
+        self.emoji_name: str | None = data.get('emoji_name')
+
+
 class GuildChannel(Object):
     def __init__(self, data: dict[str, Any], token: str):
         self.id: int = get_snowflake(data.get('id'))
         self.type: int = data.get('type')
         self.position: int | None = data.get('position')
         self.permission_overwrites: list[Overwrite] = get_list_of_types(Overwrite, data.get('permission_overwrites', []))
-        self.name = data.get('name')
-        self.topic = data.get('topic')
-        self.nsfw = data.get('nsfw')
-        self.last_message_id = get_snowflake(data.get('last_message_id'))
-        self.bitrate = data.get('bitrate')
-        self.user_limit = data.get('user_limit')
-        self.rate_limit_per_user = data.get('rate_limit_per_user')
-        self.recipients = get_list_of_types(User, data.get('recipients'), token)
-        self.icon = data.get('icon')
-        self.owner_id = get_snowflake(data.get('owner_id'))
-        self.application_id = get_snowflake(data.get('application_id'))
-        self.managed = data.get('managed')
-        self.parent_id = get_snowflake(data.get('parent_id'))
+        self.name: str | None = data.get('name')
+        self.topic: str | None = data.get('topic')
+        self.nsfw: bool | None = data.get('nsfw')
+        self.last_message_id: int | None = get_snowflake(data.get('last_message_id'))
+        self.bitrate: int | None = data.get('bitrate')
+        self.user_limit: int | None = data.get('user_limit')
+        self.rate_limit_per_user: int | None = data.get('rate_limit_per_user')
+        self.recipients: list[User] | None = get_list_of_types(User, data.get('recipients'), token)
+        self.icon: hash_str | None = data.get('icon')
+        self.owner_id: int | None = get_snowflake(data.get('owner_id'))
+        self.application_id: int | None = get_snowflake(data.get('application_id'))
+        self.managed: bool | None = data.get('managed')
+        self.parent_id: int | None = get_snowflake(data.get('parent_id'))
         self.last_pin_timestamp: Timestamp = Timestamp.from_iso(data.get('last_pin_timestamp'))
-        self.rtc_region = data.get('rtc_region')
-        self.video_quality_mode = data.get('video_quality_mode')
-        self.message_count = data.get('message_count')
-        self.member_count = data.get('member_count')
-        self.thread_metadata = data.get('thread_metadata')
-        self.member = data.get('member')
-        self.default_auto_archive_duration = data.get('default_auto_archive_duration')
-        self.permissions = data.get('permissions')
-        self.flags = data.get('flags')
-        self.total_message_sent = data.get('total_message_sent')
-        self.available_tags = data.get('available_tags')
-        self.applied_tags = data.get('applied_tags')
-        self.default_reaction_emoji = data.get('default_reaction_emoji')
-        self.default_thread_rate_limit_per_user = data.get('default_thread_rate_limit_per_user')
-        self.default_sort_order = data.get('default_sort_order')
-        self.default_forum_layout = data.get('default_forum_layout')
+        self.rtc_region: str | None = data.get('rtc_region')
+        self.video_quality_mode: int | None = data.get('video_quality_mode')
+        self.message_count: int | None = data.get('message_count')
+        self.member_count: int | None = data.get('member_count')
+        self.thread_metadata: ThreadMetadata | None = ThreadMetadata(x) if (x := data.get('thread_metadata')) else None
+        self.member: ThreadMember | None = ThreadMember(x, token) if (x := data.get('member')) else None
+        self.default_auto_archive_duration: int | None = data.get('default_auto_archive_duration')
+        self.permissions: permissions_set | None = data.get('permissions')
+        self.flags: int | None = data.get('flags')
+        self.total_message_sent: int | None = data.get('total_message_sent')
+        self.available_tags: list[Tag] | None = get_list_of_types(Tag, data.get('available_tags'))
+        self.applied_tags: list[int] | None = get_list_of_types(int, data.get('applied_tags'))
+        self.default_reaction_emoji: DefaultReaction | None = DefaultReaction(x) if (x := data.get('default_reaction_emoji')) else None
+        self.default_thread_rate_limit_per_user: int | None = data.get('default_thread_rate_limit_per_user')
+        self.default_sort_order: int | None = data.get('default_sort_order')
+
+        x = data.get('default_forum_layout')
+        self.default_forum_layout: Literal['none', 'list', 'gallery'] | None = 'none' if x == 0 else 'list' if x == 1 else 'gallery' if x == 2 else None
 
         self.__guild_id = get_snowflake(data.get('guild_id'))
         self.__token = token
@@ -453,10 +474,17 @@ class Message:
         data = rget(f'/channels/{self.__channel_id}', self.__token).json()
         return GuildChannel(data, self.__token)
     
+    @property
+    def guild(self) -> Guild | None:
+        return self.channel.guild
+    
     def __int__(self) -> int:
         return self.id
 
     def __str__(self) -> str:
+        return self.content
+    
+    def __repr__(self) -> str:
         return self.content
     
     def eval(self) -> dict[str, Any]:

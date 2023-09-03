@@ -3,6 +3,13 @@ from .role import Role
 from .user import User
 from .utils import get_snowflake, get_list_of_types
 
+
+class DefaultReaction:
+    def __init__(self, data: dict[str, Any]) -> None:
+        self.emoji_id: int | None = get_snowflake(data.get('emoji_id'))
+        self.emoji_name: str | None = data.get('emoji_name')
+
+
 class Emoji:
     def __init__(self, data: dict[str, Any], token: str) -> None:
         self.id: int = get_snowflake(data.get('id'))

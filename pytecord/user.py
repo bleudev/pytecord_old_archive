@@ -2,7 +2,8 @@ from typing import Any, Literal
 
 from .interfaces import Object
 from .annotations import hash_str
-from .utils import get_snowflake, rget
+from .utils import get_snowflake
+from .timestamp import Timestamp
 
 class User(Object):
     def __init__(self, data: dict[str, Any], token: str) -> None:
@@ -69,3 +70,12 @@ class GuildMember(Object):
     
     def __str__(self) -> str | Literal['']:
         return self.nick if self.nick else ''
+
+
+class ThreadMember:
+    def __init__(self, data: dict[str, Any], token: str) -> None:
+        self.id: int | None = get_snowflake(data.get('id'))
+        self.user_id: int | None = get_snowflake(data.get('user_id'))
+        self.join_timestamp: Timestamp = Timestamp.from_iso(data.get('join_timestamp'))
+        self.flags: int = data.get('flags')
+        self.member: GuildMember | None = GuildMember(x, token) if (x := data.get('member')) else None
