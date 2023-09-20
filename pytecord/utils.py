@@ -7,6 +7,8 @@ from requests import get
 
 from .config import API_VERSION
 from .enums import ApplicationCommandOptionType
+from .timestamp import Timestamp
+from .annotations import hex_str, height, width
 
 T = TypeVar('T')
 
@@ -17,6 +19,149 @@ class DiscordException(Exception):
 
 
 # API/GATEWAY
+
+class EmbedFooter:
+    def __init__(self, text: str, icon_url: str = None, proxy_icon_url: str = None) -> None:
+        self.text = text
+        self.icon_url = icon_url
+        self.proxy_icon_url = proxy_icon_url
+    
+    def eval(self) -> dict[str, Any]:
+        return {
+            'text': self.text,
+            'icon_url': self.icon_url,
+            'proxy_icon_url': self.proxy_icon_url
+        }
+
+class EmbedImage:
+    def __init__(
+            self, url: str, proxy_url: str = None,
+            resolution: tuple[height, width] = [None, None]
+        ) -> None:
+        self.url = url
+        self.proxy_url = proxy_url
+        self.height, self.width = resolution
+    
+    def eval(self) -> dict[str, Any]:
+        return {
+            'url': self.url,
+            'proxy_url': self.proxy_url,
+            'height': self.height,
+            'width': self.width
+        }
+
+class EmbedThumbnail:
+    def __init__(
+            self, url: str, proxy_url: str = None,
+            resolution: tuple[height, width] = [None, None]
+        ) -> None:
+        self.url = url
+        self.proxy_url = proxy_url
+        self.height, self.width = resolution
+    
+    def eval(self) -> dict[str, Any]:
+        return {
+            'url': self.url,
+            'proxy_url': self.proxy_url,
+            'height': self.height,
+            'width': self.width
+        }
+
+class EmbedVideo:
+    def __init__(
+            self, url: str = None, proxy_url: str = None,
+            resolution: tuple[height, width] = [None, None]
+        ) -> None:
+        self.url = url
+        self.proxy_url = proxy_url
+        self.height, self.width = resolution
+    
+    def eval(self) -> dict[str, Any]:
+        return {
+            'url': self.url,
+            'proxy_url': self.proxy_url,
+            'height': self.height,
+            'width': self.width
+        }
+
+class EmbedProvider:
+    def __init__(self, name: str = None, url: str = None) -> None:
+        self.name = name
+        self.url = url
+    
+    def eval(self) -> dict[str, Any]:
+        return {
+            'name': self.name,
+            'url': self.url
+        }
+
+class EmbedAuthor:
+    def __init__(self, name: str, url: str = None, icon_url: str = None, proxy_icon_url: str = None) -> None:
+        self.name = name
+        self.url = url
+        self.icon_url = icon_url
+        self.proxy_icon_url = proxy_icon_url
+    
+    def eval(self) -> dict[str, Any]:
+        return {
+            'name': self.name,
+            'url': self.url,
+            'icon_url': self.icon_url,
+            'proxy_icon_url': self.proxy_icon_url
+        }
+
+class Field:
+    def __init__(self, name: str, value: str, inline: bool = True) -> None:
+        self.name = name
+        self.value = value
+        self.inline = inline
+    
+    def eval(self) -> dict[str, Any]:
+        return {
+            'name': self.name,
+            'value': self.value,
+            'inline': self.inline
+        }
+
+class Embed:
+    def __init__(
+            self, title: str = None, description: str = None, url: str = None,
+            timestamp: Timestamp = None, color: hex_str = 'ffffff',
+            footer: EmbedFooter = None, image: EmbedImage = None,
+            thumbnail: EmbedThumbnail = None, video: EmbedVideo = None,
+            provider: EmbedProvider = None, author: EmbedAuthor = None,
+            fields: list[Field] = None
+        ) -> None:
+        self.title = title
+        self.type = 'rich'
+        self.description = description
+        self.url: str | None = url
+        self.timestamp: None | None = timestamp
+        self.color: int | None = color
+        self.footer: None | None = footer
+        self.image: None | None = image
+        self.thumbnail: None | None = thumbnail
+        self.video: None | None = video
+        self.provider: None | None = provider
+        self.author: None | None = author
+        self.fields: None | None = fields
+
+    def eval(self) -> dict[str, Any]:
+        return {
+            'title': 
+            'type': 'rich',
+            'description':
+            'url':
+            'timestamp':
+            'color':
+            'footer':
+            'image':
+            'thumbnail':
+            'video':
+            'provider':
+            'author':
+            'fields':
+        }
 
 class MessagePayload:
     def __init__(self, content: str) -> None:
