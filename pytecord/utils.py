@@ -20,6 +20,42 @@ class DiscordException(Exception):
 
 # API/GATEWAY
 
+class Color:
+    @staticmethod
+    def black() -> 'Color':
+        return Color('000000')
+
+    @staticmethod
+    def white() -> 'Color':
+        return Color('ffffff')
+    
+    @staticmethod
+    def red() -> 'Color':
+        return Color('ff0000')
+    
+    @staticmethod
+    def green() -> 'Color':
+        return Color('00ff00')
+    
+    @staticmethod
+    def blue() -> 'Color':
+        return Color('0000ff')
+
+    def __init__(self, hex_str: hex_str) -> None:
+        hex_str = hex_str.replace('#', '')
+        hex_str = hex_str.lower()
+
+        if len(hex_str) == 6:
+            self.hex_str = hex_str # in this format: FFFFFF
+        else:
+            self.hex_str = None
+    
+    def __str__(self) -> str:
+        return self.hex_str
+
+    def __int__(self) -> int:
+        return int(str(self), 16)
+
 class EmbedFooter:
     def __init__(self, text: str, icon_url: str = None, proxy_icon_url: str = None) -> None:
         self.text = text
@@ -126,7 +162,7 @@ class Field:
 class Embed:
     def __init__(
             self, title: str = None, description: str = None, url: str = None,
-            timestamp: Timestamp = None, color: hex_str = 'ffffff',
+            timestamp: Timestamp = None, color: hex_str | Color = 'ffffff',
             footer: EmbedFooter = None, image: EmbedImage = None,
             thumbnail: EmbedThumbnail = None, video: EmbedVideo = None,
             provider: EmbedProvider = None, author: EmbedAuthor = None,
@@ -135,32 +171,32 @@ class Embed:
         self.title = title
         self.type = 'rich'
         self.description = description
-        self.url: str | None = url
-        self.timestamp: None | None = timestamp
-        self.color: int | None = color
-        self.footer: None | None = footer
-        self.image: None | None = image
-        self.thumbnail: None | None = thumbnail
-        self.video: None | None = video
-        self.provider: None | None = provider
-        self.author: None | None = author
-        self.fields: None | None = fields
+        self.url = url
+        self.timestamp = timestamp
+        self.color = Color(color) if isinstance(color, str) else color
+        self.footer = footer
+        self.image = image
+        self.thumbnail = thumbnail
+        self.video = video
+        self.provider = provider
+        self.author = author
+        self.fields = fields
 
     def eval(self) -> dict[str, Any]:
         return {
-            'title': 
+            'title': self.title,
             'type': 'rich',
-            'description':
-            'url':
-            'timestamp':
-            'color':
-            'footer':
-            'image':
-            'thumbnail':
-            'video':
-            'provider':
-            'author':
-            'fields':
+            'description': self.description,
+            'url': self.url,
+            'timestamp': self.timestamp.to_iso(),
+            'color':  int(self.color),
+            'footer': self.footer.eval(),
+            'image': self.image.eval(),
+            'thumbnail': self.thumbnail.eval(),
+            'video': self.video.eval(),
+            'provider': self.provider.eval(),
+            'author': self.author.eval(),
+            'fields': [i.eval() for i in self.fields]
         }
 
 class MessagePayload:
